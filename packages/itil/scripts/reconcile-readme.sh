@@ -61,15 +61,18 @@ for f in "$PROBLEMS_DIR"/[0-9][0-9][0-9]-*.open.md \
   base="$(basename "$f")"
   num="${base%%-*}"
   id="P${num}"
+  # `ticket_status` (not bash `status`) — zsh has `$status` as a read-only
+  # built-in mapping to `$?`. Defensive rename per P133 even though this
+  # script's `#!/usr/bin/env bash` shebang means it never runs under zsh.
   case "$base" in
-    *.open.md)         status="open" ;;
-    *.known-error.md)  status="known-error" ;;
-    *.verifying.md)    status="verifying" ;;
-    *.closed.md)       status="closed" ;;
-    *.parked.md)       status="parked" ;;
+    *.open.md)         ticket_status="open" ;;
+    *.known-error.md)  ticket_status="known-error" ;;
+    *.verifying.md)    ticket_status="verifying" ;;
+    *.closed.md)       ticket_status="closed" ;;
+    *.parked.md)       ticket_status="parked" ;;
     *)                 continue ;;
   esac
-  FS_STATUS["$id"]="$status"
+  FS_STATUS["$id"]="$ticket_status"
 done
 shopt -u nullglob
 
@@ -172,16 +175,16 @@ while read -r id; do
 done <<< "$README_VQ_IDS"
 
 for id in "${!FS_STATUS[@]}"; do
-  status="${FS_STATUS[$id]}"
-  case "$status" in
+  ticket_status="${FS_STATUS[$id]}"
+  case "$ticket_status" in
     open|known-error)
       if [ -z "${IN_WSJF[$id]:-}" ]; then
-        DRIFT_LINES+=("MISSING  ${id} wsjf-rankings: actual=${status}")
+        DRIFT_LINES+=("MISSING  ${id} wsjf-rankings: actual=${ticket_status}")
       fi
       ;;
     verifying)
       if [ -z "${IN_VQ[$id]:-}" ]; then
-        DRIFT_LINES+=("MISSING  ${id} verification-queue: actual=${status}")
+        DRIFT_LINES+=("MISSING  ${id} verification-queue: actual=${ticket_status}")
       fi
       ;;
     # closed and parked: not required to appear in their respective

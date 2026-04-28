@@ -164,12 +164,21 @@ install_with_retry_rollback() {
 }
 
 declare -A PROJECT_STATUS
-for plugin in $PLUGINS_TO_UPDATE; do
+# PLUGINS_TO_UPDATE is a bash array (NOT a space-separated string) for
+# cross-shell portability — see P133. Plain `for x in $VAR` word-splits
+# under bash but iterates ONCE under zsh (zsh does not word-split unquoted
+# variables by default), silently masking 24 lost plugins as one bogus
+# joined-name install in the 2026-04-27 session. Array form + quoted
+# `"${ARR[@]}"` expansion behaves identically under bash and zsh.
+PLUGINS_TO_UPDATE=(itil retrospective risk-scorer tdd)
+for plugin in "${PLUGINS_TO_UPDATE[@]}"; do
   PROJECT_STATUS["$plugin"]=$(install_with_retry_rollback "$plugin" "$TARGET_DIR" "${PRIOR_VERSION[$plugin]}")
 done
 ```
 
 `--scope project` always (ADR-004). Capture per-install exit status. Do not abort the batch on a single failure — report and continue. A `lost` status means the plugin was removed and could not be restored; the user must reinstall manually.
+
+Shell snippets in this skill use bash-array form (`ARR=(a b c)` + `"${ARR[@]}"`) instead of unquoted-variable iteration (`for x in $VAR`). The array form is portable across bash and zsh; unquoted iteration is bash-only and silently iterates once under zsh — see P133 (`docs/problems/133-...md`).
 
 ### 7. Final report
 

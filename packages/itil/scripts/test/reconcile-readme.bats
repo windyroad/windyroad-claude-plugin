@@ -436,6 +436,48 @@ EOF
   [ "$status" -eq 0 ]
 }
 
+# ── P133: defensive rename of `status` local → `ticket_status` ──────────────
+
+@test "reconcile-readme: drift detection still works when caller-environment exports status=anything (P133 regression)" {
+  # P133 — `status` is a read-only built-in under zsh (alias for `$?`). The
+  # script's `#!/usr/bin/env bash` shebang means it never runs under zsh
+  # directly, but a caller may export `status=…` into the script's environment
+  # and the script must not depend on the bash-builtin name for its own state.
+  # After the P133 rename (`status` → `ticket_status`), the script's drift
+  # detection is independent of any caller-set `status` env var. This test
+  # asserts the behaviour: caller exports `status=junk`, script still emits
+  # correct drift output (does not pick up the caller's value).
+  cat > "$FIXTURE_DIR/074-foo.closed.md" <<EOF
+**Status**: Closed
+EOF
+  cat > "$FIXTURE_DIR/README.md" <<'EOF'
+## WSJF Rankings
+
+| WSJF | ID | Title | Severity | Status | Effort |
+|------|-----|-------|----------|--------|--------|
+| 6.0 | P074 | Foo | 12 High | Open | M |
+
+## Verification Queue
+
+| ID | Title | Released | Likely verified? |
+|----|-------|----------|------------------|
+
+## Closed
+
+| ID | Title | Closed via |
+|----|-------|-----------|
+EOF
+  # `env status=junk` sets the env var on the script invocation; bats's
+  # `run` still captures the script exit code into the test-scope `$status`.
+  run env status=junk "$SCRIPT" "$FIXTURE_DIR"
+  [ "$status" -eq 1 ]
+  echo "$output" | grep -q "P074"
+  # Drift line must report actual filesystem status (`closed`), not the
+  # caller's bogus `junk` value — script reads from FS_STATUS, not env.
+  echo "$output" | grep -q "actual=closed"
+  ! echo "$output" | grep -q "actual=junk"
+}
+
 # ── README Closed-section row pointing to non-existent or wrong-status file ──
 
 @test "reconcile-readme: exit 1 when Closed section names ID that is .open.md on disk" {

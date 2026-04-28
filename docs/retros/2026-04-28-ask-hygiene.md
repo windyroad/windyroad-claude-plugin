@@ -95,3 +95,31 @@ Per ADR-044 / P135 Phase 5. Same-day continuation of the trail file; this sectio
 ## Notes
 
 AFK iter; denominator-zero across architect + JTBD gate delegations (both PASS via `Agent` tool calls, NOT `AskUserQuestion`). Per ADR-044, agent-delegation tool calls are framework-resolved via the gate contracts and are NOT `AskUserQuestion`-classifiable. R6 numeric gate (lazy ≥2 across 3 consecutive retros) NOT firing — four same-day denominator-zero AFK-subprocess iterations cannot fire R6 by construction. Notable composition: P132 Phase 2a found already-shipped via P135 Phase 2 (commit fae42aa); the framework's R6 declarative-first discipline is operating as designed — Phase 2c declarative ships first, Phase 2b hook deferred until R6 fires on real foreground evidence.
+
+---
+
+# Ask Hygiene — 2026-04-28 (AFK `/wr-itil:work-problems` iter, P133 Phase 1 zsh-portability)
+
+Per ADR-044 / P135 Phase 5. Same-day continuation of the trail file; this section covers the P133 Phase 1 iter shipping the `/install-updates` SKILL.md L167 array-form fix + `reconcile-readme.sh` defensive `status` → `ticket_status` rename.
+
+## In-session AskUserQuestion calls
+
+(none — `claude -p` AFK subprocess; `AskUserQuestion` unavailable per ADR-013 Rule 6 + work-problems iteration-worker prompt forbidding clause)
+
+| Call # | Header | Classification | Citation |
+|--------|--------|----------------|----------|
+| — | — | — | — |
+
+**Lazy count: 0**
+**Direction count: 0**
+**Override count: 0**
+**Silent-framework count: 0**
+**Taste count: 0**
+**Correction-followup count: 0**
+
+## Notes
+
+AFK iter; denominator-zero across architect + JTBD + style-guide + voice-tone gate delegations (all PASS / advisory-PASS via `Agent` tool calls, NOT `AskUserQuestion`); risk-scorer commit gate `wr-risk-scorer:pipeline` returned commit=3 push=2 release=2 (all Very Low, within Low-4 appetite, RISK_BYPASS=reducing). Per ADR-044, agent-delegation tool calls are framework-resolved via the gate contracts and are NOT `AskUserQuestion`-classifiable. R6 numeric gate NOT firing — five same-day denominator-zero AFK-subprocess iterations cannot move the lazy-count needle by construction; the metric only counts retros where AskUserQuestion was actually available to fire.
+
+Notable signal — **dispatch-state staleness**: orchestrator dispatched this iter with `Status: Open` + `File: ...open.md` but the actual repo state at iter-start (commit `a22d792` already landed) was `Status: Verification Pending` + `File: ...verifying.md`. The transition file rename + Status edit + Fix Released field were already in HEAD; only the underlying code work (install-updates / reconcile-readme / bats / changeset) and the README index update remained for this iter to land. Pre-existing staged drift (P033 reopen + README reconcile + `.claude/settings.json` modifications) was unstaged to keep this commit single-purpose per ADR-014 ONE-commit-batching. See Pipeline Instability section in iter retro summary for the routing decision (defer to next interactive session per AFK fallback).
+
