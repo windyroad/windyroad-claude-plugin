@@ -32,6 +32,10 @@ PROSE_ASK_PATTERNS=(
   '\([a-c]\) ?/ ?\([a-c]\)'
   '\(1\) .*\(2\)'
   'Which (do you|option|one|path) .*\?'
+  'Awaiting your (direction|input|decision|response|confirmation|answer|reply)'
+  'Pending your (direction|input|decision|response|confirmation|answer|reply)'
+  'Once you confirm'
+  'Awaiting your direction on whether'
 )
 
 # Direction-pinning patterns — signals in the user's incoming prompt

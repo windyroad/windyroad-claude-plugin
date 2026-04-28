@@ -134,3 +134,43 @@ JSON
   [ "$status" -eq 0 ]
   [[ "$output" == *"stopReason"* ]]
 }
+
+# 2026-04-28 regression evidence (P085 reopen, Citation 1).
+# Orchestrator main turn emitted a halt-summary ending with "Awaiting your
+# direction on whether to add it + resume on P123, or end the session."
+# The Stop hook should have caught this binary-choice prose-ask but the
+# pattern list did not match. Detector extension closes the gap.
+@test "review: 'Awaiting your direction on whether ... or ...' (Citation 1 shape) triggers stopReason" {
+  write_transcript "ok" "Loop is still halted. Remaining open item: missing changeset for b9da37e. Awaiting your direction on whether to add it + resume on P123, or end the session."
+  run run_hook
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"stopReason"* ]]
+}
+
+@test "review: 'Awaiting your input' triggers stopReason nudge" {
+  write_transcript "ok" "Plan staged. Awaiting your input on the next step."
+  run run_hook
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"stopReason"* ]]
+}
+
+@test "review: 'Pending your decision' triggers stopReason nudge" {
+  write_transcript "review" "Refactor scoped to three files. Pending your decision before I continue."
+  run run_hook
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"stopReason"* ]]
+}
+
+@test "review: 'Once you confirm' triggers stopReason nudge" {
+  write_transcript "look" "Rename ready. Once you confirm, I will proceed with the rename."
+  run run_hook
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"stopReason"* ]]
+}
+
+@test "review: 'Awaiting your response' triggers stopReason nudge" {
+  write_transcript "go" "Two paths identified. Awaiting your response so I know which to take."
+  run run_hook
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"stopReason"* ]]
+}

@@ -1,6 +1,6 @@
 # Problem 085: Assistant asks for input when the next step is obvious, AND uses prose asks instead of AskUserQuestion when input is actually needed
 
-**Status**: Known Error
+**Status**: Verification Pending
 **Reported**: 2026-04-21 (AFK iter 6 post-loop, during P084 evidence-update discussion)
 **Priority**: 16 (High) — Impact: High (4) x Likelihood: Almost Certain (4)
 **Effort**: M — requires one or more of: (1) hook on assistant output that detects prose-ask patterns ("Want me to...", "Should I...", "A or B?") and blocks the response with a systemMessage reminder; (2) hook on assistant output that detects consent-gate-when-obvious patterns (immediately-prior user message contains a direction/yes/act-verb AND next assistant message contains a question) and blocks; (3) CLAUDE.md-level mandatory rules promoted from memory feedback; (4) memory feedback addendum making the two rules explicit in the same file. Architect review at implementation to decide hook shape.
@@ -152,3 +152,26 @@ This second citation is class-of-behaviour overlap with **P132** (Open, WSJF 4.5
 ### Fix path
 
 Re-investigate the existing `packages/itil/hooks/itil-assistant-output-review.sh` Stop hook + `packages/itil/hooks/lib/detectors.sh` registry. Add the missing phrasings. Add behavioural bats per ADR-037 + P081 covering the two specific 2026-04-28 evidence shapes (post-halt-summary prose-ask; framework-knowable-question over-ask). Compose with P132's broader over-ask fix.
+
+## Fix Released (2026-04-28)
+
+**Release**: 2026-04-28 (AFK iter, `@windyroad/itil` patch bump). Awaiting user verification.
+
+**Implementation**: `PROSE_ASK_PATTERNS` in `packages/itil/hooks/lib/detectors.sh` extended with four new entries closing the Citation 1 phrasing gap. Empirical pre-fix verification: piping the Citation 1 verbatim text *"Awaiting your direction on whether to add it + resume on P123, or end the session."* through `detect_prose_ask` returned exit-code 1 (no match) — confirming hypothesis (b) phrasing-gap explained the regression. Post-fix the same input returns exit-code 0 with the matched phrase reported on stdout for observability.
+
+**Files shipped**:
+- `packages/itil/hooks/lib/detectors.sh` — added `Awaiting your (direction|input|decision|response|confirmation|answer|reply)`, `Pending your (direction|input|decision|response|confirmation|answer|reply)`, `Once you confirm`, and the more-specific `Awaiting your direction on whether` (retained alongside the broader pattern so first-match observability reports the more concrete phrase when both would match).
+- `packages/itil/hooks/test/itil-assistant-output-review.bats` — five new behavioural bats per ADR-037 + P081 covering Citation 1's verbatim shape plus the four adjacent phrasings; each test feeds a JSONL transcript on stdin and asserts `stopReason` emission (or absence on clean turns). All 17 review-hook tests pass; full 85-test itil hooks suite green.
+- `.changeset/wr-itil-p085-detector-phrasing-extension.md` — patch bump entry.
+
+**Architect verdict (this iter)**: ALIGNED / PASS. No new ADR required — narrow detector-list extension to an existing P085-pinned shape. ADR-013 Rule 1 enforcement strengthened. ADR-044 R6 numeric gate covers the broader over-ask family without amendment.
+
+**JTBD verdict (this iter)**: ALIGNED / PASS. Detector extension serves JTBD-001 (Enforce Governance Without Slowing Down) and JTBD-006 (Work the backlog AFK) along the axis the ticket already named — closing prose-ask phrasing gaps in the AFK orchestrator's halt-summary surface.
+
+**What this fix does NOT cover (deferred)**:
+- **Citation 2 — over-ask when framework prescribes the answer** (*"FFS, why are you stopping to ask. what does the decision framework tell you to do?"*). Class-of-behaviour overlap with P132 (Open, WSJF 4.5 — Agents over-ask in interactive sessions). Framework-knowability detection requires the hook to read SKILL.md decision tables and reason about whether the question is mechanically answerable from the skill's contract — a substantially harder problem than phrasing-list extension. Deferred to P132's broader fix; composes with ADR-044 R6 numeric gate (lazy-AskUserQuestion-count threshold). The deferral is documented here so the audit trail captures the scope-line decision.
+- **Stop-hook coverage of orchestrator-final summaries** (Item 2 in the ticket's regression Fix path). Empirical confirmation in this iter: hypothesis (b) phrasing-gap alone explains Citation 1 — feeding the citation text through the existing hook plumbing with the new pattern list returns the expected `stopReason`. No evidence of hypothesis (a) hook-coverage gap; no header-comment limitation added.
+
+**Verification path (on return)**: next session where the orchestrator (or any agent) emits an "Awaiting your direction" / "Pending your decision" / "Once you confirm" prose-ask, the Stop hook should now emit a `stopReason` nudge. If a halt-summary still slips past with one of these phrasings and the hook does NOT fire, re-open with the new evidence shape.
+
+**Composition**: this fix is the third in the P078 + P085 + P082 cluster of assistant-output gates inside `@windyroad/itil`. The detector registry remains the single source of truth for canonical phrasings shared between the UserPromptSubmit gate and the Stop review hook (matches the 2026-04-24 architect "one file with a registry of detection functions" verdict).
