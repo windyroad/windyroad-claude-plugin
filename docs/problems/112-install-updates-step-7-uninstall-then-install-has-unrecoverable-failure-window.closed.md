@@ -1,6 +1,6 @@
 # Problem 112: `/install-updates` Step 7 `uninstall && install` chain has an unrecoverable failure window — if install fails after uninstall succeeds, the plugin is silently lost
 
-**Status**: Verification Pending
+**Status**: Closed
 **Reported**: 2026-04-24
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Likely (3)
 **Effort**: M

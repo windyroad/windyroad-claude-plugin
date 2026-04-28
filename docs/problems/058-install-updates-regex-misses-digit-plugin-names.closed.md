@@ -1,6 +1,6 @@
 # Problem 058: `install-updates` SKILL.md under-reports plugins whose names contain digits (regex `[a-z-]+` skips `wr-c4`)
 
-**Status**: Verification Pending
+**Status**: Closed
 **Reported**: 2026-04-20
 **Priority**: 4 (Low) — Impact: Minor (2) x Likelihood: Unlikely (2)
 **Effort**: S — one-line regex fix in two places + bats regression test

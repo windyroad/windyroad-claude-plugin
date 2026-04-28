@@ -1,6 +1,6 @@
 # Problem 124: `/wr-itil:manage-problem` Step 2 substep 7 session-id discovery is brittle — agent has no env var, must scrape marker filenames
 
-**Status**: Verification Pending
+**Status**: Known Error
 **Reported**: 2026-04-26
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4) — re-rated 2026-04-27 after regression evidence; Phase 2 fix released 2026-04-28
 **Effort**: S — Phase 2 fix on top of the original P124 fix: replace `shopt -s nullglob` (bash-only — fails on zsh with `command not found`) with portable form (`for f in /tmp/<system>-announced-*; do [ -e "$f" ] || continue; ...`). Helper file: `packages/itil/hooks/lib/session-id.sh`. Plus matching behavioural bats per ADR-037.
@@ -36,6 +36,12 @@ The hook then checks `/tmp/manage-problem-grep-${SESSION_ID}` exists. The mismat
 - Investigation reveals the marker exists but with the wrong name (`/tmp/manage-problem-grep-default` instead of `/tmp/manage-problem-grep-<actual-UUID>`).
 - Recovery requires the agent to discover the actual session UUID through some other artefact — the most reliable signal is an existing `/tmp/<gate>-reviewed-<UUID>` marker from another hook in the same session (architect, JTBD, or risk-scorer markers all carry the UUID by construction).
 - Once the agent extracts the UUID, the second marker-touch + Write succeeds.
+
+### Regression observed 2026-04-28 (Phase 2 fix released same day)
+
+P124's Phase 2 portable-glob fix replaced bash-only `shopt -s nullglob` with the portable `for f in <glob>; do [ -e "$f" ] || continue; ...; break; done` form. The first-match-wins selection is correct under the documented assumption "any present marker is the active SID". On a developer machine running many sessions over many days, `/tmp` accumulates one `architect-announced-<UUID>` marker per session — observed 103 stale markers in /tmp during a `/wr-itil:manage-problem` invocation in this session. The first-glob-match heuristic returned alphabetical-first `027d3742-...` (a stale UUID), not the current session's UUID. The hook checked `/tmp/manage-problem-grep-<actual-UUID>` and found it absent → P119 deny fired. Recovery required brute-force-touching the marker for every known SID (103 markers written). Citation: Bash output `marked sid=027d3742-91df-444a-8694-a5c324c0e5fc` followed by hook deny `BLOCKED: Cannot Write '139-...' (P119)`; subsequent brute-force pass `Wrote markers for 103 SIDs` allowed the Write to succeed.
+
+**Implication for the fix**: the helper's "first match wins (selection by fixed marker-system priority order, NOT mtime)" rationale assumed a single-session /tmp; that assumption breaks on multi-session machines. Candidate fixes: (a) cleanup-on-session-start hook that removes other-session announce markers when a new session begins, (b) mtime-based selection bounded to the current Claude Code uptime (the rationale rejected mtime to avoid `-reviewed-` marker fragility, but `-announced-` markers are write-once-per-session — they don't have the sliding-TTL fragility, so mtime IS reliable signal here), (c) cross-system intersection — find the announce-UUID that ALL active hook systems agree on (architect ∩ jtbd ∩ tdd ∩ ...) since all systems announce on prompt 1 of every session and stale markers from past sessions wouldn't intersect across all 7 systems for a fresh session.
 
 ## Workaround
 

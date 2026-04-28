@@ -1,6 +1,6 @@
 # Problem 119: Agent bypasses `/wr-itil:manage-problem` Step 2 duplicate-check by writing tickets directly to `docs/problems/`
 
-**Status**: Verification Pending
+**Status**: Closed
 **Reported**: 2026-04-25
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: S
