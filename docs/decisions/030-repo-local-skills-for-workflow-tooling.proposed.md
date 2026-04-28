@@ -77,16 +77,35 @@ Write `scripts/install-updates.sh`. The user runs it directly.
 
 ## Decision Outcome
 
-**Chosen: Option 1 — repo-local skill at `.claude/skills/<skill-name>/SKILL.md`**, with the following contract for any future repo-local skill in this project:
+**Chosen: Option 1 — repo-local skill with source-of-truth at `scripts/repo-local-skills/<skill-name>/` and resolution-layer symlinks at `.claude/skills/<skill-name>/`**, with the following contract for any future repo-local skill in this project:
 
-1. **Location**: `.claude/skills/<skill-name>/SKILL.md`. Invoked as `/<skill-name>`.
+1. **Source-of-truth location**: `scripts/repo-local-skills/<skill-name>/SKILL.md` (with optional `REFERENCE.md` and `test/`). All editing targets this path.
+   **Resolution-layer location**: `.claude/skills/<skill-name>/` is a directory of relative symlinks pointing into the source-of-truth — one symlink per file (`SKILL.md`, `REFERENCE.md`, `test/`). Claude Code resolves `/<skill-name>` autocomplete via the symlinks. The architect / JTBD / style-guide / voice-tone gates fire on the source path under their normal rules; the symlink targets are write-once (one architect approval at creation; subsequent edits go through the source path under normal review). See "Symlink contract" below.
 2. **Scope**: project-specific workflow tooling that would not be useful in a published plugin. If a skill's logic is re-usable, publish it via the marketplace instead.
 3. **Cross-project side effects** (when applicable): the skill's first action MUST be an `AskUserQuestion` listing every sibling project it detected and requiring the user to confirm the set before any install, write, or network call. A dry-run option must appear in the same call.
 4. **No hooks**: repo-local skills do NOT install hooks. Hook scripts go in published plugins (ADR-009 gate-marker lifecycle, ADR-014 commit ordering) where they are versioned and tested.
 5. **No CHANGELOG** required — repo-local skills are versioned by the repo's own git history, not by changeset.
-6. **Bats tests optional**: doc-lint bats tests are welcome but not required. If present, they live under `.claude/skills/<name>/test/` and are wired into `npm test` via the existing `bats --recursive` glob.
+6. **Bats tests optional**: doc-lint bats tests are welcome but not required. If present, they live under `scripts/repo-local-skills/<name>/test/` (the source-of-truth path) and are wired into `npm test` via the existing `bats --recursive` glob. Tests SHOULD run independent of symlink resolution so they pass on platforms where symlink creation is restricted (Windows without Developer Mode, sandboxed CI).
 
-The `install-updates` skill is the first instance of this pattern and serves as the worked example. ADR-003's Confirmation wording is amended in the same commit to narrow the `.claude/skills/` exclusion from "no such directory" to "no symlinks or installer-created entries" — hand-authored repo-local skills are governed by this ADR.
+The `install-updates` skill is the first instance of this pattern and serves as the worked example. ADR-003's Confirmation wording (no installer-created entries under `.claude/skills/`) accommodates user-and-agent-authored symlinks pointing into `scripts/repo-local-skills/` — the symlink shape is governed by this ADR.
+
+### Symlink contract (P139, 2026-04-28 amendment)
+
+Repo-local skills carry per-edit gate-overhead when their source-of-truth lives under `.claude/skills/` because the architect / JTBD / style-guide / voice-tone PreToolUse hooks fire on every edit (P139 evidence: two architect re-runs to land a single SKILL.md trim). Relocating the source-of-truth outside `.claude/` and replacing the in-`.claude/skills/` content with symlinks converts this **per-edit** cost into a **per-relocation** cost:
+
+- The symlink creation itself is a one-time operation reviewed by the architect (a single approval per file added to a repo-local skill).
+- Subsequent edits target the source path under `scripts/repo-local-skills/` and follow the **normal review process** — architect / JTBD / style-guide / voice-tone gates fire on the source path under their normal rules. No exclusion exists for `scripts/repo-local-skills/` (verified during P139).
+- Claude Code's `/<skill-name>` autocomplete continues to resolve via the symlink at `.claude/skills/<skill-name>/SKILL.md`, so user-facing discoverability (the ADR-030 Decision Driver) is unchanged.
+
+**Symlink shape rules**:
+
+- **Relative symlinks only.** Absolute paths break across clones, work trees, and any future repository move. The relative path from `.claude/skills/<name>/<file>` to `scripts/repo-local-skills/<name>/<file>` is `../../../scripts/repo-local-skills/<name>/<file>` (and `../../../../` for files under `test/`).
+- **Per-file symlinks (not directory-level), with one allowed exception.** Each `SKILL.md` and `REFERENCE.md` is its own symlink so adding a new top-level file to a repo-local skill requires explicit symlink creation reviewed by the architect — preventing surprise additions to `/<name>` autocomplete. The `test/` directory MAY be a single directory-level symlink because adding a new bats file there is a routine TDD action that does not affect skill discoverability.
+- **Source-of-truth files are regular files, never symlinks.** Avoid loops or chained resolution.
+
+**Known degradation — Windows symlink permissions**:
+
+On Windows, symlink creation requires either Developer Mode enabled or `core.symlinks=true` in the local git config (the Git for Windows installer asks during setup). On a contributor machine without those, `git clone` materialises the entries under `.claude/skills/<name>/` as regular files containing the symlink target text — `/<skill-name>` autocomplete will not work because Claude Code reads the file content as if it were a SKILL.md. The source-of-truth path under `scripts/repo-local-skills/<name>/` continues to work for editing and `bats` testing. If the symlink resolution must work on a contributor's Windows machine, they enable Developer Mode + `git config core.symlinks true`, then re-clone or run `git checkout -f`. This is the only documented failure mode of the relocation.
 
 ## Relationship to P045 and ADR-020
 
@@ -119,7 +138,10 @@ The `install-updates` skill is the first instance of this pattern and serves as 
 
 ## Confirmation
 
-- `.claude/skills/install-updates/SKILL.md` exists and is the first repo-local skill.
+- `scripts/repo-local-skills/install-updates/SKILL.md` exists as the source-of-truth and is the first repo-local skill.
+- `.claude/skills/install-updates/SKILL.md`, `REFERENCE.md`, and `test/` are relative symlinks pointing into `scripts/repo-local-skills/install-updates/` (e.g. `SKILL.md → ../../../scripts/repo-local-skills/install-updates/SKILL.md`).
+- `bats scripts/repo-local-skills/install-updates/test/` passes (tests run against the source-of-truth path independent of symlink resolution).
+- Architect and JTBD PreToolUse hooks fire on edits to `scripts/repo-local-skills/<name>/` (verified: no `scripts/` carve-out in `packages/architect/hooks/architect-enforce-edit.sh` or `packages/jtbd/hooks/jtbd-enforce-edit.sh`). Style-guide, voice-tone, and risk-scorer hooks use file-type matching not path exclusion, so they fire based on content independent of location.
 - The skill's first action is an `AskUserQuestion` listing detected sibling projects and requiring consent before any install runs.
 - A dry-run preview option is available in the same consent call.
 - The skill reports a per-project × per-plugin table (version-before, version-after, status) at completion.
@@ -136,5 +158,6 @@ The `install-updates` skill is the first instance of this pattern and serves as 
 ## Reassessment Criteria
 
 - **P045's automated queue lands** → re-evaluate whether `install-updates` is still needed (may graduate into a manual override for the queue, or retire entirely). Action: amend this ADR's Decision Outcome section or supersede.
-- **Second repo-local skill emerges** → extract any shared pattern (detection, consent-gate, reporting) into a helper at `.claude/skills/lib/` if the duplication is non-trivial. Action: amend this ADR to document the shared helper and update the contract's point 1-6 accordingly.
+- **Second repo-local skill emerges** → extract any shared pattern (detection, consent-gate, reporting) into a helper at `scripts/repo-local-skills/lib/` if the duplication is non-trivial. Action: amend this ADR to document the shared helper and update the contract's point 1-6 accordingly.
 - **Cross-project traversal incident** (consent gate failed to prevent an unintended cross-project write) → strengthen the gate (per-sibling confirmation, rollback mechanism) and document the incident. Action: amend this ADR's Confirmation section to require the new gate, and file a follow-up problem ticket for the root cause.
+- **Symlink resolution breaks** (Claude Code update, filesystem change, Windows-without-Developer-Mode contributor encountering it) → document the regression, fall back to dual-write of source content into both paths if persistent, or abandon the relocation. Action: amend this ADR's Symlink Contract section, and file a follow-up problem ticket for the root cause. Naming this trigger keeps the JTBD-006 / persona-discoverability constraint honest in future reviews.

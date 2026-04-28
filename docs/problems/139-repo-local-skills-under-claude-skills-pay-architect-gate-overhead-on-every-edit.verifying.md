@@ -1,6 +1,6 @@
 # Problem 139: Repo-local skills under `.claude/skills/` pay architect-gate overhead on every edit — relocate source-of-truth outside `.claude/` and symlink
 
-**Status**: Open
+**Status**: Verification Pending
 **Reported**: 2026-04-28
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: M — relocate `.claude/skills/install-updates/` (and any future repo-local skill) under `packages/repo-local/<skill>/` (or equivalent canonical location), replace the in-`.claude/skills/` content with a symlink to the new source-of-truth, amend ADR-030 to record the new location convention + the symlink contract, audit gate-exclusion lists across plugin hooks (architect, JTBD, TDD, style-guide, voice-tone, risk-scorer) to confirm that the symlink-target path under `packages/` follows the normal review process, and update `MEMORY.md` / BRIEFING references.
@@ -83,3 +83,24 @@ A symlink-aware gate is preferable to a fully-relocated source — it preserves 
 - **P004** (`edit-gates-block-non-project-files`, closed) — about gates blocking files outside the project directory. Distinct surface (user-config files like `~/.claude/channels/discord/access.json`); included for completeness in the gate-friction family.
 - **P098** (`project-and-user-owned-context-contributors-global-claude-md-and-local-skills`, verifying) — touches the `.claude/skills/` ownership question from a different angle (context-contributor budget). Verifying-Pending; not blocking.
 - **P124** (`agent-side-session-id-discovery-helper`) — helper-related observation surfaced during this ticket's own creation: the agent-side session-ID discovery helper picks the first glob-match instead of the most-recent announce marker; with 103 stale architect-announced markers in `/tmp`, this returns a wrong SID and the create-gate marker lands at the wrong path. Worked around inline (brute-force-touched markers under all known SIDs).
+
+## Fix Released
+
+Released on `main` 2026-04-28 (work-problems iter 7) as a single commit per ADR-014.
+
+**Change shape** (Option B per architect verdict — `scripts/repo-local-skills/` chosen over `packages/repo-local/` to keep `packages/` semantic = publishable `@windyroad/*` plugins per ADR-002 and ADR-003):
+
+1. `git mv` of `.claude/skills/install-updates/{SKILL.md, REFERENCE.md, test/}` to `scripts/repo-local-skills/install-updates/`. Source-of-truth now lives there; all editing targets that path.
+2. Relative symlinks created at `.claude/skills/install-updates/{SKILL.md, REFERENCE.md, test/}` pointing back to the source-of-truth (`../../../scripts/repo-local-skills/install-updates/<file>`). Claude Code's `/install-updates` autocomplete continues to resolve via the symlinks.
+3. ADR-030 amended in same commit: Decision Outcome contract point 1 rewritten (source-of-truth + resolution-layer split); new "Symlink contract" section (relative; per-file for SKILL.md/REFERENCE.md, directory-level allowed for test/; Windows degradation documented); Confirmation section adds four assertions; Reassessment Criteria gains a third trigger ("symlink resolution breaks").
+4. Behavioural bats added at `scripts/repo-local-skills/install-updates/test/install-updates-symlink-contract.bats` — 11 tests covering: source-of-truth files exist + are regular files (not symlinks); `.claude/` entries are symlinks; targets are relative not absolute; symlinks resolve to the same content as source; gate-exclusion audit asserts no `scripts/` carve-out in architect / JTBD hooks. All 11 pass via `npx bats scripts/repo-local-skills/install-updates/test/install-updates-symlink-contract.bats`.
+5. Briefing reference at `docs/briefing/governance-workflow.md` updated to point at the new source-of-truth.
+
+**Gate-exclusion audit outcome** (per architect verdict + bats assertions):
+
+- `packages/architect/hooks/architect-enforce-edit.sh` — no `scripts/` carve-out. Edits to `scripts/repo-local-skills/<name>/SKILL.md` fire the architect gate as required (normal review).
+- `packages/jtbd/hooks/jtbd-enforce-edit.sh` — no `scripts/` carve-out. Same outcome.
+- `packages/tdd/hooks/tdd-enforce-edit.sh` — fires only on `.ts/.tsx/.js/.jsx`; `.md` and `.bats` unaffected.
+- `packages/style-guide/hooks/`, `packages/voice-tone/hooks/`, `packages/risk-scorer/hooks/` — file-type matching not path exclusion; fire on content independent of location.
+
+**Verification**: user can confirm by running `/install-updates` and verifying the skill loads as before. Edits to `scripts/repo-local-skills/install-updates/SKILL.md` or `REFERENCE.md` now fire the architect / JTBD gates exactly once per session (per existing per-session marker semantics) — no per-edit re-runs purely because the path is under `.claude/skills/`. Awaiting user verification.
