@@ -184,7 +184,7 @@ The refresh follows the same render rules as `/wr-itil:review-problems` Step 9e 
 git add docs/problems/README.md
 ```
 
-Update the "Last reviewed" parenthetical to name the batch (e.g. `batch transition: P063 close, P067 close, P092 close, P094 close`).
+Update the "Last reviewed" line per the **Last-reviewed line discipline (P134)** contract documented in `manage-problem` SKILL.md Step 5 — name the batch as a SINGLE most-recent fragment summarising the cohort (e.g. `batch transition: P063 close, P067 close, P092 close, P094 close`); displaced prior fragments rotate to `docs/problems/README-history.md` ONCE for the entire batch, not per-pair. Soft cap ≤ 1024 bytes for the batch fragment — if the cohort would exceed it, abbreviate to ID + verb only and let the per-ticket bodies carry the rationale. When the rotation displaces prior content, also `git add docs/problems/README-history.md` so the same single batch commit per ADR-014 captures both files.
 
 **4b. Commit gate (per ADR-014).**
 

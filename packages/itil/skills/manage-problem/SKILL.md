@@ -407,10 +407,33 @@ After writing the new `.open.md` file, regenerate `docs/problems/README.md` to i
 **WSJF Rankings tie-break sort (P138)**: rows in the WSJF Rankings table are sorted by the multi-key `(WSJF desc, Known-Error-first, Effort-divisor asc, Reported-date asc, ID asc)` so the rendered top-to-bottom row order matches `/wr-itil:work-problems` SKILL.md Step 3's tie-break selection 1:1. The first key (WSJF desc) sets the tier; within a tier the next three keys are the canonical tie-break ladder (Known Error before Open; smaller effort before larger; older Reported date before newer); ID asc is the deterministic final tiebreaker for full-tie cases. The table MUST include a `Reported` column so the third tie-break input is visible to README readers — without it, users cannot reconcile the rendered order against the orchestrator's selection. <!-- TIE-BREAK-LADDER-SOURCE: /wr-itil:work-problems SKILL.md Step 3 --> Any future change to the tie-break ladder MUST update this render block, the Step 7 P062 block, the Step 9e template, AND `/wr-itil:review-problems` SKILL.md Step 3 / Step 5 — drift here re-opens P138.
 
 1. After `Write`-ing the new `.open.md` file (and, for multi-concern splits per step 4b, after all split files are written), regenerate `docs/problems/README.md` in-place reflecting the new filename set.
-2. Update the "Last reviewed" line's parenthetical to name the new ticket (e.g. `P<NNN> opened — <one-line title>`) so the next session's fast-path check has a human-readable audit marker.
-3. `git add docs/problems/README.md` — the stage list at Step 11 must include it alongside the new `.open.md` file (Step 11's `git add -u` catch-all handles tracked-file modifications; the new README render lands via this path when README.md already exists in git, and via an explicit `git add docs/problems/README.md` when it is newly created).
+2. Update the "Last reviewed" line per the **Last-reviewed line discipline (P134)** subsection below — name the new ticket as the most-recent fragment (e.g. `P<NNN> opened — <one-line title>`); displaced prior fragments rotate to `docs/problems/README-history.md`.
+3. `git add docs/problems/README.md` — the stage list at Step 11 must include it alongside the new `.open.md` file (Step 11's `git add -u` catch-all handles tracked-file modifications; the new README render lands via this path when README.md already exists in git, and via an explicit `git add docs/problems/README.md` when it is newly created). When line-3 truncation displaces prior content, also `git add docs/problems/README-history.md`.
 
 For the multi-concern split path (step 4b), the refresh fires **once** after all split tickets are written, not per-split — a single render captures the full new set in one pass.
+
+#### Last-reviewed line discipline (P134)
+
+The "Last reviewed" line (line 3 of `docs/problems/README.md`) was designed as a short audit marker — one ticket name + one transition reason — but historically accumulated multi-paragraph session-summary fragments unbounded ("Prior:" stacking on every refresh). At ~62 KB / 76 KB it crossed the Read-tool 25K-token whole-file limit and could no longer be window-read at any offset/limit. P134 closes the accumulator on this surface; sibling to P099 on `docs/briefing/<topic>.md`.
+
+**Contract** — applies to every refresh that touches line 3 (Step 5 P094 creation, Step 6 P094 conditional update, Step 7 P062 transition; mirrored in `transition-problem`, `transition-problems`, `review-problems`, `reconcile-readme`):
+
+1. **Single most-recent fragment only on line 3.** The "Last reviewed" parenthetical names ONE event — the operation this refresh covers. Do NOT prepend a `Prior:` segment, do NOT stack multi-paragraph rationale, do NOT carry history forward inline.
+2. **Soft cap: ≤ 1024 bytes per fragment.** Authoring guidance — keep the fragment dense and audit-meaningful (ticket ID + verb + one-line summary + ADR/JTBD anchors when load-bearing). Multi-paragraph rationale belongs in retros, ticket bodies, and ADR amendments — never on line 3.
+3. **Archive sibling: `docs/problems/README-history.md`.** When this refresh would displace prior line-3 content, append the displaced content to `README-history.md` BEFORE writing the new line 3. Forward-chronology — newest fragment goes at the bottom under a date heading (`## YYYY-MM-DD`). The archive is a log; it's grep-and-tail territory, not display-tier (which is why its chronology diverges from the README's reverse-chrono surface convention).
+4. **Hard ceiling: 5120 bytes on line 3.** Matches ADR-040 Tier 3 envelope. Surfaced advisory-only by `packages/itil/scripts/check-problems-readme-budget.sh` — the script emits `OVER docs/problems/README.md line=3 bytes=<N> threshold=<N>` when the ceiling is breached. Always exits 0 (advisory; overflow is signal, not failure).
+
+**Mechanism** (when authoring a refresh):
+
+1. Read the current line 3 of the README (e.g. `awk 'NR==3' docs/problems/README.md`).
+2. If the current line 3 is non-empty AND the new fragment is not a near-duplicate (same ticket + same verb in the same session): append the current line 3 verbatim to `docs/problems/README-history.md` under a `## YYYY-MM-DD` heading (creating the heading on first append for that date; subsequent same-day appends nest under the existing heading).
+3. Compose the new line 3 as a single paragraph naming the operation only. Keep ≤ 1024 bytes.
+4. Replace line 3 of README.md with the new paragraph.
+5. Stage both files in the same commit as the ticket change per ADR-014: `git add docs/problems/README.md docs/problems/README-history.md`.
+
+**Fast-path interaction**: the Step 9 freshness check uses git-mtime on `docs/problems/README.md`, NOT the prose contents of line 3. Truncating line 3 does NOT degrade the fast-path contract.
+
+**Cross-references**: ADR-040 line 92 (reusable accumulator-doc pattern — explicitly names "problems index"), ADR-038 (progressive disclosure), ADR-014 (single-commit governance), `packages/itil/scripts/check-problems-readme-budget.sh`, `packages/itil/scripts/test/check-problems-readme-budget.bats`.
 
 ### 6. For updates: Edit the existing file
 
@@ -441,8 +464,8 @@ If the edit touched only `## Root Cause Analysis`, `## Symptoms`, `## Workaround
 **Mechanism** (when the trigger fires):
 
 1. Regenerate `docs/problems/README.md` using the same render rules as Step 7's P062 block — render, not re-rank. Trust every other ticket's stored WSJF; consume only this ticket's updated WSJF from the post-edit file.
-2. Update the "Last reviewed" line's parenthetical to name the re-rated ticket (e.g. `P<NNN> re-rated — <old-WSJF> → <new-WSJF>`).
-3. `git add docs/problems/README.md` so the refresh rides the same commit as the ticket update per ADR-014.
+2. Update the "Last reviewed" line per the **Last-reviewed line discipline (P134)** subsection in Step 5 above — name the re-rated ticket as the most-recent fragment (e.g. `P<NNN> re-rated — <old-WSJF> → <new-WSJF>`); displaced prior fragments rotate to `docs/problems/README-history.md`.
+3. `git add docs/problems/README.md` so the refresh rides the same commit as the ticket update per ADR-014. When line-3 truncation displaces prior content, also `git add docs/problems/README-history.md`.
 
 **Dependency ripple**: if this update changed the ticket's Effort, and the ticket is an upstream of other tickets (any ticket's `## Dependencies` → `**Blocked by**` list references this ID), the transitive-effort rule (P076) says dependents may need to re-rate too. The surgical render in this step does NOT re-walk the graph — that is Step 9b.1's job. If the dependency graph is known to be non-trivial, prefer `/wr-itil:review-problems` instead of a bare update; the review path handles the re-walk deterministically. The conditional refresh here is sufficient for the common case of a self-only re-rate.
 
@@ -552,7 +575,7 @@ The refresh uses the same rendering rules as Step 9e (glob `docs/problems/*.open
 
 1. After renaming + Editing + `git add`-ing the transitioned ticket file (per the staging-trap rule above), regenerate `docs/problems/README.md` in-place reflecting the new filename set and the transitioned ticket's new Status.
 2. `git add docs/problems/README.md` — stage the refreshed README with the same commit as the transition.
-3. Update the "Last reviewed" line's parenthetical to name the transition (e.g. `P<NNN> <status> — <one-line fix summary>`) so the next session's fast-path check has a human-readable audit marker alongside the git-history staleness test.
+3. Update the "Last reviewed" line per the **Last-reviewed line discipline (P134)** subsection in Step 5 above — name the transition as the most-recent fragment (e.g. `P<NNN> <status> — <one-line fix summary>`); displaced prior fragments rotate to `docs/problems/README-history.md`. When the rotation displaces prior content, the staged file set MUST include both `docs/problems/README.md` AND `docs/problems/README-history.md` per ADR-014 single-commit grain.
 
 **Scope**: fires for every Step 7 rename. Applies equally to:
 - Standalone transition commits (e.g. `docs(problems): P<NNN> known error — <summary>`).

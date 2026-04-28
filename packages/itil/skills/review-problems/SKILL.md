@@ -143,7 +143,7 @@ Fix released, awaiting user verification (driven off `docs/problems/*.verifying.
 ...
 ```
 
-The "Last reviewed" parenthetical should name any meaningful state change in this refresh (auto-transitions fired, priority flips, newly-stale tickets) so the next session's fast-path has a human-readable audit marker alongside the git-history staleness test.
+Apply the **Last-reviewed line discipline (P134)** contract documented in `manage-problem` SKILL.md Step 5 — line 3 carries ONE most-recent fragment naming the meaningful state change in this refresh (auto-transitions fired, priority flips, newly-stale tickets); displaced prior fragments rotate to `docs/problems/README-history.md` (forward-chronology archive, soft cap ≤ 1024 bytes per fragment, hard ceiling 5120 bytes per ADR-040 Tier 3 envelope, surfaced advisory-only by `packages/itil/scripts/check-problems-readme-budget.sh`). When the rotation displaces prior content, the staged file set MUST include both `docs/problems/README.md` AND `docs/problems/README-history.md` per ADR-014 single-commit grain.
 
 ### 6. Commit the refresh
 

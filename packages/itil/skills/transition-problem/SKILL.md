@@ -175,7 +175,7 @@ The refresh uses the same rendering rules as `/wr-itil:review-problems` Step 9e 
 
 1. After renaming + Editing + `git add`-ing the transitioned ticket file (per the staging-trap rule above), regenerate `docs/problems/README.md` in-place reflecting the new filename set and the transitioned ticket's new Status.
 2. `git add docs/problems/README.md` — stage the refreshed README with the same commit as the transition.
-3. Update the "Last reviewed" line's parenthetical to name the transition (e.g. `P<NNN> <status> — <one-line fix summary>`) so the next session's fast-path check has a human-readable audit marker alongside the git-history staleness test.
+3. Update the "Last reviewed" line per the **Last-reviewed line discipline (P134)** contract documented in `manage-problem` SKILL.md Step 5 — name the transition as the most-recent fragment (e.g. `P<NNN> <status> — <one-line fix summary>`); displaced prior fragments rotate to `docs/problems/README-history.md` (forward-chronology archive, soft cap ≤ 1024 bytes per fragment, hard ceiling 5120 bytes per ADR-040 Tier 3 envelope, surfaced advisory-only by `packages/itil/scripts/check-problems-readme-budget.sh`). When the rotation displaces prior content, the staged file set MUST include both `docs/problems/README.md` AND `docs/problems/README-history.md` per ADR-014 single-commit grain.
 
 ### 8. Commit per ADR-014
 

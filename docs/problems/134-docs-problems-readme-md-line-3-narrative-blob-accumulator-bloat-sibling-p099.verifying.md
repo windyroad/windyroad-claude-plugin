@@ -1,6 +1,6 @@
 # Problem 134: `docs/problems/README.md` line 3 narrative-blob accumulator bloat — sibling to P099 (briefing tier 3) on a different surface
 
-**Status**: Open
+**Status**: Verification Pending
 **Reported**: 2026-04-27
 **Priority**: 10 (High) — Impact: Minor (2) x Likelihood: Almost certain (5) <!-- re-rated 2026-04-28 — user-surfaced + iter-2-retro-corroborated + architect-Read-failure; corrected mislabel "Likely (3)" → policy-verbatim "Almost certain (5)"; Impact dropped Moderate→Minor since RISK-POLICY Impact-3 ("npm publish disrupted") doesn't apply to internal-tooling friction -->
 **Effort**: M — likely combination of (a) `manage-problem` Step 5 P094 and Step 7 P062 README-refresh contracts to **truncate** the "Last reviewed" parenthetical to a fixed bound (e.g. 1 KB or 200 chars per session-summary fragment), (b) per-iter retro-class entries archive themselves to `docs/problems/README-history.md` (or similar archive sibling), (c) optional advisory script `packages/itil/scripts/check-problems-readme-budget.sh` mirroring P099's `check-briefing-budgets.sh` triplet (script + bats + ADR-tier-budget amendment).
@@ -122,3 +122,48 @@ The same accumulator pattern that P099 closed for briefing topic files. The fix 
 - **JTBD-001** (`docs/jtbd/solo-developer/JTBD-001-enforce-governance-without-slowing-down.proposed.md`) — primary persona served. README friction is exactly the "slowing down" half this JTBD targets.
 - **JTBD-006** (`docs/jtbd/solo-developer/JTBD-006-work-backlog-afk.proposed.md`) — composes; AFK orchestrator's manage-problem calls in iters all hit the friction.
 - 2026-04-27 session evidence: `Read docs/problems/README.md` failed 4 times this retro session (P130 row insertion, P131 row insertion, P124 row find, P132 row insertion); each required `awk` or `grep` workaround. Cumulative cross-session evidence: flagged by AFK iters 4, 5, 7 retros (2026-04-25 through 2026-04-26).
+
+## Fix Released
+
+**Released**: 2026-04-28 (AFK iter; pending `@windyroad/itil` patch — orchestrator's Step 6.5 owns the release cadence).
+
+**Architecture verdict**: PASS no new ADR required. ADR-040 line 92 reusable-pattern note explicitly names "problems index" as a candidate surface for the advisory-script + bats + ADR-tier-budget triplet — clean instantiation of the documented pattern, not an extension. Forward-chronology archive (newest at the bottom of `docs/problems/README-history.md`) is the correct log-tier convention; divergence from the README's reverse-chrono surface convention is documented in the SKILL.md amendments. Bound choice (5120-byte hard ceiling on line 3) preserves consistency with ADR-040 Tier 3 envelope; the soft 1024-byte per-fragment cap is the granular authoring control. Risk within Low-4 appetite per RISK-POLICY.md; ADR-014 single-commit rule satisfied (one commit covers script + bats + 5 SKILL.md amendments + archive sibling + trimmed README + ticket transition).
+
+**JTBD verdict**: PASS. JTBD-001 primary fit (Read-tool affordance restored on the highest-traffic problems-management surface — every agent session that previously paid 2-3 awk/grep/head workaround tool calls now reads `docs/problems/README.md` natively at any offset/limit). JTBD-006 composes (AFK orchestrator iters no longer pay the inspection tax). JTBD-101 composes (P099 advisory-triplet pattern re-applied at a new surface — the reusable-pattern promise from ADR-040 line 92 honoured for the first time post-P099).
+
+**Phase 1 — `manage-problem` truncation contract** (canonical site):
+
+- New "Last-reviewed line discipline (P134)" subsection in `packages/itil/skills/manage-problem/SKILL.md` Step 5, codifying:
+  1. Single most-recent fragment only on line 3 — no `Prior:` stacking, no multi-paragraph rationale, no inline history carry-forward.
+  2. Soft cap ≤ 1024 bytes per fragment (authoring guidance; multi-paragraph rationale belongs in retros / ticket bodies / ADR amendments).
+  3. Forward-chronology archive at `docs/problems/README-history.md` (newest fragment at the bottom under `## YYYY-MM-DD` headings; same-day appends nest under existing heading).
+  4. Hard ceiling 5120 bytes on line 3 (matches ADR-040 Tier 3 envelope; advisory-only via the new `check-problems-readme-budget.sh` script).
+- Step 5 P094 (line 410), Step 6 P094 update (line 444), Step 7 P062 (line 555) refresh blocks all reference the canonical subsection inline; each call site stages both `docs/problems/README.md` AND `docs/problems/README-history.md` per ADR-014 single-commit grain.
+
+**Phase 1 — sibling skills updated**:
+
+- `packages/itil/skills/transition-problem/SKILL.md` line 178 — references the canonical discipline.
+- `packages/itil/skills/transition-problems/SKILL.md` line 187 — single batch fragment (no per-pair stacking); soft cap ≤ 1024 bytes; one rotation per batch.
+- `packages/itil/skills/review-problems/SKILL.md` line 146 — references the canonical discipline.
+- `packages/itil/skills/reconcile-readme/SKILL.md` Step 4 + Step 5 — load-bearing inversion: the prior "ever-growing prose paragraph" convention (line 106) was the source-of-bloat surface; the new contract makes reconcile-readme parity-with-manage-problem instead of bloat-reintroducer.
+
+**Phase 2 — advisory script + bats**:
+
+- New `packages/itil/scripts/check-problems-readme-budget.sh` — diagnose-only advisory script; reads `docs/problems/README.md` (or supplied path); measures byte size of line 3; emits `OVER <readme-path> line=3 bytes=<N> threshold=<N>` when line 3 ≥ threshold (default 5120 bytes; overridable via `PROBLEMS_README_LINE3_MAX_BYTES`); always exits 0 (advisory; overflow is signal, not failure); exit 2 only on missing-file parse error; read-only.
+- New `packages/itil/scripts/test/check-problems-readme-budget.bats` — 13 behavioural assertions per ADR-005 + ADR-037 + P081 covering existence + executable + threshold + boundary + env-var-override + missing-file-exit-2 + no-line-3 + empty-line-3 + read-only contract — 13/13 green.
+
+**Phase 3 — ADR amendment**: NOT required. ADR-040 line 92 already documents the reusable-pattern note for "any accumulator-doc surface in `docs/`" with explicit naming of "problems index" as a candidate — application here is the documented future-surface honouring, not an extension. Architect verdict skipped the amendment unless future surfaces (risk-register per P102, ADR index) introduce divergent archive shapes that warrant generalising.
+
+**Phase 4 — one-shot remediation**:
+
+- `docs/problems/README-history.md` archive sibling created with the 76,582-byte legacy line-3 content preserved under `## 2026-04-28 (pre-P134 truncation contract — bulk legacy archive)` heading. Future refreshes append per-day fragments at the bottom; the legacy entry is the seed of the forward-chronology log.
+- Current line 3 of `docs/problems/README.md` trimmed from 76,582 bytes to 800 bytes (95× reduction; well under both the 1024-byte soft cap and the 5120-byte hard ceiling).
+- Total README size reduced from 129,928 bytes to 56,711 bytes (56% reduction). Read-tool 25K-token symptom verified closed in this same session: `Read docs/problems/README.md` (offset=1, limit=12) returned cleanly without `tokens exceeds maximum allowed tokens` error.
+
+**Verification path** (user-side):
+
+1. Read `docs/problems/README.md` at any offset/limit — should succeed without the prior 25K-token error.
+2. Run `packages/itil/scripts/check-problems-readme-budget.sh` — should return empty output, exit 0.
+3. Confirm `docs/problems/README-history.md` exists with the legacy bulk preserved verbatim under the `## 2026-04-28 (pre-P134 truncation contract — bulk legacy archive)` heading.
+4. After future `manage-problem` / `transition-problem` / `review-problems` invocations, confirm line 3 of README continues to carry only the most-recent fragment AND `README-history.md` accretes per-day archive entries at the bottom (forward chronology).
+5. Spot-check next 3 retros for line-3 size — should remain under 1024 bytes per refresh; if any fragment trips the 5120-byte ceiling, the advisory script surfaces it for follow-up curation.

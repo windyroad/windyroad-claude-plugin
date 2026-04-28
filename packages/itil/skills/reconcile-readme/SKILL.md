@@ -91,7 +91,7 @@ Render the Verification Queue row in the existing format:
 
 ### Step 4. Apply edits via Edit tool — preserve narrative
 
-This is the load-bearing step. Use the `Edit` tool to apply each row-level change. DO NOT regenerate the entire README from scratch — the long "Last reviewed: ..." prose paragraph at the top, and the per-Closed-row free-text closure-via column, are human-curated narrative that a full regeneration would destroy.
+This is the load-bearing step. Use the `Edit` tool to apply each row-level change. DO NOT regenerate the entire README from scratch — the per-Closed-row free-text closure-via column is human-curated narrative that a full regeneration would destroy. (The "Last reviewed:" line is now subject to the **Last-reviewed line discipline (P134)** described in Step 5 below — it carries only the most-recent fragment, not an ever-growing prose paragraph; the displaced history lives in `docs/problems/README-history.md`. Step 5 owns the line-3 update; Step 4 leaves it untouched.)
 
 For each REMOVE: `Edit` with the existing row as `old_string`, and remove it (replace with empty string) or replace with a re-positioned row in another section (REMOVE-from-WSJF-Rankings + ADD-to-Verification-Queue is two Edit operations: one to delete the WSJF row, one to insert the VQ row).
 
@@ -101,13 +101,21 @@ For each ADD to Verification Queue: append at the bottom of the VQ table (the ta
 
 After all edits, re-run `packages/itil/scripts/reconcile-readme.sh docs/problems` to confirm exit 0. If the second run still reports drift, investigate the residual edits — do NOT re-run reconciliation in a loop, as that hides systematic edit failures.
 
-### Step 5. Update the "Last reviewed" annotation
+### Step 5. Update the "Last reviewed" annotation per P134 truncation discipline
 
-Prepend (or append, per existing convention — the README uses a single ever-growing prose paragraph) a short note to the "Last reviewed:" paragraph of the form:
+Apply the **Last-reviewed line discipline (P134)** contract documented in `manage-problem` SKILL.md Step 5 — line 3 carries ONE most-recent fragment naming this reconciliation; the prior content rotates to `docs/problems/README-history.md` (forward-chronology archive, soft cap ≤ 1024 bytes per fragment, hard ceiling 5120 bytes per ADR-040 Tier 3 envelope, surfaced advisory-only by `packages/itil/scripts/check-problems-readme-budget.sh`).
 
-> 2026-MM-DD **README reconciled** — (N) drift entries corrected: <comma-separated ID list>. Reconciliation contract per P118 + ADR-014 amended ("Reconciliation as preflight robustness layer").
+**Mechanism**:
 
-Keep the note ≤ 200 bytes; the long narrative form belongs in retros and ADR amendments, not in this annotation. Do not re-write the existing prose.
+1. Read the current line 3 of `docs/problems/README.md` (e.g. `awk 'NR==3' docs/problems/README.md`).
+2. If the current line 3 is non-empty and not a same-day reconciliation duplicate, append it to `docs/problems/README-history.md` under a `## YYYY-MM-DD` heading (creating the heading on first append for that date).
+3. Replace line 3 of README.md with the new fragment of the form:
+
+> Last reviewed: 2026-MM-DD **README reconciled** — (N) drift entries corrected: <comma-separated ID list>. Reconciliation contract per P118 + ADR-014 amended ("Reconciliation as preflight robustness layer").
+
+Keep the new fragment ≤ 1024 bytes (soft cap) and certainly ≤ 5120 bytes (hard ceiling). Do NOT prepend `Prior:` segments. Do NOT re-write the existing prose inline — the displaced content lives in `README-history.md` going forward; truncation is the contract, not a side effect.
+
+**Rationale (P134)**: this skill previously documented the line as "an ever-growing prose paragraph". That convention is what produced the 76-KB line-3 that broke the Read tool entirely. The reconcile path was a load-bearing site of the bloat — every reconcile that happened under the old convention re-wrote line 3 unbounded. The new discipline closes the surface for reconcile parity with `manage-problem` Step 5 P094, Step 6 P094, Step 7 P062, and the sibling `transition-problem`, `transition-problems`, `review-problems` skills.
 
 ### Step 6. Commit (when invoked from an AFK orchestrator subprocess)
 
