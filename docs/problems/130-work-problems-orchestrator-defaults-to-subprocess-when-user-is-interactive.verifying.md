@@ -1,9 +1,9 @@
 # Problem 130: `/wr-itil:work-problems` orchestrator defaults to subprocess dispatch even when the user is observably interactive — loses real-time presence advantage
 
-**Status**: Known Error
+**Status**: Verification Pending
 **Reported**: 2026-04-27
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Possible (3)
-**Effort**: M — `packages/itil/skills/work-problems/SKILL.md` Step 5 amendment to introduce a dual-mode dispatch (subprocess for AFK presence-absent; main-turn skill invocation for presence-present), plus a presence-signal detector (e.g. "user message received during loop" or "AskUserQuestion answered within last N minutes"), plus an ADR-032 amendment formalising the dual-mode contract, plus matching contract bats per ADR-037.
+**Effort**: M — `packages/itil/skills/work-problems/SKILL.md` prose-discipline amendment per the user-reframed Fix Strategy (lines 95-123 below). Adds the **Mid-loop ask discipline (orchestrator main turn)** subsection inside Non-Interactive Decision Making, augments Step 5's iteration-prompt body with transient-user framing, adds a Decision Table row, plus matching contract bats per ADR-037 + P081 (`work-problems-no-mid-loop-asking.bats`). The original-effort estimate (dual-mode dispatch + presence-signal detector + ADR-032 amendment) was superseded by the user reframe — actual effort is materially smaller (prose discipline, no new helper, no ADR amendment).
 **WSJF**: (9 × 2.0) / 2 = **9.0**
 
 > Surfaced 2026-04-27 by direct user correction during an interactive session of `/wr-itil:work-problems`: "I'm not sure why you did that as a background non-interactive run. We could of just done it here. create a problem for that". P078 contradiction-signal pattern. Triggering iter: iter 9 = P081, dispatched as `claude -p` subprocess immediately after the user answered an `AskUserQuestion` next-step decision at the orchestrator's main turn — the user-presence signal had flipped from absent to present, but the orchestrator's Step 5 dispatch shape did not adapt.
@@ -142,3 +142,24 @@ The fix is mostly SKILL.md prose discipline, not a new dispatch mode:
 - **JTBD-006** (`docs/jtbd/solo-developer/JTBD-006-work-backlog-afk.proposed.md`) — primary persona served. P130 doesn't break the AFK contract — it adds an opt-in interactive-presence path.
 - **JTBD-001** (`docs/jtbd/solo-developer/JTBD-001-enforce-governance-without-slowing-down.proposed.md`) — composes; main-turn dispatch reduces "slowdown" perception when the user is present.
 - 2026-04-27 session evidence: iter 9 dispatch immediately after user answered `AskUserQuestion` next-step decision; user corrected within ~30 seconds: "I'm not sure why you did that as a background non-interactive run. We could of just done it here. create a problem for that". This ticket is the captured response.
+
+## Fix Released
+
+**Released 2026-04-28** (commit pending — `/wr-itil:work-problems` AFK iter, this commit). Awaiting user verification.
+
+**One-line fix summary**: SKILL.md prose discipline for `/wr-itil:work-problems` — added the **Mid-loop ask discipline (orchestrator main turn)** subsection enumerating the framework-prescribed halt points, the no-mid-iter-asks invariant, and the accumulated-question discipline; augmented Step 5's iteration-prompt body with the transient-user framing; added a Decision Table row; landed `work-problems-no-mid-loop-asking.bats` (20 contract assertions) per ADR-037 + P081.
+
+**Fix shape (per the 2026-04-28 user reframe — Fix Strategy section above)**:
+
+- The original "dual-mode dispatch + presence-signal detector + ADR-032 amendment" approach was superseded by the user reframe. Presence-detection is unreliable and is not the goal — treat the user as transient. The fix is orchestrator-main-turn ask discipline, not a new dispatch mode.
+- The orchestrator MUST NOT call `AskUserQuestion` between iters except at the framework-prescribed halt points (Step 0 session-continuity / fetch-failure halt; Step 2.5 / 2.5b loop-end emit; Step 6.5 above-appetite Rule 5 halt + CI-failure / release:watch halt; Step 6.75 dirty-for-unknown-reason halt).
+- Accumulated-question discipline at surface time: direction-setting only; no BUFD; no questions answerable by research / exploration / experimentation.
+- Out-of-scope per the reframe: presence-signal helper, dual-mode dispatch, observation-surface enrichment, ADR-032 amendment.
+
+**Exercise evidence** (in-iter):
+
+- 175 / 175 work-problems bats pass with the new fixture landed (full suite green; this iter ran the suite via `npx bats packages/itil/skills/work-problems/test/` before commit).
+- The 20 new assertions in `work-problems-no-mid-loop-asking.bats` exercise the heading presence, the no-mid-iter-asks invariant, halt-point enumeration, accumulated-question discipline, ADR citations (ADR-044, ADR-013 Rule 1 / Rule 6, ADR-032 unchanged), and the Decision Table row consistency.
+- Architect review (`wr-architect:agent`) approved shape, placement (Non-Interactive Decision Making section), and ADR citations. JTBD review (`wr-jtbd:agent`) confirmed JTBD-006 + JTBD-001 alignment.
+
+**Verification requested from user**: on next interactive `/wr-itil:work-problems` invocation, confirm the orchestrator does NOT call `AskUserQuestion` between iters; confirm the loop-end Step 2.5 / 2.5b batched-question surface still functions when `outstanding_questions` are accumulated; confirm halt paths still surface batched questions per the Step 2.5b cross-reference. Close the ticket via `/wr-itil:transition-problem` when verified.
