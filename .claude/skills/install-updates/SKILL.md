@@ -34,8 +34,6 @@ CURRENT_PLUGINS=$(grep -oE '"wr-[a-z0-9-]+@windyroad"' .claude/settings.json 2>/
   | sed 's/"//g; s/@windyroad//' | sort -u)
 ```
 
-**Rename-mapping detection (P059)**: load `rename-mapping.json`; for each enabled name matching `renames[].from`, record a `STALE_CURRENT` entry with `from`, `to`, `adr`, `since`. Current project is always confirmed — its stale entries always migrate in Step 6.5.
-
 ### 3. Discover sibling projects
 
 ```bash
@@ -50,11 +48,9 @@ for d in ../*/; do
 done
 ```
 
-**Per-sibling rename-mapping detection (P059)**: scan each sibling's `.claude/settings.json` for enabled-plugin keys matching `renames[].from`. Record `STALE_SIBLING` entries; only user-confirmed siblings migrate in Step 6.5.
-
 ### 4. Determine which plugins have new npm versions
 
-For each unique plugin key (`wr-<short>`) across current + siblings — after rename-mapping resolution from Steps 2/3, always operate on the post-rename `to` value so a renamed plugin's version check queries the current package:
+For each unique plugin key (`wr-<short>`) across current + siblings:
 
 ```bash
 # Plugin/marketplace side uses the wr- prefix; the npm package omits it.
@@ -67,23 +63,13 @@ npm view "$npm_name" version
 
 Naming convention (ADR-002): `wr-<short>` on the plugin/marketplace side, `@windyroad/<short>` on the npm side, same `<short>` as the source directory under `packages/`.
 
-**Empty `npm view` output with exit 0 means the package name is wrong — NOT that the package is private.** `@windyroad/*` packages are public on the npm registry (e.g. <https://www.npmjs.com/package/@windyroad/itil>). If every plugin returns empty, the skill is using the wrong naming transformation — stop and fix before concluding "nothing to install," otherwise Step 7 will silently skip real updates.
+**Empty `npm view` output with exit 0 means the package name is wrong — NOT that the package is private.** `@windyroad/*` packages are public on the npm registry (e.g. <https://www.npmjs.com/package/@windyroad/itil>). If every plugin returns empty, the skill is using the wrong naming transformation — stop and fix before concluding "nothing to install," otherwise Step 6 will silently skip real updates.
 
 Compare against `~/.claude/plugins/cache/windyroad/${plugin_key}/` (the cache directory uses the plugin key `wr-<short>`, not the npm name). Re-install only when npm latest > highest cached version. `claude plugin list` version strings may be stale — compare against cache dir names.
 
-### 5. Flag legacy JTBD layouts (ADR-008 Option 3, P019)
+### 5. Consent gate (mandatory per ADR-030)
 
-```bash
-if [ -f "$d/docs/JOBS_TO_BE_DONE.md" ] && [ ! -d "$d/docs/jtbd" ]; then
-  LEGACY_JTBD_PROJECTS+=("$name")
-fi
-```
-
-Dormant JTBD gate after wr-jtbd install lands. Flagged in the final report.
-
-### 6. Consent gate (mandatory per ADR-030)
-
-#### 6a. Cache check (P120) — skip the gate when consent is already on file
+#### 5a. Cache check (P120) — skip the gate when consent is already on file
 
 Read `.claude/.install-updates-consent` (per-project, gitignored). When present, parse the JSON:
 
@@ -96,14 +82,14 @@ Read `.claude/.install-updates-consent` (per-project, gitignored). When present,
 
 Compute the **detected sibling set** from Step 3 (sibling project names that have one or more `wr-*@windyroad` plugins enabled). Compare to the cached `scope` array using **set equality** (same names, ignoring order; current project is implicitly in scope and is not part of the cache).
 
-- **Cache hit** (cached scope matches detected sibling set): **skip Step 6** — proceed directly to Step 6.5 with the cached scope. The user's prior explicit answer authorises the install per **ADR-013 Rule 5 (policy-authorised silent proceed)** — the cached on-disk consent IS the policy authorisation. Step 6.5 (P059 rename-mapping auto-migration) still runs against the cached sibling set.
-- **Cache miss — sibling set has changed** (a new sibling appeared, or one was removed since the cache was written): fire Step 6b/6c with the **previous answer surfaced as `(Recommended)`** in the question body so the user can re-confirm or adjust quickly.
-- **Cache miss — no cache** (first invocation in this project, or cache was deleted): fire Step 6b/6c as today.
-- **Cache silenced — `INSTALL_UPDATES_RECONFIRM=1`**: when this envvar is set on the invocation, fire Step 6b/6c regardless of cache state. Equivalent escape hatch: `rm .claude/.install-updates-consent` and re-run. Both routes restore the user's access to the dry-run option (which only surfaces inside the gate body).
+- **Cache hit** (cached scope matches detected sibling set): **skip Steps 5b/5c** — proceed directly to Step 6 with the cached scope. The user's prior explicit answer authorises the install per **ADR-013 Rule 5 (policy-authorised silent proceed)** — the cached on-disk consent IS the policy authorisation.
+- **Cache miss — sibling set has changed** (a new sibling appeared, or one was removed since the cache was written): fire Step 5b/5c with the **previous answer surfaced as `(Recommended)`** in the question body so the user can re-confirm or adjust quickly.
+- **Cache miss — no cache** (first invocation in this project, or cache was deleted): fire Step 5b/5c as today.
+- **Cache silenced — `INSTALL_UPDATES_RECONFIRM=1`**: when this envvar is set on the invocation, fire Step 5b/5c regardless of cache state. Equivalent escape hatch: `rm .claude/.install-updates-consent` and re-run. Both routes restore the user's access to the dry-run option (which only surfaces inside the gate body).
 
 Cache file shape, invalidation rules, and rationale: see `REFERENCE.md` → "Consent cache (P120)". Architectural precedent: **ADR-034**'s `.claude/.auto-install-consent` per-project marker for the SessionStart auto-install surface — same per-project, gitignored, stable-answer-cache shape; the two markers are independent (presence of one does not imply the other).
 
-#### 6b/6c. Fire the consent gate (cache miss path)
+#### 5b/5c. Fire the consent gate (cache miss path)
 
 Invoke `AskUserQuestion` with one question, `multiSelect=true`.
 
@@ -118,9 +104,9 @@ Invoke `AskUserQuestion` with one question, `multiSelect=true`.
 
 Either shape (≤ 3 or > 3 fallback) satisfies the ADR-030 Confirmation consent gate. Never install without explicit consent for a sibling.
 
-#### 6d. Cache write (P120) — at end of successful run
+#### 5d. Cache write (P120) — at end of successful run
 
-After Step 7 install completes WITHOUT a `lost` status (i.e. every confirmed sibling either reached `installed` or `restored`), write `.claude/.install-updates-consent` with the install-plan scope:
+After Step 6 install completes WITHOUT a `lost` status (i.e. every confirmed sibling either reached `installed` or `restored`), write `.claude/.install-updates-consent` with the install-plan scope:
 
 ```bash
 python3 -c "
@@ -136,29 +122,7 @@ open('.claude/.install-updates-consent', 'w').write(json.dumps(data, indent=2) +
 
 `Dry-run` answers do NOT write the cache (a dry-run is not a consent grant). `Current project only` writes an empty `scope` array (the empty-set is a valid stable answer). Cache is per-machine — gitignored — and is not committed.
 
-### 6.5. Auto-migrate ADR-documented stale entries (P059)
-
-For each `STALE_*` entry whose target is in the user-confirmed install plan:
-
-1. Install the canonical `to` plugin in the target's project scope:
-   ```bash
-   (cd "$TARGET_DIR" && claude plugin install "wr-${TO}@windyroad" --scope project)
-   ```
-2. Remove the stale `from` key from the target's `.claude/settings.json` (`claude plugin uninstall` refuses project-scope; direct mutation is authorised by the ADR-030 Confirmation amendment for ADR-documented renames):
-   ```bash
-   node -e '
-     const fs = require("fs");
-     const f = process.argv[1];
-     const j = JSON.parse(fs.readFileSync(f, "utf8"));
-     if (j.enabledPlugins) delete j.enabledPlugins["'"wr-${FROM}@windyroad"'"];
-     fs.writeFileSync(f, JSON.stringify(j, null, 2) + "\n");
-   ' "$TARGET_DIR/.claude/settings.json"
-   ```
-3. Record in `MIGRATED` as `<target> <from> → <to> (per <adr>)`.
-
-Skip migration for siblings the user excluded from the install plan. Non-ADR-documented stale entries are NOT auto-migrated — see REFERENCE.md → "P059 rename-mapping authority".
-
-### 7. Install
+### 6. Install
 
 Uninstall first to force a fresh download — `claude plugin install` silently no-ops when the plugin is already installed, so updates never land (P106 / BRIEFING "Plugin Distribution"). The uninstall+install chain is not atomic: if uninstall succeeds and install fails, the plugin is gone (P112). Wrap the install side in bounded retry + rollback so a transient failure cannot silently remove a plugin.
 
@@ -189,7 +153,7 @@ install_with_retry_rollback() {
   # has been refreshed, maximising the chance a different outcome lands.
   # Prior version (${prior}) is captured for reporting; marketplace
   # resolves to latest, so "restored" here means the plugin is present,
-  # not necessarily at the pre-Step-7 version.
+  # not necessarily at the pre-Step-6 version.
   claude plugin marketplace update windyroad >/dev/null 2>&1 || true
   if (cd "$target" && claude plugin install "$key" --scope project); then
     echo "restored"
@@ -207,7 +171,7 @@ done
 
 `--scope project` always (ADR-004). Capture per-install exit status. Do not abort the batch on a single failure — report and continue. A `lost` status means the plugin was removed and could not be restored; the user must reinstall manually.
 
-### 8. Final report
+### 7. Final report
 
 ```
 | Project | Plugin | Before | After | Status |
@@ -219,10 +183,6 @@ done
 
 Status vocabulary (P112): `✓ installed` — install landed first or within retry budget. `✓ restored (rollback)` — all retries exhausted; marketplace-cache refresh + one rollback install succeeded. `✗ lost (rollback failed)` — retries and rollback both failed; plugin is absent from the project and the user must reinstall manually. `✗ failed` — pre-install step (e.g. uninstall) errored, plugin left in original state.
 
-Then `### Auto-migrated stale entries (ADR-documented renames)` — list `MIGRATED` entries or explicitly state "No rename migrations applied this run." (ADR-030 Confirmation amendment transparency).
-
-Then `### Legacy JTBD layouts (ADR-008 Option 3 breaking change)` if any projects flagged in Step 5 — list them with a `/wr-jtbd:update-guide` reminder.
-
 Then `### Next step` — "Restart Claude Code to pick up the new plugin code. Active sessions continue running the old code until restart (per P045 direction 2026-04-20 — auto-restart explicitly rejected)."
 
 ## Non-interactive fallback
@@ -233,10 +193,8 @@ If `AskUserQuestion` is unavailable (e.g. running inside a subagent): emit a dry
 
 - **ADR-030** — repo-local skills (governing).
 - **ADR-003 / ADR-004** — marketplace distribution / project-scope only.
-- **ADR-008 Option 3** — legacy JTBD breaking change (Step 5).
 - **ADR-013 Rule 6** — non-interactive fallback pattern.
 - **P045** — auto plugin install after governance release. This skill is the manual stopgap until P045's automated queue lands.
-- **P059 / ADR-010 / ADR-030 amendment** — rename-mapping authority.
 - **P061** — sibling-count > 3 fallback (`maxItems=4`).
 - **P098** — SKILL+REFERENCE split pattern applied here (progressive disclosure per ADR-038).
 

@@ -96,11 +96,6 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
-@test "install-updates P120: ADR-030 amendment documents Step 6.5 still runs on cache-hit" {
-  run grep -F 'Step 6.5' "$ADR_030"
-  [ "$status" -eq 0 ]
-}
-
 @test "install-updates P120: ADR-030 amendment documents set-equality match rule" {
   run grep -F 'set equality' "$ADR_030"
   [ "$status" -eq 0 ]

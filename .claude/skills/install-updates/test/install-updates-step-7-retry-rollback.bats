@@ -67,7 +67,7 @@ stub_sleep() {
   export -f sleep
 }
 
-@test "install-updates Step 7 P112: install succeeds on first attempt — no retry, no rollback" {
+@test "install-updates Step 6 P112: install succeeds on first attempt — no retry, no rollback" {
   [ -s "$FN_FILE" ] || { echo "install_with_retry_rollback missing from SKILL.md"; return 1; }
   # shellcheck disable=SC1090
   source "$FN_FILE"
@@ -84,7 +84,7 @@ stub_sleep() {
   [ "${marketplace_calls:-0}" -eq 0 ]
 }
 
-@test "install-updates Step 7 P112: install fails twice then succeeds on third attempt — no rollback" {
+@test "install-updates Step 6 P112: install fails twice then succeeds on third attempt — no rollback" {
   [ -s "$FN_FILE" ] || { echo "install_with_retry_rollback missing from SKILL.md"; return 1; }
   # shellcheck disable=SC1090
   source "$FN_FILE"
@@ -101,7 +101,7 @@ stub_sleep() {
   [ "${marketplace_calls:-0}" -eq 0 ]
 }
 
-@test "install-updates Step 7 P112: all retries exhaust, rollback install succeeds — status 'restored'" {
+@test "install-updates Step 6 P112: all retries exhaust, rollback install succeeds — status 'restored'" {
   [ -s "$FN_FILE" ] || { echo "install_with_retry_rollback missing from SKILL.md"; return 1; }
   # shellcheck disable=SC1090
   source "$FN_FILE"
@@ -119,7 +119,7 @@ stub_sleep() {
   [ "$marketplace_calls" -eq 1 ]
 }
 
-@test "install-updates Step 7 P112: all retries and rollback fail — status 'lost', non-zero exit" {
+@test "install-updates Step 6 P112: all retries and rollback fail — status 'lost', non-zero exit" {
   [ -s "$FN_FILE" ] || { echo "install_with_retry_rollback missing from SKILL.md"; return 1; }
   # shellcheck disable=SC1090
   source "$FN_FILE"
@@ -134,7 +134,7 @@ stub_sleep() {
   [ "$install_calls" -eq 4 ]
 }
 
-@test "install-updates Step 7 P112: uninstall runs exactly once regardless of install retry count" {
+@test "install-updates Step 6 P112: uninstall runs exactly once regardless of install retry count" {
   [ -s "$FN_FILE" ] || { echo "install_with_retry_rollback missing from SKILL.md"; return 1; }
   # shellcheck disable=SC1090
   source "$FN_FILE"
@@ -148,21 +148,21 @@ stub_sleep() {
   [ "$uninstall_calls" -eq 1 ]
 }
 
-@test "install-updates Step 7 P112: SKILL.md final report documents new Status vocabulary" {
+@test "install-updates Step 6 P112: SKILL.md final report documents new Status vocabulary" {
   # Users must be able to interpret the retry/rollback outcomes from the
   # final-report table — the new status tokens must appear in the report
   # section prose.
   local report_section
-  report_section=$(sed -n '/^### 8\. Final report/,/^## /p' "$SKILL_MD")
+  report_section=$(sed -n '/^### 7\. Final report/,/^## /p' "$SKILL_MD")
   grep -F 'restored' <<< "$report_section"
   grep -F 'lost' <<< "$report_section"
 }
 
-@test "install-updates Step 7 P112: SKILL.md Step 7 preserves --scope project invariant (ADR-004)" {
+@test "install-updates Step 6 P112: SKILL.md Step 6 preserves --scope project invariant (ADR-004)" {
   # Any retry or rollback command must still carry --scope project.
-  local step7
-  step7=$(sed -n '/^### 7\. Install/,/^### /p' "$SKILL_MD")
+  local step6
+  step6=$(sed -n '/^### 6\. Install/,/^### /p' "$SKILL_MD")
   local count
-  count=$(grep -cF -- '--scope project' <<< "$step7")
+  count=$(grep -cF -- '--scope project' <<< "$step6")
   [ "$count" -ge 2 ]
 }
