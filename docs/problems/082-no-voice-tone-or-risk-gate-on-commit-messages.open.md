@@ -3,9 +3,9 @@
 **Status**: Open
 **Reported**: 2026-04-21
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
-**Effort**: M — marginal-only work on top of P038 (voice-tone gate) + P064 (external-comms risk gate) infrastructure: add `git commit` message-body interception to the same `PreToolUse:Bash` hook family, wire through the voice-tone rewrite skill (from P038) and the external-comms risk scorer (from P064). Commit messages are a NEW surface in the P038 / P064 / P073 surface-inventory family but the plumbing reuses their hook-and-skill pattern verbatim. Per P076 transitive-dependency rule: if P038 or P064 have not landed yet, P082 cannot reach "done" independently — effort blows out to the transitive closure (XL, tracking P038's upstream). Re-rate back to S or M after P038 / P064 land.
+**Effort**: XL <!-- transitive: XL via P038 (marginal: M) --> — transitive XL per P076 (`## Dependencies` → Blocked by P038 Open XL). Marginal-only work on top of P038 (voice-tone gate) + P064 (external-comms risk gate, now `.verifying.md` — contributes 0 per P076 carve-out) infrastructure: add `git commit` message-body interception to the same `PreToolUse:Bash` hook family, wire through the voice-tone rewrite skill (from P038) and the external-comms risk scorer (from P064). Commit messages are a NEW surface in the P038 / P064 / P073 surface-inventory family but the plumbing reuses their hook-and-skill pattern verbatim. Re-rate marginal back to S or M after P038 lands; transitive collapses to marginal once upstreams clear.
 
-**WSJF**: 6.0 — (12 × 1.0) / 2 — High severity (every commit message reaches every reader of `git log`, the PR commits tab, the GitHub release page, and the CHANGELOG — no gate today); moderate marginal effort assuming P038 / P064 land first. If P038 is still XL and unbuilt at implementation time, P082's WSJF drops to 1.5 under the transitive-dependency principle (P076). Sits alongside P038 / P064 / P073 as part of the external-comms surface-completion cluster; the cluster is more valuable when all four land together than any one in isolation.
+**WSJF**: 1.5 — (12 × 1.0) / 8 — Severity 12 (High); transitive Effort XL (divisor 8) via P038 per P076 — P082 cannot out-rank the upstream whose work is strictly contained within it. Sits alongside P038 / P073 in the 1.5 tier of the external-comms surface-completion cluster (P064 already verifying — contributes 0). Re-rates back to (12 × 1.0) / 2 = 6.0 once P038 lands and the marginal-only effort applies. Cluster is more valuable when all four land together than any one in isolation.
 
 ## Direction decision (2026-04-21, user — interactive AskUserQuestion post-AFK-iter-7)
 
@@ -138,6 +138,14 @@ No direction pinned. Architect review at implementation time decides. Lean call 
 - [ ] Audit trail integration: gate output lands in `.risk-reports/` alongside existing gate outputs; `run-retro` Step 2b (now shipped per P074) detects commit-message-gate-skipped-or-failed as a pipeline-instability signal.
 - [ ] If P038 + P064 have landed by implementation time: collapse the stand-alone plumbing into their infrastructure. If not: ship stand-alone per Option B; consolidate later.
 - [ ] Update the voice-tone plugin's SKILL.md / README to remove the aspirational "govern[s] commit messages" language until the gate actually fires.
+
+## Dependencies
+
+- **Blocks**: (none)
+- **Blocked by**: P038, P064
+- **Composes with**: P073
+
+P038 (Open, XL) propagates XL transitive effort per P076. P064 (`.verifying.md`) contributes 0 per the upstream-status carve-out — listed for traceability so the link survives if P064 ever flips back to `.known-error.md`. P073 shares surface (changeset authoring) but neither blocks the other — the gate-mechanism plumbing is shared but `.changeset/*.md` and `git commit -m "..."` are distinct write paths.
 
 ## Related
 
