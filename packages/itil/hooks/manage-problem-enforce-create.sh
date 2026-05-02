@@ -117,20 +117,14 @@ if check_create_gate "$SESSION_ID"; then
   exit 0
 fi
 
-# P144 / ADR-048: gate-misfire recovery hint. When SOME marker exists (for
-# any SID) but the gate denies, the agent is likely hitting the P124 Phase 3
-# helper regression — `mark_step2_complete` succeeded but the marker landed
-# under the wrong UUID. Append a recovery pointer to the deny message so
-# the agent finds the documented two-tier procedure in SKILL.md Step 2
-# substep 7 instead of reaching for the brute-force-marker anti-pattern
-# (139-marker incident, 2026-04-28 P144 driver evidence).
-#
-# Routine first-creation deny (no marker for ANY SID in this session)
-# leaves the deny message unchanged — the helper-bug signal is conditional.
-RECOVERY_HINT=""
-if compgen -G '/tmp/manage-problem-grep-*' > /dev/null 2>&1; then
-  RECOVERY_HINT=" (Helper succeeded but SID mismatch detected — see manage-problem SKILL.md Step 2 substep 7.)"
-fi
-
-create_gate_deny "BLOCKED: Cannot Write '${BASENAME}' under docs/problems/ without running /wr-itil:manage-problem Step 2 (duplicate-check) first. New problem tickets MUST be created via the skill so the duplicate-prevention grep fires before the file lands. Invoke the Skill tool with skill='wr-itil:manage-problem' and a description of the new problem; Step 2 will grep for related existing tickets and surface any matches via AskUserQuestion before creating the new ticket. (P119)${RECOVERY_HINT}"
+# P142 / ADR-050: the runtime-SID instrumentation hook
+# (itil-runtime-sid-marker.sh) writes the runtime stdin session_id to a
+# per-machine marker on every PreToolUse:Bash|Write|Edit|Read event. The
+# `get_current_session_id` helper reads that marker as the authoritative
+# SID, so the marker `mark_step2_complete` writes is bound to the same
+# session_id this hook will see on the subsequent Write. SID-mismatch
+# denial is structurally eliminated; the only remaining deny path is
+# the routine "Step 2 grep has not run yet for this session" case, for
+# which the deny message stays focused and skill-pointing.
+create_gate_deny "BLOCKED: Cannot Write '${BASENAME}' under docs/problems/ without running /wr-itil:manage-problem Step 2 (duplicate-check) first. New problem tickets MUST be created via the skill so the duplicate-prevention grep fires before the file lands. Invoke the Skill tool with skill='wr-itil:manage-problem' and a description of the new problem; Step 2 will grep for related existing tickets and surface any matches via AskUserQuestion before creating the new ticket. (P119)"
 exit 0

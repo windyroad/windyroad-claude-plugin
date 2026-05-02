@@ -271,46 +271,7 @@ Before creating, search existing problems for similar issues. The user may not k
 
    **Why a helper instead of inline `${CLAUDE_SESSION_ID:-default}`**: the agent's process does NOT export `CLAUDE_SESSION_ID` today; the hook side reads `session_id` from its stdin JSON payload (per the Claude Code PreToolUse contract). The prior fallback wrote the marker under `default` while the hook checked the real UUID — mismatch caused the Write deny on every first ticket of a session until the agent ad-hoc scraped a UUID-bearing marker. The helper canonicalises that scrape so every agent context discovers the SID the same way. P124.
 
-   <!-- supersedes-when: P142 ships -->
-   **Recovery if hook denial persists** (P144 / ADR-048 — auto-supersedes when P142 ships):
-
-   The P124 helper has a Phase 3 regression in orchestrator sessions that have dispatched subprocesses: it sometimes returns a subprocess SID instead of the orchestrator SID, while the runtime hook stdin still contains the orchestrator SID. The marker lands under the wrong UUID; the next `Write` is denied even though `mark_step2_complete` succeeded. The hook deny message includes a `(Helper succeeded but SID mismatch detected — see manage-problem SKILL.md Step 2 substep 7.)` pointer when this signal is observable.
-
-   **Gate-misfire signal** — recovery applies ONLY when ALL three conditions hold:
-   1. The agent is **already executing** `/wr-itil:manage-problem` Step 2 in this turn (i.e., the SKILL contract has just ordered the grep for THIS ticket creation — not a marker carried over from a prior unrelated invocation in the same session).
-   2. `mark_step2_complete` succeeded (the helper exited zero — no SID-discovery error).
-   3. The subsequent `Write` to the new `.<status>.md` file is denied by the P119 hook.
-
-   Routine creation flow does NOT match these conditions and MUST continue through the standard `Write` path. The recovery is mechanical (deterministic from the gate-misfire signal — no `AskUserQuestion` required, per ADR-044's framework-mediated surface catalog extension).
-
-   **First-tier recovery — announce-marker scrape**:
-
-   ```bash
-   # Discover the orchestrator session UUID via the most-reliable per-session announce marker.
-   # The orchestrator SID is what the runtime hook stdin contains in the common subprocess case.
-   sid=$(ls -t /tmp/itil-assistant-gate-announced-* 2>/dev/null | head -1 | sed 's|.*itil-assistant-gate-announced-||')
-   [ -n "$sid" ] && touch "/tmp/manage-problem-grep-${sid}"
-   # Retry the Write.
-   ```
-
-   **Second-tier recovery — python3-via-Bash file-write** (2026-04-29 evidence: runtime hook stdin SID may not be in any announce-marker class; first-tier returns the orchestrator SID, but the runtime SID is a different per-Write SID surfaced only by `architect-reviewed-*` mtime, not by any announce-marker):
-
-   ```bash
-   # The hook is PreToolUse:Write; python3-in-Bash is not a Write tool call,
-   # so the hook never fires. Use only when first-tier fails.
-   python3 -c "from pathlib import Path; Path('docs/problems/<NNN>-<title>.open.md').write_text('''<file body>''')"
-   ```
-
-   **Audit-trail-preservation test** — the second-tier procedure is sanctioned ONLY in the audit-trail-preserved branch:
-
-   - ✅ **Audit-trail-preserved**: the agent is currently executing `/wr-itil:manage-problem` Step 2 for THIS ticket creation (gate-misfire signal condition 1), AND any `/tmp/manage-problem-grep-*` marker exists. The skill flow itself is the just-ran-grep witness; the marker existence corroborates it.
-   - ❌ **Audit-trail-violated**: the agent is NOT in `/wr-itil:manage-problem` Step 2 for this ticket creation, OR no marker exists for any SID. Routine first-creation flow MUST hit the gate; the recovery procedure does NOT apply.
-
-   **Anti-pattern bound** — the loose reading "any marker from any earlier `manage-problem` invocation in this session" would let the recovery procedure apply to a fresh ticket creation that happens to reuse a stale marker from a prior unrelated invocation. That is the P131 anti-pattern surface (gate state as a workaround target instead of as a directive). The bound holds because the recovery is invoked from inside an active manage-problem flow where Step 2 has just been ordered for THIS ticket, AND the python3-via-Bash branch is named in this substep so its invocation is itself audit-trail-emitting.
-
-   **DO NOT brute-force-touch markers for every announced UUID.** That pattern (139 markers in one session, 2026-04-28 P144 evidence) satisfies the marker shape while gaming the audit trail the marker is supposed to record. The user has explicitly rejected this pattern: *"WTF? Why did you bypass instead of using the skill?"* (P144 driver correction). Brute-forcing markers for SIDs that did not run Step 2 is the canonical bypass — the recovery procedure above is the canonical use of the skill.
-
-   **Cross-references**: P124 (helper Phase 3 regression — driver of the misfire); P142 (P124 Phase 4 — structural fix that auto-supersedes this recovery when shipped); P131 (gate-exclusions-as-write-permission — adjacent anti-pattern family); ADR-048 (sanctioning + scoping ADR); ADR-009 (gate marker lifecycle); ADR-044 (mechanical-decision framework-mediated surface catalog).
+   **Phase 4 (P142 / ADR-050)** — the helper now reads the runtime stdin `session_id` from a per-machine marker written by the `itil-runtime-sid-marker.sh` PreToolUse hook on every tool call. Because every Bash call that sources the helper is itself a PreToolUse:Bash event, the marker the helper reads was written moments earlier with the same `session_id` the runtime Write hook will see — so SID-mismatch denial is structurally impossible in the routine flow. The Phase 3 announce-marker priority logic is preserved as cold-path fallback (first tool call of a session, before any PreToolUse fires).
 
 **Search strategy**: Search problem filenames AND file content. A match on the filename (kebab-case title) or the Description/Symptoms sections counts. Cast a wide net — false positives are cheap (user chooses), but false negatives mean duplicate problems.
 

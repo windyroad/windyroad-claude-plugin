@@ -1,13 +1,17 @@
 ---
-status: "proposed"
+status: "superseded"
 date: 2026-04-29
+superseded-date: 2026-05-03
 decision-makers: [Tom Howard]
 consulted: [wr-architect:agent, wr-jtbd:agent]
 informed: [Windy Road plugin users, manage-problem SKILL.md authors, P124/P142 implementers]
 reassessment-date: 2026-07-29
+superseded-by: ["050-runtime-sid-instrumentation-via-pretooluse.proposed.md"]
 ---
 
 # Documented recovery from gate misfire is the prescribed surface, not bypass
+
+> **SUPERSEDED 2026-05-03 by [ADR-050](050-runtime-sid-instrumentation-via-pretooluse.proposed.md)** — P142 (P124 Phase 4) shipped as a new `PreToolUse:Bash|Write|Edit|Read` hook that captures the runtime stdin `session_id` to a per-machine marker the helper reads as authoritative. SID-mismatch denial is now structurally impossible in routine flow; the recovery procedure documented below is no longer reachable. The recovery prose was simultaneously removed from `packages/itil/skills/manage-problem/SKILL.md` Step 2 substep 7, and the conditional `RECOVERY_HINT` was removed from `packages/itil/hooks/manage-problem-enforce-create.sh`. Retained for historical reference.
 
 ## Context and Problem Statement
 

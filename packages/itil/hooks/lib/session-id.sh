@@ -69,6 +69,30 @@ get_current_session_id() {
     return 0
   fi
 
+  # P142 / ADR-050: runtime-SID marker. The PreToolUse hook
+  # (itil-runtime-sid-marker.sh) writes the runtime stdin session_id
+  # to a per-machine marker on EVERY tool call. The helper, running
+  # inside a Bash tool call, reads the marker that the same Bash
+  # tool call's PreToolUse hook just wrote — by construction the
+  # current session's SID. This is the authoritative path; the
+  # announce-marker fallback below is the cold-path (no PreToolUse
+  # has fired yet in this session).
+  local rt_lib_dir
+  rt_lib_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)"
+  if [ -f "${rt_lib_dir}/runtime-sid.sh" ]; then
+    # shellcheck source=runtime-sid.sh
+    source "${rt_lib_dir}/runtime-sid.sh"
+    local rt_path rt_sid
+    rt_path=$(runtime_sid_path)
+    if [ -s "$rt_path" ]; then
+      rt_sid=$(cat "$rt_path" 2>/dev/null)
+      if [ -n "$rt_sid" ]; then
+        echo "$rt_sid"
+        return 0
+      fi
+    fi
+  fi
+
   local marker_dir="${SESSION_MARKER_DIR:-/tmp}"
 
   # Marker-system priority order. Architect first because architect-

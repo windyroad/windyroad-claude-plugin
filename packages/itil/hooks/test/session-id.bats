@@ -176,3 +176,83 @@ mark_announced() {
   [[ "$output" != *"$middle_uuid"* ]]
   [[ "$output" == *"EXIT:0"* ]]
 }
+
+# --- Behavioural contract: runtime-SID marker (P142 Phase 4) ---
+#
+# Phase 3 mtime-based within-system selection introduced a regression
+# in orchestrator main turns AFTER subprocess dispatch: subprocess
+# announce markers have NEWER mtime than the orchestrator's, so the
+# helper picked the subprocess SID while the runtime hook stdin still
+# contained the orchestrator SID — marker landed under the wrong UUID,
+# create-gate (P119) denied. Mirror failure mode would fire in
+# subprocess context if the priority list were re-ordered to favour
+# orchestrator-only announce systems (no pure-helper algorithm can
+# distinguish "running in orchestrator main turn" from "running in
+# subprocess" by filesystem state alone).
+#
+# Phase 4 structural fix: a new PreToolUse hook
+# (`itil-runtime-sid-marker.sh`) writes the runtime stdin session_id
+# to a per-machine marker on every tool call. The helper reads this
+# marker FIRST as the authoritative current-session SID, falling back
+# to the existing announce-marker priority logic when the marker is
+# absent (cold path — first tool call of a session, before any
+# PreToolUse fires).
+#
+# Sandbox path: when SESSION_MARKER_DIR is set (test override), the
+# runtime marker lives at `${SESSION_MARKER_DIR}/itil-runtime-sid.current`
+# — a single fixed filename, no per-user/per-project scoping. The
+# scoping suffix used in prod (`-${USER}-${proj_hash}`) is irrelevant
+# under sandbox because every test gets a fresh SANDBOX_TMP.
+
+@test "runtime-SID marker present: helper returns marker contents over newer announce markers" {
+  runtime_uuid="dddddddd-dddd-dddd-dddd-dddddddddddd"
+  decoy_uuid="eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"
+  # Decoy: an architect-announced marker with a NEWER mtime than the
+  # runtime marker. The Phase 3 helper would have picked decoy_uuid;
+  # the Phase 4 helper picks runtime_uuid because the runtime-SID
+  # marker is authoritative.
+  printf '%s' "$runtime_uuid" > "$SANDBOX_TMP/itil-runtime-sid.current"
+  sleep 1
+  mark_announced "architect" "$decoy_uuid"
+  output=$(discover)
+  [[ "$output" == *"$runtime_uuid"* ]]
+  [[ "$output" != *"$decoy_uuid"* ]]
+  [[ "$output" == *"EXIT:0"* ]]
+}
+
+@test "runtime-SID marker empty: helper falls back to announce-marker priority" {
+  expected_uuid="ffffffff-ffff-ffff-ffff-ffffffffffff"
+  mark_announced "architect" "$expected_uuid"
+  # Empty runtime marker (zero-byte file) — helper must NOT return
+  # the empty contents; it must fall through to the announce-marker
+  # scrape. Empty marker can occur if the hook ran with empty
+  # session_id stdin (test harness, hook self-test) and would still
+  # leave the file at zero bytes per the hook's empty-input fail-open.
+  : > "$SANDBOX_TMP/itil-runtime-sid.current"
+  output=$(discover)
+  [[ "$output" == *"$expected_uuid"* ]]
+  [[ "$output" == *"EXIT:0"* ]]
+}
+
+@test "runtime-SID marker absent (cold path): helper uses announce-marker priority unchanged" {
+  expected_uuid="aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+  mark_announced "architect" "$expected_uuid"
+  # No runtime marker created — cold path. Helper falls back to
+  # existing Phase 3 announce-marker priority. This test pins the
+  # backwards-compat contract: sessions whose first tool call hasn't
+  # yet fired the PreToolUse hook still discover their SID via the
+  # announce-marker fallback (the priority list is preserved as-is).
+  output=$(discover)
+  [[ "$output" == *"$expected_uuid"* ]]
+  [[ "$output" == *"EXIT:0"* ]]
+}
+
+@test "env var beats runtime-SID marker (env-var fast path preserved)" {
+  env_uuid="11111111-aaaa-bbbb-cccc-222222222222"
+  marker_uuid="22222222-aaaa-bbbb-cccc-333333333333"
+  printf '%s' "$marker_uuid" > "$SANDBOX_TMP/itil-runtime-sid.current"
+  output=$(CLAUDE_SESSION_ID="$env_uuid" SESSION_MARKER_DIR="$SANDBOX_TMP" bash -c "source '$HELPER'; get_current_session_id; echo \"EXIT:\$?\"")
+  [[ "$output" == *"$env_uuid"* ]]
+  [[ "$output" != *"$marker_uuid"* ]]
+  [[ "$output" == *"EXIT:0"* ]]
+}

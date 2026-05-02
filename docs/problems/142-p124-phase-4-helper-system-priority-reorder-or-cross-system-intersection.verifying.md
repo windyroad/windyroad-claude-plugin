@@ -1,10 +1,41 @@
 # Problem 142: P124 Phase 4 — `get_current_session_id` helper system-priority bug; subprocess SIDs win mtime selection over orchestrator SID
 
-**Status**: Open
+**Status**: Verifying
 **Reported**: 2026-04-29
+**Fix Released**: 2026-05-03 (this commit; pending @windyroad/itil republish via push:watch + release:watch)
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Likely (3) — observed once in 2026-04-28 session BUT every long AFK loop with subprocesses creates the conditions for the bug to fire
-**Effort**: M — `packages/itil/hooks/lib/session-id.sh` re-order priority list to put orchestrator-only systems first (`itil-assistant-gate` before `architect`/`jtbd`/`tdd`); OR cross-system intersection (find SID that ALL systems agree on for current session). Plus matching behavioural bats per ADR-037 + P081.
+**Effort**: M — Shipped via runtime-SID instrumentation hook (ADR-050) instead of the originally-listed options (a)/(b)/(c). Architect surfaced that pure-helper algorithms cannot disambiguate orchestrator-vs-subprocess context from filesystem state alone, so the fix shape is a new `PreToolUse:Bash|Write|Edit|Read` hook capturing the runtime stdin SID; helper reads it as authoritative. Single-commit fold-fix supersedes ADR-048's recovery prose.
 **WSJF**: (9 × 1.0) / 2 = **4.5**
+
+## Resolution (2026-05-03)
+
+Shipped per **ADR-050** (`docs/decisions/050-runtime-sid-instrumentation-via-pretooluse.proposed.md`). New surfaces:
+
+- `packages/itil/hooks/lib/runtime-sid.sh` — `runtime_sid_path()` shared between hook (writer) and helper (reader).
+- `packages/itil/hooks/itil-runtime-sid-marker.sh` — new PreToolUse hook (matcher `Bash|Write|Edit|Read`); parses `session_id` from stdin JSON via python3 (jq fallback); writes via `printf '%s'`; ADR-045 Pattern 1 silent-on-pass; fail-open contracts on every error path.
+- `packages/itil/hooks/lib/session-id.sh` — helper reads runtime marker FIRST; existing Phase 3 announce-marker priority preserved as cold-path fallback.
+- `packages/itil/hooks/hooks.json` — registers new hook.
+- `packages/itil/hooks/test/runtime-sid-marker.bats` — 7 new behavioural tests.
+- `packages/itil/hooks/test/session-id.bats` — 4 new behavioural tests covering runtime-marker priority + cold-path fallback + env-var precedence.
+
+**ADR-048 supersession** (same commit):
+
+- `docs/decisions/048-...` renamed `.proposed.md` → `.superseded.md`; frontmatter `status` flipped + `superseded-by: 050-...` link added; top-of-doc supersession callout block added.
+- `packages/itil/skills/manage-problem/SKILL.md` Step 2 substep 7 — recovery sub-block removed (replaced with one "Phase 4 (P142 / ADR-050)" pointer paragraph).
+- `packages/itil/hooks/manage-problem-enforce-create.sh` — conditional `RECOVERY_HINT` removed (deny stays terse and skill-pointing regardless of `/tmp/manage-problem-grep-*` state).
+- `packages/itil/skills/manage-problem/test/manage-problem-p119-recovery-path.bats` — deleted (structural-grep on removed prose; behavioural coverage migrated to the two new bats files).
+- `packages/itil/hooks/test/manage-problem-enforce-create.bats` — two `RECOVERY_HINT` tests reframed to pin the post-ADR-050 deny-message-invariance contract.
+
+## Verification
+
+After republish + reinstall in adopter projects:
+
+1. Open a Claude Code session; confirm `/tmp/itil-runtime-sid-${USER}-*.current` is created on the first tool call and contains the runtime session UUID.
+2. Run `/wr-itil:work-problems` for ≥3 iters where each creates a P-ticket via `/wr-itil:manage-problem`; confirm zero `BLOCKED` denials on legitimate first-creation paths in either orchestrator main turn or iter subprocess context.
+3. Confirm `/tmp/itil-runtime-sid-${USER}-*.current` is OVERWRITTEN as the orchestrator's main-turn tool calls fire after each iter exit (`cat` the marker before and after to see the SID flip orchestrator → subprocess → orchestrator).
+4. Confirm the conditional `Helper succeeded but SID mismatch detected — see manage-problem SKILL.md Step 2 substep 7.` recovery-hint text never appears in any deny message.
+
+Close once verified across one full AFK orchestration session.
 
 > Surfaced 2026-04-28 during interactive `/wr-itil:manage-problem` invocation in `/wr-itil:work-problems` orchestrator session. P124 Phase 3 helper picked iter 11 subprocess SID `3bb06924-8424-4114-b0fd-c097906cb4a1` (architect-announced marker mtime 21:29) over orchestrator SID `bbd89081-881a-4e1e-9518-9da5a7254c2f` (`itil-assistant-gate-announced` marker mtime 21:48). P119 manage-problem-enforce-create hook denied Write on stale-SID marker. Recovery: scrape `itil-assistant-gate-announced-*` directly to discover orchestrator SID.
 

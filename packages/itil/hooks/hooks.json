@@ -9,6 +9,10 @@
     ],
     "PreToolUse": [
       {
+        "matcher": "Bash|Write|Edit|Read",
+        "hooks": [{ "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/itil-runtime-sid-marker.sh" }]
+      },
+      {
         "matcher": "Write",
         "hooks": [{ "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/manage-problem-enforce-create.sh" }]
       },

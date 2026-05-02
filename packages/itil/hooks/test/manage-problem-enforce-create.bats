@@ -187,16 +187,23 @@ set_marker() {
   [[ "$output" != *"BLOCKED"* ]]
 }
 
-# --- P144 / ADR-048: gate-misfire recovery hint on deny message ---
+# --- P142 / ADR-050: deny-message simplicity post-supersession ---
 #
-# When the deny fires AND any /tmp/manage-problem-grep-* marker exists for
-# SOME SID, that's the helper-bug signal (P124 Phase 3 regression — helper
-# returned wrong SID, marker exists but doesn't match runtime hook stdin).
-# The deny message appends a recovery pointer to direct the agent at the
-# documented two-tier procedure in SKILL.md Step 2 substep 7.
+# ADR-048 documented a two-tier recovery procedure for SID-mismatch denials
+# (when the helper picked a stale subprocess SID while the runtime hook saw
+# the orchestrator SID). The hook appended a "Helper succeeded but SID
+# mismatch detected — see manage-problem SKILL.md Step 2 substep 7."
+# pointer when SOME marker existed for SOME SID (the helper-bug signal).
 #
-# Routine first-creation deny (no marker exists for any SID at all) is
-# unchanged — recovery hint MUST NOT appear.
+# P142 / ADR-050 superseded ADR-048 by capturing the runtime stdin SID
+# in a per-machine marker via a new PreToolUse hook
+# (`itil-runtime-sid-marker.sh`). The helper reads the marker as
+# authoritative; SID-mismatch is structurally impossible in routine flow.
+# The conditional RECOVERY_HINT was removed; the deny message stays
+# terse and skill-pointing regardless of marker presence.
+#
+# These tests pin that the deny message is INVARIANT of the
+# /tmp/manage-problem-grep-* marker state (no recovery-hint branching).
 
 setup_other_sid_marker() {
   OTHER_SID="other-sid-$$-$RANDOM"
@@ -209,19 +216,21 @@ teardown_other_sid_marker() {
   fi
 }
 
-@test "deny without ANY /tmp/manage-problem-grep-* marker → deny message OMITS recovery hint" {
-  # Scrub any markers so the helper-bug signal cannot fire.
+@test "deny without ANY /tmp/manage-problem-grep-* marker → deny is terse, no recovery prose" {
   rm -f /tmp/manage-problem-grep-*
   run run_write_hook "$PWD/docs/problems/999-foo.open.md" "$SID"
   [ "$status" -eq 0 ]
   [[ "$output" == *"BLOCKED"* ]]
-  # No marker exists for any SID → routine first-creation deny → no recovery hint.
   [[ "$output" != *"SID mismatch"* ]]
   [[ "$output" != *"Step 2 substep 7"* ]]
 }
 
-@test "deny with /tmp/manage-problem-grep-* marker for OTHER SID → deny message INCLUDES recovery hint" {
-  # Scrub other markers first, then set a marker for a different SID.
+@test "deny with /tmp/manage-problem-grep-* marker for OTHER SID → deny is terse (post-ADR-050; no recovery hint)" {
+  # Pre-ADR-050 contract: an other-SID marker triggered the helper-bug
+  # recovery pointer. Post-ADR-050: the runtime-SID marker prevents
+  # SID-mismatch in routine flow, so the recovery pointer is removed.
+  # The deny message is identical regardless of marker presence — the
+  # only signal that matters is "this session has not run Step 2".
   rm -f /tmp/manage-problem-grep-*
   setup_other_sid_marker
   run run_write_hook "$PWD/docs/problems/999-foo.open.md" "$SID"
@@ -229,21 +238,6 @@ teardown_other_sid_marker() {
   teardown_other_sid_marker
   [ "$status" -eq 0 ]
   [[ "$output" == *"BLOCKED"* ]]
-  # Marker exists for OTHER SID → helper-bug signal → recovery hint appended.
-  [[ "$output" == *"SID mismatch"* ]]
-  [[ "$output" == *"Step 2 substep 7"* ]]
-}
-
-@test "recovery hint avoids ADR-038 jargon (no internal P-number jargon in deny string)" {
-  # ADR-038 progressive disclosure — deny stays terse + actionable. Architect
-  # advisory rejected "P124-Phase-3-regression" wording in favour of plain
-  # "Helper succeeded but SID mismatch detected".
-  rm -f /tmp/manage-problem-grep-*
-  setup_other_sid_marker
-  run run_write_hook "$PWD/docs/problems/999-foo.open.md" "$SID"
-  status=$?
-  teardown_other_sid_marker
-  [ "$status" -eq 0 ]
-  [[ "$output" == *"BLOCKED"* ]]
-  [[ "$output" != *"P124-Phase-3-regression"* ]]
+  [[ "$output" != *"SID mismatch"* ]]
+  [[ "$output" != *"Step 2 substep 7"* ]]
 }
