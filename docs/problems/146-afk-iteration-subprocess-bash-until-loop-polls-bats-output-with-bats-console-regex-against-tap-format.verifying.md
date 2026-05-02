@@ -1,6 +1,6 @@
 # Problem 146: AFK iteration subprocess `bash until`-loop polls bats-output file with bats-console regex against TAP-format output — deadlocks indefinitely, manual SIGTERM required, JSON metadata lost
 
-**Status**: Open
+**Status**: Verification Pending
 **Reported**: 2026-04-29
 **Priority**: 8 (High) — Impact: Moderate (4) x Likelihood: Possible (2) — fires every AFK iteration whose `manage-problem` Step 11 commit-gate runs the full bats suite via the polling pattern; observed today end-to-end with concrete cost (68m34s wall-clock + lost ITERATION_SUMMARY).
 **Effort**: M — investigate which SKILL.md / agent-prompt / bash-idiom reference taught the iteration agent the bats-console-summary regex shape; correct the source so iteration subprocesses use a TAP-compatible terminator pattern (or switch off the polling-regex pattern entirely in favour of `wait` on the backgrounded PID). Plus matching behavioural bats per ADR-037 + P081.
@@ -89,3 +89,25 @@ If the pattern is in a SKILL.md (versioned, distributed), the fix is a SKILL.md 
 - **`packages/itil/skills/manage-problem/SKILL.md`** Step 11 — primary audit target.
 - **`packages/itil/skills/work-problems/SKILL.md`** Step 5 — secondary audit target.
 - 2026-04-29 retro evidence: orchestrator main turn observed PID 23580's child PID 16408 running the until-loop at 08:24 wakeup; SIGTERM at 08:51 confirmed exit 143 + 0-byte JSON.
+
+## Fix Released
+
+**Date**: 2026-05-03 (AFK iter 10).
+
+**Fix shape** — prompt-discipline rule + behavioural assertion (the "agent-learned, no source-of-truth" branch the ticket flagged in its Fix Strategy). Audit confirmed the polling idiom is NOT taught by any SKILL.md or agent prompt in the repo (`grep -rn "until.*grep" packages/` and `grep -rn "^[0-9]+ tests?,"` returned no matches outside this ticket itself). The idiom is generic bash + bats Bourne literature — agent-learned from training data.
+
+**Edits landed**:
+
+- `packages/itil/skills/work-problems/SKILL.md` — Step 5 iteration prompt body Constraints list extended with a P146 clause that (1) explicitly forbids polling `bats` output with the bats-console-summary regex against TAP-format output, (2) names `wait $bg_pid` (Unix idiom — completion signaled by process exit, no regex required) or Bash-tool `run_in_background=true` + `BashOutput` exit-state polling as the safe substitute, (3) explains the TAP-vs-console-summary divergence so future contributors don't "fix" the rule incorrectly (the TAP plan line `^[0-9]+\.\.[0-9]+` is the format-stable sentinel if regex-polling is genuinely required), and (4) cites P146 inline. Related-section P146 cite added with full incident summary + cross-reference to the behavioural fixture.
+
+- `packages/itil/skills/work-problems/test/work-problems-step-5-bats-polling-discipline.bats` — new fixture, 5 contract assertions per ADR-037's permitted exception (doc-lint contract assertion against the contract document itself; same shape as the existing P083 ScheduleWakeup-ban fixture and P089 stdin-redirect fixture). Asserts: prohibition phrase present, safe-substitute pointer present, P146 cite present, TAP/console-summary divergence explanation present, Related-section P146 cite present.
+
+**Architect verdict**: APPROVED, risk 1/25 (Low) — SKILL.md prose addition + 1 bats fixture; no executable code change; no commit-gate path touched. Architect narrowed scope from the ticket's "two SKILL.md surfaces" suggestion (work-problems Step 5 + manage-problem Step 10/11) to **work-problems Step 5 only**, on grounds that (a) the polling-loop antipattern surface IS AFK-iteration-shaped (bats fork-and-poll inside `claude -p` subprocess), not manage-problem-shaped (manage-problem Step 11 commit-gate delegates to risk-scorer, doesn't fork bats); (b) precedent — P083 (ScheduleWakeup ban) and P135 (AskUserQuestion ban) are both AFK-iteration-worker discipline rules that live in work-problems Step 5 only; and (c) DRY — mirroring would require a shared snippet to prevent wording drift, and the manage-problem surface doesn't currently exhibit the failure mode.
+
+**JTBD verdict**: PASS. Primary fit JTBD-006 ("Progress the Backlog While I'm Away") — explicit "loop should be safe to run for extended periods" + "may be away for minutes or hours" outcomes. Secondary fits JTBD-001 (governance speed) and JTBD-101 (contributor pattern preventing future plugin authors copying the bad idiom).
+
+**Release vehicle**: `@windyroad/itil@0.23.5` (changeset `.changeset/p146-bats-polling-discipline.md`, patch bump). The orchestrator's Step 6.5 release-cadence drain owns the actual `push:watch` + `release:watch` invocation.
+
+**Verification on next AFK loop**: any future iteration that needs to wait on a backgrounded bats run reads the iteration prompt body's new clause, reaches for `wait $bg_pid` or `BashOutput` exit-state instead of the regex-poll antipattern, and exits cleanly with `ITERATION_SUMMARY` populated. The empirical regression signal is the absence of stuck-before-emit deadlocks in subsequent retros (compare against the 2026-04-29 incident rate). The behavioural bats fixture protects against accidental clause removal.
+
+**Closure criterion**: one full AFK loop runs to completion without a stuck-before-emit deadlock recurring on this specific antipattern shape (regex-poll on bats output). If the empirical signal holds, transition Verifying → Closed in the next retrospective.
