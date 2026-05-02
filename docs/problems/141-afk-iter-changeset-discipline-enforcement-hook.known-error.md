@@ -1,10 +1,10 @@
 # Problem 141: AFK iter `packages/<plugin>/` commits without changesets — orchestrator-main-turn back-fill is fragile recovery, hook-level enforcement preferable
 
-**Status**: Open
+**Status**: Known Error
 **Reported**: 2026-04-29
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Likely (3) — observed twice in single session (40% miss rate across 5 publishable iters)
-**Effort**: M — new PreToolUse:Bash hook matching `git commit`; deny when staged diff includes `packages/<plugin>/` files but `.changeset/<plugin>-*.md` is not staged. Plus matching behavioural bats per ADR-037 + P081.
-**WSJF**: (9 × 1.0) / 2 = **4.5**
+**Effort**: M — new PreToolUse:Bash hook matching `git commit`; deny when staged diff includes `packages/<plugin>/` files but `.changeset/<plugin>-*.md` is not staged. Plus matching behavioural bats per ADR-005 + P081 (architect verdict 2026-05-02: ADR-005 is the plugin-testing-strategy ADR; ADR-037 is skill-scoped, not applicable to hook bats).
+**WSJF**: (9 × 2.0) / 2 = **9.0**
 
 > Surfaced 2026-04-28 / 2026-04-29 across the long `/wr-itil:work-problems` AFK loop session: iter 2 (P130 commit `b9da37e`) shipped `packages/itil/skills/work-problems/SKILL.md` + new bats without authoring `.changeset/wr-itil-p130-*.md`. Orchestrator main-turn back-filled at `dcc65b4`. Iter 7 (P134 commit `a8b6f18`) shipped 5-SKILL changes + new advisory script + 13 new bats without changeset. Orchestrator back-filled at `ac2425e`. Pattern: 2/5 publishable iters omitted changesets. Recovery cost: ~2× orchestrator main-turn commits + ~$2 risk-scorer round-trips per recovery.
 
@@ -50,30 +50,40 @@ Orchestrator main-turn back-fill (described above). Manual; relies on noticing t
 
 ### Investigation Tasks
 
-- [ ] Confirm hook-level enforcement is the right shape vs. iter-prompt strengthening (architect-design call). Lean: hook — prompt-level guidance has demonstrably failed.
-- [ ] Define the detection logic:
-  - **PreToolUse:Bash matching `git commit`**: parse `git diff --cached --stat`; if any `packages/<plugin>/*` file is staged, check that `.changeset/<plugin>-*.md` is also staged. If not, deny with directive: "Staged `packages/<plugin>/` files require `.changeset/<plugin>-*.md`. Author one before committing."
-  - **Bypass mechanism**: env var `BYPASS_CHANGESET_GATE=1` for legitimate non-publishable commits (e.g. CI workflow edits, .github/* changes).
-  - **Allow-list paths**: `packages/<plugin>/test/`, `packages/<plugin>/scripts/test/` are testable-only changes; some test additions may not need changesets. Architect verdict on whether to allow-list test paths or require changesets for them too.
-- [ ] Decide deny shape:
-  - Hard deny (commit blocked, agent must author changeset)
-  - Advisory deny with `BYPASS_CHANGESET_GATE` env var override (agent decides)
-- [ ] Behavioural bats per ADR-037 + P081 covering: detection on staged packages/* without changeset (deny); detection with changeset (allow); test-only paths (allow or deny per architect verdict); BYPASS env var (allow); non-publishable paths like .github/* (allow).
-- [ ] Plugin manifest registration in `packages/itil/.claude-plugin/plugin.json`.
+- [x] Confirm hook-level enforcement is the right shape vs. iter-prompt strengthening (architect-design call). **Architect verdict 2026-05-02**: hook approved — same enforcement-layer pattern as P125's staging-trap hook (per-invocation deterministic, no markers). Iter-prompt guidance has demonstrably failed.
+- [x] Define the detection logic:
+  - **PreToolUse:Bash matching `git commit`**: parse `git diff --cached --name-only` to enumerate staged paths. If any path matches `packages/<plugin>/*` (excluding allow-list), check that at least one `.changeset/*.md` (excluding `.changeset/README.md` and `.changeset/config.json`) is also staged. If not, deny.
+  - **Bypass mechanism**: env var `BYPASS_CHANGESET_GATE=1` (architect-confirmed audit-traceable affordance via shell history).
+  - **Allow-list paths** (architect verdict 2026-05-02 — permissive scope):
+    - Files entirely under `packages/<plugin>/test/`, `packages/<plugin>/scripts/test/`, `packages/<plugin>/hooks/test/` — test code; no publishable behaviour change.
+    - `packages/<plugin>/README.md` and `*.md` paths under `packages/<plugin>/docs/` — documentation; changeset bots ignore.
+    - **NOT in allow-list**: `SKILL.md` (it IS the publishable contract per ADR-037 framing), `*.sh` hook source, `*.bash` scripts, plugin.json manifest, hooks.json, `*.json` configs, `*.ts`/`*.js` source.
+  - The deny fires when the staged set contains AT LEAST ONE non-allow-listed `packages/<plugin>/*` file AND no `.changeset/*.md` is staged.
+- [x] Decide deny shape: **hard deny with `BYPASS_CHANGESET_GATE` env var override**. Hard deny because the orchestrator can't decide changeset semantics; agent must explicitly author or explicitly bypass. Env var is the documented escape hatch for non-publishable commits.
+- [x] Behavioural bats per ADR-005 + P081 covering: deny on staged packages/<plugin>/ source without changeset; allow with changeset; allow test-only paths; allow doc-only paths under README.md / docs/; allow BYPASS env var override; allow non-Bash tool; allow non-`git commit` Bash; fail-open outside git work tree; fail-open on parse error.
+- [x] Plugin manifest registration: hook registered in `packages/itil/hooks/hooks.json` as a third `PreToolUse:Bash` matcher entry alongside `p057-staging-trap-detect.sh` and `pre-publish-intake-gate.sh`. (Note: `packages/itil/.claude-plugin/plugin.json` does not carry hook entries in this project's convention — `hooks.json` is the canonical registration site loaded automatically by the Claude Code plugin loader. The ticket's original "plugin manifest" phrasing was imprecise; the architect-approved scope confines manifest changes to `hooks.json`.)
 
-### Preliminary hypothesis
+### Confirmed root cause (2026-05-02)
 
-Iter subprocesses operate under context pressure (heavy SKILL.md + ticket body + architect/JTBD prompt content). The "author a changeset" reminder competes with N other reminders and is sometimes dropped. Hook-level enforcement makes the requirement unmissable without adding to the iter's context budget.
+Iter subprocesses operate under context pressure (heavy SKILL.md + ticket body + architect/JTBD prompt content). The "author a changeset" reminder competes with N other reminders and is sometimes dropped — observed at 40% miss rate across 5 publishable iters in the 2026-04-28 evidence session. Hook-level enforcement makes the requirement unmissable without adding to the iter's context budget; the deny fires deterministically at `git commit` time regardless of how heavily-loaded the iter context is.
 
 ## Fix Strategy
 
 **Kind**: create
 
-**Shape**: hook (PreToolUse:Bash matching `git commit`)
+**Shape**: hook (PreToolUse:Bash matching `git commit`) + helper
 
-**Suggested name**: `packages/itil/hooks/itil-changeset-discipline.sh`
+**Files**:
+- `packages/itil/hooks/itil-changeset-discipline.sh` — entry hook; parses tool_name + command from PreToolUse JSON; gates on `git commit` substring; delegates detection to helper; emits `permissionDecision: deny` JSON when helper signals trap.
+- `packages/itil/hooks/lib/changeset-detect.sh` — `detect_changeset_required` helper. Returns 0 (allow) / 1 (deny). Echoes the offending plugin slug on stdout when 1.
+- `packages/itil/hooks/test/itil-changeset-discipline.bats` — behavioural bats per ADR-005 + P081 (no source-grep; payload-on-stdin assertions on emitted JSON).
+- `packages/itil/hooks/hooks.json` — register the hook as a third `PreToolUse:Bash` matcher.
 
-**Scope**: deny `git commit` when staged diff includes `packages/<plugin>/*` files but no matching `.changeset/<plugin>-*.md` is staged. Allow when changeset is present, or when `BYPASS_CHANGESET_GATE=1` is set.
+**Scope**: deny `git commit` when staged diff includes any non-allow-listed `packages/<plugin>/*` file but no `.changeset/*.md` (excluding `README.md` / `config.json`) is staged. Allow when at least one valid changeset is staged, when staged `packages/<plugin>/*` files are entirely allow-listed (test paths or doc paths), or when `BYPASS_CHANGESET_GATE=1` is set.
+
+**Deny budget**: ≤300 bytes (architect amendment per ADR-045 deny-path band; tighter than ADR-038's 400-byte ceiling). Names plugin slug + `bun run changeset` recovery + P141 cite.
+
+**Allow-path silence**: 0 bytes per ADR-045 Pattern 1 (silent-on-pass). Hook exits 0 with no stdout/stderr on the allow path.
 
 **Triggers**: every `git commit` Bash invocation.
 

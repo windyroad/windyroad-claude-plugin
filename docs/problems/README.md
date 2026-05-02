@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-05-02 **P149 + P150 opened — 2026-05-02 retro Step 2b pipeline-instability detections**: P149 (manage-problem Step 0 reconcile halt-on-drift directive overreaches — should distinguish uncommitted-rename-rooted drift from committed cross-session drift; observed during P148 release session where uncommitted prior-session AFK-iter rename triggered drift detection but inline refresh per ADR-014 single-commit grain was the correct path; fix is bounded SKILL.md amendment in three files + behavioural bats); P150 (Verification Queue rendered newest-first contradicts section header "oldest first"; documentation-vs-rendering mismatch across five SKILL.md render blocks; sibling fix shape to P138's tie-break-ladder marker; observed when inserting P148 into the queue today). Both Open / S / WSJF 4.0. Prior line-3 fragment (P148 verifying-transition + retrospective Stage 1 fix release) rotated to `docs/problems/README-history.md` under `## 2026-05-02` heading per P134.
+> Last reviewed: 2026-05-02 **P141 known error — context-pressure-drops-changeset-reminder confirmed (40% miss rate across 5 publishable iters in 2026-04-28 AFK loop session); architect verdict 2026-05-02 approved hook-level enforcement at `git commit` time as same enforcement-layer pattern as P125 staging-trap hook (per-invocation deterministic, no markers); new PreToolUse:Bash hook `packages/itil/hooks/itil-changeset-discipline.sh` + `lib/changeset-detect.sh` helper + behavioural bats per ADR-005 + P081; ≤300-byte deny budget per ADR-045 Pattern 1; allow-list test paths + `README.md` + `*.md` under `docs/` (NOT `SKILL.md` per architect amendment — SKILL.md IS the publishable contract per ADR-037 framing); bypass via `BYPASS_CHANGESET_GATE=1`; defence-in-depth with P073 (different surface — Write/Edit on `.changeset/*.md`). WSJF 4.5 → 9.0 (KE multiplier). Prior line-3 fragment (P149 + P150 opens — 2026-05-02 retro Step 2b detections) rotated to `docs/problems/README-history.md` under `## 2026-05-02` heading per P134.
 > Run `/wr-itil:manage-problem review` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -9,7 +9,7 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 
 | WSJF | ID | Title | Severity | Status | Effort | Reported |
 |------|-----|-------|----------|--------|--------|----------|
-| 4.5 | P141 | AFK iter `packages/<plugin>/` commits without changesets — orchestrator-main-turn back-fill is fragile recovery, hook-level enforcement preferable | 9 Med | Open | M | 2026-04-29 |
+| 9.0 | P141 | AFK iter `packages/<plugin>/` commits without changesets — orchestrator-main-turn back-fill is fragile recovery, hook-level enforcement preferable | 9 Med | Known Error | M | 2026-04-29 |
 | 4.5 | P142 | P124 Phase 4 — `get_current_session_id` helper system-priority bug; subprocess SIDs win mtime selection over orchestrator SID | 9 Med | Open | M | 2026-04-29 |
 | 4.5 | P145 | `/wr-retrospective:run-retro` Tier 3 budget rotation prompt accumulates "defer" answers across retros — topic files exceed budget recurringly without action | 9 Med | Open | M | 2026-04-29 |
 | 4.0 | P147 | P121 SIGTERM-clean-flush guarantee conditional on prior ITERATION_SUMMARY emit; needs SKILL.md caveat for stuck-before-emit subclass | 4 Med | Open | S | 2026-04-29 |
