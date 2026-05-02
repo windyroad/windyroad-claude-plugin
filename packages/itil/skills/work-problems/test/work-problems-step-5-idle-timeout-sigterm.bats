@@ -194,3 +194,107 @@ assert "total_cost_usd" in j, "cost metadata must survive SIGTERM exit-flush"
   run grep -nE 'ITER_PID=\$!|& *\n*ITER_PID|claude -p.{0,200}&[[:space:]]*$' "$SKILL_FILE"
   [ "$status" -eq 0 ]
 }
+
+# ---------------------------------------------------------------------------
+# P147 stuck-before-emit subclass: P121's "SIGTERM produces clean JSON exit-
+# flush" claim was empirically grounded only against subprocesses that had
+# ALREADY emitted ITERATION_SUMMARY before going idle (the P118 evidence). The
+# 2026-04-29 P146 incident falsified the generalisation: a subprocess that
+# deadlocked BEFORE ITERATION_SUMMARY emission produced exit 143 + a 0-byte
+# JSON file when SIGTERMed. `claude -p --output-format json` writes the entire
+# response as a single blob ON normal exit; SIGTERM-before-blob-write means no
+# JSON is ever written.
+#
+# The fixture below exercises the stuck-before-emit shape with a fake `claude`
+# that traps SIGTERM and exits WITHOUT writing any stdout. The orchestrator-
+# shape harness then SIGTERMs after the idle threshold, and the assertions
+# pin: (a) the JSON file is 0 bytes (the metadata-loss-event indicator the
+# SKILL.md prose now warns adopters to watch for), and (b) SIGTERM was sent
+# (the recovery primitive still fires — the bug is in the prose claim about
+# what flushes, not in the SIGTERM action itself).
+#
+# @problem P147
+
+dispatch_with_poll_no_emit() {
+  local json_file="${TEST_TMP}/iter.json"
+  local idle_timeout_s="${WORK_PROBLEMS_IDLE_TIMEOUT_S:-3600}"
+  local dispatch_start_epoch
+  dispatch_start_epoch=$(date +%s)
+  local sigterm_sent=0
+
+  : > "$json_file"
+  claude_no_emit -p --permission-mode bypassPermissions --output-format json "TEST" \
+    < /dev/null > "$json_file" 2>&1 &
+  local iter_pid=$!
+
+  while kill -0 "$iter_pid" 2>/dev/null; do
+    sleep 1
+    local now
+    now=$(date +%s)
+    local last_activity_mark=$dispatch_start_epoch
+    local idle_seconds=$(( now - last_activity_mark ))
+    if (( idle_seconds > idle_timeout_s )) && (( sigterm_sent == 0 )); then
+      kill -TERM "$iter_pid" 2>/dev/null || true
+      sigterm_sent=1
+    fi
+  done
+
+  wait "$iter_pid" 2>/dev/null || true
+
+  local json_bytes
+  json_bytes=$(wc -c < "$json_file" | tr -d ' ')
+
+  printf 'SIGTERM_SENT=%d\n' "$sigterm_sent"
+  printf 'JSON_BYTES=%s\n' "$json_bytes"
+}
+
+setup_no_emit_shim() {
+  cat > "$FAKE_BIN/claude_no_emit" <<'FAKE_EOF'
+#!/usr/bin/env bash
+# Test fake for work-problems Step 5 P147 stuck-before-emit fixture.
+# Traps SIGTERM and exits 0 WITHOUT emitting any stdout. Mirrors the 2026-
+# 04-29 P146 incident shape: subprocess deadlocked before ITERATION_SUMMARY
+# emission; SIGTERM cannot flush a JSON blob the CLI never produced.
+trap 'exit 0' TERM
+sleep "${FAKE_SLEEP_AFTER:-30}"
+FAKE_EOF
+  chmod +x "$FAKE_BIN/claude_no_emit"
+}
+
+@test "P147: SIGTERM-before-emit produces 0-byte JSON (stuck-before-emit subclass)" {
+  setup_no_emit_shim
+  export FAKE_SLEEP_AFTER=10
+  export WORK_PROBLEMS_IDLE_TIMEOUT_S=2
+  run dispatch_with_poll_no_emit
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"SIGTERM_SENT=1"* ]]
+  [[ "$output" == *"JSON_BYTES=0"* ]]
+}
+
+@test "P147: SKILL.md Step 5 names the conditional caveat for SIGTERM exit-flush" {
+  # The prose claim must NOT generalise the P118 clean-flush observation
+  # universally; it must explicitly condition on ITERATION_SUMMARY having been
+  # emitted before SIGTERM. Adopters reading the SKILL.md need to know that
+  # SIGTERM-before-emit produces a 0-byte JSON, not a clean flush. Require
+  # the failure-mode language explicitly so a future drift that removes the
+  # caveat but happens to mention ITERATION_SUMMARY in a different sentence
+  # cannot keep this assertion green.
+  run grep -niE "stuck.?before.?emit|before ITERATION_SUMMARY|ITERATION_SUMMARY.{0,80}not.{0,40}(yet|been).{0,40}emit|conditional.{0,40}(caveat|on)" "$SKILL_FILE"
+  [ "$status" -eq 0 ]
+}
+
+@test "P147: SKILL.md Step 5 documents metadata-loss-event handling (git-evidence + halt + billing-dashboard)" {
+  # When SIGTERM-before-emit is observed (exit 143 + 0-byte JSON), the
+  # orchestrator must verify work integrity from independent evidence (git
+  # log + git status), halt the AFK loop per exit-code semantics, and
+  # reconstruct cost from the Anthropic billing dashboard. This guards
+  # against orchestrators silently treating exit-143-no-JSON as a normal
+  # iteration completion.
+  run grep -niE "metadata.?loss|git log.{0,80}git status|billing dashboard|reconstruct cost" "$SKILL_FILE"
+  [ "$status" -eq 0 ]
+}
+
+@test "P147: SKILL.md Step 5 cites P147 (conditional-caveat ticket)" {
+  run grep -nE "P147" "$SKILL_FILE"
+  [ "$status" -eq 0 ]
+}

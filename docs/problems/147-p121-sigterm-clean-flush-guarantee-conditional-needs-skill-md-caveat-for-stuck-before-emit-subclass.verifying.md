@@ -1,10 +1,27 @@
 # Problem 147: P121 SIGTERM-clean-flush guarantee is conditional on subprocess having emitted ITERATION_SUMMARY before going idle — needs SKILL.md caveat + behavioural-test second-source for stuck-before-emit subclass
 
-**Status**: Open
+**Status**: Verification Pending
 **Reported**: 2026-04-29
 **Priority**: 4 (Med) — Impact: Minor (2) x Likelihood: Possible (2) — false confidence in the SKILL.md SIGTERM-recovery prose causes orchestrators to expect clean JSON flush that may not arrive, then accept exit-143 without halt-and-investigate.
 **Effort**: S — SKILL.md amendment to `packages/itil/skills/work-problems/SKILL.md` line 27 area (the P121 evidence prose block) + amend the briefing entry already added today (`docs/briefing/afk-subprocess.md` "P121 SIGTERM-clean-flush guarantee is conditional, not universal" entry) into a behavioural-test fixture.
 **WSJF**: (4 × 1.0) / 1 = **4.0**
+
+## Fix Released
+
+**Release marker**: 2026-05-03 (AFK iter 7; pending `@windyroad/itil` patch via the queued changeset `.changeset/p147-sigterm-conditional-caveat.md`).
+
+**One-sentence fix summary**: `packages/itil/skills/work-problems/SKILL.md` Step 5 gains a new **"SIGTERM exit-flush is conditional, not universal (P147)"** subsection that conditions the P121 clean-flush claim on prior `ITERATION_SUMMARY` emission, names the stuck-before-emit subclass observed at P146 (exit 143 + 0-byte JSON), and documents the metadata-loss-event handling shape (verify via `git log` + `git status --porcelain`, halt the AFK loop, reconstruct cost from the Anthropic billing dashboard); the Related entry adds a P147 cross-reference; the briefing entry at `docs/briefing/afk-subprocess.md` adds the Fixed-2026-05-03 closing line.
+
+**Awaiting user verification**.
+
+**Exercise evidence (in-session, AFK iter 7)**:
+- TDD red-green-refactor cycle confirmed: 3 of 4 new bats cases failed before the SKILL.md prose amendment (test 12 at the conditional-caveat phrase, test 13 at the metadata-loss-event handling shape, test 14 at the P147 citation); the behavioural stuck-before-emit fake-shim test 11 (`JSON_BYTES=0` after SIGTERM-before-emit) was self-contained and green from authoring. All 14 of 14 tests pass after the SKILL.md edit.
+- Behavioural fixture re-creates the 2026-04-29 P146 incident shape: a fake `claude_no_emit` shim traps SIGTERM and exits 0 WITHOUT writing any stdout (mirroring the deadlocked-before-emit case where `claude -p --output-format json`'s single-blob-on-exit write has nothing to flush). The orchestrator-shape harness fires SIGTERM after the idle threshold and the assertion pins `JSON_BYTES=0` — exactly the falsifying observation that motivated this ticket.
+- Doc-lint contract assertions guard the conditional caveat against silent prose drift (Permitted Exception under ADR-037, co-located with the existing P121 prose-drift guards in the same fixture per the architect's APPROVE verdict).
+
+**Verification path**: any future stuck-before-emit subprocess incident in `/wr-itil:work-problems` AFK loops (the most likely re-entry: another iteration-internal polling-loop bug like P146 that deadlocks AFTER commits land but BEFORE `ITERATION_SUMMARY` emission) should now be handled correctly: orchestrator observes exit 143 + 0-byte JSON, halts the loop per exit-code semantics rather than silently continuing, surfaces the metadata-loss event with `git log` / `git status --porcelain` evidence in the AFK summary, and notes that cost reconstruction requires the Anthropic billing dashboard. If a future incident instead silently continues past exit-143 + 0-byte JSON, the SKILL.md prose amendment failed to land or the orchestrator's exit-code handling is regressed.
+
+**Composes-with**: P121 (parent — orchestrator-side SIGTERM mechanism unchanged; this ticket is documentation accuracy + handling shape, not behavioural change), P146 (sibling — the polling-regex iteration-internal bug that produced the falsifying evidence; remains an independent failure class), ADR-005 (test-first), ADR-037 (Permitted Exception for the co-located doc-lint assertions), ADR-014 (single-commit-per-batch — SKILL.md + bats + briefing + ticket transition + README + changeset all in one commit).
 
 ## Description
 

@@ -1,0 +1,5 @@
+---
+"@windyroad/itil": patch
+---
+
+itil: `work-problems` SKILL.md Step 5 now carries an explicit "SIGTERM exit-flush is conditional, not universal (P147)" subsection that refines the P121 "clean exit-flush" claim. The original P118 evidence (2026-04-25) was for subprocesses that had already emitted `ITERATION_SUMMARY` before going idle; the 2026-04-29 P146 incident produced exit 143 + 0-byte JSON when SIGTERM fired before emission. The new caveat documents the metadata-loss-event handling shape: verify work integrity from `git log` + `git status --porcelain`, halt the AFK loop per exit-code semantics, reconstruct cost from the Anthropic billing dashboard. SIGTERM remains the right recovery primitive — the refinement is documentation accuracy, not a behavioural change. Behavioural second-source: `test/work-problems-step-5-idle-timeout-sigterm.bats` extends with a stuck-before-emit fake-shim asserting `JSON_BYTES=0` after SIGTERM, plus three doc-lint contract assertions guarding the conditional caveat against silent prose drift.
