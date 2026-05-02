@@ -86,8 +86,10 @@ Step 6.75 treats a Step-0-resolved-with-user-confirmation state as `dirty-for-kn
 After the session-continuity detection pass, Step 0 MUST run the diagnose-only README reconciliation check. The orchestrator reads `docs/problems/README.md`'s WSJF Rankings table to pick the highest-WSJF actionable ticket (Step 3); if that table lies about which tickets are open vs verifying vs closed, the orchestrator burns iterations on no-op tickets — exactly the failure class P118 captures (a prior session committed a ticket transition without staging the README refresh, and no subsequent session systematically reconciled).
 
 ```bash
-bash packages/itil/scripts/reconcile-readme.sh docs/problems
+wr-itil-reconcile-readme docs/problems
 ```
+
+The `wr-itil-reconcile-readme` command is a `$PATH`-resolved shim shipped in `packages/itil/bin/` that dispatches the canonical `packages/itil/scripts/reconcile-readme.sh` body. ADR-049 — never invoke the canonical script via repo-relative path; the path does not resolve in adopter trees.
 
 Exit-code routing:
 - **Exit 0 (clean)**: continue to Step 1.

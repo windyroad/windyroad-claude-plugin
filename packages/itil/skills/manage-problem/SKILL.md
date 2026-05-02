@@ -186,8 +186,10 @@ What "work" means depends on the problem's status:
 Before parsing the request, run the diagnose-only reconciliation check. The contract here catches **cross-session drift** that per-operation refresh paths (P094 refresh-on-create + P062 refresh-on-transition) cannot retroactively see — if any past session committed a ticket change without staging the README refresh, the next manage-problem invocation reads a stale README that lies about what is open / verifying / closed.
 
 ```bash
-bash packages/itil/scripts/reconcile-readme.sh docs/problems
+wr-itil-reconcile-readme docs/problems
 ```
+
+The `wr-itil-reconcile-readme` command is a `$PATH`-resolved shim shipped in `packages/itil/bin/` that dispatches the canonical `packages/itil/scripts/reconcile-readme.sh` body. ADR-049 — never invoke the canonical script via repo-relative path; the path does not resolve in adopter trees.
 
 Exit-code routing:
 - **Exit 0 (clean)**: continue to Step 1.
@@ -462,7 +464,7 @@ The "Last reviewed" line (line 3 of `docs/problems/README.md`) was designed as a
 1. **Single most-recent fragment only on line 3.** The "Last reviewed" parenthetical names ONE event — the operation this refresh covers. Do NOT prepend a `Prior:` segment, do NOT stack multi-paragraph rationale, do NOT carry history forward inline.
 2. **Soft cap: ≤ 1024 bytes per fragment.** Authoring guidance — keep the fragment dense and audit-meaningful (ticket ID + verb + one-line summary + ADR/JTBD anchors when load-bearing). Multi-paragraph rationale belongs in retros, ticket bodies, and ADR amendments — never on line 3.
 3. **Archive sibling: `docs/problems/README-history.md`.** When this refresh would displace prior line-3 content, append the displaced content to `README-history.md` BEFORE writing the new line 3. Forward-chronology — newest fragment goes at the bottom under a date heading (`## YYYY-MM-DD`). The archive is a log; it's grep-and-tail territory, not display-tier (which is why its chronology diverges from the README's reverse-chrono surface convention).
-4. **Hard ceiling: 5120 bytes on line 3.** Matches ADR-040 Tier 3 envelope. Surfaced advisory-only by `packages/itil/scripts/check-problems-readme-budget.sh` — the script emits `OVER docs/problems/README.md line=3 bytes=<N> threshold=<N>` when the ceiling is breached. Always exits 0 (advisory; overflow is signal, not failure).
+4. **Hard ceiling: 5120 bytes on line 3.** Matches ADR-040 Tier 3 envelope. Surfaced advisory-only by `wr-itil-check-problems-readme-budget` (`$PATH`-resolved shim per ADR-049; canonical body at `packages/itil/scripts/check-problems-readme-budget.sh`) — the script emits `OVER docs/problems/README.md line=3 bytes=<N> threshold=<N>` when the ceiling is breached. Always exits 0 (advisory; overflow is signal, not failure).
 
 **Mechanism** (when authoring a refresh):
 
@@ -474,7 +476,7 @@ The "Last reviewed" line (line 3 of `docs/problems/README.md`) was designed as a
 
 **Fast-path interaction**: the Step 9 freshness check uses git-mtime on `docs/problems/README.md`, NOT the prose contents of line 3. Truncating line 3 does NOT degrade the fast-path contract.
 
-**Cross-references**: ADR-040 line 92 (reusable accumulator-doc pattern — explicitly names "problems index"), ADR-038 (progressive disclosure), ADR-014 (single-commit governance), `packages/itil/scripts/check-problems-readme-budget.sh`, `packages/itil/scripts/test/check-problems-readme-budget.bats`.
+**Cross-references**: ADR-040 line 92 (reusable accumulator-doc pattern — explicitly names "problems index"), ADR-038 (progressive disclosure), ADR-014 (single-commit governance), ADR-049 (plugin-bundled scripts via `bin/` on `$PATH`), `wr-itil-check-problems-readme-budget` shim (canonical body at `packages/itil/scripts/check-problems-readme-budget.sh`), `packages/itil/scripts/test/check-problems-readme-budget.bats`.
 
 ### 6. For updates: Edit the existing file
 

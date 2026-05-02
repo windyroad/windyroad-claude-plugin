@@ -1,6 +1,6 @@
 # Problem 151: Published skills reference repo-relative script paths — adopter `bash` invocations hard-fail at Step 0
 
-**Status**: Known Error
+**Status**: Verification Pending
 **Reported**: 2026-05-02
 **Priority**: 20 (Very High) — Impact: Significant (4) x Likelihood: Almost certain (5)
 **Effort**: L — ADR-049 codifying plugin-bundled-script resolution via `bin/` on `$PATH` + thin shim wrappers + mechanical edits across 5 SKILL.md files in 2 plugins + path-resolution tests + grep-as-lint behavioural test (per architect ADR-049 Confirmation criterion).
@@ -106,3 +106,18 @@ The Claude Code marketplace runtime adds `~/.claude/plugins/cache/<owner>/<plugi
 - `packages/retrospective/skills/run-retro/SKILL.md` — Step 2c context-budget measurement, line 179.
 - `packages/retrospective/skills/analyze-context/SKILL.md` — Step 2 context-budget measurement, line 45.
 - `packages/itil/skills/manage-problem/SKILL.md` lines 465, 477 — documentation-only references to `packages/itil/scripts/check-problems-readme-budget.sh`; not dispatched as bash but still mislead adopter agents that try to read the script.
+
+## Fix Released
+
+Fix landed 2026-05-02 in iter 3 of the AFK `/wr-itil:work-problems` loop. Single commit per ADR-014 / ADR-022 fold-fix:
+
+- **ADR-049** (`docs/decisions/049-plugin-script-resolution-via-bin-on-path.proposed.md`) codifies the rule: plugin-bundled scripts invoked from SKILL.md MUST resolve via `bin/` on `$PATH`, never via repo-relative paths. Naming grammar `wr-<plugin>-<kebab-script-name>` is fixed. Architect concurrence + JTBD alignment recorded; sibling to ADR-002 / ADR-003 / ADR-017.
+- **Three new shim wrappers** under `packages/<plugin>/bin/` (3-line `exec "$(dirname "$0")/../scripts/<name>.sh" "$@"` body, executable, no `.sh` extension): `wr-itil-reconcile-readme`, `wr-itil-check-problems-readme-budget`, `wr-retrospective-measure-context-budget`.
+- **Five SKILL.md invocation sites updated** to use the bin-wrapper name: `manage-problem` Step 0 L189, `work-problems` Step 0 L89, `reconcile-readme` Step 1 L44, `run-retro` Step 2c L179, `analyze-context` Step 2 L45. Plus two documentation references at `manage-problem` L465 / L477 rewritten to name the bin-wrapper while preserving the maintainer-side canonical-path hint.
+- **Cross-plugin grep-as-lint bats** at `packages/shared/test/no-repo-relative-script-paths-in-skills.bats` (8 tests) — green post-fix, fails CI on any future regression.
+- **Changeset entries** for `@windyroad/itil` (patch) and `@windyroad/retrospective` (patch).
+- **Sibling concern follow-up**: P153 opened for `packages/*/hooks` glob loops in `analyze-context` SKILL.md L56-67 (different failure mode — silent zero-byte degradation rather than hard fail; tracked separately to keep this commit's lint pattern precise).
+
+In-session exercise evidence: the new `wr-itil-reconcile-readme` shim was driven against `docs/problems/` and exited 0 (clean); all 8 bats tests at `packages/shared/test/no-repo-relative-script-paths-in-skills.bats` are green; the published SKILL.md invocation surface contains zero `bash packages/<plugin>/(scripts|hooks)/...` patterns.
+
+Adopter-side verification path: install `@windyroad/itil` and `@windyroad/retrospective` in a fresh project (no source-repo cohabitation), run `/wr-itil:work-problems` and `/wr-retrospective:analyze-context`, observe Step 0 succeeds via the `wr-itil-reconcile-readme` and `wr-retrospective-measure-context-budget` bin-resolved commands. Awaiting user verification.

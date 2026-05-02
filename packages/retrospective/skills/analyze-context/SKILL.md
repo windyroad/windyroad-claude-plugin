@@ -42,8 +42,10 @@ If the script is missing or not executable, halt with a directive: *"measure-con
 Invoke the script to capture the canonical per-source-bucket byte totals. Identical contract to run-retro Step 2c:
 
 ```bash
-bash packages/retrospective/scripts/measure-context-budget.sh "${CLAUDE_PROJECT_DIR:-.}"
+wr-retrospective-measure-context-budget "${CLAUDE_PROJECT_DIR:-.}"
 ```
+
+The `wr-retrospective-measure-context-budget` command is a `$PATH`-resolved shim shipped in `packages/retrospective/bin/` that dispatches the canonical `packages/retrospective/scripts/measure-context-budget.sh` body. ADR-049 — never invoke the canonical script via repo-relative path; the path does not resolve in adopter trees.
 
 The output is the deep layer's baseline. Parse each `BUCKET <name> bytes=<N>` row into a structured map; preserve `BUCKET <name> not-measured reason=<reason>` rows verbatim — the sentinels carry into the report unchanged.
 

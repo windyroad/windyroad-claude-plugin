@@ -176,8 +176,10 @@ Per **ADR-043** (Progressive context-usage measurement and reporting for retrosp
 1. **Invoke the diagnostic script**:
 
    ```bash
-   bash packages/retrospective/scripts/measure-context-budget.sh "${CLAUDE_PROJECT_DIR:-.}"
+   wr-retrospective-measure-context-budget "${CLAUDE_PROJECT_DIR:-.}"
    ```
+
+   The `wr-retrospective-measure-context-budget` command is a `$PATH`-resolved shim shipped in `packages/retrospective/bin/` that dispatches the canonical `packages/retrospective/scripts/measure-context-budget.sh` body. ADR-049 — never invoke the canonical script via repo-relative path; the path does not resolve in adopter trees.
 
    The script is read-only, exits 0 on advisory output and 2 on parse error (project root missing). It emits one row per bucket: `BUCKET <name> bytes=<N>` for measured surfaces, `BUCKET <name> not-measured reason=<reason>` for absent or framework-injected surfaces, plus a trailing `THRESHOLD bytes=<N>` row for the configurable ceiling. See `packages/retrospective/scripts/test/measure-context-budget.bats` for the exact contract.
 

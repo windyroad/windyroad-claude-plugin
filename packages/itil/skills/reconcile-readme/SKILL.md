@@ -41,8 +41,10 @@ Three invocation surfaces, all routed through this skill so the agent-applied-ed
 Invoke the mechanical drift detector:
 
 ```bash
-bash packages/itil/scripts/reconcile-readme.sh docs/problems
+wr-itil-reconcile-readme docs/problems
 ```
+
+The `wr-itil-reconcile-readme` command is a `$PATH`-resolved shim shipped in `packages/itil/bin/` that dispatches the canonical `packages/itil/scripts/reconcile-readme.sh` body. ADR-049 — never invoke the canonical script via repo-relative path; the path does not resolve in adopter trees.
 
 Exit codes:
 - `0` — clean. No drift; nothing to do. Report "Reconciliation: clean (0 drift entries)" and exit.
