@@ -1,11 +1,11 @@
 # Problem 151: Published skills reference repo-relative script paths — adopter `bash` invocations hard-fail at Step 0
 
-**Status**: Open
+**Status**: Known Error
 **Reported**: 2026-05-02
 **Priority**: 20 (Very High) — Impact: Significant (4) x Likelihood: Almost certain (5)
-**Effort**: L — net-new ADR codifying plugin-bundled-script resolution strategy + mechanical edits across 5 SKILL.md files in 2 plugins + path-resolution tests. Bounded if `$CLAUDE_PLUGIN_DIR` (or equivalent) is already supported by the Claude Code plugin marketplace cache; XL if it requires net-new env-var infrastructure or plugin packaging changes.
+**Effort**: L — ADR-049 codifying plugin-bundled-script resolution via `bin/` on `$PATH` + thin shim wrappers + mechanical edits across 5 SKILL.md files in 2 plugins + path-resolution tests + grep-as-lint behavioural test (per architect ADR-049 Confirmation criterion).
 
-**WSJF**: (20 × 1.0) / 4 = **5.0**
+**WSJF**: (20 × 2.0) / 4 = **10.0**
 
 > Surfaced 2026-05-02 by user during a `/wr-itil:work-problems` AFK loop iter 1: *"some of the published skills (like manage-problem) references files in this repo (like packages/itil/scripts/reconcile-readme.sh), which users of the plugins CANNOT ACCESS because they are repo paths not plugin paths"*. Sibling concern to P137 (internal-ID leakage) but a distinct failure mode — P137 is degraded-semantics (adopter agent ignores or mis-resolves an `ADR-NNN` token); this ticket is **hard runtime failure** (the bash command exits with `No such file or directory` and the skill cannot proceed past Step 0).
 
@@ -26,14 +26,14 @@ This is distinct from P137 (Plugin-published artifacts reference internal ADR/JT
 
 ## Workaround
 
-None at the source level — the artefacts ship as-authored. Adopter-side workarounds:
+None at the source level — the artefacts ship as-authored. Adopter-side workarounds (none reasonable; documented for completeness):
 
 - Adopter could clone `windyroad-claude-plugin` as a sibling submodule so the repo-relative paths resolve. Heavyweight, defeats the plugin model, requires the adopter to maintain a copy of the entire monorepo for what should be a single-plugin install.
 - Adopter could symlink `packages/itil/scripts/` and `packages/retrospective/scripts/` from the plugin marketplace cache into their project root. Brittle (cache version changes invalidate the symlink), uses adopter directory namespace for plugin-internal layout, and the symlinks themselves leak `packages/itil/...` into the adopter's git status.
 - Adopter could manually transcribe the script's bash logic into their own working tree at the right path. Defeats plugin distribution; requires the adopter to read the published script source and copy it; doesn't survive plugin updates.
 - Adopter could disable the affected skills entirely. Loses the value the plugin was installed for.
 
-None of these are reasonable. The fix has to be at the source — the published artifacts must reference scripts via a path that resolves in adopter projects.
+None of these are reasonable. The fix has to be at the source — the published artifacts must reference scripts via a path that resolves in adopter projects. **Known Error fix path: ADR-049 + bin/ shim relocation (see Root Cause Analysis below).**
 
 ## Impact Assessment
 
@@ -51,29 +51,44 @@ None of these are reasonable. The fix has to be at the source — the published 
 
 ## Root Cause Analysis
 
-### Preliminary Hypothesis
+### Confirmed Root Cause (2026-05-02 investigation)
 
 Published SKILL.md files were authored against the source-repo working tree where `packages/<plugin>/scripts/<name>.sh` is the natural path. No build step or path-resolution layer rewrites these references when the plugin is published to npm and installed into an adopter's marketplace cache. The same applies to documentation-only references to `packages/itil/scripts/check-problems-readme-budget.sh` (manage-problem SKILL.md lines 465, 477) — those don't hard-fail because they aren't dispatched as bash, but they mislead any adopter agent that tries to follow the reference.
 
-The Claude Code plugin marketplace cache structure (verified 2026-05-02 from this session's environment) places plugin contents under `~/.claude/plugins/cache/<owner>/<plugin>/<version>/`. So `packages/itil/scripts/reconcile-readme.sh` is physically present at `~/.claude/plugins/cache/windyroad/wr-itil/0.23.1/scripts/reconcile-readme.sh` (note the path collapses `packages/itil/` to just the plugin's content root). The source-repo path `packages/itil/scripts/<name>.sh` and the cache-resolved path `<cache>/scripts/<name>.sh` are NOT the same string — they share the trailing `scripts/<name>.sh` but the leading prefix differs.
+The Claude Code plugin marketplace cache structure (verified 2026-05-02) places plugin contents under `~/.claude/plugins/cache/<owner>/<plugin>/<version>/`. So `packages/itil/scripts/reconcile-readme.sh` is physically present at `~/.claude/plugins/cache/windyroad/wr-itil/0.23.1/scripts/reconcile-readme.sh`. The source-repo path and the cache-resolved path share the trailing `scripts/<name>.sh` but the leading prefix differs.
 
-This suggests a fix shape: published SKILL.md files should reference scripts via a path that resolves correctly in BOTH the source repo (so the skill works during plugin development in this monorepo) AND the marketplace cache (so the skill works for adopters). Candidates to explore in the architect-design phase:
+### Resolution Strategy — Candidate 5 (bin/ on $PATH + thin shim wrapper)
 
-1. **`$CLAUDE_PLUGIN_DIR` env-var resolution** — if Claude Code exports `CLAUDE_PLUGIN_DIR` (or equivalent) pointing at the plugin's cache root when the skill is invoked, SKILL.md could use `bash "$CLAUDE_PLUGIN_DIR/scripts/<name>.sh"`. Requires confirmation that the env var exists and is set correctly during skill invocation. If absent, this requires a Claude Code feature request. Note: hooks already use `${CLAUDE_PLUGIN_ROOT}` (e.g. the manage-problem-enforce-create.sh hook is invoked via `${CLAUDE_PLUGIN_ROOT}/hooks/manage-problem-enforce-create.sh` — confirmed in this session's hook deny output) so a sibling env var for skills is plausible.
-2. **Inline the script logic directly into SKILL.md** — for short scripts, the bash body could be inlined. Eliminates the path-resolution problem entirely but bloats SKILL.md (composes-with P097 — SKILL.md size pressure). For longer scripts (`reconcile-readme.sh` is ~150 LOC) this trade-off may be unfavourable.
-3. **Skill-resolved path via marketplace metadata** — Claude Code's plugin marketplace may already track the cache root per plugin. SKILL.md could reference scripts via a documented marketplace-resolved path token that the agent's runtime expands.
-4. **Plugin-script bundling as agent-side helpers** — relocate scripts under `packages/<plugin>/agents/scripts/` or similar, so they are packaged with the plugin's agent definitions and resolved through the existing agent-loading mechanism. Requires architecture investigation.
+**Selected strategy** (architect concurrence 2026-05-02 — ADR-049 to codify):
+
+The Claude Code marketplace runtime adds `~/.claude/plugins/cache/<owner>/<plugin>/<version>/bin/` to `$PATH` for every installed plugin. Empirically verified 2026-05-02 — the agent's Bash tool sees 12+ windyroad plugin `bin/` directories on `$PATH`, plus 2 official plugins. Any executable placed in a plugin's `bin/` directory is therefore discoverable by name at SKILL.md bash-invocation time, in adopter sessions and source-repo dev sessions alike.
+
+**Fix shape**:
+
+- Keep canonical script body under `packages/<plugin>/scripts/<name>.sh` (preserves existing bats test invocation path under `packages/<plugin>/scripts/test/`).
+- Add a thin shim wrapper at `packages/<plugin>/bin/wr-<plugin>-<name>` (no `.sh` extension; matches `bin/check-deps.sh` precedent — actually keep `.sh` for consistency? — architect-concurred shape uses 3-line shim: `#!/usr/bin/env bash` + `exec "$(dirname "$0")/../scripts/<name>.sh" "$@"`). Portable across Windows, npm-pack tarballing, and marketplace installer paths in a way symlinks are not (architect explicitly preferred shim over symlink for portability).
+- Update affected SKILL.md invocations: `bash packages/itil/scripts/reconcile-readme.sh ARG` → `wr-itil-reconcile-readme ARG`. Same for `measure-context-budget.sh` in retrospective.
+- Naming: `wr-<plugin>-<verb-noun>` prefixed entries (e.g. `wr-itil-reconcile-readme`, `wr-retro-measure-context-budget`). Avoids collision with adopter binaries; mirrors the skill-namespace convention (`wr-itil:*`, `wr-retrospective:*`); preserves grep-ability across the suite.
+- ADR-049 codifies the rule normatively: "Plugin-bundled scripts invoked from SKILL.md MUST resolve via `bin/` on `$PATH`, never via repo-relative paths." Sibling ADRs: ADR-002 (monorepo per-plugin packages — already establishes `bin/` as the published entry-point surface), ADR-003 (marketplace-only distribution — confirms `bin/` ships through the marketplace cache), ADR-017 (shared-code-sync pattern — precedent for the canonical-body + thin-wrapper shape).
+- ADR-049 Confirmation criterion: a behavioural grep-as-lint test (bats) asserting that no published `SKILL.md` contains `bash <repo-relative-path>` invocations. Catches the next regression at CI rather than in adopter sessions.
+
+### Ruled-out / deprioritised candidates
+
+- **C1 — `${CLAUDE_PLUGIN_ROOT}` env-var resolution**: RULED OUT. Empirically verified UNSET at SKILL.md bash-invocation time (2026-05-02 — `env | grep ^CLAUDE_` returns only `CLAUDE_CODE_ENTRYPOINT/EXECPATH/SSE_PORT`; `CLAUDE_PLUGIN_ROOT` and `CLAUDE_PLUGIN_DIR` both unset). Hooks DO see `${CLAUDE_PLUGIN_ROOT}` because Claude Code's runtime interpolates the token when expanding `hooks.json` command strings BEFORE invoking the hook — but skill bash invocations don't go through that interpolation path. The preliminary hypothesis ("a sibling env var for skills is plausible") was wrong; no such env var is exported.
+- **C2 — Inline the script logic directly into SKILL.md**: deprioritised. `reconcile-readme.sh` is ~150 LOC; inlining bloats SKILL.md and composes adversely with P097 (SKILL.md size pressure / runtime-vs-maintainer content mixed). Architect verdict: "non-starter for a 150 LOC body."
+- **C3 — Skill-resolved path via marketplace metadata token**: not available today — would require a Claude Code feature request. C5 works without an upstream change.
+- **C4 — Plugin-script bundling as agent-side helpers**: architect verdict — "duplicates the `bin/` mechanism without adding value."
 
 ### Investigation Tasks
 
-- [ ] Confirm whether `$CLAUDE_PLUGIN_DIR` / `${CLAUDE_PLUGIN_ROOT}` (or any equivalent env var) is exported by Claude Code's runtime when a skill is invoked from the marketplace cache. The hook side already uses `${CLAUDE_PLUGIN_ROOT}` per the manage-problem-enforce-create.sh deny-message evidence; if the same var is available at skill-bash-invocation time the fix is small.
-- [ ] If a plugin-resolution env var exists, audit whether each affected skill's bash invocations work with the resolved path (source repo vs. marketplace cache parity).
-- [ ] If no env var exists, file a Claude Code feature request OR pivot to one of the alternative resolution strategies.
-- [ ] Architect review — codify the chosen resolution strategy as an ADR (likely sibling to P137's pending decision; both touch the plugin-boundary contract).
-- [ ] Mechanical replacement across the 5 SKILL.md files identified by grep + any others discovered during the audit.
-- [ ] Behavioural bats per ADR-005 — assert the path resolution works in both source-repo and marketplace-cache contexts.
-- [ ] Reproduction test exists or referenced (would require simulating a marketplace-cache install, or adopting a path-resolution wrapper bash function).
-- [ ] Identify a workaround for adopters until the fix releases (currently: none reasonable — see Workaround section).
+- [x] Confirm whether `$CLAUDE_PLUGIN_DIR` / `${CLAUDE_PLUGIN_ROOT}` (or any equivalent env var) is exported by Claude Code's runtime at SKILL.md bash-invocation time. **Result: NO** — neither is exported (verified 2026-05-02 in source-repo session via `env | grep CLAUDE_`). Eliminates Candidate 1.
+- [x] If no env var exists, pivot to one of the alternative resolution strategies. **Result: discovered Candidate 5 (bin/ on $PATH) empirically; architect concurred 2026-05-02.**
+- [x] Architect review — codify the chosen resolution strategy as an ADR. **Result: ADR-049 to be drafted (deferred from this iter — architect concurred on shape; drafting is a separate work item).**
+- [ ] Draft ADR-049 codifying `bin/` + shim resolution rule (sibling to ADR-002 / ADR-003 / ADR-017 / ADR-024 / ADR-036 — plugin-boundary class).
+- [ ] Add `bin/wr-<plugin>-<name>` shim wrappers for `reconcile-readme.sh`, `check-problems-readme-budget.sh` (itil), `measure-context-budget.sh` (retrospective).
+- [ ] Mechanical replacement across the 5 SKILL.md invocation sites identified by grep + any others discovered during the audit (also update the documentation-only references at manage-problem SKILL.md lines 465, 477).
+- [ ] Behavioural bats per ADR-005 + ADR-049 Confirmation criterion — grep-as-lint asserting no published `SKILL.md` contains `bash <repo-relative-path>`. Catches regressions at CI.
+- [ ] Optional: behavioural test asserting each `bin/wr-<plugin>-<name>` is on `$PATH` when the plugin is installed (smoke check that the shim is actually executable in marketplace-installed sessions).
 
 ## Dependencies
 
