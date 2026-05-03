@@ -9,7 +9,6 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 
 | WSJF | ID | Title | Severity | Status | Effort | Reported |
 |------|-----|-------|----------|--------|--------|----------|
-| 3.0 | P014 | No lightweight aside invocation for governance skills (background-subagent convention per 2026-04-20 direction) | 12 High | Open | L | 2026-04-16 |
 | 3.0 | P081 | Structural source-content tests are wasteful — TDD agent should reject them and require behavioural tests | 12 High | Open | L | 2026-04-21 |
 | 3.0 | P087 | No maturity / battle-hardening signal on plugins, skills, agents, or hooks — READMEs don't tell users which features are stable vs experimental | 12 High | Open | L | 2026-04-21 |
 | 3.0 | P097 | SKILL.md files mix runtime-necessary steps with maintainer-facing rationale, bloating every skill invocation | 12 High | Open | L | 2026-04-22 |
@@ -26,6 +25,7 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 1.5 | P080 | No bidirectional update of upstream-reported problems — local lifecycle transitions never propagate back to the reporter (re-rated 6.0 → 1.5 transitive 2026-04-26 — blocked by P079/P038/P064) | 12 High | Open | M | 2026-04-21 |
 | 1.5 | P045 | Auto plugin install after governance release (deferred install on next session start per 2026-04-20 direction) | 6 Med | Open | L | 2026-04-19 |
 | 1.5 | P079 | No inbound sync of upstream-reported problems — reports filed via the intake templates never surface in the local backlog (re-rated 6.0 → 1.5 transitive 2026-04-26 — assessment-pipeline scope blocked by P038/P064) | 12 High | Open | L | 2026-04-21 |
+| 1.5 | P014 | No lightweight aside invocation for governance skills (master tracker for ADR-032 — capture-* sibling skills + pending-questions hook + supersession cleanup) | 12 High | Open | XL | 2026-04-16 |
 | 1.5 | P038 | No voice-and-tone gate on external communications | 12 High | Open | XL | 2026-04-17 |
 | 1.5 | P073 | No voice-and-tone or risk gate on changeset authoring (which populate CHANGELOG.md, Release PRs, GitHub Releases, and npm release notes) | 12 High | Open | XL | 2026-04-20 |
 | 1.5 | P082 | No voice-and-tone or content-risk-scoring gate on commit messages (transitive XL via P038 per P076; marginal M) | 12 High | Open | XL | 2026-04-21 |

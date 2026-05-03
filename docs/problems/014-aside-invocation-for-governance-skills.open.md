@@ -6,6 +6,23 @@
 **Effort**: XL — re-sized up from L 2026-04-20 (AFK iter 2 architect review): ADR-027 conflict requires a new/amended/superseding ADR plus 4 SKILL.md edits, regardless of which reconciliation option the user picks. See "Architect-detected conflict" section below. (Earlier L sizing assumed no ADR-level conflict; re-sized down from original XL when the new-pattern + new-ADR scope was dropped via user direction; now re-sized back up by the architect-flagged ADR-027 collision.)
 **WSJF**: 1.5 — (12 × 1.0) / 8
 
+## Iter 12 progress (2026-05-03)
+
+**Slice landed this iter**: stale ADR-027 compatibility notes in `packages/retrospective/skills/run-retro/SKILL.md` (Step 2b, Step 2c, Step 4a) rewritten as ADR-032 supersession notes; matching bats greps in `test/run-retro-pipeline-instability-scan.bats` and `test/run-retro-verification-close-housekeeping.bats` re-pointed at the new strings; patch changeset for `@windyroad/retrospective` queued. Commit: `1804168 docs(retrospective): rewrite stale ADR-027 compat notes in run-retro/SKILL.md (P014)`.
+
+**Architect closure-condition delta** (vs. ADR-032 lines 13-19):
+
+- ADR-027 renamed to `.superseded.md` — done (pre-iter)
+- Step-0 subagent-delegation language removed from `manage-problem` / `create-adr` / `manage-incident` SKILL.md files — already absent in those files (ADR-027's mandate was never operationally implemented). For `run-retro`, the trailing stale-compat-note debt landed this iter.
+- Three new `capture-*` SKILL.md files — **NOT YET**. `capture-retro` deferred per P088. `capture-problem` and `capture-adr` are the live deliverables.
+- `packages/itil/hooks/pending-questions-surface.sh` — **NOT YET**.
+- Bats coverage per ADR-032 Confirmation — partially landed (run-retro structural greps re-pointed); the three new-skill contract tests + the hook test are not yet authored.
+- `.claude-plugin/plugin.json` entries — **NOT YET**.
+
+**Planned split deferred to a future iter**: architect (this iter) approved decomposing the remaining work into three subordinate child tickets (ship-capture-problem, ship-capture-adr, ship-pending-questions-surface-hook) using P135's master + child convention. The split was not executed this iter because each new ticket creation goes through `manage-problem-enforce-create.sh` (P119), which mandates a serial `/wr-itil:manage-problem` Step 2 duplicate-check per ticket — three serial skill invocations exceeds the iter-scope budget AND each Step 2 has an AskUserQuestion-on-duplicate-detection branch that violates the `NEVER call AskUserQuestion mid-loop` AFK constraint. A future iter that opens these three child tickets in foreground (interactive) is the right surface.
+
+## Decision record
+
 ## Decision record
 
 **ADR-032** (Governance skill invocation patterns — foreground + background with deferred-question resumption) — drafted 2026-04-21 post-user-direction. Supersedes ADR-027. Pattern taxonomy: **foreground synchronous** (existing skills, no Step 0), **background capture** (NEW `capture-*` siblings), **foreground edit-gate** (unchanged), **foreground commit-gate** (unchanged). The "log Y, keep working on X" promise delivered via three new skills: `/wr-itil:capture-problem`, `/wr-retrospective:capture-retro`, `/wr-architect:capture-adr`. AskUserQuestion branches in background skills defer via a persistent pending-questions artefact in `docs/problems/open/`; a new UserPromptSubmit hook (`packages/itil/hooks/pending-questions-surface.sh`) surfaces them to the main agent on next pause. AFK orchestrator iterations stay synchronous per ADR-018 / ADR-019 carve-out.
