@@ -80,8 +80,15 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
-@test "run-retro: Step 2b ADR-027 compatibility note documents subagent-context handling" {
-  run grep -F 'ADR-027' "$SKILL_MD"
+@test "run-retro: Step 2b ADR-032 supersession note documents post-supersession context handling" {
+  # ADR-027 was superseded by ADR-032 (2026-04-21). The former
+  # "ADR-027 compatibility note" was rewritten to an ADR-032 supersession
+  # note that records the obviation of any Step-0 subagent migration.
+  # Structural grep retained for now (P081 anti-pattern; convert to
+  # behavioural fixture in a follow-up — tracked separately).
+  run grep -F 'ADR-032 supersession note' "$SKILL_MD"
+  [ "$status" -eq 0 ]
+  run grep -F 'No Step-0 subagent migration applies' "$SKILL_MD"
   [ "$status" -eq 0 ]
 }
 
