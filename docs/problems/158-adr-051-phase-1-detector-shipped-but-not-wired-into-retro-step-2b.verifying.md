@@ -1,6 +1,6 @@
 # Problem 158: ADR-051 Phase 1 detector shipped but not wired into run-retro Step 2b
 
-**Status**: Open
+**Status**: Verification Pending
 **Reported**: 2026-05-03
 **Priority**: 12 (High) — Impact: Significant (4) x Likelihood: Possible (3)
 **Effort**: S — wiring the existing `wr-retrospective-check-readme-jtbd-currency` shim into `/wr-retrospective:run-retro` Step 2b. The detector + bin shim + bats fixtures already ship per [ADR-051](../decisions/051-jtbd-anchored-readme-with-drift-advisory.proposed.md) Phase 1 Confirmation criteria 1-3. The only deferred work is the SKILL.md amendment ADR-051 Confirmation criterion 5 explicitly named ("wiring into `/wr-retrospective:run-retro` Step 2b is deferred to a follow-on iter once the detector is empirically validated against current READMEs").
@@ -55,8 +55,8 @@ ADR-051 Phase 1 deliverable 3 (run-retro Step 2b wiring) was filed as a follow-o
 - [x] Confirm detector + bin shim are shipped (`git ls-files` matches found 2026-05-03)
 - [x] Confirm wiring is absent (`grep -n "check-readme-jtbd-currency" packages/retrospective/skills/run-retro/SKILL.md` returns no matches 2026-05-03)
 - [x] Confirm empirical-validation precondition met (`8df1692` detector run reports `drift_instances=1`)
-- [ ] Wire the detector into run-retro Step 2b as a JTBD currency advisory sub-section (fix strategy below)
-- [ ] Fix the residual `retrospective` skill-inventory-drift (one-line README addition)
+- [x] Wire the detector into run-retro Step 2b as a JTBD currency advisory sub-section (shipped in `df47ad1` / `@windyroad/retrospective@0.16.0`)
+- [x] Fix the residual `retrospective` skill-inventory-drift (one-line README addition shipped in `df47ad1`; detector now reports `drift_instances=0`)
 - [ ] File a sibling ticket for JTBD-index drift (`docs/jtbd/README.md` vs files-on-disk) — out of scope here
 
 ## Fix Strategy
@@ -91,6 +91,20 @@ Sibling structural concern (filed as a separate follow-on, not in this ticket's 
 - [JTBD-101](../jtbd/plugin-developer/JTBD-101-extend-suite.proposed.md) — composition driver (clear patterns for contributors).
 - [P074](074-run-retro-does-not-notice-pipeline-instability.closed.md) — parent of Step 2b's existence; this ticket extends Step 2b's advisory surface with one more sub-section.
 
+## Fix Released
+
+Released in `@windyroad/retrospective@0.16.0` (commit `df47ad1` shipped via release PR #111, merged at `d944388`). Awaiting user verification.
+
+**Verification path**: run `/wr-retrospective:run-retro` in any session against this repo (or any adopter project that has installed `@windyroad/retrospective@0.16.0` and refreshed via `/install-updates`). The retro summary's Pipeline Instability section should now contain a `JTBD currency advisory: clean (12 packages)` line (or a per-package drift code block + advisory failure log when applicable). Confirm the line appears as expected and close the ticket with `/wr-itil:transition-problem 158 close`.
+
+**Exercise evidence (this session)**:
+
+- `wr-retrospective-check-readme-jtbd-currency` post-`8df1692`: `TOTAL packages=12 with_jtbd=12 drift_instances=1` (residual `retrospective` `skill-inventory-drift`).
+- `wr-retrospective-check-readme-jtbd-currency` post-`df47ad1` (this fix): `TOTAL packages=12 with_jtbd=12 drift_instances=0` (clean).
+- SKILL.md amendment lands the wiring at the documented Step 2b insertion point per ADR-051 Confirmation criterion 5.
+- `@windyroad/retrospective@0.16.0` published to npm registry without partial-publish failures (release:watch reported "Release complete").
+
 ## Change Log
 
 - 2026-05-03: Initial filing. Driven by user correction during pre-audit docs-currency sweep — agent hand-authored the retroactive refresh in `8df1692` without first checking whether the structural mechanism was wired. Fix scope: SKILL.md amendment + `retrospective` README skill-inventory-drift fix + changeset + commit per ADR-014. Empirical-validation precondition met by `8df1692`'s detector run (`drift_instances=1`).
+- 2026-05-03: Fix released in `@windyroad/retrospective@0.16.0` (commit `df47ad1`). Open → Verification Pending. Detector run on post-fix tree reports `drift_instances=0`. Awaiting user verification.
