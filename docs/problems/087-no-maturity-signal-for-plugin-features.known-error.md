@@ -1,6 +1,6 @@
 # Problem 087: No maturity / battle-hardening signal on plugins, skills, agents, or hooks — READMEs don't tell users which features are stable vs experimental
 
-**Status**: Open
+**Status**: Known Error
 **Reported**: 2026-04-21 (AFK iter-7 post-run, user observation)
 **Priority**: 12 (High) — Impact: Significant (3) x Likelihood: Almost Certain (4)
 **Effort**: L — requires: (a) an ADR defining the maturity taxonomy (Experimental / Alpha / Beta / Stable / Deprecated, or similar), promotion/demotion criteria, and where the signal lives (README badge, plugin.json frontmatter, manifest field, or runtime); (b) a measurement mechanism that actually computes the signal from observable evidence (not self-report); (c) surfacing the signal in every plugin's README, `claude plugin list` output, and the marketplace listing; (d) retroactive assessment for the 11 existing `@windyroad/*` plugins and every skill/agent/hook within them. Cross-cutting — touches every plugin, the marketplace manifest, and likely a new shared telemetry/metrics convention.
@@ -126,4 +126,12 @@ Thresholds tunable per plugin surface (e.g. AFK orchestrators accumulate invocat
 
 ## Decision record
 
-No ADR yet. This ticket closes when the ADR lands and every plugin's README carries the maturity signal (initial values set per the retroactive assessment). Likely breaks into multiple phases per P047's staged-landing pattern.
+**Phase 1 ADR landed 2026-05-03**: ADR-053 (`docs/decisions/053-plugin-maturity-taxonomy.proposed.md`) pins the five-band taxonomy (Experimental / Alpha / Beta / Stable / Deprecated), promotion/demotion criteria stated in objective-signal-shaped terms (days-shipped, invocation count, resolved problem-ticket count, breaking-change-free window), and dual-location signal (canonical: `plugin.json` `maturity:` field per surface; rendered: README header badge alongside ADR-051 JTBD anchor). Phase 1 ships only the ADR — no script, no hook, no CI assertion.
+
+**Phase 2 (separate ADR — pending)**: pin measurement mechanism. P087's Direction Decision section already records the user-approved approach: `/insights` (existing, no infra) + session-transcript parser (new skill under `bin/wr-itil-skill-metrics` per ADR-049) + commit-history heuristic. Phase 2 prototypes options 1 + 2 from the Measurement Candidates section against this session's history to confirm signal fidelity, then pins the ADR with concrete sources rather than ahead-of-the-data guessing.
+
+**Phase 3 (mechanical rollout — pending)**: retroactive assessment across all `@windyroad/*` plugins; populate `plugin.json` `maturity:` fields via Phase-2 tooling; render README badges in each plugin's header; extend JTBD-101 desired-outcome list with the "promotion criteria visible to contributors" bullet recorded in ADR-053; ship advisory drift detector (sibling to ADR-051's JTBD-drift script) — exit 0 always; signal as data on stdout per ADR-013 Rule 6.
+
+**Phase 4+ (escalation — conditional)**: ADR-013 Rule 6 escalation from advisory to release-blocking gate iff drift accumulates across N consecutive releases (initial proposal: three) without correction.
+
+This ticket transitions to Known Error on the Phase 1 landing. It re-enters work for Phase 2 (separate iter; measurement-mechanism ADR + prototype) and again for Phase 3 (retroactive assessment + README integration). It closes only after Phase 3 ships — at which point every `@windyroad/*` plugin's README carries a maturity signal and the canonical `plugin.json` field is populated for every surface.
