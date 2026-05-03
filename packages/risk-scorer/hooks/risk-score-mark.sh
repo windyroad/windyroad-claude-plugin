@@ -77,7 +77,89 @@ if echo "$SUBAGENT" | grep -qE 'risk-scorer.pipeline'; then
   REPORT_DIR=".risk-reports"
   mkdir -p "$REPORT_DIR"
   TIMESTAMP=$(date -u +%Y-%m-%dT%H-%M-%S)
-  echo "$AGENT_OUTPUT" > "${REPORT_DIR}/${TIMESTAMP}-commit.md"
+  REPORT_PATH="${REPORT_DIR}/${TIMESTAMP}-commit.md"
+  echo "$AGENT_OUTPUT" > "$REPORT_PATH"
+
+  # ---------------------------------------------------------------------------
+  # Risk register queue (ADR-056 Phase 2a)
+  # Parse RISK_REGISTER_HINT: bullets and append one JSONL line each to
+  # .afk-run-state/risk-register-queue.jsonl. Consumer skills (work-problems,
+  # manage-problem, install-updates, assess-release) drain the queue in
+  # subsequent iters per ADR-014 commit-grain discipline.
+  #
+  # Dual-parse contract: accept BOTH 3-col (preferred, agent-emitted slug) and
+  # 2-col legacy shapes for backward compatibility while in-flight prompt
+  # caches transition.
+  #
+  # Best-effort: errors are swallowed (queue persistence is recoverable via
+  # Phase 3 backfill from .risk-reports/). ADR-045 Pattern 2: silent on stdout.
+  # ---------------------------------------------------------------------------
+  {
+    QUEUE_DIR=".afk-run-state"
+    QUEUE_FILE="${QUEUE_DIR}/risk-register-queue.jsonl"
+    HINT_BLOCK=$(echo "$AGENT_OUTPUT" | awk '
+      /^RISK_REGISTER_HINT:[[:space:]]*$/ { in_block=1; next }
+      in_block && /^[[:space:]]*$/ { in_block=0; next }
+      in_block && /^[A-Z_]+:/ { in_block=0; next }
+      in_block && /^- / { print }
+    ')
+    if [ -n "$HINT_BLOCK" ]; then
+      mkdir -p "$QUEUE_DIR"
+      QUEUE_TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+      while IFS= read -r BULLET; do
+        [ -n "$BULLET" ] || continue
+        # Strip leading "- " marker
+        PAYLOAD="${BULLET#- }"
+        PAYLOAD="${PAYLOAD#-}"
+        PAYLOAD="${PAYLOAD# }"
+        # Count pipe-separated columns (handle 2-col vs 3-col)
+        N_PIPES=$(echo "$PAYLOAD" | awk -F'|' '{print NF-1}')
+        case "$N_PIPES" in
+          1)
+            # 2-col legacy: <reason-tag> | <prose>
+            REASON=$(echo "$PAYLOAD" | awk -F'|' '{gsub(/^[ \t]+|[ \t]+$/, "", $1); print $1}')
+            SLUG_FROM=$(echo "$PAYLOAD" | awk -F'|' '{gsub(/^[ \t]+|[ \t]+$/, "", $2); print $2}')
+            PREFILL="$SLUG_FROM"
+            SLUG_SOURCE="derived"
+            # Derive slug: reason-tag + first 5 word-stems of prose, kebab, ≤60 chars
+            SLUG_BODY=$(echo "$SLUG_FROM" | tr '[:upper:]' '[:lower:]' \
+              | sed -E 's/[^a-z0-9 ]+/ /g; s/\b(the|a|an|is|of|to|in|for|on|at|by|and|or)\b//g; s/[[:space:]]+/ /g; s/^ //; s/ $//' \
+              | awk '{out=""; for(i=1;i<=NF && i<=5;i++){out = out (i==1?"":"-") $i} print out}')
+            SLUG="${REASON}-${SLUG_BODY}"
+            SLUG=$(echo "$SLUG" | cut -c1-60)
+            ;;
+          2|*)
+            # 3-col preferred: <reason-tag> | <slug> | <prose>
+            REASON=$(echo "$PAYLOAD" | awk -F'|' '{gsub(/^[ \t]+|[ \t]+$/, "", $1); print $1}')
+            SLUG=$(echo "$PAYLOAD" | awk -F'|' '{gsub(/^[ \t]+|[ \t]+$/, "", $2); print $2}')
+            PREFILL=$(echo "$PAYLOAD" | awk -F'|' '{ for(i=3;i<=NF;i++){printf "%s%s", (i==3?"":"|"), $i} print "" }' \
+              | sed -E 's/^[ \t]+//; s/[ \t]+$//')
+            SLUG_SOURCE="agent"
+            ;;
+        esac
+        # Validate reason-tag is one of three reserved values; skip otherwise
+        case "$REASON" in
+          above-appetite-residual|confidentiality-disclosure|user-stated-precondition) ;;
+          *) continue ;;
+        esac
+        # Skip if slug or prefill is empty (malformed bullet)
+        [ -n "$SLUG" ] && [ -n "$PREFILL" ] || continue
+        # Append JSONL line via python3 to ensure proper escaping
+        python3 -c "
+import json, sys
+print(json.dumps({
+  'ts': '$QUEUE_TS',
+  'session_id': '$SESSION_ID',
+  'report_path': '$REPORT_PATH',
+  'reason_tag': '$REASON',
+  'risk_slug': '$SLUG',
+  'slug_source': '$SLUG_SOURCE',
+  'prefill': sys.argv[1],
+}))
+" "$PREFILL" >> "$QUEUE_FILE" 2>/dev/null || true
+      done <<< "$HINT_BLOCK"
+    fi
+  } 2>/dev/null || true
 fi
 
 # ---------------------------------------------------------------------------

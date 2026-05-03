@@ -179,16 +179,18 @@ When a pipeline run identifies a **register-worthy risk shape**, emit a structur
 2. **Confidentiality disclosure** — the Confidential Information Disclosure check (below) flagged business metrics (revenue, user counts, pricing, client names, traffic volumes) in the diff. Confidentiality leaks are standing-risk-shaped even after the immediate remediation.
 3. **User-stated precondition** — the User-Stated Preconditions Check (below) flagged an unmet paired capability as a standalone Risk item. Unmet preconditions are standing-risk-shaped because the dependency gap persists until the paired capability ships.
 
-### Format (bulleted-list shape, multi-hint capable)
+### Format (3-column bulleted-list shape, multi-hint capable) — ADR-056
 
-A single pipeline run MAY surface more than one register-worthy shape (e.g. both an above-appetite residual AND a confidentiality leak). Emit one bullet per triggered condition:
+A single pipeline run MAY surface more than one register-worthy shape (e.g. both an above-appetite residual AND a confidentiality leak). Emit one bullet per triggered condition. The PREFERRED format is 3-column with an explicit risk-slug:
 
 ```
 RISK_REGISTER_HINT:
-- above-appetite-residual | <one-line prefill describing the risk>
-- confidentiality-disclosure | <one-line prefill citing what was flagged>
-- user-stated-precondition | <one-line prefill citing the unmet precondition>
+- above-appetite-residual | <risk-slug> | <one-line prefill describing the risk>
+- confidentiality-disclosure | <risk-slug> | <one-line prefill citing what was flagged>
+- user-stated-precondition | <risk-slug> | <one-line prefill citing the unmet precondition>
 ```
+
+The hook accepts BOTH the 3-column shape (preferred) and the legacy 2-column shape (`<reason-tag> | <prose>`) for backward compatibility per ADR-056's dual-parse contract. When emitting the legacy shape, the hook derives the slug from the reason-tag plus the prose prefix. Always prefer the 3-column shape so the slug is agent-computed and stable across runs.
 
 ### Reason-tag vocabulary (enumerated — reserved)
 
@@ -200,7 +202,26 @@ The first column is one of exactly three reserved tags. Do NOT invent new tags; 
 | `confidentiality-disclosure` | Business metric or client detail flagged in diff | Confidential Information Disclosure |
 | `user-stated-precondition` | Paired capability unmet; standalone Risk item | User-Stated Preconditions Check |
 
-The second column is free-form prose — a one-line prefill the orchestrator can pass to `/wr-risk-scorer:create-risk` as the initial risk title and description.
+### Risk-slug column (NEW — ADR-056)
+
+The second column is a filename-safe kebab-case identifier the agent computes from the risk's canonical shape. The slug is the dedupe key — N reports producing the same slug collapse to ONE register entry (per the user direction *"for each risk in .risk-reports there should be something in the risk register"*).
+
+Slug computation rules:
+
+1. Lowercase, hyphen-separated.
+2. Drop articles (the, a, an), prepositions in long phrases, and trailing date markers.
+3. Stable across pipeline runs: identical risk shape → identical slug. Do NOT include timestamps, session IDs, or commit SHAs in the slug.
+4. Maximum 60 characters; truncate at word boundary if longer.
+5. If slug computation is genuinely ambiguous (rare), fall back to `<reason-tag>-<noun-phrase>` form.
+
+Examples:
+- `cumulative-residual-commit-layer-above-appetite` (above-appetite-residual)
+- `revenue-figures-leaked-in-changeset` (confidentiality-disclosure)
+- `cross-plugin-version-mismatch-precondition-unmet` (user-stated-precondition)
+
+### Prefill column
+
+The third column is free-form prose — a one-line prefill carried into the eventual register entry's Description field. Keep it concise (≤ 1 line).
 
 ### Consumption semantics (post-loop)
 

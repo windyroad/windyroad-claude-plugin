@@ -183,14 +183,47 @@ Closes the "directory doesn't exist" half of the 99% miss rate. Surveyed 4/6 ado
 
 **Phase 1 does NOT close P033 — only the scaffolding precondition lands.** Master ticket remains Known Error pending Phase 2 (back-channel; load-bearing per user direction). Phase 2 is the next iter shape.
 
-### Phase 2 — pipeline back-channel (load-bearing per user direction; deferred)
+### Phase 2 — pipeline back-channel (load-bearing per user direction)
 
-- `wr-risk-scorer:pipeline` agent writes/updates `docs/risks/R<NNN>-*.active.md` entries when the report identifies an inherent risk.
-- N reports : 1 register entry (dedupe by risk-name).
-- New register entries get full template fields filled (auto-detected from report); existing entries get evidence-log update (new "fired-on" timestamp + report path citation).
-- Architect-design call deferred: agent autonomy boundary (does pipeline agent write, or emit structured directive consumed by calling skill?). Trade-off captured in ADR-047 Phase 2 scope notes.
-- Integration with `RISK_REGISTER_HINT:` (P110) — hints become directive when above-appetite or user-stated-precondition signals fire.
-- Acceptance: every `.risk-reports/<timestamp>.md` produced after Phase 2 ships has a matching register entry within the same session.
+Phase 2 is split into Phase 2a (queue-write, this iter — LANDED) and Phase 2b (drain steps in consumer skills — deferred).
+
+#### Phase 2a — agent emits, hook queues (LANDED iter 19, 2026-05-03 — ADR-056)
+
+Architect-design call resolved: **agent emits, hook queues, calling skill drains** (ADR-056 Option 4 queue-and-drain). Rejected alternatives: agent-side write (violates `Read, Glob`-only purity), direct hook-write to `docs/risks/` (workspace-delta BLOCKER per ADR-014 + ADR-016 — files would drift forward through unrelated commits).
+
+Files landed iter 19:
+
+- `docs/decisions/056-risk-register-back-channel-write-contract.proposed.md` — sub-ADR (Phase 2 of multi-phase fix). Specifies queue-and-drain shape, 3-column hint format, dual-parse contract (3-col preferred + 2-col legacy fallback), pending-review entry treatment via ADR-026 sentinel, Phase 3 backfill explicitly out-of-scope.
+- `packages/risk-scorer/agents/pipeline.md` — `Risk Register Hand-Off` section extended. 3-column hint format `<reason-tag> | <risk-slug> | <prose>`. Slug-computation rules added. Dual-parse compatibility note for in-flight prompt caches.
+- `packages/risk-scorer/hooks/risk-score-mark.sh` — pipeline-handler block extended with `RISK_REGISTER_HINT:` parse-and-append section. Appends one JSONL line per valid bullet to `.afk-run-state/risk-register-queue.jsonl` (gitignored). Dual-parse handling (3-col + 2-col fallback). Best-effort error handling. Silent on stdout (ADR-045 Pattern 2).
+- `packages/risk-scorer/hooks/test/risk-score-mark-register-queue.bats` — 12 behavioural-fixture tests covering 3-col path, 2-col legacy path, mixed-shape, silence semantics, malformed-bullet skip, append-only semantics, directory creation, ADR-045 Pattern 2 silent-on-success. All GREEN. No regression in adjacent suites (17/17 in `risk-score-mark.bats` + `risk-scorer-register-hint.bats`).
+
+What Phase 2a does: every pipeline run that emits a `RISK_REGISTER_HINT:` block enqueues a register entry to `.afk-run-state/risk-register-queue.jsonl`. The queue is the durable artefact bridging pipeline-fire → register-population. No `docs/risks/R<NNN>-*.md` files are written by the hook directly — that responsibility moves to Phase 2b drain steps.
+
+What Phase 2a does NOT do: drain the queue to materialise actual register files. Adopters running Phase 2a-only see queue-file growth but no `docs/risks/` population. P033 status remains Known Error pending Phase 2b.
+
+#### Phase 2b — consumer-skill drain steps (deferred to next iters)
+
+Each consumer skill that fires after a pipeline run gains a Step-N drain that:
+
+1. Reads `.afk-run-state/risk-register-queue.jsonl`.
+2. Groups lines by `risk_slug` (dedupe — N reports : 1 register entry per user direction).
+3. Per unique slug: writes new `docs/risks/R<NNN>-<slug>.active.md` from template (with `not estimated — no prior data` ADR-026 sentinel for stubbed scoring fields, `Status: Active (auto-scaffolded — pending review)`, `**Curation**: pending review`) OR appends Evidence Log entry to existing match.
+4. Updates `docs/risks/README.md` Register table.
+5. Single `docs(risks): scaffold R<NNN> ... (N entries from queue)` commit per ADR-014.
+6. Truncates the queue file.
+
+Drain-step targets (each its own per-skill-grain commit):
+- `/wr-itil:work-problems` Step N drain (post-iter or post-loop)
+- `/wr-itil:manage-problem` Step 11 drain (pre-commit)
+- `/install-updates` Step 6.6 drain (after Step 6.5 scaffold)
+- `/wr-risk-scorer:assess-release` drain (pre-release-decision)
+
+Shared library (e.g. `packages/risk-scorer/lib/drain-register-queue.sh`) likely the right factoring — single source of truth, multiple invocation surfaces.
+
+#### Phase 2 acceptance (post Phase 2b)
+
+Every `.risk-reports/<timestamp>.md` produced after Phase 2b ships has a matching `docs/risks/R*-<slug>.active.md` entry within the next consumer-skill invocation.
 
 ### Phase 3 — backfill (deferred)
 
