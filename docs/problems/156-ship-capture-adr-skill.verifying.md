@@ -1,6 +1,6 @@
 # Problem 156: Ship `/wr-architect:capture-adr` skill — lightweight aside-invocation surface for ADR capture during foreground work
 
-**Status**: Open
+**Status**: Verification Pending
 **Reported**: 2026-05-03
 **Priority**: 12 (High) — Impact: Significant (3) x Likelihood: Almost certain (4)
 **Effort**: M — new skill SKILL.md + REFERENCE.md per ADR-038 progressive-disclosure pattern; bin shim per ADR-049; behavioural bats per ADR-052; compose with `wr-architect:create-adr` (the heavyweight canonical path) so capture-adr produces a `.proposed.md` with skeleton sections deferred for later canonical review.
@@ -92,3 +92,31 @@ Fix shape — sibling to P155 capture-problem:
 - ADR-049 (plugin-script resolution) — bin shim shape.
 - ADR-052 (behavioural-tests-default) — bats fixture shape.
 - P088 — settled the user-direction-scoped decision; capture-adr is shippable.
+
+## Fix Released
+
+Shipped 2026-05-03 in this commit (AFK iter 3 of `/wr-itil:work-problems`). Awaiting user verification.
+
+**Artefacts shipped**:
+
+- `packages/architect/skills/capture-adr/SKILL.md` — runtime contract (~190 lines, ADR-038 progressive-disclosure budget). Steps 1-6: Title + Context + Decision parse with empty-arg halt-with-stderr-directive + partial-payload graceful-degradation; P056-safe `git ls-tree --name-only` next-ID formula reused from `create-adr` Step 3; skeleton-fill MADR template at status `proposed` with full minimum frontmatter (sentinel `decision-makers: [unspecified — fill at canonical review]`, default `reassessment-date` 3 months from today), numbered-options placeholder `1. Option A (chosen)` + `2. (deferred — see /wr-architect:create-adr canonical review)`, deferred-flagged Drivers/Consequences/Confirmation/Pros-Cons/Reassessment Criteria with literal pointer string `(deferred to /wr-architect:create-adr canonical review)`; single Write to `docs/decisions/<NNN>-<kebab-title>.proposed.md`; single commit `docs(decisions): capture ADR-<NNN> <title>` per ADR-014; trailing pointer to `/wr-architect:create-adr` for canonical expansion.
+- `packages/architect/skills/capture-adr/REFERENCE.md` — rationale (capture vs create trade-off; skeleton-MADR validity at status `proposed`; numbered-options placeholder rationale; frontmatter sentinel values vs truly minimal), edge cases (empty `$ARGUMENTS` halt, partial-payload graceful-degradation, title slug collision, ID collision with origin via P056-safe `--name-only`, captured-ADR-never-expanded path, architect-review-verdict capture pattern, cross-namespace consistency with capture-problem), composition with create-adr (auto-detect-and-expand path is follow-up scope) + wr-architect:agent (deferred-canonical-expansion contract; review fires at canonical expansion not at skeleton time) + capture-problem (compose for problem+decision capture in ~6-8 turns) + work-problems iter subprocesses (foreground-lightweight is AFK-compatible).
+- `packages/architect/skills/capture-adr/test/capture-adr.bats` — 12 behavioural fixtures per ADR-052: existence/wiring (2 tests), next-ID formula (3 tests — P056-safe mixed-suffix glob / empty-dir first-ADR / origin-collision-guard), skeleton-fill MADR shape (2 tests — deferred-flag literal pointer + numbered-options placeholder), default reassessment-date 3 months from today (1 test), allowed-tools surface (3 tests — no AskUserQuestion / Bash present / Write present), deferred-canonical-expansion contract presence (1 test). All 12 green.
+- `docs/decisions/032-governance-skill-invocation-patterns.proposed.md` — appended **"Foreground-lightweight-capture variant — capture-adr (P156 amendment, 2026-05-03)"** section after the P155 amendment block. Names the new variant under the foreground-synchronous taxonomy distinguishing **full-intake** (`/wr-architect:create-adr`, ~10-15 turns) from **lightweight-capture** sub-variants (~3-4 turns) on the architect plugin namespace, symmetric with the ITIL plugin precedent. Documents the deferred-canonical-expansion contract (no inline architect-agent review handoff; review fires at canonical expansion). Pins variant-selection precedence (foreground-lightweight is LEAD post-P156).
+- `.changeset/wr-architect-p156-capture-adr-skill.md` — minor bump for `@windyroad/architect`.
+
+**Architectural review verdict (this iter)**: PASS-WITH-NOTES — three Q1/Q2/Q5 refinements applied (literal `(deferred to /wr-architect:create-adr canonical review)` pointer string in every deferred section; `1. Option A (chosen)` + `2. (deferred — see ...)` numbered-options placeholder preserves MADR ≥2-options surface; full minimum frontmatter with sentinel values rather than truly minimal). Q3 (auto-detect-and-expand path) deferred to follow-up under P014. Q4 (allowed-tools omits AskUserQuestion) confirmed. Q6 (3-month reassessment-date default) confirmed.
+
+**JTBD review verdict (this iter)**: PASS — primary fit JTBD-001 (enforce governance without slowing down) + JTBD-005 (invoke governance assessments on demand — discoverable via `/` autocomplete); supporting fit JTBD-006 (progress backlog while AFK — mid-iter design-decision capture in iter subprocesses) + JTBD-101 (extend the suite — symmetric with capture-problem on the architect plugin namespace). Plugin-user persona out of scope (internal-tooling skill).
+
+**Behavioural-test verification**:
+
+```
+$ npx bats packages/architect/skills/capture-adr/test/capture-adr.bats
+1..12
+ok 1..12 — all green
+```
+
+**Verification path for the user**: invoke `/wr-architect:capture-adr <Title>\n<Context>\n<Decision>` against a real foreground design decision. Expected outcome: ~3-4 turn skeleton-filled `.proposed.md` lands at `docs/decisions/<NNN>-<title>.proposed.md`, single commit `docs(decisions): capture ADR-<NNN> <title>`, status `proposed`, trailing pointer surfaces "Run /wr-architect:create-adr <NNN> next to expand the deferred sections canonically".
+
+Recovery path if the close action was wrong: `/wr-itil:transition-problem 156 known-error` flips back to Known Error for further work.
