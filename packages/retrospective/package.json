@@ -1,6 +1,6 @@
 {
   "name": "@windyroad/retrospective",
-  "version": "0.12.5",
+  "version": "0.13.0",
   "description": "Session retrospectives that update briefings and create problem tickets",
   "bin": {
     "windyroad-retrospective": "./bin/install.mjs"
