@@ -68,6 +68,7 @@ These plugins enforce review workflows. They block edits to relevant files until
 |---------|-------------|
 | [`@windyroad/itil`](packages/itil/) | ITIL-aligned IT service management — problem management (WSJF-prioritised) and evidence-first incident management with automatic handoff |
 | [`@windyroad/retrospective`](packages/retrospective/) | Session retrospectives that update briefings and create problem tickets |
+| [`@windyroad/connect`](packages/connect/) | Cross-repo agent collaboration via Discord channels (experimental — see plugin README) |
 
 ### Diagram Generation
 
@@ -93,6 +94,23 @@ Most plugins are standalone. Two have dependencies:
 ```
 
 The installer warns if dependencies are missing.
+
+## Jobs to be Done
+
+Each plugin's value framing is anchored to documented [Jobs to be Done](docs/jtbd/) — persona-grouped jobs that describe **what user pain the plugin removes**, not just **what features it ships**. Per [ADR-051](docs/decisions/051-jtbd-anchored-readme-with-drift-advisory.proposed.md), every `@windyroad/*` plugin README cites at least one current JTBD job ID so the README is a navigable index into the JTBD research, not just a feature list.
+
+| Persona | Primary jobs | Plugins serving this persona |
+|---------|--------------|-----------------------------|
+| **[Solo developer](docs/jtbd/solo-developer/persona.md)** — uses AI agents on personal or small-team projects | [JTBD-001 Enforce Governance Without Slowing Down](docs/jtbd/solo-developer/JTBD-001-enforce-governance.proposed.md), [JTBD-002 Ship with Confidence](docs/jtbd/solo-developer/JTBD-002-ship-with-confidence.proposed.md), [JTBD-003 Compose Only the Guardrails I Need](docs/jtbd/solo-developer/JTBD-003-compose-guardrails.proposed.md), [JTBD-006 Progress the Backlog While I'm Away](docs/jtbd/solo-developer/JTBD-006-work-backlog-afk.proposed.md), [JTBD-007 Keep Plugins Current Across Projects](docs/jtbd/solo-developer/JTBD-007-keep-plugins-current.proposed.md) | architect, risk-scorer, tdd, jtbd, voice-tone, style-guide, retrospective, agent-plugins |
+| **[Tech lead / consultant](docs/jtbd/tech-lead/persona.md)** — accountable for code quality across teams or client engagements | [JTBD-201 Restore Service Fast with an Audit Trail](docs/jtbd/tech-lead/JTBD-201-restore-service-fast.proposed.md), [JTBD-202 Pre-Flight Governance Checks Before Release](docs/jtbd/tech-lead/JTBD-202-pre-flight-governance-check.proposed.md) | itil, architect, risk-scorer, c4, wardley |
+| **[Plugin developer](docs/jtbd/plugin-developer/persona.md)** — extends the suite with new plugins | [JTBD-101 Extend the Suite with New Plugins](docs/jtbd/plugin-developer/JTBD-101-extend-suite.proposed.md) | architect, agent-plugins, c4, wardley |
+| **[Plugin user](docs/jtbd/plugin-user/persona.md)** — installed a plugin and hit a problem; reporting is incidental to their primary work | [JTBD-301 Report a Problem Without Pre-Classifying It](docs/jtbd/plugin-user/JTBD-301-report-problem-without-pre-classifying.proposed.md), [JTBD-302 Trust That the README Describes the Plugin I Just Installed](docs/jtbd/plugin-user/JTBD-302-trust-readme-describes-installed-behaviour.proposed.md) | itil (intake surface), every plugin (README currency) |
+
+See [`docs/jtbd/README.md`](docs/jtbd/README.md) for the full index.
+
+## Risk Management
+
+This suite follows ISO 31000 / ISO 27001 risk management practice. Risk criteria, impact and likelihood scales, appetite, and the matrix are defined in [`RISK-POLICY.md`](RISK-POLICY.md). Standing risks the suite tolerates and treats are tracked in the [risk register](docs/risks/README.md). Per-change pipeline risk is scored on every commit, push, and release by `@windyroad/risk-scorer` and snapshotted to `.risk-reports/` for audit purposes.
 
 ## Updating and Uninstalling
 
@@ -155,8 +173,9 @@ packages/
   voice-tone/       Voice and tone review
   style-guide/      Style guide review
   jtbd/             Jobs-to-be-done review
-  problem/          Problem management
+  itil/             ITIL problem and incident management
   retrospective/    Session retrospectives
+  connect/          Cross-repo agent collaboration via Discord
   c4/               C4 diagram generation
   wardley/          Wardley Map generation
   shared/           Shared install utilities (internal)

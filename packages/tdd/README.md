@@ -56,8 +56,22 @@ Test files and config/doc files are always writable regardless of state.
 | `tdd-inject.sh` | Every prompt | Injects the current TDD state into the prompt |
 | `tdd-enforce-edit.sh` | Edit or Write | Blocks implementation edits in IDLE or BLOCKED state |
 | `tdd-post-write.sh` | After edit | Runs tests and transitions the state machine |
+| `tdd-review-test.sh` | After edit | Classifies new test files as STRUCTURAL (asserts source content) or BEHAVIOURAL (exercises the target) and surfaces structural-test regressions per [ADR-052](../../docs/decisions/052-behavioural-tests-default-for-skill-testing.proposed.md) |
 | `tdd-setup-marker.sh` | Skill completes | Marks test setup as done |
 | `tdd-reset.sh` | Session end | Resets the TDD state |
+
+## Jobs to be Done
+
+This plugin serves the [Jobs to be Done](../../docs/jtbd/) below. Per [ADR-051](../../docs/decisions/051-jtbd-anchored-readme-with-drift-advisory.proposed.md), the persona-grouped JTBD anchor is the canonical source of truth for the README's value framing.
+
+### Solo developer
+
+- **[JTBD-001 Enforce Governance Without Slowing Down](../../docs/jtbd/solo-developer/JTBD-001-enforce-governance.proposed.md)** — implementation edits are blocked until a failing test exists; the agent cannot "forget" to write the test first.
+- **[JTBD-002 Ship AI-Assisted Code with Confidence](../../docs/jtbd/solo-developer/JTBD-002-ship-with-confidence.proposed.md)** — Red-Green-Refactor enforcement turns the test suite into the agent's safety net, not an after-thought.
+
+### Plugin user
+
+- **[JTBD-302 Trust That the README Describes the Plugin I Just Installed](../../docs/jtbd/plugin-user/JTBD-302-trust-readme-describes-installed-behaviour.proposed.md)** — this README is anchored on current JTBD job IDs; drift between prose and shipped behaviour is detectable at retro time per ADR-051.
 
 ## Updating and Uninstalling
 

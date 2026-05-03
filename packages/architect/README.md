@@ -44,6 +44,7 @@ This walks you through creating an ADR in [MADR 4.0](https://adr.github.io/madr/
 | `architect-plan-enforce.sh` | ExitPlanMode | Ensures plans are reviewed before execution |
 | `architect-mark-reviewed.sh` | Agent completes | Marks the review as done (TTL: 3600s) |
 | `architect-refresh-hash.sh` | After edit | Refreshes the content hash so the next edit triggers a fresh review |
+| `architect-slide-marker.sh` | Agent or Bash | Slides the review marker forward across non-edit operations so an active review session is not invalidated by intervening Bash or sub-agent calls |
 
 ## Agent
 
@@ -52,6 +53,26 @@ The `wr-architect:agent` reviews proposed changes against existing decisions in 
 - Whether changes comply with or violate existing decisions
 - Whether a new ADR should be created
 - Whether existing decisions are stale and need reassessment
+
+## Jobs to be Done
+
+This plugin serves the [Jobs to be Done](../../docs/jtbd/) below. Per [ADR-051](../../docs/decisions/051-jtbd-anchored-readme-with-drift-advisory.proposed.md), the persona-grouped JTBD anchor is the canonical source of truth for the README's value framing.
+
+### Tech lead / consultant
+
+- **[JTBD-202 Run Pre-Flight Governance Checks Before Release or Handover](../../docs/jtbd/tech-lead/JTBD-202-pre-flight-governance-check.proposed.md)** — architect review is available via `/wr-architect:review-design` for on-demand pre-flight, and via `wr-architect:agent` for automatic review on every edit.
+
+### Solo developer
+
+- **[JTBD-001 Enforce Governance Without Slowing Down](../../docs/jtbd/solo-developer/JTBD-001-enforce-governance.proposed.md)** — architecture decisions are reviewed automatically; the agent reads the project's existing ADRs without needing to be told what to look for.
+
+### Plugin developer
+
+- **[JTBD-101 Extend the Suite with New Plugins](../../docs/jtbd/plugin-developer/JTBD-101-extend-suite.proposed.md)** — `/wr-architect:create-adr` is the canonical surface for documenting structural decisions in MADR 4.0 format so contributors learn the "why" behind existing patterns.
+
+### Plugin user
+
+- **[JTBD-302 Trust That the README Describes the Plugin I Just Installed](../../docs/jtbd/plugin-user/JTBD-302-trust-readme-describes-installed-behaviour.proposed.md)** — this README is anchored on current JTBD job IDs; drift between prose and shipped behaviour is detectable at retro time per ADR-051.
 
 ## Updating and Uninstalling
 

@@ -1,7 +1,7 @@
 # Risk Register
 
 > ISO 31000 / ISO 27001 standing-risk inventory. Per-risk files live alongside this index.
-> Last reviewed: 2026-04-17
+> Last reviewed: 2026-05-03
 
 ## Purpose
 
@@ -37,6 +37,11 @@ Template: `TEMPLATE.md`
 | ID | Title | Category | Inherent | Residual | Treatment | Owner | Review |
 |----|-------|----------|----------|----------|-----------|-------|--------|
 | [R001](R001-confidential-info-leak-via-public-repo-push.active.md) | Confidential information leak via public-repo push | infosec | 12 (High) | 9 (Medium) | Mitigate | plugin-maintainer | 2026-10-22 |
+| [R002](R002-hook-regression-breaks-installed-user-workflow.active.md) | Hook regression breaks installed users' workflow | operational | 12 (High) | 8 (Medium) | Mitigate | plugin-maintainer | 2026-11-03 |
+| [R003](R003-installer-corrupts-user-claude-code-config.active.md) | Installer corrupts user's Claude Code config | operational | 10 (High) | 5 (Medium) | Mitigate | plugin-maintainer | 2026-11-03 |
+| [R004](R004-cross-package-version-drift-or-publish-failure-breaks-install.active.md) | Cross-package version drift or publish failure breaks install | delivery | 9 (Medium) | 6 (Medium) | Mitigate | plugin-maintainer | 2026-11-03 |
+| [R005](R005-readme-skill-md-prose-drifts-from-runtime-behaviour.active.md) | README / SKILL.md prose drifts from runtime behaviour | brand | 16 (High) | 12 (High) | Mitigate | plugin-maintainer | 2026-11-03 |
+| [R006](R006-marketplace-cache-lag-delivers-stale-plugin-behaviour.active.md) | Marketplace cache lag delivers stale plugin behaviour | delivery | 12 (High) | 8 (Medium) | Mitigate | plugin-maintainer | 2026-11-03 |
 
 ## Retired
 

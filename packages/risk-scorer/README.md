@@ -51,6 +51,7 @@ This creates a `RISK-POLICY.md` tailored to your project, defining impact levels
 | `wip-risk-mark.sh` | After edit | Records WIP risk assessment |
 | `risk-score-mark.sh` | Agent completes | Marks risk review as done; writes external-comms marker on `wr-risk-scorer:external-comms` PASS |
 | `risk-hash-refresh.sh` | After Bash | Refreshes content hashes |
+| `risk-slide-marker.sh` | Agent or Bash | Slides the review marker forward across non-edit operations so an active review session is not invalidated by intervening Bash or sub-agent calls |
 
 ## Agents
 
@@ -105,6 +106,24 @@ Override: `BYPASS_RISK_GATE=1` short-circuits the gate (consistent with
 The canonical hook lives at `packages/shared/hooks/external-comms-gate.sh` and
 is synced into each consumer plugin via `scripts/sync-external-comms-gate.sh`
 per ADR-017 (CI runs `npm run check:external-comms-gate` to detect drift).
+
+## Jobs to be Done
+
+This plugin serves the [Jobs to be Done](../../docs/jtbd/) below. Per [ADR-051](../../docs/decisions/051-jtbd-anchored-readme-with-drift-advisory.proposed.md), the persona-grouped JTBD anchor is the canonical source of truth for the README's value framing.
+
+### Tech lead / consultant
+
+- **[JTBD-202 Run Pre-Flight Governance Checks Before Release or Handover](../../docs/jtbd/tech-lead/JTBD-202-pre-flight-governance-check.proposed.md)** — `/wr-risk-scorer:assess-release` produces a structured release-readiness score (commit, push, release layers) that is attachable to a release note or handover doc.
+
+### Solo developer
+
+- **[JTBD-001 Enforce Governance Without Slowing Down](../../docs/jtbd/solo-developer/JTBD-001-enforce-governance.proposed.md)** — pipeline risk is scored on every edit, commit, and push without manual invocation; secret-leak detection runs in the same gate.
+- **[JTBD-002 Ship AI-Assisted Code with Confidence](../../docs/jtbd/solo-developer/JTBD-002-ship-with-confidence.proposed.md)** — every release passes through ISO 31000-aligned criteria defined in the project's own `RISK-POLICY.md` so the safety bar is the team's, not the agent's.
+- **[JTBD-005 Invoke Governance Assessments On Demand](../../docs/jtbd/solo-developer/JTBD-005-assess-on-demand.proposed.md)** — `/wr-risk-scorer:assess-wip`, `assess-release`, and `assess-external-comms` give an on-demand assessment surface outside the hook gate cycle.
+
+### Plugin user
+
+- **[JTBD-302 Trust That the README Describes the Plugin I Just Installed](../../docs/jtbd/plugin-user/JTBD-302-trust-readme-describes-installed-behaviour.proposed.md)** — this README is anchored on current JTBD job IDs; drift between prose and shipped behaviour is detectable at retro time per ADR-051.
 
 ## Updating and Uninstalling
 

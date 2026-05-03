@@ -16,6 +16,7 @@ Developer using AI coding agents for personal or small-team projects.
 | JTBD-004 | Connect Agents Across Repos to Collaborate | [JTBD-004-connect-agents.proposed.md](solo-developer/JTBD-004-connect-agents.proposed.md) |
 | JTBD-005 | Invoke Governance Assessments On Demand | [JTBD-005-assess-on-demand.proposed.md](solo-developer/JTBD-005-assess-on-demand.proposed.md) |
 | JTBD-006 | Progress the Backlog While I'm Away | [JTBD-006-work-backlog-afk.proposed.md](solo-developer/JTBD-006-work-backlog-afk.proposed.md) |
+| JTBD-007 | Keep Plugins Current Across Projects | [JTBD-007-keep-plugins-current.proposed.md](solo-developer/JTBD-007-keep-plugins-current.proposed.md) |
 
 ## Tech Lead / Consultant
 
@@ -55,3 +56,4 @@ Developer using an installed windyroad plugin who encountered a problem and want
 | ID | Job | File |
 |----|-----|------|
 | JTBD-301 | Report a Problem Without Pre-Classifying It | [JTBD-301-report-problem-without-pre-classifying.proposed.md](plugin-user/JTBD-301-report-problem-without-pre-classifying.proposed.md) |
+| JTBD-302 | Trust That the README Describes the Plugin I Just Installed | [JTBD-302-trust-readme-describes-installed-behaviour.proposed.md](plugin-user/JTBD-302-trust-readme-describes-installed-behaviour.proposed.md) |
