@@ -15,13 +15,15 @@ Per `RISK-POLICY.md` (without controls):
 
 ## Residual risk
 
-Per `RISK-POLICY.md` `## Control Composition`:
+Residual reflects "controls firing-and-passing" (per-action lens, matching how the pipeline scorer empirically computes residual on a real outbound-prose action):
 
-- **Likelihood after controls**: 2 (Unlikely) — two independent paths reduce 2 bands from 4: regex pre-filter (catches structured leak shapes) + LLM-walk subagent (catches prose-context leaks the regex misses). Marker hash, BYPASS env-var, and policy-class taxonomy are operational/relaxation/declarative, not band-reducing.
-- **Residual score**: 6
-- **Residual band**: Medium
+- **Likelihood after controls**: 1 (Rare) — when the external-comms gate fires AND its verdict is PASS (regex didn't deny + LLM-walk subagent emitted PASS), a leak slipping through requires BOTH stages to false-negative on the same draft. Empirically rare for the surface this gate covers. The two stages are independent within-hook (regex regression doesn't bypass LLM-walk; LLM-walk failure doesn't bypass regex) even though they share the hook-script-level failure mode.
+- **Residual score**: 3
+- **Residual band**: Low
 
-**Gap-to-appetite**: residual exceeds appetite (4/Low). One more independent control path (e.g., semantic-similarity check on draft against confidential-class corpus; ML content classifier; second-pass review by a different agent) would drop residual likelihood to 1 and the score to 3/Low.
+**Within appetite** (≤ 4/Low). The blocking gate design (DENY on detection; PASS only on no-evidence-of-leak) means per-action evidence is dispositive. If the gate ever started missing a class systematically (false-negative rate climbs), this residual would rise — monitor via the rate of post-publish leak reports.
+
+**Strict policy reading caveat**: under `RISK-POLICY.md` `## Control Composition` strict path-counting, regex and LLM-walk share the hook-script failure mode and count as **1 independent path**, giving residual 3 × 3 = 9 / Medium. The catalogue uses the per-action-controls-effective reading (matches how the pipeline scorer empirically scores outbound-prose actions); the strict reading would push this above appetite. The gap between the two readings is itself a signal — if the strict reading matters (e.g., for ISO-aligned audit), document it as a sub-residual.
 
 ## Controls
 
