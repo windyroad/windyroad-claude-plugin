@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-05-04 **README reconciliation — P167 added to WSJF Rankings (1.5 / Open / M)**: P118 preflight detected drift when /wr-itil:capture-problem next invocation hit Step 0 — exposes capture-problem deferred-README-refresh contract gap (ADR-032 design tradeoff; capture-problem opts out of P094 inline-refresh). Reconciliation per P118 + ADR-014 amended "Reconciliation as preflight robustness layer". P167 captures risk-register-aggregate-reads-as-dont-ship symptom; corrected framing landed in RISK-POLICY.md commit 9e339d0 (## Risk Catalog + ## Control Composition sections). Prior line-3 fragment (P163-P166 batch capture) rotated to docs/problems/README-history.md per P134.
+> Last reviewed: 2026-05-04 **README reconciliation — P168 added to WSJF Rankings (1.5 / Open / M)**: P118 preflight detected drift on next /wr-itil:work-problem invocation — same capture-problem deferred-README-refresh contract gap (ADR-032) that displaced P167 yesterday. Reconciliation per P118 + ADR-014 amended "Reconciliation as preflight robustness layer". P168 is the substantive design successor to P167 (risk-scorer should bootstrap-from-empty + consume-catalog per RISK-POLICY.md ## Risk Catalog section landed in commit 9e339d0). Inserted within the WSJF=1.5 tier ordered by tie-break ladder: Effort-divisor M (P080, P167, P168) ahead of L/XL; same Reported date 2026-05-04 as P167 → ID asc places P168 immediately after P167. Prior line-3 fragment (P167 reconciliation) rotated to docs/problems/README-history.md per P134.
 > Run `/wr-itil:manage-problem review` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -27,6 +27,7 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 1.875 | P091 | Session-wide context budget — Claude Code consumes substantial context before and during every session across all contributor surfaces (meta) | 15 High | Open | XL | 2026-04-22 |
 | 1.5 | P080 | No bidirectional update of upstream-reported problems — local lifecycle transitions never propagate back to the reporter (re-rated 6.0 → 1.5 transitive 2026-04-26 — blocked by P079/P038/P064) | 12 High | Open | M | 2026-04-21 |
 | 1.5 | P167 | Risk register aggregate reads as "don't ship" — sparse coverage + undercredited controls | 3 Low | Open | M | 2026-05-04 |
+| 1.5 | P168 | Risk-scorer doesn't consume `docs/risks/` catalog or bootstrap from `.risk-reports/` | 3 Low | Open | M | 2026-05-04 |
 | 1.5 | P045 | Auto plugin install after governance release (deferred install on next session start per 2026-04-20 direction) | 6 Med | Open | L | 2026-04-19 |
 | 1.5 | P079 | No inbound sync of upstream-reported problems — reports filed via the intake templates never surface in the local backlog (re-rated 6.0 → 1.5 transitive 2026-04-26 — assessment-pipeline scope blocked by P038/P064) | 12 High | Open | L | 2026-04-21 |
 | 1.5 | P014 | No lightweight aside invocation for governance skills (master tracker for ADR-032 — capture-* sibling skills + pending-questions hook + supersession cleanup) | 12 High | Open | XL | 2026-04-16 |
