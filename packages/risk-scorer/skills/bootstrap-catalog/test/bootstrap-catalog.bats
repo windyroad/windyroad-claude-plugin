@@ -51,8 +51,14 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
-@test "bootstrap-catalog SKILL.md requires docs/risks/ scaffold" {
-  run grep -qE "docs/risks/.*directory exists|docs/risks/ scaffold" "$SKILL"
+@test "bootstrap-catalog SKILL.md owns docs/risks/ directory lifecycle (no separate scaffold required)" {
+  # Updated 2026-05-05: the previous "requires scaffold" assertion is obsolete.
+  # Per user direction 2026-05-04 (commit 8edaf7b), the Phase 1 scaffold step
+  # + TEMPLATE.md were wiped because the scaffolded entries were wrong content;
+  # bootstrap-catalog now owns the directory's full lifecycle (mkdir -p on demand,
+  # writes README + per-slug entries, no separate scaffold step required).
+  # The SKILL.md was rewritten accordingly; this test now asserts the new contract.
+  run grep -qE "may or may not exist|creates it on demand|owns the directory's full lifecycle" "$SKILL"
   [ "$status" -eq 0 ]
 }
 

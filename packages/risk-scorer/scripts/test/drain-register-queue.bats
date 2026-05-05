@@ -18,11 +18,56 @@ setup() {
   git config user.email "drain-test@example.com"
   git config user.name "Drain Test"
   git commit --quiet --allow-empty -m "init"
-  # Mock template + README
+  # Mock template + README + a single seeded R-file
+  # NOTE: TEMPLATE.md was wiped from canonical docs/risks/ per the 2026-05-04
+  # user direction ("FFS WIPE THE RXXX risks ... THEY ARE WRONG"; commit 8edaf7b).
+  # The drain script (ADR-056 Phase 2b) still gates on TEMPLATE.md existence at
+  # line 66 and accepts the path as an unused argument; the gate is vestigial
+  # but unchanged in this iter. Tests synthesise fixture-local TEMPLATE.md +
+  # an old-shape R001-...active.md inline so the drain contract is exercised
+  # end-to-end without depending on the canonical (post-wipe) state. The
+  # divergence between the drain script's expected R-file shape (.active.md
+  # with structured frontmatter) and the canonical post-wipe R-file shape
+  # (bare .md without status frontmatter, slug-only body) is captured as P171
+  # (docs/problems/171-drain-register-queue-script-and-tests-reference-
+  # obsolete-pre-wipe-r-file-shape.open.md). This synthetic-fixture pattern
+  # is the workaround until P171's fix lands.
   mkdir -p docs/risks .afk-run-state
-  cp "$REPO_ROOT/docs/risks/TEMPLATE.md" docs/risks/TEMPLATE.md
+  cat > docs/risks/TEMPLATE.md <<'TEMPLATE_EOF'
+# Risk RNNN: <title>
+
+**Status**: Active
+**Category**: <category>
+**Identified**: <YYYY-MM-DD>
+**Owner**: <owner>
+
+## Description
+
+<description>
+TEMPLATE_EOF
   cp "$REPO_ROOT/docs/risks/README.md" docs/risks/README.md
-  cp "$REPO_ROOT/docs/risks/R001-confidential-info-leak-via-public-repo-push.active.md" docs/risks/
+  cat > docs/risks/R001-confidential-info-leak-via-public-repo-push.active.md <<'R001_EOF'
+# Risk R001: Confidential info leak via public repo push
+
+**Status**: Active
+**Category**: information-disclosure
+**Identified**: 2026-04-17
+**Owner**: maintainer
+
+## Description
+
+Test fixture for drain-register-queue dedupe path — slug
+`confidential-info-leak-via-public-repo-push` matches an existing R-file
+with `## Evidence Log` semantics.
+
+## Evidence Log
+
+- 2026-04-17: seeded fixture entry
+
+## Change Log
+
+- 2026-04-17: created (test fixture)
+R001_EOF
   git add docs/risks
   git commit --quiet -m "seed risks"
 }
