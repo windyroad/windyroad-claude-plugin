@@ -86,6 +86,8 @@ See [ADR-011](../../docs/decisions/011-manage-incident-skill.proposed.md) for th
 | `/wr-itil:review-problems` | Re-rate every open and known-error ticket and refresh the WSJF ranking |
 | `/wr-itil:reconcile-readme` | Detect and correct drift between `docs/problems/README.md` and on-disk ticket inventory |
 | `/wr-itil:report-upstream` | Report a local problem as a structured issue against an upstream repository (ADR-024) |
+| `/wr-itil:capture-rfc` | Lightweight RFC-capture skill — mandatory problem-trace per ADR-060 I1 invariant; opens a coordinated multi-commit change traceable to ≥ 1 driving problem (Phase 1 of the Problem-RFC-Story framework, P170 / ADR-060) |
+| `/wr-itil:manage-rfc` | Heavyweight RFC intake + lifecycle management — proposed → accepted → in-progress → verifying → closed; sibling to `manage-problem` at the RFC tier (ADR-060) |
 | `/wr-itil:manage-incident` | Declare, triage, mitigate, and close an incident with evidence-first discipline |
 | `/wr-itil:list-incidents` | Read-only display of active incidents by severity |
 | `/wr-itil:mitigate-incident` / `/wr-itil:restore-incident` / `/wr-itil:close-incident` / `/wr-itil:link-incident` | Incident lifecycle transitions (ADR-011) |
@@ -106,6 +108,7 @@ This plugin serves the [Jobs to be Done](../../docs/jtbd/) below. Per [ADR-051](
 ### Solo developer
 
 - **[JTBD-006 Progress the Backlog While I'm Away](../../docs/jtbd/solo-developer/JTBD-006-work-backlog-afk.proposed.md)** — `/wr-itil:work-problems` is the AFK orchestrator that loops through the WSJF-ranked backlog, working tickets without interactive input until quota or a stop condition fires.
+- **[JTBD-008 Decompose a Fix Into Coordinated Changes](../../docs/jtbd/solo-developer/JTBD-008-decompose-fix-into-coordinated-changes.proposed.md)** — `/wr-itil:capture-rfc` + `/wr-itil:manage-rfc` are the capture-time decomposition surface for multi-commit coordinated changes traced to a driving problem; the I1 trace-to-problem invariant is gate-enforced at capture-rfc time (P170 / ADR-060).
 
 ### Plugin user (currency anchor)
 

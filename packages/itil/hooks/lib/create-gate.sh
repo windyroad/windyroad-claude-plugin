@@ -52,6 +52,36 @@ mark_step2_complete() {
   : > "/tmp/manage-problem-grep-${SESSION_ID}"
 }
 
+# Returns 0 if the RFC capture-step marker exists for SESSION_ID; 1 otherwise.
+# Empty SESSION_ID => returns 1 (no marker).
+#
+# Sibling marker per architect verdict on capture-rfc sub-decision (a) —
+# preserves audit-trail per-surface granularity (problem-tier vs RFC-tier
+# capture). Marker name: /tmp/wr-itil-rfc-capture-grep-${SESSION_ID}.
+#
+# Usage: if check_rfc_capture_gate "$SESSION_ID"; then exit 0; fi
+check_rfc_capture_gate() {
+  local SESSION_ID="$1"
+  [ -n "$SESSION_ID" ] || return 1
+  [ -f "/tmp/wr-itil-rfc-capture-grep-${SESSION_ID}" ]
+}
+
+# Writes the RFC capture-step marker for SESSION_ID. Empty SESSION_ID => no-op.
+# Idempotent — safe to call more than once per session.
+#
+# Per ADR-060 + capture-rfc Step 2: the marker records that capture-rfc has
+# run its problem-trace validation pass (the RFC-tier analogue of the
+# manage-problem Step 2 duplicate-grep). Per-session scope so a single
+# capture-rfc invocation may write multiple RFC files (e.g. multi-problem
+# trace splits) without re-validating.
+#
+# Usage: mark_rfc_capture_complete "$SESSION_ID"
+mark_rfc_capture_complete() {
+  local SESSION_ID="$1"
+  [ -n "$SESSION_ID" ] || return 0
+  : > "/tmp/wr-itil-rfc-capture-grep-${SESSION_ID}"
+}
+
 # Emit fail-closed deny JSON for PreToolUse hooks.
 # Usage: create_gate_deny "BLOCKED: <reason>"
 create_gate_deny() {

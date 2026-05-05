@@ -17,3 +17,8 @@ node_modules/
 # AFK runtime state — per-session, never committed (ADR-032 subprocess-boundary)
 .afk-run-state/
 .claude/scheduled_tasks.lock
+
+# RFC capture deny log — measurement surface per ADR-060 § Reassessment
+# (trace-violation-rate criterion). Per-session telemetry; CI runs and
+# local development should not commit deny entries.
+logs/
