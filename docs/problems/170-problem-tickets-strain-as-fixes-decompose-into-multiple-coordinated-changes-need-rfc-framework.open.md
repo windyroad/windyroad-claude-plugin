@@ -244,6 +244,7 @@ When Phase 1 ships, replace this entire section with a forward pointer to `RFC-N
 
 (captured via /wr-itil:capture-problem; expand at next investigation)
 
+- **Story map (planning artefact)**: `docs/plans/170-rfc-framework-story-map.md` — Patton-style user story map decomposing P170/ADR-060 Phase 1 work into 6 slices anchored to JTBD-001 (extended scope). Created 2026-05-05 under user direction "continue with expanded scope, but plan it out properly". jtbd-review verdict PASS with 3 nitpick amendments applied. Slice 1 ("ADR-060 ready for accept") is the this-session candidate.
 - ADR-014 (commit grain — RFCs decompose into ADR-014-grain commits)
 - ADR-032 (governance-skill aside-invocation pattern — capture-rfc + manage-rfc would follow the same shape)
 - ADR-042 (held-area + auto-apply — RFCs ride held-changeset windows naturally)
