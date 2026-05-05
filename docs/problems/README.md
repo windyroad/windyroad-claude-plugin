@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-05-05 **batch transition: P155 close, P134 close, P149 close** (3 tickets) via run-retro Step 4a close-on-evidence per ADR-022 + ADR-044 framework-resolved silent dispatch. Specific in-session citations per ticket recorded in the Closed section. Prior line-3 fragment (P169 README reconciliation) rotated to docs/problems/README-history.md per P134.
+> Last reviewed: 2026-05-05 **P170 re-rate** Effort M → XL, Priority 3 (Low) → 8 (Medium); WSJF 1.5 → 1.0; architect+JTBD AMEND verdicts on ADR-060 (proposed) discharge 2 of 6 P170 investigation tasks. 14 architect findings (2 critical: I1 enforcement contradictory, I2 needs load-bearing test) + 1 JTBD critical block (JTBD-008 phantom anchor) gate Phase 1 implementation; 3 of 4 P170 deferred decisions resolved in-ADR (RFC ID grammar = `RFC-<NNN>`, WSJF placement = RFC-level Phase 1, AskUserQuestion authority classes per ADR-044). Prior line-3 fragment (batch transition P155/P134/P149 close) rotated to docs/problems/README-history.md per P134.
 > Run `/wr-itil:manage-problem review` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -28,7 +28,6 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 1.875 | P091 | Session-wide context budget — Claude Code consumes substantial context before and during every session across all contributor surfaces (meta) | 15 High | Open | XL | 2026-04-22 |
 | 1.5 | P080 | No bidirectional update of upstream-reported problems — local lifecycle transitions never propagate back to the reporter (re-rated 6.0 → 1.5 transitive 2026-04-26 — blocked by P079/P038/P064) | 12 High | Open | M | 2026-04-21 |
 | 1.5 | P169 | Build recogniser-shape catalogue into @windyroad/risk-scorer plugin (automatic bootstrap + ongoing maintenance) — Phase 1 scorer-side, Phase 2 bootstrap-side | 3 Low | Open | M | 2026-05-04 |
-| 1.5 | P170 | Problem tickets strain as fixes decompose into multiple coordinated changes — need RFC framework that ties all changes back to problems and unifies technical with user/business problems (ADR-060 proposed) | 3 Low | Open | M | 2026-05-04 |
 | 1.5 | P045 | Auto plugin install after governance release (deferred install on next session start per 2026-04-20 direction) | 6 Med | Open | L | 2026-04-19 |
 | 1.5 | P079 | No inbound sync of upstream-reported problems — reports filed via the intake templates never surface in the local backlog (re-rated 6.0 → 1.5 transitive 2026-04-26 — assessment-pipeline scope blocked by P038/P064) | 12 High | Open | L | 2026-04-21 |
 | 1.5 | P014 | No lightweight aside invocation for governance skills (master tracker for ADR-032 — capture-* sibling skills + pending-questions hook + supersession cleanup) | 12 High | Open | XL | 2026-04-16 |
@@ -37,6 +36,7 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 1.5 | P082 | No voice-and-tone or content-risk-scoring gate on commit messages (transitive XL via P038 per P076; marginal M) | 12 High | Open | XL | 2026-04-21 |
 | 1.5 | P129 | P079 inbound assessment pipeline lacks version-aware classification — already-fixed-in-newer / recurred / still-active branches | 12 High | Open | XL | 2026-04-26 |
 | 1.25 | P160 | Ship quota-pacing surface to prevent weekly-quota exhaustion — advisory/blocking nudge when burn rate exceeds sustainable pace, so users retain Claude tokens for non-Claude-Code surfaces (chat, cowork) for the full week | 10 High | Open | XL | 2026-05-03 |
+| 1.0 | P170 | Problem tickets strain as fixes decompose into multiple coordinated changes — need RFC framework that ties all changes back to problems and unifies technical with user/business problems (ADR-060 proposed; architect+JTBD AMEND 2026-05-05 — 14 + 1 critical findings; re-rated M → XL after Phase 1 scope visibility) | 8 Med | Open | XL | 2026-05-04 |
 | 0.75 | P012 | Skill testing harness scope undefined | 6 Med | Open | XL | 2026-04-16 |
 | 0.75 | P034 | Centralise risk reports for cross-project skill improvement | 6 Med | Open | XL | 2026-04-17 |
 

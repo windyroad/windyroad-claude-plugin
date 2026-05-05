@@ -170,3 +170,8 @@ Last reviewed: 2026-04-28 **AFK iter 7 — P139 transitioned Open → Verificati
 ## 2026-05-05 (batch transition — close P155, P134, P149 via run-retro Step 4a close-on-evidence)
 
 > Last reviewed: 2026-05-04 **README reconciled** — 1 drift entry corrected: P169 added to WSJF Rankings (1.5 / Open / M, severity 3 Low). P118 preflight detected drift on next /wr-itil:capture-problem invocation — same capture-problem deferred-README-refresh contract gap (ADR-032) that displaced P167/P168 yesterday. P169 captures the recogniser-shape catalogue → plugin operationalisation workstream (Phase 1 scorer-side, Phase 2 bootstrap-side); inserted within the WSJF=1.5 tier per tie-break ladder (M-effort group, Reported-date asc places P169 after P080). Reconciliation contract per P118 + ADR-014 amended ("Reconciliation as preflight robustness layer"). Prior line-3 fragment (P168 KE → Verifying) rotated per P134.
+
+
+## 2026-05-05 (P170 re-rate — Effort M → XL after architect+JTBD AMEND verdicts on ADR-060)
+
+> Last reviewed: 2026-05-05 **batch transition: P155 close, P134 close, P149 close** (3 tickets) via run-retro Step 4a close-on-evidence per ADR-022 + ADR-044 framework-resolved silent dispatch. Specific in-session citations per ticket recorded in the Closed section. Prior line-3 fragment (P169 README reconciliation) rotated to docs/problems/README-history.md per P134.
