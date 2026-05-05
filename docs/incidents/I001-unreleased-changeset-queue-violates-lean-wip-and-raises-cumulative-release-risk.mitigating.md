@@ -1,6 +1,6 @@
 # Incident I001: Unreleased changeset queue violates lean WIP and raises cumulative release risk
 
-**Status**: Investigating
+**Status**: Mitigating
 **Reported**: 2026-05-06 06:30 UTC
 **Severity**: 6 (Medium) — Impact: Minor (2) x Likelihood: Possible (3)
 **Scope**: Release pipeline + held cluster (`docs/changesets-holding/`) + downstream adopter risk (latent — adopters running stale plugin behaviour because mitigations haven't graduated yet)
@@ -13,6 +13,8 @@
 - [2026-05-05 UTC] Cluster grew to 5: P170 RFC framework Phase 1 hold (commit `8572aa6`) + Slice 3 first-half hold (commit `44217f6`) under ADR-060 finding 12 atomic-graduation contract.
 - [2026-05-06 UTC] Cluster grew to 6: P170 RFC framework Slice 3 second-half hold (commit `055d26b`) — current state.
 - [2026-05-06 06:30 UTC] Incident declared by user observation: "we have a massive queue of unreleased changes. This goes against lean principles (too much WIP) and increases the cumulative release risk."
+- [2026-05-06 07:30 UTC] User refines scope: "I'm not worried about the held items for dogfooding. It's all the other stuff that needs to get to the users." Cluster split-graduation strategy chosen per H3 mitigation.
+- [2026-05-06 07:30 UTC] Mitigation attempt: graduate orthogonal-gate `.verifying.md` holds (P064 + P085 + P159) back to `.changeset/`; P170 dogfood cluster (Phase 1 + Slice 3 + Slice 3 second-half) stays held per ADR-060 finding 12 atomic-graduation contract.
 
 ## Observations
 
@@ -31,7 +33,7 @@
 
 ## Mitigation attempts
 
-*(none yet)*
+- [2026-05-06 07:30 UTC] **Graduate orthogonal-gate `.verifying.md` holds back to `.changeset/`** (H3 mitigation — split cluster into independent graduation cohorts). `git mv` 3 changesets: `wr-risk-scorer-p064-external-comms-gate.md`, `wr-itil-p085-assistant-output-gate.md`, `wr-retrospective-p159-readme-jtbd-currency-hook.md`. P170 dogfood cluster (3 entries) preserved per ADR-060 finding 12 atomic-graduation contract. Reversible via `git mv` back if false-positive emerges. → pending verification (CI green + npm publish success on `push:watch` + `release:watch`).
 
 ## Linked Problem
 
