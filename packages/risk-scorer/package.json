@@ -1,6 +1,6 @@
 {
   "name": "@windyroad/risk-scorer",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Pipeline risk scoring, commit/push gates, and secret leak detection",
   "bin": {
     "windyroad-risk-scorer": "./bin/install.mjs"

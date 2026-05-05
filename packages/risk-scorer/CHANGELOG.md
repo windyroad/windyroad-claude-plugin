@@ -1,5 +1,63 @@
 # @windyroad/risk-scorer
 
+## 0.6.0
+
+### Minor Changes
+
+- 8edaf7b: P168 / ADR-059: pipeline consume-catalog protocol + create-risk flag-driven path
+
+  The `@windyroad/risk-scorer` agent prompt and create-risk skill gain two coordinated extensions per ADR-059 (Consume-catalog and bootstrap-from-reports register population):
+
+  - **`packages/risk-scorer/agents/pipeline.md`** — new `## Catalog Consumption Protocol` section. Pipeline now reads `docs/risks/` first, applies a hybrid filter (slug-token-match primary, free-form judgement fallback) to identify catalog entries applicable to THIS action, and emits per-risk-item `Catalog match:` (slug-token / judgement / none) + `Catalog baseline:` (lifetime baseline residual citing R<NNN>) lines. Per-run `CATALOG_HIT_RATE: matched=N missed=M` observability line. `RISK_SCORES:` continues to carry per-action residual (gate-firing semantic preserved); catalog lifetime baseline is contextual NOT in the gate-firing line. Closes the missed-risk-class hazard (P168) by giving the agent a deterministic-first match path against the persistent catalog; closes the wasted-effort cost by removing redundant per-action regeneration of risk classes the agent surfaced before. Pure-scorer contract preserved (`Read + Glob` only — no `Write` grant added). Empty-catalog handling: emit a one-line nudge in the report body recommending `/install-updates` or `/wr-risk-scorer:bootstrap-catalog`; do NOT halt; do NOT inflate per-action residual.
+
+  - **`packages/risk-scorer/skills/create-risk/SKILL.md`** — new Step 1b (orchestrator flag-driven path). Skill accepts `--slug <slug>` and `--prefill <prose>` flags (plus optional `--report-path <path>`) for orchestrator-driven prefilled invocation under ADR-013 Rule 5 (catalog framing in `RISK-POLICY.md` IS the policy authorisation). Flag-driven path skips the AskUserQuestion-driven authoring step and writes the entry deterministically with: `Status: Active (auto-scaffolded — pending review)` (ADR-056 pending-review pattern); `Description: <prefill>` verbatim; Inherent / Residual scoring fields = ADR-026 sentinel `not estimated — no prior data`; required `## Source Evidence` block citing originating `.risk-reports/` files. Slug-collision handling: append to existing file's Source Evidence block instead of creating new entry. Existing AskUserQuestion-driven authoring path preserved unchanged for human invocation (no flags supplied).
+
+  - **NEW `/wr-risk-scorer:bootstrap-catalog` skill** (Commit 2 of the P168 fix) — on-demand surface for one-shot bootstrap of `docs/risks/` from `.risk-reports/` corpus. Walks reports, dedupes by ADR-056 slug, emits one `R<NNN>-<slug>.active.md` per unique slug with `## Source Evidence` block citing originating reports per ADR-026 grounding. Idempotent (file-existence test per slug; re-run on populated catalog appends to existing Source Evidence blocks but does NOT modify other fields). Pre-conditions verified at Step 0: RISK-POLICY.md present, docs/risks/ scaffolded (ADR-047 Phase 1), .risk-reports/ corpus non-empty. Maturity tag `proposed` per ADR-053. Auto-trigger surface: `/install-updates` Step 6.5.1 fires this skill when register is empty + RISK-POLICY.md present + .risk-reports/ non-empty (per ADR-013 Rule 5 silent proceed under existing per-sibling consent gate). Pure-scorer contract preserved on agent side: pipeline agent unchanged (`Read + Glob` only); the new bootstrap-catalog skill IS the legitimate orchestrator-side write surface per ADR-059 verdict G.
+
+  Backward-compatible — no existing call site changes. Adopters whose pipeline agent prompt cache still emits the pre-ADR-059 risk-item format continue to work; the new lines are additive. Adopter create-risk invocations without flags continue to fire the existing AskUserQuestion-driven authoring path.
+
+  Behavioural bats coverage:
+
+  - `packages/risk-scorer/agents/test/risk-scorer-catalog-consumption.bats` — 15 cases covering protocol section, hybrid filter, risk-item-format extension, residual reconciliation, hit-rate observability, empty catalog handling, pure-scorer contract preservation. Permitted Exception structural assertions per ADR-005 / P011 (agent prompts are specification documents).
+  - `packages/risk-scorer/skills/create-risk/test/create-risk-flag-driven.bats` — 15 cases covering flag detection, deterministic-write defaults, Source Evidence requirement, AskUserQuestion skip-vs-preserve, slug-collision append, ADR-013 Rule 5 authorisation citation. Same Permitted Exception applies.
+
+  Pairs with the forthcoming `/wr-risk-scorer:bootstrap-catalog` skill (Commit 2 of the P168 fix) and the `/install-updates` Step 6.5 bootstrap auto-trigger (also Commit 2). The wipe + re-bootstrap validation pass lands in Commit 3.
+
+  ADR-047 amended in-place with one-line forward pointer naming ADR-059 as Phase 2/3 successor.
+
+  **Commit 4 follow-up (substantive register seed)**: After Commit 3 wiped pre-correction R001-R006 and the agent's first bootstrap pass produced a mechanical 1-of-1 stub the user explicitly flagged as unacceptable, the bootstrap was re-done by hand into seven theme-level curated entries grounded in corpus evidence + retro signals + held-changeset patterns + ADR control inventory. Each entry carries structured agentic-AI frontmatter beyond ISO 31000/27001 (asset_path, cascade_scope, afk_class, reversal_class, control_budget_class, dogfood_days, authority_class, ci_a, agentic_category). The extractor script's ID-allocation logic was tweaked to start from R001 on a fresh wipe (filesystem-max + 1, defaulting to R001 when empty) instead of inheriting origin/main's pre-wipe IDs per ADR-019; ADR-019 still applies to /wr-risk-scorer:create-risk for incremental adds post-bootstrap. Substantive entries: R001 documentation-runtime drift; R002 hook regression cascades; R003 confidentiality leakage via outbound prose; R004 marketplace/prompt-cache divergence; R005 cross-package release coordination drift; R006 authority-delegation confusion; R007 ambient state leaks into commits.
+
+  References: ADR-059 (this fix's design ADR), ADR-056 (slug primitive consumed), ADR-026 (grounding sentinel), ADR-013 Rule 5 (policy-authorised silent proceed), ADR-015 (pure-scorer contract preserved), P168 (driver), P167 (parent), P033 (99%-miss-rate ticket).
+
+### Patch Changes
+
+- 0efdb1b: Test-only fix: synthetic fixtures for `drain-register-queue.bats` + `bootstrap-catalog.bats` SKILL-wording assertion (CI green; P171 captures deeper divergence)
+
+  Two pre-existing test regressions in `@windyroad/risk-scorer`'s bats suite, both rooted in P168 commit `8edaf7b` ("FFS WIPE THE RXXX risks ... THEY ARE WRONG") which wiped `docs/risks/TEMPLATE.md` and renamed R001 without updating dependent fixtures. CI failure surfaced via push:watch when 33 unpushed commits batched today (P116 hazard).
+
+  `packages/risk-scorer/scripts/test/drain-register-queue.bats`:
+
+  - setup() previously did `cp $REPO_ROOT/docs/risks/TEMPLATE.md ...` and `cp $REPO_ROOT/docs/risks/R001-confidential-info-leak-via-public-repo-push.active.md ...` — both source files were wiped or renamed in the canonical state.
+  - Replacement: synthesize fixture-local `TEMPLATE.md` and an old-shape `R001-...active.md` inline via `cat <<EOF`. Drain script's `TEMPLATE.md` existence gate (line 66) and old-shape filename regex (line 126) are preserved by the synthetic fixtures so the existing 16-test contract exercises end-to-end without canonical-state coupling.
+  - Inline P171 cross-reference documents the workaround status.
+  - Verified locally: 16/16 tests pass.
+
+  `packages/risk-scorer/skills/bootstrap-catalog/test/bootstrap-catalog.bats`:
+
+  - Test 1325 asserted SKILL.md contains `requires docs/risks/ scaffold` wording. SKILL.md was rewritten in the wipe iter to say "directory may or may not exist; created on demand; bootstrap owns the directory's full lifecycle" — the assertion was inverted.
+  - Updated assertion to match new contract: grep for `may or may not exist | creates it on demand | owns the directory's full lifecycle`.
+  - Renamed test from "requires scaffold" to "owns directory lifecycle".
+  - Verified locally: 19/19 tests pass.
+
+  The synthetic-fixture pattern is workaround-shape, not canonical-shape. P171 (`docs/problems/171-drain-register-queue-script-and-tests-reference-obsolete-pre-wipe-r-file-shape.open.md`) captures the underlying script-vs-format divergence for a future fix iter that:
+
+  - removes the vestigial `TEMPLATE_FILE` gate from `drain-register-queue.sh`
+  - updates generated filename + dedupe regex to canonical bare-`.md` shape
+  - replaces synthetic-fixture bats with real-shape fixtures
+  - adds reciprocal contract bats asserting drain output matches catalog
+
+  Refs P171, P168, P116 (push:watch local-only-commits hazard surfaced this).
+
 ## 0.5.0
 
 ### Minor Changes

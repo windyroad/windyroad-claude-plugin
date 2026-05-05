@@ -1,5 +1,5 @@
 {
   "name": "wr-risk-scorer",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Pipeline risk scoring, commit/push/release gates for Claude Code"
 }
