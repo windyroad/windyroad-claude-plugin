@@ -1,6 +1,6 @@
 # Problem 155: Ship `/wr-itil:capture-problem` skill — lightweight aside-invocation surface for problem capture during foreground work
 
-**Status**: Verification Pending
+**Status**: Closed (verified 2026-05-05)
 **Reported**: 2026-05-03
 **Priority**: 12 (High) — Impact: Significant (3) x Likelihood: Almost certain (4)
 **Effort**: M — new skill SKILL.md + REFERENCE.md per ADR-038 progressive-disclosure pattern; bin shim per ADR-049; behavioural bats per ADR-052; integrate with manage-problem Step 2 create-gate (P119) so capture-problem writes the marker correctly without re-running the full Step 2 grep when the user is mid-capture (capture-problem is the lightweight aside that defers full duplicate-check to a follow-up review).

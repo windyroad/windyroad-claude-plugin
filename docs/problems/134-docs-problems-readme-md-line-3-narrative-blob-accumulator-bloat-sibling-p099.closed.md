@@ -1,6 +1,6 @@
 # Problem 134: `docs/problems/README.md` line 3 narrative-blob accumulator bloat — sibling to P099 (briefing tier 3) on a different surface
 
-**Status**: Verification Pending
+**Status**: Closed (verified 2026-05-05)
 **Reported**: 2026-04-27
 **Priority**: 10 (High) — Impact: Minor (2) x Likelihood: Almost certain (5) <!-- re-rated 2026-04-28 — user-surfaced + iter-2-retro-corroborated + architect-Read-failure; corrected mislabel "Likely (3)" → policy-verbatim "Almost certain (5)"; Impact dropped Moderate→Minor since RISK-POLICY Impact-3 ("npm publish disrupted") doesn't apply to internal-tooling friction -->
 **Effort**: M — likely combination of (a) `manage-problem` Step 5 P094 and Step 7 P062 README-refresh contracts to **truncate** the "Last reviewed" parenthetical to a fixed bound (e.g. 1 KB or 200 chars per session-summary fragment), (b) per-iter retro-class entries archive themselves to `docs/problems/README-history.md` (or similar archive sibling), (c) optional advisory script `packages/itil/scripts/check-problems-readme-budget.sh` mirroring P099's `check-briefing-budgets.sh` triplet (script + bats + ADR-tier-budget amendment).

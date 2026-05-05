@@ -1,6 +1,6 @@
 # Problem 149: `/wr-itil:manage-problem` Step 0 reconcile halt-on-drift directive doesn't distinguish uncommitted-rename-rooted drift (same-session pending) from committed cross-session drift — should refresh inline rather than halt for the former case
 
-**Status**: Verification Pending
+**Status**: Closed (verified 2026-05-05)
 **Reported**: 2026-05-02
 **Priority**: 4 (Low) — Impact: Minor (2) x Likelihood: Possible (2)
 **Effort**: S — bounded SKILL.md amendment in two files (`manage-problem` Step 0, `work-problems` Step 0) + new `classify-readme-drift.sh` helper + bin shim (ADR-049) + behavioural bats covering both routing branches. Effort confirmed S on landing — `work-problem` (singular) has no Step 0 reconcile preflight (relies on cache freshness via review-problems), so the third file in the original estimate was not edited.
