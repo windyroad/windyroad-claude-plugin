@@ -1,6 +1,6 @@
 # RFC Backlog
 
-> Last reviewed: 2026-05-05 **scaffold landed** — `docs/rfcs/` directory + lifecycle index initialised per ADR-060 Phase 1 items 1 + 4 (P170 Slice 2 B5.T1 + B5.T2). No RFCs captured yet; first dogfood RFC (RFC-001 retro on P168) lands in Slice 4. Skill skeletons (`/wr-itil:capture-rfc` + `/wr-itil:manage-rfc`) are Slice 2 follow-up tasks B5.T3 + B5.T4; held-changeset window per ADR-042 / P162 opens with B5.T3 (this README is docs-only and does NOT open the held window).
+> Last reviewed: 2026-05-07 **RFC-002 accepted** — populated `## Scope` + `## Tasks` (Slice A in-repo migration + Slice B adopter auto-migration; 11 ADR-014-grain bounded sub-tasks); `proposed → accepted` lifecycle transition with architect+JTBD re-review PASS (P170 Slice 5 B8.T3, forward-dogfood candidate per architect finding 14). RFC-002 inherits Severity 15 from P069 (XL effort, WSJF 3.75 at accepted status). RFC-001 enters Verification Queue (released 2026-05-04 per Commit 3 `8edaf7b`).
 > Run `/wr-itil:manage-rfc review` to refresh once the manage-rfc skill ships.
 
 ## Status
@@ -114,21 +114,23 @@ Links to ADRs, JTBDs, retro docs, and other RFCs this work composes with.
 
 ## RFC Rankings
 
-(Empty — no RFCs captured yet. Once `/wr-itil:capture-rfc` ships in Slice 2 task B5.T3, this table populates with one row per RFC in `proposed` / `accepted` / `in-progress` status. RFC-level WSJF placement is Phase 1 default per ADR-060 § Decision Outcome — story-level WSJF is deferred to Phase 2. Rows sort by the same `(WSJF desc, ID asc)` tie-break ladder used for problem rankings, with RFC statuses extending the Status column. <!-- TIE-BREAK-LADDER-SOURCE: docs/problems/README.md WSJF Rankings + ADR-060 § Decision Outcome -->)
+One row per RFC in `proposed` / `accepted` / `in-progress` status. RFC-level WSJF placement is Phase 1 default per ADR-060 § Decision Outcome — story-level WSJF is deferred to Phase 2. Rows sort by the `(WSJF desc, ID asc)` tie-break ladder used for problem rankings, with RFC statuses extending the Status column. <!-- TIE-BREAK-LADDER-SOURCE: docs/problems/README.md WSJF Rankings + ADR-060 § Decision Outcome -->
 
 | WSJF | ID | Title | Severity | Status | Effort | Reported |
 |------|-----|-------|----------|--------|--------|----------|
+| 3.75 | RFC-002 | docs/problems/ flat layout migration — per-state subdirs + adopter auto-migration | 15 | accepted | XL | 2026-05-07 |
 
 ## Verification Queue
 
-(Empty — no RFCs in `.verifying.md` status yet. Sorted by `Released date ASC` once populated, mirroring the canonical Verification Queue sort direction documented for `docs/problems/README.md` per P150. <!-- VQ-SORT-DIRECTION: oldest-first per ADR-022 -->)
+Sorted by `Released date ASC`, mirroring the canonical Verification Queue sort direction documented for `docs/problems/README.md` per P150. <!-- VQ-SORT-DIRECTION: oldest-first per ADR-022 -->
 
 | ID | Title | Released | Verification check |
 |----|-------|----------|--------------------|
+| RFC-001 | Pipeline consume-catalog and bootstrap-from-reports — multi-commit retrofit | 2026-05-04 | Commits `ab73328` + `af5447c` + `8edaf7b` shipped under ADR-059. Closure gated on Slice 5 forward-dogfood completion (RFC-002 reaches `closed`) per ADR-060 § Confirmation criterion 6 atomicity contract. |
 
 ## Closed
 
-(Empty — no closed RFCs yet. The first closed RFC will be RFC-001 (retro migration of P168) after Slice 4 closes per the P170 story map.)
+(Empty — no closed RFCs yet. RFC-001 closes once Slice 5 forward-dogfood completes per the P170 story map.)
 
 | ID | Title | Closed | Driving problems |
 |----|-------|--------|------------------|

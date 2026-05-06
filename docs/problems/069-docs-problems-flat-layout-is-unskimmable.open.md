@@ -207,4 +207,4 @@ Effort after scope expansion: **XL** (was L before the auto-migration addition; 
 
 | RFC | Status | Title |
 |-----|--------|-------|
-| RFC-002 | proposed | docs/problems/ flat layout migration — per-state subdirs + adopter auto-migration |
+| RFC-002 | accepted | docs/problems/ flat layout migration — per-state subdirs + adopter auto-migration |
