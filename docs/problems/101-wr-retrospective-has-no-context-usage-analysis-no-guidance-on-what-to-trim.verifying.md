@@ -5,6 +5,7 @@
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: XL (re-rated 2026-04-26 — architect verdict expanded scope from L to XL: new sibling ADR-043 + amendments to ADR-026 / ADR-014 + new skill + new diagnostic script + 2 bats fixtures + Step 2c block in run-retro SKILL.md)
 **WSJF**: (12 × 2.0) / 8 = **3.0**
+**Type**: technical
 
 > Status transitioned Open → Known Error 2026-04-26 — root cause confirmed, fix path clear, fix landing in this commit. ADR-043 (Progressive context-usage measurement and reporting for retrospective sessions) is the architect-verdict-resolved settlement of the Fix Strategy. Verification Pending follows the next release per ADR-022.
 

@@ -5,6 +5,7 @@
 **Priority**: 15 (High) — Impact: Moderate (3) x Likelihood: Certain (5)
 **Effort**: XL (re-rated from L 2026-04-20 post-architect review on auto-migration addition) — bulk `git mv` of ~72 existing tickets (this repo) + update path references across 5+ SKILL.md files (manage-problem, work-problems, manage-incident, report-upstream, run-retro) and their ~30 bats tests + update README.md generation + draft ADR-031 (done — ADR-031 `proposed`) + in-place amendments to ADR-022, ADR-016, ADR-024, `packages/risk-scorer/agents/wip.md` + hook-exemption glob updates in architect-enforce-edit.sh + jtbd-enforce-edit.sh + **auto-migration logic shipped inside `manage-problem` AND `work-problems` for adopter repos** (per-project on first-run, ADR-017-style shared routine candidate, with ADR-027 Step 0 collision to resolve + ADR-014 commit-gate treatment to resolve + novel "plugin-driven repo migration" pattern question). Cross-plugin reach + multi-ADR amendment + novel distribution pattern = XL territory.
 **WSJF**: 1.875 — (15 × 1.0) / 8 — re-rated from 3.75 at 2026-04-20 after scope expansion (auto-migration + architect-raised execution-time questions). High severity / ecosystem-wide navigation friction remains unchanged; the migration lift + architectural open questions justify the XL bucket.
+**Type**: technical
 
 ## Priority pull-forward (2026-04-26 user direction — post-AFK-loop /wr-retrospective:run-retro AskUserQuestion)
 

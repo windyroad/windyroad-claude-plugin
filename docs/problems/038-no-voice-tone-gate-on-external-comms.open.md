@@ -5,6 +5,7 @@
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: XL — multi-surface PreToolUse hook (gh, npm, RapidAPI, marketplace) + pre-flight rewrite skill + voice profile integration + ADR for new enforcement surface + regression fixtures; cross-plugin with voice-tone
 **WSJF**: 1.5 — (12 × 1.0) / 8
+**Type**: technical
 
 ## Direction decision (2026-04-20, user — AFK loop stop-condition #2)
 

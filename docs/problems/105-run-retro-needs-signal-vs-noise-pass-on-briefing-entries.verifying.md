@@ -5,6 +5,7 @@
 **Priority**: 16 (High) — Impact: Major (4) x Likelihood: Likely (4)
 **Effort**: M
 **WSJF**: (16 × 1.0) / 2 = **8.0**
+**Type**: technical
 
 > Split from P100 slice 2 during the 2026-04-22 design session. User framing (2026-04-22): *"basically we want to ask 'what was signal and what was noise' and then adjust accordingly"*. Run-retro gains a signal-vs-noise pass over briefing entries that were in context this session: signal (fired, saved a turn) gets promoted or kept in the Critical Points roll-up; noise (didn't fire, wasted attention, misleading) gets demoted, archived, or deleted. The curation mechanism is the feedback channel the SessionStart hook's value depends on over time.
 

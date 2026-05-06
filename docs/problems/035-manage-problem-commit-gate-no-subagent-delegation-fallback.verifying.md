@@ -5,6 +5,7 @@
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Possible (3)
 **Effort**: S
 **WSJF**: 18.0 — (9 × 2.0) / 1
+**Type**: technical
 
 ## Description
 

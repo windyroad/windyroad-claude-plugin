@@ -5,6 +5,7 @@
 **Priority**: 20 (High) — Impact: Major (4) x Likelihood: Almost certain (5)
 **Effort**: M
 **WSJF**: (20 × 1.0) / 2 = **10.0**
+**Type**: technical
 
 > Identified 2026-04-22 by the user during the iter-4 release-cadence check. Iter 4 produced a 4-changeset queue (itil patch, architect patch, jtbd patch, retrospective minor — slice 1 of P100); the risk scorer flagged release risk at 9/25 Medium (above the 4/25 appetite) due to the slice-1-without-slice-2 concentration in the retrospective minor. The scorer explicitly produced `RISK_REMEDIATIONS:` with **R3 at -5 impact** as a top-ranked remediation: "Release the itil patch + two exemption patches alone by dropping the retrospective changeset from this release batch." **The orchestrator escalated to the user via `AskUserQuestion` anyway, halting the AFK loop.** User direction verbatim: *"you have a risk scorer to assess release risk - you didn't need to ask me, instead of doing, you wasted time waiting for me to respond"*. This ticket captures the orchestrator behaviour as a defect.
 

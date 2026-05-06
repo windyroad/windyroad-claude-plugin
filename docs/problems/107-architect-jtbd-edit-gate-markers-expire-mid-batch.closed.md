@@ -7,6 +7,7 @@
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: M
 **WSJF**: (12 × 1.0) / 2 = **6.0**
+**Type**: technical
 
 > Identified 2026-04-22 during P100 slice 2 execution via run-retro Step 2b pipeline-instability scan. The slice-2 orchestrator turn wrote 12 files sequentially (ADR-040, new hook script, hooks.json / plugin.json / package.json edits, BRIEFING.md delete, held-changeset reinstate + content edit, docs/changesets-holding/README.md update, P105 ADR-ref update, P100 rename + Fix Released append, docs/problems/README.md refresh). Mid-batch, the architect + JTBD PostToolUse markers written ~40 minutes earlier had expired (1800s TTL per ADR-009). Three `Write` calls were blocked: ADR-040 (first attempt), docs/changesets-holding/README.md, packages/retrospective/hooks/session-start-briefing.sh. Each block forced a re-delegation cycle (architect + JTBD agents invoked again to refresh markers) plus a fall-through to python3-via-Bash for the actual write — adding ~2–3 minutes + agent tokens per blocked write. User direction via run-retro Step 2b prompt (2026-04-22): open a ticket for TTL extension / auto-refresh / batch-semantic marker.
 

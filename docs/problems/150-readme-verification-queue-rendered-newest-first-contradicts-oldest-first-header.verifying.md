@@ -5,6 +5,7 @@
 **Priority**: 4 (Low) — Impact: Minor (2) x Likelihood: Possible (2)
 **Effort**: S — single-line section-header text edit OR per-render sort-direction flip; bounded across `manage-problem` Step 9c / Step 9e template, `review-problems` SKILL.md, `transition-problem` Step 7, `reconcile-readme` rendering.
 **WSJF**: (4 × 1.0) / 1 = **4.0**
+**Type**: technical
 
 ## Description
 

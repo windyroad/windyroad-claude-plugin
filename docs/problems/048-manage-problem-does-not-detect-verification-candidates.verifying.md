@@ -5,6 +5,7 @@
 **Priority**: 8 (Medium) — Impact: Minor (2) x Likelihood: Likely (4)
 **Effort**: M (minimal-scope fix shipped; candidates 2, 3, 5 deferred)
 **WSJF**: 0 (excluded from dev-work ranking — per ADR-022)
+**Type**: technical
 
 ## Fix Released
 

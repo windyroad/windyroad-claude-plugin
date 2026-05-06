@@ -7,6 +7,7 @@
 **Effort**: L — Part A (intake scaffolding) shipped 2026-04-20 AFK iter 3; Part B (`/wr-itil:report-upstream` skill per ADR-024) shipped 2026-04-20 in `@windyroad/itil@0.8.0` (commit 8788489).
 
 **WSJF**: 0 — Closed.
+**Type**: technical
 
 ## Closed (2026-04-20)
 

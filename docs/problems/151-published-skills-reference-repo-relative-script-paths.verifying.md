@@ -6,6 +6,7 @@
 **Effort**: L — ADR-049 codifying plugin-bundled-script resolution via `bin/` on `$PATH` + thin shim wrappers + mechanical edits across 5 SKILL.md files in 2 plugins + path-resolution tests + grep-as-lint behavioural test (per architect ADR-049 Confirmation criterion).
 
 **WSJF**: (20 × 2.0) / 4 = **10.0**
+**Type**: technical
 
 > Surfaced 2026-05-02 by user during a `/wr-itil:work-problems` AFK loop iter 1: *"some of the published skills (like manage-problem) references files in this repo (like packages/itil/scripts/reconcile-readme.sh), which users of the plugins CANNOT ACCESS because they are repo paths not plugin paths"*. Sibling concern to P137 (internal-ID leakage) but a distinct failure mode — P137 is degraded-semantics (adopter agent ignores or mis-resolves an `ADR-NNN` token); this ticket is **hard runtime failure** (the bash command exits with `No such file or directory` and the skill cannot proceed past Step 0).
 

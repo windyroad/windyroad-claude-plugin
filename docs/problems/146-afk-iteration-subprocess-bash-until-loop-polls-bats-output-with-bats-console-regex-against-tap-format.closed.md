@@ -5,6 +5,7 @@
 **Priority**: 8 (High) — Impact: Moderate (4) x Likelihood: Possible (2) — fires every AFK iteration whose `manage-problem` Step 11 commit-gate runs the full bats suite via the polling pattern; observed today end-to-end with concrete cost (68m34s wall-clock + lost ITERATION_SUMMARY).
 **Effort**: M — investigate which SKILL.md / agent-prompt / bash-idiom reference taught the iteration agent the bats-console-summary regex shape; correct the source so iteration subprocesses use a TAP-compatible terminator pattern (or switch off the polling-regex pattern entirely in favour of `wait` on the backgrounded PID). Plus matching behavioural bats per ADR-037 + P081.
 **WSJF**: (8 × 1.0) / 2 = **4.0**
+**Type**: technical
 
 ## Description
 

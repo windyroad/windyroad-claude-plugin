@@ -6,6 +6,7 @@
 **Effort**: M — requires one of: (1) a repo-local hook on `UserPromptSubmit` that detects strong-signal correction patterns (profanity, all-caps directives like "DO NOT", "FFS", "for f***'s sake", "stop", "no", "wrong", direct-contradiction phrasing) and injects a systemMessage reminding the assistant to offer a `capture-problem` invocation before continuing; (2) a CLAUDE.md rule that lists the correction patterns as mandatory-capture triggers; (3) a user-memory entry (`feedback_capture_on_correction.md`) that codifies the expectation. Architect review at implementation time to decide between the three shapes. Scope modest but cross-cutting because it affects every interactive session.
 
 **WSJF**: 6.0 — (12 × 1.0) / 2 — High severity (recurring trust erosion on every unmissed correction); moderate effort. Sits in the current top-of-queue tier alongside P070 / P071 / P074.
+**Type**: technical
 
 ## Fix Released
 

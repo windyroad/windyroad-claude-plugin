@@ -5,6 +5,7 @@
 **Priority**: 6 (Medium) — Impact: Minor (2) x Likelihood: Almost Certain (3)
 **Effort**: S — two bounded edits to `packages/itil/skills/work-problems/SKILL.md` Step 5 dispatch block + one new bats assertion per fix. Marginal cost; both improvements on the same target (coordinating-ticket rule per `/wr-retrospective:run-retro` SKILL.md).
 **WSJF**: 3.0 — (6 × 1.0) / 2 — Medium severity (first-run adopters hit the stdin warning immediately; cost-logging gives wrong numbers in common subprocess-resume case); small effort. Coordinating ticket for two same-target improvements per P075's coordinating-ticket rule.
+**Type**: technical
 
 ## Description
 

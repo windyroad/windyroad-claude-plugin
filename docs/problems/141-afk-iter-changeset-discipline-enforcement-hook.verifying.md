@@ -5,6 +5,7 @@
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Likely (3) — observed twice in single session (40% miss rate across 5 publishable iters)
 **Effort**: M — new PreToolUse:Bash hook matching `git commit`; deny when staged diff includes `packages/<plugin>/` files but `.changeset/<plugin>-*.md` is not staged. Plus matching behavioural bats per ADR-005 + P081 (architect verdict 2026-05-02: ADR-005 is the plugin-testing-strategy ADR; ADR-037 is skill-scoped, not applicable to hook bats).
 **WSJF**: (9 × 2.0) / 2 = **9.0**
+**Type**: technical
 
 > Surfaced 2026-04-28 / 2026-04-29 across the long `/wr-itil:work-problems` AFK loop session: iter 2 (P130 commit `b9da37e`) shipped `packages/itil/skills/work-problems/SKILL.md` + new bats without authoring `.changeset/wr-itil-p130-*.md`. Orchestrator main-turn back-filled at `dcc65b4`. Iter 7 (P134 commit `a8b6f18`) shipped 5-SKILL changes + new advisory script + 13 new bats without changeset. Orchestrator back-filled at `ac2425e`. Pattern: 2/5 publishable iters omitted changesets. Recovery cost: ~2× orchestrator main-turn commits + ~$2 risk-scorer round-trips per recovery.
 

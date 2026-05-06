@@ -5,6 +5,7 @@
 **Priority**: 6 (Med) — Impact: Minor (2) x Likelihood: Likely (3)
 **Effort**: M — confirmed shape per user direction 2026-04-26: **new skill `/wr-itil:transition-problems` (plural)** that accepts a list of `<NNN> <status>` pairs and reuses the singular `/wr-itil:transition-problem` per-ticket logic in a loop, producing a single shared commit (ADR-014 batch-commit semantics). Matches the singular/plural pattern P071 established (`work-problem` vs `work-problems`).
 **WSJF**: (6 × 1.0) / 2 = **3.0**
+**Type**: technical
 
 ## User direction (2026-04-26 interactive AskUserQuestion resolution)
 

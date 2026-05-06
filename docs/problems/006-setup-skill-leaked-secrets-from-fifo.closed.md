@@ -3,6 +3,7 @@
 **Status**: Closed (documented guidance only; no enforceable code fix)
 **Reported**: 2026-04-14
 **Priority**: 10 (High) — Impact: Severe (5) x Likelihood: Unlikely (2)
+**Type**: technical
 
 ## Description
 

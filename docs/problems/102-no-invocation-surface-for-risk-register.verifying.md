@@ -5,6 +5,7 @@
 **Priority**: 15 (High) — Impact: Moderate (3) x Likelihood: Almost certain (5)
 **Effort**: M
 **WSJF**: (15 × 1.0) / 2 = **7.5**
+**Type**: technical
 
 > Surfaced 2026-04-22 by the user during routine review of P033's Verification Pending queue: *"033 has been in verifiying for a few days, but I'm not seeing any risks created"*. Confirmed: `docs/risks/` contains only `README.md` + `TEMPLATE.md` (the P033 scaffolding) — zero `R<NNN>-*.md` files 5 days after release. P033's Fix Strategy was explicit about the design — "scaffolding only; no automation for v1; populate incrementally as risks are identified" — but the "incrementally" path has no trigger. Nothing in the current plugin suite or CLAUDE.md flow prompts the user or the assistant to write a risk file.
 

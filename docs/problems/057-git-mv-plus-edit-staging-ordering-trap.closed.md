@@ -5,6 +5,7 @@
 **Priority**: 6 (Medium) — Impact: Minor (2) x Likelihood: Possible (3)
 **Effort**: S — clarifying note in one SKILL.md step + light bats coverage
 **WSJF**: 0 (Closed)
+**Type**: technical
 
 ## Closure
 

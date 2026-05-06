@@ -3,6 +3,7 @@
 **Status**: Closed (not a bug)
 **Reported**: 2026-04-14
 **Priority**: 6 (Medium) — Impact: Minor (2) x Likelihood: Almost Certain (5)
+**Type**: technical
 
 ## Description
 

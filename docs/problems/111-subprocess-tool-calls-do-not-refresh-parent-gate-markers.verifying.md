@@ -5,6 +5,7 @@
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Very Likely (4)
 **Effort**: M
 **WSJF**: 0 (Verification Pending — excluded from dev-work ranking per ADR-022)
+**Type**: technical
 
 ## Fix Released
 

@@ -5,6 +5,7 @@
 **Priority**: 12 (High) — Impact: Significant (4) x Likelihood: Possible (3)
 **Effort**: L — new PreToolUse hook surface covering `gh issue create`, `gh issue comment`, `gh pr create`, `gh pr comment`, `gh api .../security-advisories`, `gh api .../comments`, `npm publish` (with README diff), plus leak-pattern rules and integration with `wr-risk-scorer` subagent. Sibling-ADR path collapsed into amended ADR-028 (2026-04-21); risk evaluator implementation per architect verdict (c) on the P064 iteration — shared canonical hook + risk-scorer per-package copy + new subagent + new on-demand skill.
 **WSJF**: 0 — Verification Pending excluded from dev-work ranking per ADR-022 (was 6.0 as Known Error).
+**Type**: technical
 
 ## Direction decision (2026-04-20, user — AFK pre-flight via AskUserQuestion)
 

@@ -6,6 +6,7 @@
 **Effort**: M (marginal) — new sibling skill `/wr-itil:update-upstream` (per user direction 2026-04-26) that fires from `manage-problem`/`transition-problem` Step 7 transitions, drafts the lifecycle-update comment, runs it through the P064 risk gate + P038 voice-tone gate, and auto-posts when both gates pass within appetite. Above-appetite triggers `AskUserQuestion` (interactive) or halt-with-report (AFK).
 
 **WSJF**: 1.5 (transitive) — re-rated 2026-04-26 — `(12 × 1.0) / max(M=2, P079_transitive=8, P064=L=4, P038=XL=8) = 12 / 8 = 1.5`. Three transitive dependencies: P079 (this ticket needs the inbound side's matched-local-ticket detection to know which upstream issue maps to which local transition); P064 (risk gate on external comms — required for the comment-posting path); P038 (voice-tone gate — same path). Marginal scope alone would be `(12 × 1.0) / 2 = 6.0` but ships are blocked behind the 3 dependencies.
+**Type**: technical
 
 <!-- transitive: M (marginal) → XL (transitive) via P038 -->
 

@@ -5,6 +5,7 @@
 **Priority**: 4 (Low) — Impact: Minor (2) x Likelihood: Unlikely (2)
 **Effort**: S — edit `.claude/skills/install-updates/SKILL.md` Step 6 to document a grouping fall-back when siblings > 3
 **WSJF**: 4.0 — (4 × 1.0) / 1
+**Type**: technical
 
 ## Description
 

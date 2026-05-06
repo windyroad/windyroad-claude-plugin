@@ -7,6 +7,7 @@
 **Effort**: M — Option B pinned (reuse `general-purpose` subagent — no new typed agent required, no new plugin file, no new manifest entry). Remaining work: (1) amend `packages/itil/skills/work-problems/SKILL.md` Step 5 to delegate via the Agent tool with `subagent_type: general-purpose` and a clear iteration-worker prompt, (2) update the orchestrator's result-handling to consume the subagent's returned summary rather than expecting in-process side effects, (3) preserve inter-iteration commit-gate continuity across subagent turns (decide at architect review whether Step 6.5 risk-scoring runs in the orchestrator's main turn or inside the iteration subagent), (4) bats doc-lint assertions for the delegation pattern per ADR-037 contract-assertion pattern. SKILL.md edit + summary-shape contract + bats — M bucket. Effort dropped from L to M when Option B was pinned; the subagent-registration work (which would have pushed to L) is no longer required.
 
 **WSJF**: 8.0 — (16 × 1.0) / 2 — High severity (silent orchestrator failures, root cause of today's `ALL_DONE` incident); moderate effort per Option B. Rises above the current top of the backlog (6.0 tier) because the fix is now M effort for a High severity methodology bug that every future AFK session would otherwise keep hitting.
+**Type**: technical
 
 ## Fix Released
 

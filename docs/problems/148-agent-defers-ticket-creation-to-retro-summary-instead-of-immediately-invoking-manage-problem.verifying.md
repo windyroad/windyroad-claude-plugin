@@ -5,6 +5,7 @@
 **Priority**: 12 (High) — Impact: Major (4) x Likelihood: Likely (3) — observed today end-to-end with explicit user correction: *"create problem tickets for the improvements PLUS create a problem ticket for the decision to defer the creation of those tickets as they could have very easily been lost if I was in a rush"* — the user explicitly named the lost-observation risk as the reason this pattern needs to stop.
 **Effort**: M — design + ship a discipline rule for retro Step 4b Stage 1 ("Stage 1 fires regardless — ticketing is mechanical and does not require user input") that closes the agent's session-length-pressure-driven defer escape. SKILL.md amendment + behavioural bats covering the Stage 1 mechanical-ticketing invariant + retrospective-side observability test for deferred entries actually landing as tickets.
 **WSJF**: (12 × 1.0) / 2 = **6.0**
+**Type**: technical
 
 ## Description
 

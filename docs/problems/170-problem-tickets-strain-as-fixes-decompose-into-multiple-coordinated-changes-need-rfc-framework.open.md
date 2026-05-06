@@ -5,6 +5,7 @@
 **Priority**: 8 (Medium) — Impact: 2 (Minor) x Likelihood: 4 (Likely) — re-rated 2026-05-05 (was 3 (Low) deferred); strain pattern N=4 in single session = Likely; impact is dev-tooling / framework-integrity slow-burn (not npm publish disruption) = Minor
 **Effort**: XL — re-rated 2026-05-05 (was M deferred); Phase 1 alone is XL (2 new skills, type-tag schema migration with capture-problem AskUserQuestion update + I2 behavioural test, P168 retrospective RFC migration, behavioural bats coverage, held-changeset window) + ADR-060 amendments before code
 **WSJF**: 1.0 — (8 × 1.0) / 8
+**Type**: technical
 
 ## Description
 

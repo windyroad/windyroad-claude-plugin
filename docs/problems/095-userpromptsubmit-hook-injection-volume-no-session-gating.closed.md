@@ -5,6 +5,7 @@
 **Priority**: 15 (High) — Impact: Moderate (3) x Likelihood: Almost certain (5)
 **Effort**: L
 **WSJF**: 0 (Closed)
+**Type**: technical
 
 > Split from P091 meta (session-wide context budget) on 2026-04-22 after audit confirmed root cause. Fix implemented 2026-04-22 via ADR-038 + shared `session-marker.sh` helper + 5 hook edits + bats reproduction suite. **Closed 2026-04-22 during session retrospective with in-session evidence (see below).**
 

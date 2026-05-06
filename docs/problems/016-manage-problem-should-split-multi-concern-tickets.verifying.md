@@ -5,6 +5,7 @@
 **Priority**: 9 (Medium) — Impact: Moderate (3) x Likelihood: Possible (3)
 **Effort**: M
 **WSJF**: 4.5 — (9 × 2.0) / 4 → now known-error
+**Type**: technical
 
 ## Description
 

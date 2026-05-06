@@ -6,6 +6,7 @@
 **Effort**: XL — new plugin or sibling surface; ADR required for policy semantics (advisory vs blocking, scope boundary against existing statusline read-surface, AFK-orchestrator interaction); cross-cutting with hooks (PreToolUse cadence gate?), statusline (already reads quota state — see `~/.claude/statusline-command.sh`), and a quota-policy schema analogous to `RISK-POLICY.md`. Multi-day, cross-package work.
 
 **WSJF**: (10 × 1.0) / 8 = **1.25**
+**Type**: technical
 
 > Surfaced 2026-05-03 by user direction citing live status-line evidence: `5h: 23% ahead (resets 45m)` and `7d: 36% behind (resets 5d 17h)` — burning weekly quota at ~1.5x sustainable pace. Confirmed by James Nowland (cross-user) reporting same pain class: "blown through my AI with code" leaving no tokens for important text-based emails. Quota exhaustion is a cross-surface failure (Claude Code consumes; chat + cowork starve) that the existing statusline diagnostic surface measures but does not regulate.
 

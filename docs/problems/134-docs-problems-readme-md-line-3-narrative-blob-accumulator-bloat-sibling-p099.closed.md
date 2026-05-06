@@ -6,6 +6,7 @@
 **Effort**: M — likely combination of (a) `manage-problem` Step 5 P094 and Step 7 P062 README-refresh contracts to **truncate** the "Last reviewed" parenthetical to a fixed bound (e.g. 1 KB or 200 chars per session-summary fragment), (b) per-iter retro-class entries archive themselves to `docs/problems/README-history.md` (or similar archive sibling), (c) optional advisory script `packages/itil/scripts/check-problems-readme-budget.sh` mirroring P099's `check-briefing-budgets.sh` triplet (script + bats + ADR-tier-budget amendment).
 
 **WSJF**: (10 × 1.0) / 2 = **5.0**
+**Type**: technical
 
 > Surfaced 2026-04-27 across multiple sessions. The "Last reviewed" line on `docs/problems/README.md` (line 3) accumulates session-summary fragments unbounded — every `manage-problem` Step 5 / Step 7 README refresh prepends a new "Prior:" segment without trimming any older segment. Current size: ~62 KB on a single line. Symptoms: breaks the Read tool at every offset/limit combination tested (file content exceeds 25K-token limit). Forces awk/grep workarounds to inspect any other section.
 

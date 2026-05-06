@@ -5,6 +5,7 @@
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Likely (3)
 **Effort**: M
 **WSJF**: (9 × 1.0) / 2 = **4.5**
+**Type**: technical
 
 > Identified 2026-04-24 during post-release review of commit 5d532cd (P106 fix). The P106 fix changed Step 7 from `claude plugin install <key>@windyroad --scope project` to `claude plugin uninstall <key>@windyroad --scope project && claude plugin install <key>@windyroad --scope project` to work around the silent-no-op issue where `install` does nothing when the plugin is already present. The fix works in the happy path but introduces an atomicity gap: the uninstall and install are two independent commands, and the skill's own prose (`.claude/skills/install-updates/SKILL.md:133`) says *"Do not abort the batch on a single failure — report and continue."* If uninstall succeeds and install fails — marketplace unreachable, network hiccup, rate limit, signature check failure — the plugin is uninstalled, the install step fails, and the batch proceeds to the next plugin without retry or rollback. The user returns to find a plugin silently missing.
 

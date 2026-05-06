@@ -6,6 +6,7 @@
 **Priority**: 10 (High) — Impact: Minor (2) x Likelihood: Almost Certain (5)
 **Effort**: S
 **WSJF**: 0 (Verification Pending — multiplier 0 per ADR-022)
+**Type**: technical
 
 ## Fix Released
 

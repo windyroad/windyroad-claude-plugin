@@ -5,6 +5,7 @@
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: S — replace `.github/ISSUE_TEMPLATE/bug-report.yml` and `feature-request.yml` with a single `problem-report.yml` (or reshape existing fields around problem-report structure), update `config.yml` chooser copy, and adjust labels. One-to-three file edits.
 **WSJF**: 12.0 — (12 × 1.0) / 1 — Small effort, high-severity intake misalignment. Ranks alongside P063 at the top of the dev-work queue.
+**Type**: technical
 
 ## Direction decision (2026-04-20, user — AFK pre-flight)
 

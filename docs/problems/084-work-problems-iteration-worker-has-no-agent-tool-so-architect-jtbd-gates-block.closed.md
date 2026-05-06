@@ -5,6 +5,7 @@
 **Priority**: 16 (High) — Impact: High (4) x Likelihood: Likely (4)
 **Effort**: M
 **WSJF**: 8.0 — (16 × 1.0) / 2 — High-severity discoverability/progress block on every edit-gated iteration; moderate effort to fix (wire Agent tool into the worker subagent's allowed tool surface, or provide a Skill-tool-compatible path to set the architect/jtbd markers).
+**Type**: technical
 
 ## Description
 

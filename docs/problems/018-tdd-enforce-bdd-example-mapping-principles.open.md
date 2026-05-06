@@ -5,6 +5,7 @@
 **Priority**: 16 (High) — Impact: Significant (4) x Likelihood: Likely (4)
 **Effort**: XL — new ADR (docs/decisions/NNN-test-content-quality-review.proposed.md, ID to be minted at creation per P022 renumber rule), ADR-002 dependency-graph update if any (tdd → jtbd soft dep), per-framework invariant mapping (Jest/Vitest/Mocha/Bats/pytest/Go/Gherkin), gate + agent enforcement surfaces (L → XL 2026-04-19 per P047: multi-day, cross-package, new ADR required)
 **WSJF**: 2.0 — (16 × 1.0) / 8
+**Type**: technical
 
 ## Direction decision (2026-04-21, user — interactive AskUserQuestion post-AFK-iter-7)
 

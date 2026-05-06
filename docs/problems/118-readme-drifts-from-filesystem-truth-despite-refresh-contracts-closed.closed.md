@@ -6,6 +6,7 @@
 **Priority**: 9 (Medium) — Impact: Moderate (3) x Likelihood: Likely (3)
 **Effort**: M
 **WSJF**: (9 × 1.0) / 2 = **4.5**
+**Type**: technical
 
 ## Fix Released
 

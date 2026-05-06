@@ -5,6 +5,7 @@
 **Priority**: 12 (High) — Impact: Significant (4) x Likelihood: Likely (3)
 **Effort**: M — bounded multi-phase plan at `/Users/tomhoward/.claude/plans/noble-cuddling-sutton.md` (5 phases, total ~16 hrs of which Phase 1+5+2+3 declarative = ~12 hrs are must-do; Phase 4 enforcement gated). M (not L) because each phase is bounded + per-phase release cadence drains risk to one phase's surface at a time per ADR-042 precedent.
 **WSJF**: (12 × 1.0) / 2 = **6.0** — High severity (per-session lazy-AskUserQuestion friction is the dominant cost the framework was designed to remove; without P135, every interactive AFK-correction-rich session compounds the friction).
+**Type**: technical
 
 > Master ticket for landing the **decision-delegation contract** as architectural direction. Captures the principle, the 5-phase plan, the per-phase release cadence, the measurement surface, and the cross-references to all child tickets (P130 / P131 / P132 / P133 / P134) + the new ADR (ADR-044). Surfaced 2026-04-27 by 5 user corrections in a single session that collectively revealed agents are sub-contracting framework-resolved decisions back to the user via redundant `AskUserQuestion` consent gates. The user articulated the underlying principle in a long session-end conversation: *"the framework IS a decision-delegation contract"*.
 

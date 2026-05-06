@@ -5,6 +5,7 @@
 **Priority**: 8 (Medium) — Impact: Minor (2) x Likelihood: Likely (4)
 **Effort**: S
 **WSJF**: 8.0 — (8 × 1.0) / 1
+**Type**: technical
 
 ## Fix Released
 

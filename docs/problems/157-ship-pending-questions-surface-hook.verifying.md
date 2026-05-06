@@ -6,6 +6,7 @@
 **Effort**: M — new SessionStart hook + parser for `outstanding-questions.jsonl` + ranking per ADR-044 6-class taxonomy + AskUserQuestion batch construction (≤4 per call) + cleanup-on-resolve. Hook fires on session-start when `outstanding-questions.jsonl` is non-empty and `AskUserQuestion` is available.
 
 **WSJF**: (12 × 1.0) / 2 = **6.0**
+**Type**: technical
 
 > Surfaced 2026-05-03 by user direction post-AFK-loop-restart: split P014 (ADR-032 master tracker) into its three planned children. P157 is the third and final child — the pending-questions-surface hook that auto-fires the Step 2.5 / 2.5b loop-end emit shape when the user returns to an interactive session with accumulated outstanding_questions. Sibling to P155 (capture-problem) and P156 (capture-adr).
 

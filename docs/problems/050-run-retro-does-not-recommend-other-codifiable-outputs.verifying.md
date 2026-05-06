@@ -5,6 +5,7 @@
 **Priority**: 8 (Medium) — Impact: Minor (2) x Likelihood: Likely (4)
 **Effort**: M — supersede P044's Step 2 / Step 4b / Step 5 blocks in run-retro SKILL.md; add parallel bats file; update the existing P044 bats file for compat (estimate confirmed accurate for the scope shipped)
 **WSJF**: 8.0 — (8 × 2.0) / 2 → now known-error; transitioned 2026-04-19 after root cause confirmed, fix implemented, and bats guards added
+**Type**: technical
 
 ## Description
 

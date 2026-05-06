@@ -5,6 +5,7 @@
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: S
 **WSJF**: 0 (Verification Pending — excluded from dev-work ranking per ADR-022)
+**Type**: technical
 
 > Surfaced 2026-04-25 in `/wr-retrospective:run-retro` Step 4b Stage 1 as a codification candidate. This session shipped three duplicate problem tickets (P119/P120/P121, since deleted) by writing directly to `docs/problems/` via the Write tool instead of invoking `/wr-itil:manage-problem`. All three were near-perfect duplicates of P038 and P064 — both Open since 2026-04-17 with ADR-028 already landed 2026-04-21 — and were caught only after an unrelated user prompt triggered a manual grep that surfaced the existing tickets.
 

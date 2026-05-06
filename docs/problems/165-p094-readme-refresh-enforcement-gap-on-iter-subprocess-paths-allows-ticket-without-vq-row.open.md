@@ -6,6 +6,7 @@
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
 
 **WSJF**: (9 × 1.0) / 2 = **4.5**
+**Type**: technical
 
 > Captured 2026-05-04 by `/wr-itil:work-problems` AFK loop iter 7 surfacing pass per user direction "capture all four now". Sibling finding from iter 4 P157 commit.
 

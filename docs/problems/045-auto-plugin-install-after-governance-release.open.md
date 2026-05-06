@@ -5,6 +5,7 @@
 **Priority**: 6 (Medium) — Impact: Minor (2) x Likelihood: Possible (3)
 **Effort**: L
 **WSJF**: 1.5 — (6 × 1.0) / 4
+**Type**: technical
 
 ## Direction decision (2026-04-20, user — AFK loop stop-condition #2)
 

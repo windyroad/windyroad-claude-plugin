@@ -6,6 +6,7 @@
 **Effort**: S — single SKILL.md edit (`/wr-retrospective:analyze-context` Step 2 lines 56-67) plus an extension to the P151 grep-as-lint bats pattern to catch the directory-enumeration class. No new ADR required — covered under ADR-049's reassessment-criteria amendment clause.
 
 **WSJF**: (15 × 1.0) / 1 = **15.0**
+**Type**: technical
 
 > Surfaced 2026-05-02 by `wr-architect:agent` during P151 review (architect advisory note (e), non-blocking for the P151 fix). Distinct sibling failure mode in the same plugin-boundary class as P151 / ADR-049 — but different failure shape (zero-byte enumeration vs hard-fail dispatch), different surface (directory glob vs file invocation). The P151 grep-as-lint as currently scoped does NOT catch this class; opening P153 keeps the P151 commit scope mechanical and the lint contract precise.
 

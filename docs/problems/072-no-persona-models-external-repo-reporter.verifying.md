@@ -5,6 +5,7 @@
 **Priority**: 9 (Medium) — Impact: Moderate (3) x Likelihood: Possible (3)
 **Effort**: M — new persona directory under `docs/jtbd/external-reporter/` (or equivalent name) with `persona.md` and at least one job file (`JTBD-301-file-a-problem-without-pre-classifying.proposed.md` or similar). May extend existing `plugin-developer` or `tech-lead` personas instead. Cross-reference from P055 / P065 / P066 / P067 tickets.
 **WSJF**: 2.25 — (9 × 1.0) / 4 — Mid-severity modelling gap. Effort bumped to L once persona naming and job boundaries are decided under user direction; AFK can only stub the skeleton, not pick the name. Interim WSJF uses M; re-rate at Open → Known Error transition.
+**Type**: technical
 
 ## Description
 

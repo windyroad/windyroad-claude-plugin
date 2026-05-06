@@ -6,6 +6,7 @@
 **Priority**: 8 (Medium) — Impact: Moderate (3) x Likelihood: Possible (3) — re-rated 2026-04-25 from initial S 9 lean toward 8 to reflect the once-per-multi-iter-loop frequency rather than per-iter
 **Effort**: S — orchestrator poll loop already has the stuck-detection signals (PID alive + JSON 0 bytes + no new commits + duration since last activity); add a `LAST_ACTIVITY_MARK` tracker + idle-timeout SIGTERM branch in the existing poll loop
 **WSJF**: (8 × 1.0) / 1 = **8.0**
+**Type**: technical
 
 > Surfaced 2026-04-25 in `/wr-itil:work-problems` AFK iter 5 (P118): the iteration's 3 commits (`9c50d03`, `257ea5c`, `c8a87fa`) all landed at the ~100-min wall-clock mark; the subprocess then sat for ~70 min with no further commits, no new JSON output (file stayed 0 bytes), and RSS oscillating 88-99 MB before SIGTERM at the 121-min mark produced a clean 5649-byte response: `is_error: false`, full `## Session Retrospective` section, complete `ITERATION_SUMMARY` block, `duration_ms: 2992935` (49.9 min — matches the "real work" portion). The subprocess had completed its semantic work but was waiting on something (perhaps a hook timeout, perhaps a backgrounded subagent that never resolved) before its natural exit. **This evades the retro-on-exit guarantee (P086): retro IS the hang, so it cannot self-surface.**
 

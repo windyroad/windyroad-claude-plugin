@@ -6,6 +6,7 @@
 **Effort**: M — update render logic in `manage-problem` SKILL.md Step 5 P094 + Step 7 P062 + `/wr-itil:review-problems` to sort rows in tie-break order (or add tie-break-input columns); add bats coverage; touches 3 SKILL.md files + the rendered README. No new ADR needed — the tie-break rule already lives in `work-problems` SKILL.md Step 3 and ADR-044's Prioritisation row.
 
 **WSJF**: (10 × 1.0) / 2 = **5.0**
+**Type**: technical
 
 > Surfaced 2026-04-28 by user mid-`/wr-itil:work-problems` iter 5: *"create a problem for the WSJF ordering in @README.md. The work-problems skill has a tie breaking mechnaism for problem tickets with the same WSJF, which is correct, but that is not represented in the readme. This means P123 is being worked on when the users thinks P135 is next, and incorrectly assumes there is something wrong with the work-problems skill"*. The orchestrator picked P123 (WSJF 6.0, older-reported tie-break winner) over P135 (WSJF 6.0, listed first in the table). The selection was correct per SKILL.md Step 3 + ADR-044 Prioritisation. The README gave no signal that this would be the choice — P135 sits above P123 in the rendered table, so the user reasonably assumed P135 was next.
 

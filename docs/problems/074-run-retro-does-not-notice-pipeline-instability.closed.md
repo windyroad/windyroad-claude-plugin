@@ -5,6 +5,7 @@
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: M — extend `packages/retrospective/skills/run-retro/SKILL.md` with a new step (between Step 2 reflection and Step 4 problem-ticket creation) that scans session activity for pipeline-instability signals and routes each detected instability through Step 4 as an auto-populated problem-ticket candidate. Includes bats doc-lint assertions for the detection categories, the signal heuristics, and the auto-population contract. Cross-reference to P068's Step 4a Verification-close pattern (same-shape evidence-scan step). Effort held at M on implementation (2026-04-21, iter 4 AFK): SKILL.md edit (~90 new lines) + one new bats test file (12 assertions), no new ADR, no cross-package migration.
 **WSJF**: 0 — Verification Pending (excluded from ranking per ADR-022 / SKILL.md WSJF table).
+**Type**: technical
 
 ## Fix Released
 

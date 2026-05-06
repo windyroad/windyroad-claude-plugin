@@ -6,6 +6,7 @@
 **Effort**: L — new PreToolUse:Bash hook + auto-fix orchestration via wr-jtbd:agent + ADR-051 amendment + 12-plugin-README re-integration to weave JTBD content organically + behavioural bats covering hook block and auto-fix paths. Could grow to XL if the auto-fix orchestration requires a new shared library or new agent-tool primitives.
 
 **WSJF**: (12 × 1.0) / 4 = **3.0**
+**Type**: technical
 
 ## Fix Released
 

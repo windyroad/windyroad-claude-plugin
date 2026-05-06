@@ -3,6 +3,7 @@
 **Status**: Closed
 **Reported**: 2026-04-14
 **Priority**: 4 (Low) — Impact: Minor (2) x Likelihood: Likely (4) when using Discord plugin
+**Type**: technical
 
 ## Description
 

@@ -5,6 +5,7 @@
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Likely (3) — observed once this session, but pattern fires every CI failure during long AFK loops; cumulative commits = increasing surface area for stale-assertion failures
 **Effort**: M — `packages/itil/skills/work-problems/SKILL.md` Step 6.5 amendment to add fix-and-continue branch on a documented fixable-class allow-list (stale-grep-string, hook stub mismatch, test ID drift, environmental flake), capped at 3 retries before halt fallback. Plus matching behavioural bats per ADR-037 + P081.
 **WSJF**: (9 × 1.0) / 2 = **4.5**
+**Type**: technical
 
 > Surfaced 2026-04-28 by direct user correction during interactive `/wr-itil:work-problems` session: *"this shouldn't be a halt. This should be a fix and continue"*. Triggering event: Step 6.5 drain hit CI failure on test 1375 (`install-updates P120: SKILL.md Step 6 documents the cache-hit skip-gate path`); failure was P081-class stale-grep-string (test searched for `'skip Step 6'` while SKILL.md says `'skip Steps 5b/5c'`). Halting would have wasted ~45min waiting for user to return + fix + re-trigger. Fixable in 1 line.
 

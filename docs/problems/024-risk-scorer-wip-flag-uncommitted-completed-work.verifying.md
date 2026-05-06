@@ -5,6 +5,7 @@
 **Priority**: 8 (Medium) — Impact: Minor (2) x Likelihood: Likely (4)
 **Effort**: L — wip.md + assess-wip SKILL.md + ADR + BATS tests (re-sized from M after architect review)
 **WSJF**: 2.0 — (8 × 2.0) / 8 → now known-error
+**Type**: technical
 
 ## Description
 

@@ -6,6 +6,7 @@
 **Priority**: 12 (High) — Impact: Significant (3) x Likelihood: Almost Certain (4)
 **Effort**: L (original ticket scope including (d)) — effective effort for the user-direction-scoped settlement was M (touched ADR-032 + SKILL.md preamble + P086 ticket note + new bats fixture, all prose-only edits).
 **WSJF**: 3.0 — (12 × 1.0) / 4 — High severity (retro findings are the primary feedback loop for the whole suite's improvement; partial coverage means patterns go uncaught across sessions); L effort because it touches run-retro SKILL.md + ADR-032 + work-problems SKILL.md + likely a new per-iteration retro-artefact contract.
+**Type**: technical
 
 ## Direction decision (2026-04-21, user — post-AFK-iter-7 interactive, verbatim)
 

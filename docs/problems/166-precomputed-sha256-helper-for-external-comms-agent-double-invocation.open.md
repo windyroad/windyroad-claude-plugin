@@ -6,6 +6,7 @@
 **Effort**: S (deferred — re-rate at next /wr-itil:review-problems)
 
 **WSJF**: (3 × 1.0) / 1 = **3.0**
+**Type**: technical
 
 > Captured 2026-05-04 by `/wr-itil:work-problems` AFK loop iter 7 surfacing pass per user direction "capture all four now". Sibling finding from iter 4 P157 commit gate cycle. Cost-optimisation sibling to P163 (which captures the underlying placeholder-key bug).
 

@@ -6,6 +6,7 @@
 **Priority**: 6 (Med) — Impact: Moderate (3) x Likelihood: Likely (2)
 **Effort**: S (three test-assertion edits in one bats file)
 **WSJF**: 0 (closed)
+**Type**: technical
 
 > Identified 2026-04-24 while releasing the P113 fix. `npm run push:watch` landed commits `2be1bfa..b2424c8` on `origin/main` in one push; CI on the tip commit (b2424c8) failed three assertions in `packages/risk-scorer/agents/test/risk-scorer-structured-remediations.bats` that had actually regressed two commits earlier in `64f6d3f` (2026-04-23). Because `64f6d3f` and the intermediate commits were never pushed individually, origin CI had never seen the regression until today's push.
 

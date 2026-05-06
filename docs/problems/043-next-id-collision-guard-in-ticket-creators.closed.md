@@ -5,6 +5,7 @@
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Possible (3)
 **Effort**: M (one or two SKILL.md changes + bats test + small commit)
 **WSJF**: 9.0 (9 × 2.0 / 2)
+**Type**: technical
 
 ## Fix Released
 

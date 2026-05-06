@@ -5,6 +5,7 @@
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: XL — M → XL 2026-04-21 per **transitive-dependency re-rate** (see P076). P073 cannot reach "done" without P038 (voice-tone gate, XL) AND P064 (risk gate, L) being done first — P073 is a surface extension of both. Marginal P073-only work (adding `.changeset/*.md` as a surface row) is S, but the transitive closure dominates: P038 (XL) + P064 (L) + P073 marginal (S) bundles into XL. Re-review this effort line when P038 or P064 lands — at that point P073 drops back to S or M with the upstream work no longer in-scope.
 **WSJF**: 1.5 — (12 × 1.0) / 8 — Bounded by transitive dependency on P038 (XL, WSJF 1.5). Severity stays at 12 (High) — P073's value is unchanged; only its "to-done" effort changes. A dependent ticket's WSJF cannot exceed its lowest-WSJF upstream dependency's WSJF because the dependent's "done" state requires all upstream work to be done first (P076 principle). M → XL re-rate + 6.0 → 1.5 WSJF re-rate landed together 2026-04-21 per P076 filing.
+**Type**: technical
 
 ## Description
 

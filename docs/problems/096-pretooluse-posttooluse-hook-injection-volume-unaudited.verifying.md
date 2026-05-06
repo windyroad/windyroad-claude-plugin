@@ -5,6 +5,7 @@
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Possible (3) — re-rated 2026-04-26 from 12 High after audit confirmed silent-on-pass design across 33/36 hooks
 **Effort**: M — re-rated 2026-04-26 from L after audit narrowed Phase 2 scope to 3 hook surfaces (`tdd-post-write.sh`, `plan-risk-guidance.sh`, `retrospective-reminder.sh`) plus optional shared-helper extraction
 **WSJF**: excluded from ranking (Verification Pending multiplier 0 per ADR-022)
+**Type**: technical
 
 > Split from P091 meta (session-wide context budget) on 2026-04-22. This ticket owns the audit + remediation of the per-tool-call hook cluster. Phase 1 audit completed 2026-04-26. Phase 2 per-hook trims landed 2026-04-26. Phase 3 (ADR-045) landed 2026-04-28.
 

@@ -5,6 +5,7 @@
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: M — add a "Verification-close housekeeping" step to `packages/retrospective/skills/run-retro/SKILL.md` that scans `docs/problems/*.verifying.md` against the session's observed evidence, calls out which are verified in-session, and transitions them to `.closed.md` (ADR-022 Verification Pending → Closed). Includes bats doc-lint test assertions and cross-reference to `manage-problem` Step 9d.
 **WSJF**: 6.0 — (12 × 1.0) / 2 — Mid-priority, High severity; sits alongside P065 in the dev-work queue.
+**Type**: technical
 
 ## Description
 

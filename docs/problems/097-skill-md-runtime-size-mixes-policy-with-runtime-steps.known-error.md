@@ -5,6 +5,7 @@
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: L
 **WSJF**: (12 × 1.0) / 4 = **3.0**
+**Type**: technical
 
 > Split from P091 meta (session-wide context budget) on 2026-04-22. Size data collected during the P091 audit is already damning — the RCA is confirmed on magnitude. What remains unproven is the fix path: whether the "runtime steps vs reference material" split is achievable without runtime support from Claude Code. Hence Open, not Known Error, until the fix path is validated.
 

@@ -6,6 +6,7 @@
 **Effort**: L — TDD agent enhancement (new detection + suggestion surface) + testing-framework / stub / harness enhancements (so behavioural tests for LLM-interpreted skills are feasible at all) + amendment / supersession of ADR-005 Permitted-Exception and ADR-037 contract-assertion pattern + retrofit of existing structural bats across the suite (~50+ files across itil, retrospective, architect, risk-scorer, jtbd, voice-tone, style-guide, tdd, connect, discord packages). Architect review at implementation time to decide ADR shape (amend both vs supersede vs draft new) AND to scope the retrofit window (all-at-once vs per-skill-as-touched). L bucket reflects the reasonable-lower bound; may push to XL if the retrofit is bundled into one release, or scope-split across multiple phased tickets if the framework enhancements require new subagent types or Claude Code harness changes.
 
 **WSJF**: 3.0 — (12 × 1.0) / 4 — High severity (every test we write going forward inherits the wrong style; every existing test is now suspect); large effort (framework changes + retrofit). Ranks in the 3.0-tier alongside P014 / P064 / P065. Above the 2.0 XL-tier tickets; below the 6.0 M-tier top-of-queue.
+**Type**: technical
 
 ## Description
 

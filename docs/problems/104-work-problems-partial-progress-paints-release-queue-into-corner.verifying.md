@@ -5,6 +5,7 @@
 **Priority**: 16 (High) — Impact: Major (4) x Likelihood: Likely (4)
 **Effort**: M
 **WSJF**: (16 × 1.0) / 2 = **8.0**
+**Type**: technical
 
 > Identified 2026-04-22 by the user during the iter-4 post-commit review of P100 slice 1: *"have you kind of painted yourself into a corner with p100? That in itself is a problem"*. Iter 4 of `/wr-itil:work-problems` landed P100 slice 1 (directory migration + README index + transitional stub + writer-side run-retro changes + architect/JTBD hook exemptions) with `outcome: partial-progress`. The resulting release queue contains a `@windyroad/retrospective` minor (slice 1's writer-side changes) that cannot ship safely until slice 2 delivers the paired SessionStart hook — adopters would absorb layout churn without the headline benefit. Even splitting off the minor (per P103's R3 remediation) leaves architect and JTBD exemption patches in the queue that advertise a path shape adopter plugins haven't yet migrated to. **This is a structural hazard of the `partial-progress` outcome category** — individual iterations can produce release-queue states that cannot be drained cleanly without user intervention.
 

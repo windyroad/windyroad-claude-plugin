@@ -5,6 +5,7 @@
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: S
 **WSJF**: 24.0 — (12 × 2.0) / 1  — transitioned 2026-04-19 after root cause confirmed and fix implemented in same session
+**Type**: technical
 
 ## Description
 

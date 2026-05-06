@@ -5,6 +5,7 @@
 **Priority**: 9 (Medium) — Impact: Moderate (3) x Likelihood: Possible (3)
 **Effort**: L — ADR + heuristic design + reproduction fixtures (scope contained within the `@windyroad/tdd` plugin per direction decision below)
 **WSJF**: 2.25 — (9 × 1.0) / 4
+**Type**: technical
 
 ## Direction decisions (2026-04-20, user — AFK loop stop-condition #2)
 

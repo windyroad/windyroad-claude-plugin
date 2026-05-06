@@ -5,6 +5,7 @@
 **Priority**: 8 (Medium) — Impact: Minor (2) x Likelihood: Likely (4)
 **Effort**: M (re-rated L for the full scope including migration; see iter 5 plan)
 **WSJF**: 0 (excluded from dev-work ranking — per ADR-022)
+**Type**: technical
 
 ## Fix Released
 

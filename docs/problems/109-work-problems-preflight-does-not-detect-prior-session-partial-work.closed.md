@@ -5,6 +5,7 @@
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Likely (3)
 **Effort**: M
 **WSJF**: (9 × 1.0) / 2 = **4.5**
+**Type**: technical
 
 > Identified 2026-04-22 by the run-retro Step 2b pipeline-instability scan at the end of the ADR-041 landing session. The prior AFK session hit a 429 quota mid-iteration on P103, leaving uncommitted: a drafted `docs/decisions/041-auto-apply-scorer-remediations-above-appetite.proposed.md` (the structural fix for P103 + P104 — top two WSJF items), `.afk-run-state/iter-p103.json` with `is_error: true, api_error_status: 429`, and `.claude/worktrees/upbeat-keller` on branch `claude/upbeat-keller@a36a084`. When the user invoked `/wr-itil:work-problems` to resume, the skill's Step 0 preflight handled `git fetch origin` + divergence check cleanly — but it did NOT detect or surface any of the prior-session partial-work signals. The session's main agent had to ad-hoc this via `AskUserQuestion` at session start: "A prior AFK session hit a 429 quota limit mid-iteration on P103, leaving a drafted ADR-041 uncommitted. How should this loop handle that partial work?" The user answered "Land ADR-041 as iter 1 (Recommended)". The interaction worked, but the detection + surfacing logic was manual, not codified. This is a recurring-pattern signal — any future AFK session that hits quota + restart will face the same state.
 

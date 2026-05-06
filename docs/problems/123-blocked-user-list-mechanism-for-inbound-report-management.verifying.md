@@ -5,6 +5,7 @@
 **Priority**: 12 (High) — Impact: Significant (4) x Likelihood: Possible (3)
 **Effort**: M — new per-repo persistence artefact (`docs/blocked-reporters.json`), enforcement at two surfaces (P079's inbound discovery filter + `/wr-itil:report-upstream`'s outbound-target filter), ADR call on the persistence shape + scope boundary. Carved out from P079 per user direction 2026-04-26 to keep P079 focused on the assessment pipeline; P123 gets its own ADR (ADR-046) on per-repo vs per-machine scope.
 **WSJF**: (12 × 0) / 2 = **0** (Verification Pending — excluded from dev-work ranking per ADR-022)
+**Type**: technical
 
 **Root cause**: documented in **ADR-046** (`docs/decisions/046-blocked-reporters-persistence.accepted.md`, 2026-04-28). The ADR records the resolved persistence-shape decision (per-repo, hashed GitHub user IDs), names the audit-log-only v1 implementation contract, and surfaces 3 Open Questions (block-list shape Q1, provenance Q2, un-block path Q3) that block transition of ADR-046 from `proposed` → `accepted`. Each Open Question carries a proposed default an implementation iter could adopt with user approval. The audit-log-only slice is shippable independently per this ticket's pacing decision; full malicious-actor defence requires P079's inbound-filter integration + `/wr-itil:report-upstream`'s outbound pre-check (ADR-024 extension), both deferred to subsequent iters when those features ship.
 

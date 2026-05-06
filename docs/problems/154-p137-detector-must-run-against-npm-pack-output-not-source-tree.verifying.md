@@ -6,6 +6,7 @@
 **Effort**: M — bounded extension to ADR-055's `check-namespace-prefix-leakage.sh` advisory: invoke `npm pack --pack-destination /tmp/<workspace> --json` per workspace package, extract the resulting tarball, walk the extracted file set with the existing detector. Behavioural bats per ADR-052 (synthetic broken fixture asserting tarball-only-leak detection vs source-tree-only-leak detection). No new ADR required — covered under ADR-055's reassessment-criteria clause + composes with ADR-049 plugin-bundled-script resolution. XL only if it requires reshaping the entire detector pipeline; M as a sibling advisory script + invocation in retro Step 2b cross-reference.
 
 **WSJF**: (15 × 1.0) / 2 = **7.5**
+**Type**: technical
 
 > Surfaced 2026-05-03 by user during the AFK `/wr-itil:work-problems` loop, mid-iter-20: *"hey, for P137, should it run against the package.tgz that get's produced by npm pack?"*. Question landed at exactly the right moment — iter 20 (P033 Phase 2b) had ALSO surfaced (sibling-finding) that `packages/itil/package.json` files array was missing `"scripts/"`, causing `bin/wr-itil-*` shims (added by iter 3 P151 fix shipped in @windyroad/itil@0.23.2) to publish broken across 5 production versions (itil@0.23.2 → 0.24.0). First production-real instance of exactly the regression class the user's question covers — the source-tree-walking detector (just shipped iter 17 P137 Phase 1 + ADR-055 in @windyroad/retrospective@0.15.0) missed this because the source tree exposes `scripts/` even when the published tarball doesn't.
 

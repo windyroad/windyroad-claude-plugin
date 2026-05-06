@@ -16,6 +16,7 @@ See P088 for the background-agent-specific scope and the implications for ADR-03
 **Priority**: 16 (High) — Impact: High (4) x Likelihood: Almost Certain (4)
 **Effort**: M — requires (1) extending the iteration prompt in `packages/itil/skills/work-problems/SKILL.md` Step 5 to invoke `/wr-retrospective:run-retro` before emitting `ITERATION_SUMMARY`, OR (2) a new per-iteration retro contract that collects the subprocess's tool-call history + observed friction and emits structured findings the orchestrator parses alongside the summary; (3) decide what retro scope is: full run-retro or a lightweight iteration-retro; (4) handle the case where retro itself produces new tickets (orchestrator should pick them up on next Step 1 scan naturally).
 **WSJF**: 8.0 — (16 × 1.0) / 2 — High severity (every AFK iteration silently discards observations; compounds across the backlog); moderate effort.
+**Type**: technical
 
 ## Description
 

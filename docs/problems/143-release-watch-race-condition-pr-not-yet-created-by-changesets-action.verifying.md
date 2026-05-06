@@ -5,6 +5,7 @@
 **Priority**: 6 (Med) — Impact: Minor (2) x Likelihood: Likely (3) — observed multiple times today; user-visible friction (failed exit, retry required)
 **Effort**: S — `scripts/release-watch.sh` add a poll loop on `gh pr list` (e.g. up to 120s with 10s intervals) before exiting on "no open release PR found". Plus matching behavioural bats per ADR-037 + P081.
 **WSJF**: 0 (excluded — Verification Pending per ADR-022)
+**Type**: technical
 
 > Surfaced 2026-04-28 during `/wr-itil:work-problems` Step 6.5 drains. First `release:watch` invocation immediately after `push:watch` returned `No open release PR found (changeset-release/main -> main)` with exit 1; manual `gh pr list --state open --base main --head changeset-release/main` ~2 min later showed PR #99 OPEN. Re-invocation succeeded. Same race surfaced again briefly during the `@windyroad/itil@0.23.0` drain.
 

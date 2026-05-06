@@ -6,6 +6,7 @@
 **Effort**: S — one-line fix per skill across 4 skills (≈ 4 edits + bats updates)
 
 **WSJF**: (16 × 1.0) / 1 = **16.0**
+**Type**: technical
 
 > Captured 2026-05-04 by `/wr-itil:work-problems` AFK loop iter 7 surfacing pass per user direction "capture all four now". Sibling finding from iter 3 P156 commit. **Latent — currently masked because ADR-NNN and P-NNN counts are below 099. Will fire when first ticket-creator skill's local_max reaches 099 and the bash arithmetic interpreter parses `099` as octal.**
 

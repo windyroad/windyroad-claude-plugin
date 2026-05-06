@@ -6,6 +6,7 @@
 **Effort**: M — new skill SKILL.md + REFERENCE.md per ADR-038 progressive-disclosure pattern; bin shim per ADR-049; behavioural bats per ADR-052; integrate with manage-problem Step 2 create-gate (P119) so capture-problem writes the marker correctly without re-running the full Step 2 grep when the user is mid-capture (capture-problem is the lightweight aside that defers full duplicate-check to a follow-up review).
 
 **WSJF**: (12 × 1.0) / 2 = **6.0**
+**Type**: technical
 
 > Surfaced 2026-05-03 by user direction post-AFK-loop-restart: split P014 (ADR-032 master tracker) into its three planned children. P155 is the first child — the `/wr-itil:capture-problem` skill that iter-12's outstanding_questions named as a foreground-iter requirement. Sibling to P156 (capture-adr) and P157 (pending-questions-surface hook). Iter 12's plan named P154/P155/P156 for the three children; P154 was taken by the P137 npm-pack-detector follow-up captured 2026-05-03 mid-iter-20, so the children renumber to P155/P156/P157.
 
