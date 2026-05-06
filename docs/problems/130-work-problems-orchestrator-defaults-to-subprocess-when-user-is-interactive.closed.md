@@ -1,6 +1,6 @@
 # Problem 130: `/wr-itil:work-problems` orchestrator defaults to subprocess dispatch even when the user is observably interactive — loses real-time presence advantage
 
-**Status**: Verification Pending
+**Status**: Closed
 **Reported**: 2026-04-27
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Possible (3)
 **Effort**: M — `packages/itil/skills/work-problems/SKILL.md` prose-discipline amendment per the user-reframed Fix Strategy (lines 95-123 below). Adds the **Mid-loop ask discipline (orchestrator main turn)** subsection inside Non-Interactive Decision Making, augments Step 5's iteration-prompt body with transient-user framing, adds a Decision Table row, plus matching contract bats per ADR-037 + P081 (`work-problems-no-mid-loop-asking.bats`). The original-effort estimate (dual-mode dispatch + presence-signal detector + ADR-032 amendment) was superseded by the user reframe — actual effort is materially smaller (prose discipline, no new helper, no ADR amendment).

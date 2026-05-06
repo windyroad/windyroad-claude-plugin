@@ -187,3 +187,7 @@ Last reviewed: 2026-04-28 **AFK iter 7 — P139 transitioned Open → Verificati
 ## 2026-05-06 (README reconciliation — add missing P173 WSJF Rankings row from capture-problem deferred-refresh)
 
 > Last reviewed: 2026-05-05 **README reconciled** — 1 drift entry corrected: P172 (MISSING wsjf-rankings row added at WSJF 1.5 tier per tie-break ladder, after P171, before P045 — drift was the deferred-refresh state from a same-session /wr-itil:capture-problem invocation, NOT cross-session). Reconciliation contract per P118 + ADR-014 amended ("Reconciliation as preflight robustness layer"). The capture-problem deferred-refresh contract interacting with manage-problem Step 0 preflight is itself the kind of skill-contract bug P172 captures. Prior line-3 fragment (P171 reconcile) rotated to docs/problems/README-history.md per P134.
+
+## 2026-05-06 (batch transition — close P147 P146 P130 via run-retro Step 4a close-on-evidence)
+
+> Last reviewed: 2026-05-06 **README reconciled** — 1 drift entry corrected: P173 (MISSING wsjf-rankings row added at WSJF 1.5 tier per tie-break ladder, after P172, before P045 — cross-session drift, P173 was captured 2026-05-06 in a prior session without staging the README refresh). Reconciliation contract per P118 + ADR-014 amended ("Reconciliation as preflight robustness layer"). Prior line-3 fragment (P172 reconcile) rotated to docs/problems/README-history.md per P134.
