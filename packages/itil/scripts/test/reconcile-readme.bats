@@ -507,3 +507,356 @@ EOF
   [ "$status" -eq 1 ]
   echo "$output" | grep -q "P099"
 }
+
+# ── RFC-002 T4: dual-tolerant layout enumeration ────────────────────────────
+#
+# Contract: during the P170/RFC-002 migration window, problem tickets MAY
+# live under either the flat layout (`docs/problems/<NNN>-<title>.<state>.md`)
+# OR the per-state subdir layout (`docs/problems/<state>/<NNN>-<title>.md`).
+# `reconcile-readme.sh` MUST enumerate ground-truth status from both,
+# otherwise:
+#   - tickets in the un-migrated layout-half show as MISSING in WSJF Rankings,
+#   - or tickets in the migrated layout-half are not validated against
+#     README claims, masking drift.
+#
+# Behavioural contract: drift output (or exit 0) MUST be IDENTICAL regardless
+# of which layout the source tickets reside in. The script's stdout is the
+# observable signal; tests assert against stdout content + exit code, NOT
+# against script source (P081 — no structural-grep on script content).
+#
+# T6 (post-T5 verification) drops the flat-layout half. These tests update
+# at T6 to single-layout fixtures, NOT removed — the contract becomes
+# "per-state layout enumerates correctly" but remains behavioural.
+#
+# @rfc RFC-002 T4
+# @adr ADR-031 (per-state subdir is post-migration ground truth)
+# @adr ADR-051 (load-bearing-from-the-start — T4 ships with bats coverage)
+# @adr ADR-052 (behavioural-tests-default — fixture-driven not source-grep)
+
+@test "reconcile-readme T4: per-state subdir .open ticket recognised, no drift when README matches" {
+  # Per-state layout — same Open ticket as the flat-only baseline test
+  # at line ~63 ("WSJF Rankings matches filesystem .open.md set"). The
+  # rendered drift output (exit 0) MUST be identical regardless of which
+  # layout the ticket resides in.
+  mkdir -p "$FIXTURE_DIR/open"
+  cat > "$FIXTURE_DIR/open/100-foo.md" <<EOF
+# Problem 100: Foo
+**Status**: Open
+**WSJF**: 5.0
+EOF
+  cat > "$FIXTURE_DIR/README.md" <<'EOF'
+# Problem Backlog
+
+## WSJF Rankings
+
+| WSJF | ID | Title | Severity | Status | Effort |
+|------|-----|-------|----------|--------|--------|
+| 5.0 | P100 | Foo | 12 High | Open | M |
+
+## Verification Queue
+
+| ID | Title | Released | Likely verified? |
+|----|-------|----------|------------------|
+
+## Closed
+
+| ID | Title | Closed via |
+|----|-------|-----------|
+EOF
+  run "$SCRIPT" "$FIXTURE_DIR"
+  [ "$status" -eq 0 ]
+}
+
+@test "reconcile-readme T4: per-state subdir .closed ticket flagged when README ranks it Open (drift parity with flat)" {
+  # Mirrors the flat-layout P074 case at line ~94. Same drift, different
+  # source layout — drift output must surface P074 the same way.
+  mkdir -p "$FIXTURE_DIR/closed"
+  cat > "$FIXTURE_DIR/closed/074-foo.md" <<EOF
+# Problem 074: Foo
+**Status**: Closed
+EOF
+  cat > "$FIXTURE_DIR/README.md" <<'EOF'
+# Problem Backlog
+
+## WSJF Rankings
+
+| WSJF | ID | Title | Severity | Status | Effort |
+|------|-----|-------|----------|--------|--------|
+| 6.0 | P074 | Foo | 12 High | Open | M |
+
+## Verification Queue
+
+| ID | Title | Released | Likely verified? |
+|----|-------|----------|------------------|
+
+## Closed
+
+| ID | Title | Closed via |
+|----|-------|-----------|
+EOF
+  run "$SCRIPT" "$FIXTURE_DIR"
+  [ "$status" -eq 1 ]
+  echo "$output" | grep -q "P074"
+  echo "$output" | grep -q "actual=closed"
+}
+
+@test "reconcile-readme T4: per-state subdir .verifying ticket in WSJF Rankings flagged as drift (ADR-022)" {
+  # Mirrors the flat-layout P105 case at line ~317 — Verification Pending
+  # tickets must NOT appear in WSJF Rankings (ADR-022).
+  mkdir -p "$FIXTURE_DIR/verifying"
+  cat > "$FIXTURE_DIR/verifying/105-verify.md" <<EOF
+**Status**: Verification Pending
+EOF
+  cat > "$FIXTURE_DIR/README.md" <<'EOF'
+## WSJF Rankings
+
+| WSJF | ID | Title | Severity | Status | Effort |
+|------|-----|-------|----------|--------|--------|
+| 8.0 | P105 | Verify | 12 High | Open | M |
+
+## Verification Queue
+
+| ID | Title | Released | Likely verified? |
+|----|-------|----------|------------------|
+
+## Closed
+
+| ID | Title | Closed via |
+|----|-------|-----------|
+EOF
+  run "$SCRIPT" "$FIXTURE_DIR"
+  [ "$status" -eq 1 ]
+  echo "$output" | grep -q "P105"
+}
+
+@test "reconcile-readme T4: per-state subdir .open ticket missing from WSJF Rankings is flagged MISSING" {
+  # Mirrors the flat-layout P079 case at line ~127 — a ticket on disk
+  # but absent from README WSJF Rankings is drift.
+  mkdir -p "$FIXTURE_DIR/open"
+  cat > "$FIXTURE_DIR/open/079-bar.md" <<EOF
+# Problem 079: Bar
+**Status**: Open
+**WSJF**: 3.0
+EOF
+  cat > "$FIXTURE_DIR/README.md" <<'EOF'
+## WSJF Rankings
+
+| WSJF | ID | Title | Severity | Status | Effort |
+|------|-----|-------|----------|--------|--------|
+
+## Verification Queue
+
+| ID | Title | Released | Likely verified? |
+|----|-------|----------|------------------|
+
+## Closed
+
+| ID | Title | Closed via |
+|----|-------|-----------|
+EOF
+  run "$SCRIPT" "$FIXTURE_DIR"
+  [ "$status" -eq 1 ]
+  echo "$output" | grep -q "P079"
+}
+
+@test "reconcile-readme T4: per-state subdir .verifying ticket listed in Verification Queue is clean (no drift)" {
+  # Verification Queue expects .verifying.md tickets — per-state
+  # equivalent is docs/problems/verifying/<NNN>-*.md.
+  mkdir -p "$FIXTURE_DIR/verifying"
+  cat > "$FIXTURE_DIR/verifying/056-qux.md" <<EOF
+**Status**: Verification Pending
+EOF
+  cat > "$FIXTURE_DIR/README.md" <<'EOF'
+## WSJF Rankings
+
+| WSJF | ID | Title | Severity | Status | Effort |
+|------|-----|-------|----------|--------|--------|
+
+## Verification Queue
+
+| ID | Title | Released | Likely verified? |
+|----|-------|----------|------------------|
+| P056 | Qux | 2026-01-01 | yes |
+
+## Closed
+
+| ID | Title | Closed via |
+|----|-------|-----------|
+EOF
+  run "$SCRIPT" "$FIXTURE_DIR"
+  [ "$status" -eq 0 ]
+}
+
+@test "reconcile-readme T4: mixed-layout fixture (flat + per-state) enumerates BOTH and stays clean" {
+  # Mid-migration race: some tickets already moved to per-state subdir,
+  # others still in flat layout. README accurately tracks both. Script
+  # must recognise both layout-halves as filesystem ground truth and
+  # report exit 0 (no drift) when README rows match.
+  cat > "$FIXTURE_DIR/100-foo.open.md" <<EOF
+**Status**: Open
+EOF
+  mkdir -p "$FIXTURE_DIR/open"
+  cat > "$FIXTURE_DIR/open/200-bar.md" <<EOF
+**Status**: Open
+EOF
+  cat > "$FIXTURE_DIR/README.md" <<'EOF'
+## WSJF Rankings
+
+| WSJF | ID | Title | Severity | Status | Effort |
+|------|-----|-------|----------|--------|--------|
+| 5.0 | P100 | Foo | 12 High | Open | M |
+| 4.0 | P200 | Bar | 12 High | Open | M |
+
+## Verification Queue
+
+| ID | Title | Released | Likely verified? |
+|----|-------|----------|------------------|
+
+## Closed
+
+| ID | Title | Closed via |
+|----|-------|-----------|
+EOF
+  run "$SCRIPT" "$FIXTURE_DIR"
+  [ "$status" -eq 0 ]
+}
+
+@test "reconcile-readme T4: mixed-layout fixture surfaces drift from BOTH halves" {
+  # Both layout-halves contain a drifting ticket; both surfaces in
+  # output. Confirms the script enumerates both, not just one or the
+  # other.
+  cat > "$FIXTURE_DIR/100-foo.closed.md" <<EOF
+**Status**: Closed
+EOF
+  mkdir -p "$FIXTURE_DIR/closed"
+  cat > "$FIXTURE_DIR/closed/200-bar.md" <<EOF
+**Status**: Closed
+EOF
+  cat > "$FIXTURE_DIR/README.md" <<'EOF'
+## WSJF Rankings
+
+| WSJF | ID | Title | Severity | Status | Effort |
+|------|-----|-------|----------|--------|--------|
+| 6.0 | P100 | Foo | 12 High | Open | M |
+| 5.0 | P200 | Bar | 12 High | Open | M |
+
+## Verification Queue
+
+| ID | Title | Released | Likely verified? |
+|----|-------|----------|------------------|
+
+## Closed
+
+| ID | Title | Closed via |
+|----|-------|-----------|
+EOF
+  run "$SCRIPT" "$FIXTURE_DIR"
+  [ "$status" -eq 1 ]
+  echo "$output" | grep -q "P100"
+  echo "$output" | grep -q "P200"
+  # Both surface as DRIFT (claims=open, actual=closed).
+  echo "$output" | grep -q "actual=closed"
+}
+
+@test "reconcile-readme T4: per-state subdir wins on cross-layout ID collision (post-migration is authoritative)" {
+  # Mid-migration race window: same ID may transiently appear in both
+  # layouts between the `git mv` and the README refresh in T5 bulk
+  # migration commit. Per-state subdir is the migration target —
+  # ADR-031 §"Authoritative state signal" treats subdirectory as
+  # authoritative. The script must therefore report per-state status,
+  # not flat-layout status, when both are present.
+  cat > "$FIXTURE_DIR/300-collision.open.md" <<EOF
+**Status**: Open
+EOF
+  mkdir -p "$FIXTURE_DIR/closed"
+  cat > "$FIXTURE_DIR/closed/300-collision.md" <<EOF
+**Status**: Closed
+EOF
+  cat > "$FIXTURE_DIR/README.md" <<'EOF'
+## WSJF Rankings
+
+| WSJF | ID | Title | Severity | Status | Effort |
+|------|-----|-------|----------|--------|--------|
+| 5.0 | P300 | Collision | 12 High | Open | M |
+
+## Verification Queue
+
+| ID | Title | Released | Likely verified? |
+|----|-------|----------|------------------|
+
+## Closed
+
+| ID | Title | Closed via |
+|----|-------|-----------|
+EOF
+  run "$SCRIPT" "$FIXTURE_DIR"
+  # Per-state subdir is authoritative → README's "Open" claim drifts
+  # against actual=closed. If flat-layout were preferred, the script
+  # would report exit 0 (no drift). Asserting actual=closed proves
+  # per-state-wins semantics.
+  [ "$status" -eq 1 ]
+  echo "$output" | grep -q "P300"
+  echo "$output" | grep -q "actual=closed"
+}
+
+@test "reconcile-readme T4: per-state subdir .parked ticket excluded from WSJF Rankings (ADR-022 multiplier 0)" {
+  # Mirrors the flat-layout P005 case at line ~375 — Parked tickets
+  # have their own section; absence from WSJF Rankings is correct.
+  mkdir -p "$FIXTURE_DIR/parked"
+  cat > "$FIXTURE_DIR/parked/005-parked.md" <<EOF
+**Status**: Parked
+EOF
+  cat > "$FIXTURE_DIR/README.md" <<'EOF'
+## WSJF Rankings
+
+| WSJF | ID | Title | Severity | Status | Effort |
+|------|-----|-------|----------|--------|--------|
+
+## Verification Queue
+
+| ID | Title | Released | Likely verified? |
+|----|-------|----------|------------------|
+
+## Closed
+
+| ID | Title | Closed via |
+|----|-------|-----------|
+
+## Parked
+
+| ID | Title | Reason | Parked since |
+|----|-------|--------|-------------|
+| P005 | Parked | Upstream | 2026-04-16 |
+EOF
+  run "$SCRIPT" "$FIXTURE_DIR"
+  [ "$status" -eq 0 ]
+}
+
+@test "reconcile-readme T4: per-state subdir .known-error ticket recognised in WSJF Rankings as Open-class" {
+  # Known-error tickets belong in WSJF Rankings (ADR-022 — open + known-error
+  # are the dev-work classes). Per-state subdir equivalent is
+  # docs/problems/known-error/<NNN>-*.md.
+  mkdir -p "$FIXTURE_DIR/known-error"
+  cat > "$FIXTURE_DIR/known-error/150-ke.md" <<EOF
+**Status**: Known Error
+EOF
+  cat > "$FIXTURE_DIR/README.md" <<'EOF'
+## WSJF Rankings
+
+| WSJF | ID | Title | Severity | Status | Effort |
+|------|-----|-------|----------|--------|--------|
+| 4.0 | P150 | KE | 8 Med | Known Error | M |
+
+## Verification Queue
+
+| ID | Title | Released | Likely verified? |
+|----|-------|----------|------------------|
+
+## Closed
+
+| ID | Title | Closed via |
+|----|-------|-----------|
+EOF
+  run "$SCRIPT" "$FIXTURE_DIR"
+  [ "$status" -eq 0 ]
+}

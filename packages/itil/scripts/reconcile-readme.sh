@@ -2,14 +2,21 @@
 # packages/itil/scripts/reconcile-readme.sh
 #
 # Diagnose-only drift detector for docs/problems/README.md vs filesystem
-# truth. Reads <problems-dir>/<NNN>-*.<status>.md, parses the README's
-# WSJF Rankings + Verification Queue + Closed tables, and reports each
-# disagreement.
+# truth. Reads ticket files from BOTH the flat layout
+# `<problems-dir>/<NNN>-*.<status>.md` AND the per-state subdir layout
+# `<problems-dir>/<status>/<NNN>-*.md` (RFC-002 dual-tolerant migration
+# window), parses the README's WSJF Rankings + Verification Queue +
+# Closed tables, and reports each disagreement.
 #
 # Usage:
 #   reconcile-readme.sh [<problems-dir>]
 #
 # Default <problems-dir> is ./docs/problems.
+#
+# Dual-layout precedence: when the same ID appears in both layout-halves
+# (transient mid-migration race between `git mv` and README refresh),
+# the per-state subdir wins — ADR-031 §"Authoritative state signal"
+# treats subdirectory as the post-migration ground truth.
 #
 # Exit codes:
 #   0 = clean (README matches filesystem)
@@ -28,8 +35,10 @@
 # only job is to report ground truth.
 #
 # @problem P118
+# @problem P170 (RFC-002 — dual-tolerant migration window)
 # @adr ADR-014 (Reconciliation as preflight robustness layer)
 # @adr ADR-022 (Verification Pending lifecycle excludes from WSJF Rankings)
+# @adr ADR-031 (Per-state subdir is post-migration authoritative state signal)
 # @adr ADR-038 (Progressive disclosure — per-row byte budget)
 
 set -uo pipefail
@@ -50,9 +59,15 @@ if ! grep -q '^## WSJF Rankings' "$README"; then
 fi
 
 # ── Build filesystem truth: ID → status ─────────────────────────────────────
+#
+# RFC-002 dual-tolerant enumeration: walk BOTH the flat layout and the
+# per-state subdir layout. Per-state subdir wins on collision (mid-
+# migration race; per-state is the migration target per ADR-031).
 
 declare -A FS_STATUS
 shopt -s nullglob
+# Flat layout: docs/problems/<NNN>-<title>.<state>.md
+# Status classified from filename suffix.
 for f in "$PROBLEMS_DIR"/[0-9][0-9][0-9]-*.open.md \
          "$PROBLEMS_DIR"/[0-9][0-9][0-9]-*.known-error.md \
          "$PROBLEMS_DIR"/[0-9][0-9][0-9]-*.verifying.md \
@@ -73,6 +88,18 @@ for f in "$PROBLEMS_DIR"/[0-9][0-9][0-9]-*.open.md \
     *)                 continue ;;
   esac
   FS_STATUS["$id"]="$ticket_status"
+done
+# Per-state subdir layout: docs/problems/<state>/<NNN>-<title>.md
+# Status derived from parent directory name (the subdirectory IS the
+# state signal post-migration). Writes after the flat loop so per-state
+# wins on cross-layout ID collision (ADR-031 authoritative state).
+for ticket_status in open known-error verifying closed parked; do
+  for f in "$PROBLEMS_DIR"/"$ticket_status"/[0-9][0-9][0-9]-*.md; do
+    base="$(basename "$f")"
+    num="${base%%-*}"
+    id="P${num}"
+    FS_STATUS["$id"]="$ticket_status"
+  done
 done
 shopt -u nullglob
 
