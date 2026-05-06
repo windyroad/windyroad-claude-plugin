@@ -88,7 +88,7 @@ Introduce a four-tier hierarchy:
 
 - Field name: `type`
 - Values: `technical` (default) | `user-business`
-- Frontmatter location: `docs/problems/<NNN>-...md` YAML frontmatter, after existing fields
+- Frontmatter location: header field block in body (`**Type**: <value>`), placed after the `**WSJF**:` line, matching the existing `**Status**` / `**Reported**` / `**Priority**` / `**Effort**` / `**WSJF**` body-bullet convention. (RFC tickets use YAML frontmatter; problem tickets use body-field bullets — the inconsistency is grandfathered, not addressed by this ADR. Spec text corrected 2026-05-06 in iter 2 of P170 Slice 4 — the original "YAML frontmatter, after existing fields" wording was inaccurate to the actual `docs/problems/*.md` schema.)
 - Migration: existing tickets bulk-migrate to `type: technical` (one-shot, no per-ticket judgement). Capture-problem `AskUserQuestion` adds a type prompt for new problems (maintainer-side only — JTBD-301 protection: NEVER on plugin-user-side `.github/ISSUE_TEMPLATE/problem-report.yml`).
 - I2 enforcement: see "Mandatory invariants" below.
 
