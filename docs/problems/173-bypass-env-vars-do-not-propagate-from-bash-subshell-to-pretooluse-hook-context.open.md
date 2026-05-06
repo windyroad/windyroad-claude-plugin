@@ -29,7 +29,30 @@
 
 ## Symptoms
 
-(deferred to investigation)
+**SID-mismatch sub-finding regression (2026-05-06, P174 capture session)** — The same regression noted in the original ticket body fired again during `/wr-itil:capture-problem` invocation for P174. After Step 2's grep + marker-set sequence ran via the plugin-cache-resolved helper paths:
+
+```
+source /Users/tomhoward/.claude/plugins/cache/windyroad/wr-itil/0.25.0/hooks/lib/session-id.sh
+source /Users/tomhoward/.claude/plugins/cache/windyroad/wr-itil/0.25.0/hooks/lib/create-gate.sh
+sid=$(get_current_session_id) && mark_step2_complete "$sid"
+# Result: marker set sid=21d0f8fd-0672-466c-bbcc-8e0295f4c035
+```
+
+The subsequent `Write` of `docs/problems/174-...open.md` was BLOCKED by `manage-problem-enforce-create.sh` with `BLOCKED: Cannot Write 'P174 file' under docs/problems/ without running /wr-itil:manage-problem Step 2 (duplicate-check) first.` — the hook saw a different runtime SID than the helper had marked.
+
+Manual workaround per the original ticket's documented recovery path:
+
+```
+runtime_sid=$(ls -t /tmp/itil-runtime-sid-tomhoward-*.current 2>/dev/null | head -1 | xargs cat)
+# Result: runtime_sid=d0dc10ad-cd5f-45c8-aea5-e33c436ef9a3 (different from helper's 21d0f8fd-...)
+: > "/tmp/manage-problem-grep-${runtime_sid}"
+```
+
+After setting the marker under the runtime-SID, the Write succeeded.
+
+**Frequency signal**: this is the second observed instance in 2 sessions (first noted in original ticket body during P173 capture itself; second this session during P174 capture). Both via `capture-problem` rather than `manage-problem`. The ADR-050 / P124 / P142 contract guarantees structurally-impossible-SID-mismatch via the per-machine runtime-SID marker, but the helper continues to return a stale SID. Consistent regression.
+
+(rest of investigation deferred)
 
 ## Workaround
 
