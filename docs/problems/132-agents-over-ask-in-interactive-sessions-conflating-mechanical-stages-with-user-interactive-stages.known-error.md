@@ -1,10 +1,27 @@
 # Problem 132: Agents over-ask in interactive sessions — conflating mechanical-stages with user-interactive-stages of multi-stage skill contracts (inverse-P078)
 
-**Status**: Verification Pending
+**Status**: Known Error
 **Reported**: 2026-04-27
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Likely (3)
 **Effort**: M — likely combination of (a) new UserPromptSubmit / Stop hook that detects AskUserQuestion calls firing in SKILL-explicit no-ask zones, (b) project CLAUDE.md rule reinforcing "when SKILL contract says mechanical, do not ask", (c) targeted in-skill reminders in run-retro Step 1.5 / Step 4b Stage 1 / Step 4a / wherever a skill explicitly carves out a no-ask zone. The detection hook is the load-bearing piece; CLAUDE.md + per-skill reinforcement are supporting layers.
 **WSJF**: (9 × 1.0) / 2 = **4.5**
+
+## Reopened
+
+**2026-05-06 — REGRESSION OBSERVED.** During /wr-itil:manage-incident I001 declaration, agent asked 4 questions in one AskUserQuestion call (Severity / Start time / Scope / Title). 3 of 4 sub-questions were lazy classifications per ADR-044 Step 2d Ask Hygiene Pass:
+
+- **Title**: derivable from user prose (kebab-case the description) — agent asked anyway with 3 candidate options.
+- **Severity**: ratable from RISK-POLICY.md matrix + observable evidence (held-cluster age 12 days, scorer state push=2/release=1 within appetite, no service disruption) — agent asked anyway with 4 severity options.
+- **Start time**: pullable from `git log --diff-filter=A --follow -- docs/changesets-holding/` (first hold = 2026-04-24) — agent asked anyway with 3 candidate options.
+- **Scope** (1 of 4 was non-lazy): genuine direction-setting (downstream-adopter-risk inclusion was user-judgment).
+
+User correction: `"why are you asking me this???"` — strong-signal P078. The Phase 2c CLAUDE.md MANDATORY rule shipped 2026-04-28 ("when SKILL contract says mechanical, do not ask") was bypassed because manage-incident Step 4 says "Use AskUserQuestion for anything not in args" without distinguishing derivable-vs-judgment fields — a SKILL-contract carve-out the Phase 2c rule didn't anticipate.
+
+Captured as `feedback_dont_subcontract_declaration_fields.md` memory (project-scoped) extending the existing `feedback_act_on_obvious_decisions.md` pattern. The new shape: declaration-skill argument-backfill is NOT mechanical-stage classification but IS framework-resolvable from observable evidence.
+
+**Why reopen instead of new ticket**: this IS the same class P132 tracks — agent over-asking in interactive sessions when framework can resolve. The verification path documented in Fix Released ("direct observation in subsequent interactive sessions") empirically failed. Phase 2b deferral was contingent on R6 gate not firing; this regression is one data point toward R6 (lazy=3 in this retro). Two more retros at lazy ≥ 2 trigger Phase 2b.
+
+**Updated Fix Strategy refinement**: extend Phase 2a (per-skill SKILL.md reinforcement) to declaration skills (manage-incident Step 4, manage-problem create flow, create-adr argument-collection): rewrite "Use AskUserQuestion for anything not in args" to "Derive every observable field; use AskUserQuestion only for genuinely-direction-setting fields". Composes with P136 ADR-044 alignment audit (this is one of the audit's worked-example shapes).
 
 ## Fix Released
 
