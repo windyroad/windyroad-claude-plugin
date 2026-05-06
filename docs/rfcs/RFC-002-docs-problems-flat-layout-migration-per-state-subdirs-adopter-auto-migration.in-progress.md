@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: in-progress
 rfc-id: docs-problems-flat-layout-migration-per-state-subdirs-adopter-auto-migration
 reported: 2026-05-07
 decision-makers: [Tom Howard]
@@ -10,13 +10,14 @@ jtbd: []
 
 # RFC-002: docs/problems/ flat layout migration — per-state subdirs + adopter auto-migration
 
-**Status**: accepted
+**Status**: in-progress
 **Reported**: 2026-05-07
 **Accepted**: 2026-05-07
+**In-Progress**: 2026-05-07 (T1 commit — dual-pattern hook glob widening)
 **Problems**: P069
 **ADRs**: ADR-031
 **JTBD**: (none directly anchored — P069 anchors JTBD-001 / JTBD-006 / JTBD-101 / JTBD-201; this RFC inherits transitively)
-**WSJF**: 3.75 — (15 × 2.0) / 8 — Severity 15 inherited from P069 × Status Multiplier 2.0 (accepted) / Effort XL=8
+**WSJF**: 2.8125 — (15 × 1.5) / 8 — Severity 15 inherited from P069 × Status Multiplier 1.5 (in-progress) / Effort XL=8
 
 ## Summary
 
@@ -56,7 +57,7 @@ ADR-014-grain bounded sub-tasks. Each is a single commit; one commit advances at
 
 ### Slice A — In-repo migration
 
-- [ ] **T1 — Hook exemption glob widening (dual-pattern transitional)**: extend `packages/architect/hooks/architect-enforce-edit.sh` and `packages/jtbd/hooks/jtbd-enforce-edit.sh` to accept BOTH `docs/problems/*.md` AND `docs/problems/*/*.md` (with the `*/` path-prefix variant). Forward-compatible; changes no current behaviour. Pre-requisite for T5's bulk migration without bootstrap-blocked-edit risk. Held changeset bumps `@windyroad/architect` + `@windyroad/jtbd` (patch).
+- [x] **T1 — Hook exemption glob widening (dual-pattern transitional)**: extend `packages/architect/hooks/architect-enforce-edit.sh` and `packages/jtbd/hooks/jtbd-enforce-edit.sh` to accept BOTH `docs/problems/*.md` AND `docs/problems/*/*.md` (with the `*/` path-prefix variant). Forward-compatible; changes no current behaviour. Pre-requisite for T5's bulk migration without bootstrap-blocked-edit risk. Held changeset bumps `@windyroad/architect` + `@windyroad/jtbd` (patch). **Shipped 2026-05-07** (T1 commit — `docs/changesets-holding/wr-architect-jtbd-rfc-002-t1-glob-widening.md`).
 - [ ] **T2 — Dual-tolerant SKILL.md glob updates**: extend `packages/itil/skills/manage-problem/SKILL.md`, `work-problems/SKILL.md`, `manage-incident/SKILL.md`, `report-upstream/SKILL.md`, `packages/retrospective/skills/run-retro/SKILL.md` to enumerate both flat + per-state shapes. Includes architect advisory: forward audit on `capture-rfc` + `manage-rfc` SKILL.md for problem-ticket path references and update if found.
 - [ ] **T3 — Bats fixture audit + dual-tolerant assertions**: convert literal `docs/problems/*.<state>.md` fixture paths in `packages/itil/skills/*/test/*.bats` and `packages/retrospective/skills/*/test/*.bats` to dual-tolerant assertions. Re-run suite to confirm non-zero match counts.
 - [ ] **T4 — `docs/problems/README.md` generation logic**: update `packages/itil/scripts/reconcile-readme.sh` (and any caller-side rendering helper) to read from both flat AND per-state shapes during the migration window.

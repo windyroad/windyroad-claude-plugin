@@ -1,6 +1,6 @@
 # RFC Backlog
 
-> Last reviewed: 2026-05-07 **RFC-002 accepted** — populated `## Scope` + `## Tasks` (Slice A in-repo migration + Slice B adopter auto-migration; 11 ADR-014-grain bounded sub-tasks); `proposed → accepted` lifecycle transition with architect+JTBD re-review PASS (P170 Slice 5 B8.T3, forward-dogfood candidate per architect finding 14). RFC-002 inherits Severity 15 from P069 (XL effort, WSJF 3.75 at accepted status). RFC-001 enters Verification Queue (released 2026-05-04 per Commit 3 `8edaf7b`).
+> Last reviewed: 2026-05-07 **RFC-002 in-progress** — T1 (dual-pattern hook glob widening) shipped; `accepted → in-progress` lifecycle transition folds rename into the T1 work commit per manage-rfc Step 11 commit-conventions table. WSJF re-rates 3.75 → 2.8125 (Status Multiplier 2.0 → 1.5). RFC-001 verification awaits Slice 5 forward-dogfood completion (RFC-002 reaches `closed`).
 > Run `/wr-itil:manage-rfc review` to refresh once the manage-rfc skill ships.
 
 ## Status
@@ -118,7 +118,7 @@ One row per RFC in `proposed` / `accepted` / `in-progress` status. RFC-level WSJ
 
 | WSJF | ID | Title | Severity | Status | Effort | Reported |
 |------|-----|-------|----------|--------|--------|----------|
-| 3.75 | RFC-002 | docs/problems/ flat layout migration — per-state subdirs + adopter auto-migration | 15 | accepted | XL | 2026-05-07 |
+| 2.8125 | RFC-002 | docs/problems/ flat layout migration — per-state subdirs + adopter auto-migration | 15 | in-progress | XL | 2026-05-07 |
 
 ## Verification Queue
 

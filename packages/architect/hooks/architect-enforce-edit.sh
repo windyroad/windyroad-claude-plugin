@@ -69,6 +69,12 @@ case "$FILE_PATH" in
     exit 0 ;;
   */docs/problems/*.md|docs/problems/*.md)
     exit 0 ;;
+  # ADR-031 / RFC-002 T1 dual-pattern: per-state subdir layout
+  # (`docs/problems/<state>/<NNN>-<slug>.md`). Coexists with the
+  # flat-layout pattern above during the migration window. Drops to
+  # single-pattern at RFC-002 T6 once Slice A migration verifies.
+  */docs/problems/*/*.md|docs/problems/*/*.md)
+    exit 0 ;;
   # Peer-plugin policy files — governed by their own plugin's enforce hook, not architect (P009)
   */docs/PRODUCT_DISCOVERY.md|docs/PRODUCT_DISCOVERY.md)
     exit 0 ;;
