@@ -205,43 +205,110 @@ Both `wr-architect:agent` and `wr-jtbd:agent` returned **AMEND** verdicts on ADR
 
 - ⌛ Story-mapping directory layout (`docs/rfcs/<RFC-NNN>/stories/` vs embedded vs separate `docs/stories/`) — depends on Phase 2 story-mapping work; no Phase 1 surface touches it.
 
+**Tracking discipline (P179, 2026-05-10)**: every phase / step / sub-task lives explicitly in this section with a checkbox until Phase 2 ships and the work migrates into a STORY-MAP-NNN artefact. **No orphaning to ADR-only or iter-prompt-only territory** — the user direction is "phases are fine if tracked"; tracking happens here in the problem-ticket body OR in the eventual story map, never in inline ADR prose alone. When this ticket transitions Verifying → Closed, every unticked entry below MUST migrate to a tracked sibling (problem ticket or story-map slice); no silent abandonment.
+
 **Phase 1 implementation tasks** (per ADR-060 § Scope, ride a held-changeset dogfood window per ADR-042 / P162):
 
-- [ ] Scaffold `docs/rfcs/` directory + `README.md` index.
-- [ ] Build `/wr-itil:capture-rfc` skill (lightweight aside per ADR-032; mandatory `--problem P<NNN>` flag, gate-enforced at I1).
-- [ ] Build `/wr-itil:manage-rfc` skill (heavyweight intake + lifecycle management).
-- [ ] Define RFC frontmatter shape (`status`, `problems`, `adrs`, `reported`, `decision-makers`).
-- [ ] Build `packages/itil/scripts/reconcile-rfcs.sh` (diagnose-only mechanical drift detector for `docs/rfcs/README.md`).
-- [ ] Build `packages/itil/bin/wr-itil-reconcile-rfcs` `$PATH` shim per ADR-049.
-- [ ] Behavioural bats coverage per ADR-052 for capture-rfc, manage-rfc, reconcile-rfcs.
-- [ ] Type-tag introduction on problem frontmatter (`type: technical` | `type: user-business`); existing tickets default to `technical`; capture-problem AskUserQuestion gains the type prompt.
-- [ ] Auto-maintained `## RFCs` section on problem tickets (refresh contract analogous to P094).
-- [ ] Retrospective migration of P168 to RFC-001 (first dogfood pass; validates framework on a known multi-commit decomposition).
-- [ ] Held-changeset graduation evaluation per ADR-042 / P162 counterfactual risk assessment.
+- [x] Scaffold `docs/rfcs/` directory + `README.md` index. **Done** Slice 2 commit `12725a3`.
+- [x] Build `/wr-itil:capture-rfc` skill (lightweight aside per ADR-032; mandatory `P<NNN>` problem-trace argument, gate-enforced at I1). **Done** Slice 2.
+- [x] Build `/wr-itil:manage-rfc` skill (heavyweight intake + lifecycle management). **Done** Slice 2.
+- [x] Define RFC frontmatter shape (`status`, `problems`, `adrs`, `jtbd`, `reported`, `decision-makers`). **Done** Slice 2.
+- [x] Build `packages/itil/scripts/reconcile-rfcs.sh` (diagnose-only mechanical drift detector for `docs/rfcs/README.md`). **Done** Slice 3 first-half commit `4c909c8`.
+- [x] Build `packages/itil/bin/wr-itil-reconcile-rfcs` `$PATH` shim per ADR-049. **Done** Slice 3.
+- [x] Behavioural bats coverage per ADR-052 for capture-rfc, manage-rfc, reconcile-rfcs. **Done** Slice 3 (18-case bats fixture).
+- [x] Type-tag introduction on problem frontmatter (`type: technical | user-business`); existing tickets default to `technical`; capture-problem AskUserQuestion gains the type prompt. **Done** Slice 4 B7 8a/8b/8c/8d (commits `03105c1` apparatus + `592f18c` I2 bats + `ffa44a1` 175-ticket bulk migrate + `af66e6c` capture-problem type prompt).
+- [x] Auto-maintained `## RFCs` section on problem tickets (refresh contract analogous to P094). **Done** Slice 3 second-half commits `44ae0dc` (skill-side primary) + `c6ce9cf` (commit-message trailer hook).
+- [x] Retrospective migration of P168 to RFC-001 (first dogfood pass; validates framework on a known multi-commit decomposition). **Done** Slice 4 B6 iter 1 commit `9b9920e`.
+- [ ] **Held-changeset graduation evaluation per ADR-042 / P162 counterfactual risk assessment.** **In flight** Slice 6 — depends on RFC-002 reaching `closed` post-Slice-5 forward-dogfood. Currently ~12 sibling held entries at `docs/changesets-holding/` per ADR-060 § Confirmation criterion 6 atomicity contract. Reinstate trigger: forward-dogfood + counterfactual risk OK OR explicit user-comfort signal.
 
-**Phase 2 implementation** (deferred until Phase 1 dogfood evidence informs design):
+**Slice 5 in-flight tasks (RFC-002 forward-dogfood — driving problem P069)**:
 
-- [ ] Story-mapping templates (backbone / ribs / slices per Patton).
-- [ ] `/wr-itil:capture-story` or `/wr-itil:map-stories <RFC>` skill.
-- [ ] INVEST checks on story shape.
-- [ ] JTBD trace gate on stories (story names the job-to-be-done it serves).
-- [ ] Story-to-RFC trace surface; story lifecycle state.
-- [ ] WSJF refresh integration if story-level ranking selected.
+- [x] T1 — architect+jtbd exemption-glob dual-pattern widening. **Done** iter 4 commit `9fef067`.
+- [x] T2 — 14 SKILL.md surfaces + 19-assertion bats fixture for dual-tolerant flat + per-state-subdir glob behaviour. **Done** iter 5 commit `0795e91` (+ fix-up `b5af550`).
+- [x] T3 — canonical bats coverage of SKILL-prescribed dual-tolerant pipelines (21 assertions across 5 SKILL.md surfaces). **Done** iter 6 commit `a75ae3f`.
+- [x] T4 — `reconcile-readme.sh` dual-tolerant flat + per-state-subdir enumeration + 10-assertion bats coverage. **Done** iter 7 commit `822c794`.
+- [x] T5a — bulk migration of 177 problem tickets from flat to per-state subdirs + dual-tolerant widening of `packages/risk-scorer/agents/wip.md`. **Done** iter 8 commit `e31bd6a`.
+- [ ] **T5b — ADR-031 transition `proposed → accepted` (in-place amendment with transitional-shape carve-out for dual-pattern T1-T5 / single-pattern T6 end-state per user direction 2026-05-10).** **In flight** orchestrator main turn — paused mid-edit after surfacing P179 deferral pattern.
+- [ ] **T5b sibling — ADR-022 amendment** (Verification Pending lifecycle wording — replace filename-suffix references with directory-path references; one-line edit to Decision Outcome paragraph + Confirmation items 2 + 3 + Consequences-Neutral bullet; add "See also ADR-031" cross-ref).
+- [ ] **T5b sibling — ADR-016 amendment** (WIP verdict commit governance-artefact path list — `docs/problems/*.md` → `docs/problems/**/*.md` recursive; mirrored in `packages/risk-scorer/agents/wip.md`).
+- [ ] **T5b sibling — ADR-024 amendment** (cross-project problem-reporting contract reference path — `docs/problems/<NNN>-<title>.<status>.md` → `docs/problems/<status>/<NNN>-<title>.md`).
+- [ ] **T6 — drop dual-pattern compatibility post-T5 verification.** Strip flat-layout half from every dual-tolerant glob landed in T1-T5; re-run full bats suite to confirm green; held-window changeset describing the cleanup. Trigger: T5a verification stable for ≥7 days OR explicit user-comfort signal.
+- [ ] **T7 — shared migration routine in `packages/shared/lib/`** per ADR-031 § Backward Compatibility open-question 2 (architect review required at execution time per ADR-017 shared-code-sync precedent).
+- [ ] **T8 — `manage-problem` adopter auto-migrate integration** per ADR-031 § Backward Compatibility (detect flat-layout via `compgen -G 'docs/problems/*.<state>.md'`; auto-migrate with `mkdir` + `git mv` + commit; standalone commit message `docs(problems): auto-migrate to per-state subdirectory layout (ADR-031)`; partial-migration-safe).
+- [ ] **T9 — `work-problems` adopter auto-migrate integration** per ADR-031 § Backward Compatibility — orchestrator's Step 1 backlog scan must not exit with false "nothing to do" on a flat-layout adopter; both skills run the migration per "Why both skills (not just manage-problem)" rationale.
+- [ ] **T10 — behavioural bats coverage for adopter auto-migrate** at `packages/itil/skills/manage-problem/test/manage-problem-auto-migrate.bats` + `packages/itil/skills/work-problems/test/work-problems-auto-migrate.bats` per ADR-031 § Confirmation (bats fixtures).
+- [ ] **T11 — ADR-014 RISK_BYPASS marker for migration commits** per ADR-031 § Backward Compatibility open-question 3 (the migration commit is pure file-rename with zero semantic content; bypass marker keeps audit-trail without full risk-score overhead). Architect review required at execution time.
+- [ ] **L2 — RFC-002 in-progress → verifying lifecycle transition** (when T5b + T6 + T7-T11 land; release the held-changeset chain).
+- [ ] **L3 — RFC-002 verifying → closed** (user explicit verification per ADR-022).
 
-**Phase 3 implementation** (deferred):
+**JTBD amendments from ADR-060 acceptance (2026-05-05) — JTBD-review verdict 2026-05-10 confirms both already on disk (P179 instance #8 + #9 reconciled)**:
 
-- [ ] Beyond-type-tag user/business problem UX (e.g. JTBD trace prompt at capture-problem time when type=`user-business`).
+- [x] **JTBD-001 § Desired Outcomes amendment** — multi-commit-coordination outcome per JTBD-review finding 2. **Done 2026-05-05** at `docs/jtbd/solo-developer/JTBD-001-enforce-governance.proposed.md` line 19 (annotated *"Added 2026-05-05 per ADR-060 RFC framework — JTBD-review finding 2"*). The P179-flagged "silent skip" was actually a tracking-failure-not-execution-failure: the work landed but was never ticked off because no one circled back. JTBD-review 2026-05-10 confirmed presence on disk.
+- [x] **JTBD-101 § Persona Constraints amendment** — atomic-fix-adopter scaling concern per JTBD-review finding 3. **Done 2026-05-05** at `docs/jtbd/plugin-developer/JTBD-101-extend-suite.proposed.md` line 27 (annotated *"Added 2026-05-05 per ADR-060 RFC framework — JTBD-review finding 3"*). Same tracking-failure-not-execution-failure shape as JTBD-001. JTBD-review 2026-05-10 confirmed presence on disk.
 
-**Phase 4 implementation** (deferred):
+**Phase 2 implementation tasks** (DESIGN accepted in ADR-060 amendment 2026-05-10 per user direction; SHIP deferred to post-Phase-1-graduation. **Note 2026-05-10**: original Phase 2 / Phase 2.5 split collapsed into a single Phase 2 ship per user refinement — *"the Problem, when it's a known error and has a proposed fix, should link to 1 or more RFCs. Each of those RFCs should reference specific stories in a user story map, so when we work the problem, we know what to implement and in what order"* — stories are first-class from the start so RFCs can reference them by ID):
 
-- [ ] JTBD-as-problem unification — migration scripts; possible deprecation of `docs/jtbd/` if redundant under unified ontology.
+Story-map skills + scaffold:
+
+- [ ] **Build `/wr-itil:capture-story-map` skill** (lightweight aside per ADR-032; mandatory leading problem-trace + JTBD-trace arguments; I3 + I4 hard-block).
+- [ ] **Build `/wr-itil:manage-story-map` skill** (heavyweight intake + lifecycle management; backbone/ribs/slices authoring guidance; **slices reference story IDs**, not contain stories inline; trace-gate enforcement).
+- [ ] **Build `/wr-itil:reconcile-story-maps` skill + `packages/itil/scripts/reconcile-story-maps.sh` + `packages/itil/bin/wr-itil-reconcile-story-maps` shim** per ADR-049.
+- [ ] **Build `/wr-itil:list-story-maps` skill** (read-only display per the `list-problems` precedent P071).
+- [ ] **Scaffold `docs/story-maps/` directory** with 5 lifecycle subdirs (`draft/`, `accepted/`, `in-progress/`, `completed/`, `archived/`) + `README.md` lifecycle index.
+
+Story skills + scaffold (NEW — promoted from Phase 2.5 per user refinement):
+
+- [ ] **Build `/wr-itil:capture-story` skill** (lightweight aside; mandatory problem-trace + JTBD-trace; RFC + story-map traces optional at draft, required at accepted via I7 + I8 hard-block).
+- [ ] **Build `/wr-itil:manage-story` skill** (heavyweight lifecycle; INVEST checks at accepted transition per I10; trace-gate enforcement I7/I8/I9; auto-transition draft→in-progress on first `Implements: STORY-NNN` commit trailer; auto-transition in-progress→done on linked-RFC-closes + acceptance-criteria all-ticked).
+- [ ] **Build `/wr-itil:reconcile-stories` skill + `packages/itil/scripts/reconcile-stories.sh` + `packages/itil/bin/wr-itil-reconcile-stories` shim** per ADR-049.
+- [ ] **Build `/wr-itil:list-stories` skill** (read-only display, with optional `--rfc RFC-NNN` filter to surface a specific RFC's ordered story list).
+- [ ] **Scaffold `docs/stories/` directory** with 5 lifecycle subdirs (`draft/`, `accepted/`, `in-progress/`, `done/`, `archived/`) + `README.md` lifecycle index.
+
+RFC frontmatter extension + skill updates:
+
+- [ ] **RFC frontmatter `stories: [STORY-NNN, ...]` extension** — array is ORDERED (execution sequence). Required to populate by `/wr-itil:manage-rfc <NNN> accepted`.
+- [ ] **`/wr-itil:capture-rfc` extension** — accept `--stories STORY-NNN,STORY-NNN,...` argument; populate frontmatter.
+- [ ] **`/wr-itil:manage-rfc` extension** — render `## Stories` body section from frontmatter `stories:` array (forward trace, auto-refreshed on frontmatter edits).
+
+Reverse-trace surface helpers (4 GENERALISED scripts per architect-amendment-2026-05-10 A5 — 3 JTBD reverse-trace surfaces hit the generalisation trigger threshold immediately):
+
+- [ ] `packages/itil/scripts/update-problem-references-section.sh <section-name>` — covers `## Story Maps`, `## Stories`, `## RFCs` on problem tickets (absorbs existing `update-problem-rfcs-section.sh` for `## RFCs` per the cleanup contract; existing single-purpose helper retained as a thin shim during the deprecation window per ADR-010 forwarder pattern).
+- [ ] `packages/itil/scripts/update-rfc-references-section.sh <section-name>` — covers `## Story Maps`, `## Stories` on RFCs (forward-trace from RFC frontmatter `stories:` for the Stories surface).
+- [ ] `packages/itil/scripts/update-jtbd-references-section.sh <section-name>` — covers `## RFCs`, `## Story Maps`, `## Stories` on JTBD files (NEW reverse-trace surface tier — JTBDs currently have no auto-maintained reverse-trace sections; this helper introduces all three section names from the start per A5).
+- [ ] `packages/itil/scripts/update-story-references-section.sh <section-name>` — covers `## RFCs`, `## Story Maps` on story files.
+
+ADR-019 collision-guard extension (per architect-amendment-2026-05-10 A1 — prevents same-tier ID-collision-on-origin for STORY-MAP-NNN + STORY-NNN, same risk class as P040):
+
+- [ ] **Extend `packages/itil/scripts/check-id-collision.sh`** (or equivalent ADR-019 surface) to enumerate `docs/story-maps/` + `docs/stories/` recursive trees per ADR-031 P056 `--name-only` + `-r` pattern. capture-story-map + capture-story MUST run the guard against `origin/<base>` before ID allocation; behavioural test asserts that a same-tier collision on origin triggers the renumber.
+
+Working-the-problem flow rewrite + bats coverage:
+
+- [ ] **`/wr-itil:work-problem <NNN>` rewrite** — traversal: read problem `## Fix Strategy` → extract referenced RFC IDs → for each RFC, read frontmatter `stories:` array (ordered) → pick first not-done story → dispatch implementation. Replaces the current vague "implement the fix following the project's development workflow" wording. Behavioural test asserts the traversal end-to-end.
+- [ ] **`/wr-itil:work-problems` orchestrator iter dispatch update** — iter dispatched against an RFC scopes to a SINGLE story (the RFC's first not-yet-done story); commit-message `Implements: STORY-NNN` trailer auto-transitions story draft→in-progress.
+- [ ] **Behavioural bats per ADR-052** for 8 new skills + 2 reconcile scripts + 4 generalised reverse-trace helpers (parameterised on section-name) + I3-I11 invariant tests + RFC-frontmatter-stories extension (including empty-stories atomic-RFC fallback) + working-the-problem traversal end-to-end + ADR-019 collision-guard regression test + bootstrap-exemption marker test (only permitted on bootstrap-migration stories per A4).
+
+Bootstrap migration of existing planning artefact:
+
+- [ ] **STORY-MAP-001 retro migration** — move `docs/plans/170-rfc-framework-story-map.md` to `docs/story-maps/in-progress/STORY-MAP-001-rfc-framework-phase-1-bootstrap.md` with frontmatter `problems: [P170]`, `rfcs: [RFC-001, RFC-002]`, `jtbd: [JTBD-001, JTBD-008, JTBD-006, JTBD-101]`, `adrs: [ADR-060]`, `stories: [STORY-NNN, ...]`, `status: in-progress`.
+- [ ] **Bootstrap stories extraction** — every existing slice in the bootstrap map (Slices 1-6 backbone + B1-B10 ribs + T1-T11 tasks) extracts to an individual `STORY-NNN-<slug>.md` file in the appropriate lifecycle subdir (Slices 1-3 done; Slices 4-5 in-progress; Slice 6 in-progress; T1-T5a done; T5b through T11 not-yet-started).
+- [ ] **RFC-001 + RFC-002 frontmatter `stories:` populated** — RFC-001's frontmatter gains `stories: [...]` listing its slices in execution order; RFC-002's frontmatter gains `stories: [...]` listing T1-T11 + L2-L3 in execution order.
+
+**Phase 3 implementation tasks** (deferred):
+
+- [ ] **Beyond-type-tag user/business problem UX** — e.g. JTBD trace prompt at capture-problem time when `type: user-business`. ADR-060 § Out of Scope explicitly REJECTS type-conditional capture-flow differentiation; any UX differentiation MUST be JTBD-trace-conditional or nullable-field-conditional, not type-conditional.
+- [ ] **Story-level WSJF placement** — promote I11 from "no WSJF leak" to "story-level WSJF as Phase 3 deliverable". Story carries its own WSJF; participates in `/wr-itil:work-problems` Step 3 selection. Composes with existing problem-level + RFC-level WSJF surfaces. Trigger: Phase 2 use evidence shows orchestrator selection benefits from story-level granularity.
+
+**Phase 4 implementation tasks** (deferred — depends on Phase 2 ship + Phase 2.5 evidence):
+
+- [ ] **JTBD-as-problem unification** — migration scripts; possible deprecation of `docs/jtbd/` if redundant under unified ontology. Phase 4 risk per JTBD-review nitpick 7: persona-anchoring is JTBD-essential and problem-optional — unification cannot collapse one into the other.
+- [ ] **`persona:` frontmatter field** on user-business problem tickets — required for JTBD-derived problems; optional for technical problems. Schema decision deferred to Phase 4 design.
 
 **Cross-phase work**:
 
 - [ ] Dogfood pass per phase: convert existing live tickets through the new framework; verify lifecycle transitions; check WSJF behaviour; confirm capture skills compose without redundant ceremony.
 - [ ] Stress-test: run a multi-phase ticket (P168), a feature-shaped ticket (P162), and an observation-only ticket (P161) through the new shape end-to-end; check the framework distinguishes them without artificial scaffolding.
 
-When Phase 1 ships, replace this entire section with a forward pointer to `RFC-NNN-rfc-framework-phase-1-bootstrap` (or equivalent ID). Phases 2-4 then track as separate RFCs traced back to P170.
+**Migration trigger to story-map representation**: when Phase 2 ships and STORY-MAP-001 is created, this entire `## Implementation Tasks` section migrates into STORY-MAP-001's backbone/ribs/slices structure. This ticket body then carries only a forward pointer to STORY-MAP-001 + the high-level "what is the strain pattern + what's the framework solution" context. Tracking moves from prose-in-ticket-body to first-class story-map artefact per the user direction 2026-05-10 ("user story maps and user stories and incremental delivery of those user stories is exactly how we track it").
 
 ## Dependencies
 

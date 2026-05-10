@@ -2,13 +2,17 @@
 status: "accepted"
 date: 2026-05-04
 accepted-date: 2026-05-05
+amended: 2026-05-10
+amendment-driver: P170-Slice-5-RFC-002-T5b-orchestrator-main-turn (story-map + story design landed; Phase 2 / 2.5 split collapsed; stories first-class from the start)
 decision-makers: [Tom Howard]
-consulted: [wr-architect:agent (initial review + re-review 2026-05-05), wr-jtbd:agent (initial review + re-review 2026-05-05)]
+consulted: [wr-architect:agent (initial review + re-review 2026-05-05 + amendment review 2026-05-10), wr-jtbd:agent (initial review + re-review 2026-05-05)]
 informed: [Windy Road plugin users, adopter maintainers]
 reassessment-date: 2026-08-04
 ---
 
 # Problem-RFC-Story framework with mandatory problem-trace and unified problem ontology
+
+> **Amendment 2026-05-10**: Phase 2 design (user story maps + individual stories) is accepted; framework code remains deferred. User direction (3-message refinement mid-P170 Slice 5 work) collapsed the original Phase 2 / Phase 2.5 split into a single Phase 2 ship — stories are first-class artefacts from the start so RFCs can reference them by ID for the working-the-problem traversal (Problem → Fix Strategy RFCs → RFC's ordered `stories:` array → next-actionable story). Spec corrections ride this amendment per architect-review verdict (8 amendments + 3 nitpicks applied). See "Story Map + Story design (Phase 2 deliverables)" subsection in Decision Outcome.
 
 ## Context and Problem Statement
 
@@ -114,6 +118,255 @@ Introduce a four-tier hierarchy:
 
 - **JTBD unification (Phase 4)**: JTBD job statements in `docs/jtbd/` describe user/business problems and are kin to problem tickets of class `user-business`. Phase 4 work unifies the directories so a JTBD-NNN job description becomes a first-class problem ticket. Existing problem-management skills (capture, manage, transition, work, review) compose without rebuild because invariant I2 already requires uniform handling. **Phase 4 risk** (per JTBD-review nitpick 7): JTBD job statements are persona-anchored by construction; problem tickets are not always persona-anchored. Unification must preserve persona-anchoring as a first-class facet of user-business problems, not collapse it into the body. Phase 4 design must answer: does every user-business problem ticket carry a `persona:` frontmatter field, or is persona-anchoring optional?
 
+**Story Map + Story design (Phase 2 deliverables — DESIGN accepted in this amendment 2026-05-10 per user direction; SHIP deferred to Phase 2 framework code per Out of Scope)**:
+
+User direction 2026-05-10 (3-message interactive refinement mid-P170 Slice 5 work) promoted story-map AND story DESIGN from "deferred entirely to Phase 2 / 2.5" to "design accepted now, ship deferred together". Driver: the existing bootstrap planning artefact at `docs/plans/170-rfc-framework-story-map.md` exposed load-bearing properties (own lifecycle, multi-RFC trace, multi-JTBD trace) the original Phase 2 deferral didn't articulate. User's third refinement (verbatim): *"the Problem, when it's a known error and has a proposed fix, should link to 1 or more RFCs. Each of those RFCs should reference specific stories in a user story map, so when we work the problem, we know what to implement and in what order"* — this collapsed the original Phase 2 ↔ Phase 2.5 split (story-maps-now / individual-stories-later) into a single Phase 2 ship: **stories are first-class from the start**.
+
+**Working-the-problem traversal** (the load-bearing data flow this design serves):
+
+```
+Problem (known-error + ## Fix Strategy section)
+   │ "fix proposed via RFC-NNN, RFC-NNN"
+   ▼
+RFC-NNN (## Stories section)
+   │ "implement STORY-NNN, STORY-NNN, STORY-NNN in this order"
+   ▼
+STORY-NNN (acceptance-criteria + INVEST shape)
+   │ "ship the story; mark done; advance to next"
+```
+
+Working a problem reads its Fix Strategy → finds linked RFCs → reads each RFC's ordered story list → implements stories in order. The story map is the BACKBONE/RIBS/SLICES shape that organises stories visually + by user-journey context; an RFC's `stories` list is the ORDERED EXECUTION sequence (which may be a subset of the map's stories, or span across maps).
+
+**Hierarchy position**: Story maps and individual stories are **ORTHOGONAL** to the Problem→ADR→RFC chain — they are work-decomposition artefacts that DO NOT own RFCs or get owned by RFCs. The traversal is by reference: RFCs reference specific stories (by STORY-NNN ID); stories may appear in multiple story maps (the maps are organisational lenses on the story corpus). Many-to-many across all three pairs: many problems ↔ many RFCs; many RFCs ↔ many stories; many stories ↔ many story maps.
+
+**No WSJF on story maps** (I5 invariant — see below): maps are planning artefacts, not work items. WSJF stays on problems and RFCs (Phase 1); story-level WSJF is a Phase 3 deferred decision per Reassessment Criterion (d) below — gated on use evidence. Avoids double-ranking the same work via two artefacts; protects `/wr-itil:work-problems` Step 3 selection from competing surfaces.
+
+**Naming + location**:
+
+- File: `docs/story-maps/<state>/STORY-MAP-NNN-<slug>.md` — per-state subdir layout per ADR-031, matching the post-RFC-002 problem-ticket layout from the start (no flat→subdir migration needed; first artefact tier born in the new layout).
+- ID grammar: `STORY-MAP-NNN` — three-digit zero-padded ID, parallel to `ADR-NNN` / `RFC-NNN` / problem `<NNN>`. Same `max(local, origin) + 1` allocation per ADR-019.
+- README: `docs/story-maps/README.md` — rendered index analogous to `docs/problems/README.md` (sections per lifecycle state; `## Currently in-progress` surfaces active maps).
+
+**Lifecycle states**:
+
+| Status | Subdir | Meaning | Entry criteria |
+|--------|--------|---------|----------------|
+| `draft` | `docs/story-maps/draft/` | Backbone/ribs/slices being authored; not yet ready to execute | Captured via `/wr-itil:capture-story-map`; ≥1 problem trace + ≥1 JTBD trace |
+| `accepted` | `docs/story-maps/accepted/` | Design done; slices ready to execute; traced RFCs may not yet exist (a map can scope work that pre-dates its RFCs) | Architect review PASS on backbone/ribs structure; user direction-pin via `/wr-itil:manage-story-map <NNN> accepted` |
+| `in-progress` | `docs/story-maps/in-progress/` | At least one traced RFC has reached `accepted` or beyond; slices being shipped | Auto-transition when first traced RFC moves to `accepted` |
+| `completed` | `docs/story-maps/completed/` | All traced RFCs have reached `closed`; all slices shipped (or explicitly cancelled with reason captured in the map body) | Auto-transition when all traced RFCs reach `closed` |
+| `archived` | `docs/story-maps/archived/` | Completed >30 days ago AND all traced RFCs cleared from active queue | Housekeeping pass; reversible via `git mv` back to `completed` if user disagrees |
+
+NO `verifying` state — story maps are planning artefacts, not user-facing fixes. (RFC-level verification fires per ADR-022; the map's `completed` transition rolls up.)
+NO `superseded` state distinct from `archived` — superseded maps move directly to `archived` with a forward-pointer in the map body (`## Superseded by STORY-MAP-NNN`); explicit `superseded` state would add a sixth lifecycle state without distinct semantics.
+
+**Frontmatter schema**:
+
+```yaml
+---
+status: draft | accepted | in-progress | completed | archived
+date-created: YYYY-MM-DD
+date-accepted: YYYY-MM-DD     # required when status >= accepted
+date-completed: YYYY-MM-DD    # required when status == completed
+methodology: Patton, "User Story Mapping" (O'Reilly, 2014)
+problems: [P<NNN>, P<NNN>, ...]        # ≥1 driver problems; I3 invariant (see below)
+rfcs: [RFC-<NNN>, RFC-<NNN>, ...]      # 0..N traced RFCs (may be empty at draft; populated as design firms up)
+adrs: [ADR-<NNN>, ...]                 # 0..N referenced ADRs (optional — ADRs that scoped the map's design)
+jtbd: [JTBD-<NNN>, JTBD-<NNN>, ...]    # ≥1 jobs the map serves; I4 invariant (see below)
+decision-makers: [<git config user.name>]
+---
+```
+
+The flat `problems` / `rfcs` / `jtbd` arrays mirror RFC frontmatter precedent and replace the existing bootstrap map's scalar `driver-problem` / `driving-adr` / split `primary-jtbd` + `secondary-jtbd` shape (which assumed 1:1 trace and contradicts the multi-RFC / multi-JTBD design accepted here).
+
+**Mandatory invariants** (load-bearing, gate-enforced — mirror RFC's I1/I2 pattern):
+
+- **I3 (trace-to-problem)**: every story map traces to ≥ 1 problem; orphan maps prohibited. Hard-block at `/wr-itil:capture-story-map` (no problem trace = capture refuses; same `if there's no problem, capture one first` surface routing as RFC's I1).
+- **I4 (trace-to-JTBD)**: every story map traces to ≥ 1 JTBD; maps without a stated job served are prohibited. Justification: story-map purpose IS to organise work around user value (Patton's central thesis); a map with no JTBD trace is structurally meaningless. Hard-block at `/wr-itil:capture-story-map`. Distinguishes story maps from RFCs (where JTBD trace is OPTIONAL per current Phase 1 frontmatter) — the strict-JTBD invariant is what makes story maps Patton-shaped rather than just "RFC bundles".
+- **I5 (no WSJF leak)**: story maps MUST NOT carry a WSJF field, MUST NOT participate in WSJF ranking, MUST NOT appear in `/wr-itil:work-problems` Step 3 selection. Behavioural test (per ADR-052) asserts no skill / orchestrator reads or writes WSJF on story maps. Composes with I2 (uniform problem ontology) — same test pattern, different artefact tier.
+
+**Stories as first-class artefacts** (collapsed Phase 2.5 INTO Phase 2 per user direction 2026-05-10 refinement):
+
+The original Phase 2 / Phase 2.5 split (story-maps-now / individual-stories-later) was the wrong cleavage. The user's working-the-problem traversal requires individual stories to exist as first-class artefacts FROM the start so RFCs can reference them by ID. Phase 2 now ships story maps AND stories together; "Phase 2.5" no longer exists as a separate phase tier.
+
+**Story naming + location**:
+
+- File: `docs/stories/<state>/STORY-NNN-<slug>.md` — per-state subdir layout per ADR-031, matching post-RFC-002 problem-ticket layout.
+- ID grammar: `STORY-NNN` — three-digit zero-padded ID, parallel to `ADR-NNN` / `RFC-NNN` / `STORY-MAP-NNN` / problem `<NNN>`. Same `max(local, origin) + 1` allocation per ADR-019.
+- README: `docs/stories/README.md` — rendered index analogous to the other tier READMEs.
+
+**Story lifecycle states**:
+
+| Status | Subdir | Meaning | Entry criteria |
+|--------|--------|---------|----------------|
+| `draft` | `docs/stories/draft/` | Story being written; acceptance criteria not yet INVEST-shaped | Captured via `/wr-itil:capture-story` |
+| `accepted` | `docs/stories/accepted/` | INVEST-shaped (Independent / Negotiable / Valuable / Estimable / Small / Testable); ready to implement | INVEST behavioural test PASS via `/wr-itil:manage-story <NNN> accepted`; ≥1 problem trace + ≥1 JTBD trace + ≥1 RFC trace |
+| `in-progress` | `docs/stories/in-progress/` | Implementation underway | Auto-transition when first commit references the story (commit-message `Implements: STORY-NNN` trailer) |
+| `done` | `docs/stories/done/` | Implementation shipped + acceptance criteria verified | Auto-transition when story's referencing RFC reaches `closed` AND acceptance criteria checkboxes all ticked |
+| `archived` | `docs/stories/archived/` | Done >30 days ago AND containing story-map(s) reach `archived` | Housekeeping pass; reversible |
+
+NO `verifying` state — story acceptance is criterion-driven (acceptance-criteria checkboxes), not separate-verification-driven. RFC-level verification per ADR-022 catches the broader user-verification surface.
+
+**Story frontmatter schema**:
+
+```yaml
+---
+status: draft | accepted | in-progress | done | archived
+date-created: YYYY-MM-DD
+date-accepted: YYYY-MM-DD     # required when status >= accepted
+date-done: YYYY-MM-DD         # required when status == done
+problems: [P<NNN>, ...]                # ≥1 — problems this story serves; I6 invariant
+rfcs: [RFC-<NNN>, ...]                 # ≥1 — RFCs that reference this story; I7 invariant
+story-maps: [STORY-MAP-<NNN>, ...]     # ≥1 — maps that include this story; I8 invariant
+jtbd: [JTBD-<NNN>, ...]                # ≥1 — jobs the story serves; I9 invariant
+acceptance-criteria-count: <N>         # mechanical — count of `- [ ]` / `- [x]` lines in body
+estimated-effort: S | M | L | XL       # INVEST "Estimable" — set at accepted transition
+---
+
+# STORY-NNN: <Title>
+
+## User-value statement
+As a <persona>, I want <capability>, so that <outcome>.
+
+## Acceptance criteria
+- [ ] <criterion 1>
+- [ ] <criterion 2>
+- [ ] ...
+
+## Implementation notes
+<technical context, gotchas, links to relevant code>
+
+## Related
+<problems / RFCs / story-maps / JTBD cross-refs (auto-maintained reverse-trace)>
+```
+
+**Story invariants** (load-bearing, gate-enforced):
+
+- **I6 (trace-to-problem)**: every story traces to ≥ 1 problem. Hard-block at `/wr-itil:capture-story`. Mirrors RFC's I1 / story-map's I3.
+- **I7 (trace-to-RFC)**: every story traces to ≥ 1 RFC. Hard-block at `/wr-itil:manage-story <NNN> accepted` (allows draft stories to exist before their RFC reference firms up; blocks acceptance without one). Stories without RFC references are work-in-search-of-a-coordinated-change — exactly the inverse of P179's "untracked phase" failure.
+- **I8 (trace-to-story-map)**: every story traces to ≥ 1 story map. Hard-block at `/wr-itil:manage-story <NNN> accepted`. Stories that exist only as RFC references but never appear in a map lose the user-journey context that motivates story shape.
+- **I9 (trace-to-JTBD)**: every story traces to ≥ 1 JTBD. Same justification as story-map I4 — stories are by-definition organised around user value.
+- **I10 (INVEST shape)**: at acceptance, the story body MUST satisfy INVEST behaviourally — ≥1 acceptance criterion (Testable); explicit user-value statement (Valuable); no `Blocked by` references to other unaccepted stories (Independent); estimated-effort field set (Estimable); story scope SHOULD be S or M (Small) — L or XL stories are flagged as **decomposition candidates** rather than blocked at acceptance (per architect-amendment-2026-05-10 nitpick N3 — XL stories aren't necessarily violations of "Small" and may be the right granularity for some bounded work). Behavioural test enforces presence of the criteria + value statement + estimated-effort field; flags L/XL as decomposition candidates without blocking.
+- **I11 (no WSJF leak — Phase 2)**: stories MUST NOT carry a WSJF field in Phase 2. Story-level WSJF is a Phase 3 deferred decision (gated on use evidence — does AFK orchestrator selection benefit from story-level granularity?). Behavioural test asserts.
+
+**RFC frontmatter extension** (Phase 2 amendment to RFC frontmatter spec — required for the RFC→story reference):
+
+```yaml
+# Existing Phase 1 RFC frontmatter PLUS:
+stories: [STORY-<NNN>, STORY-<NNN>, ...]   # 0..N stories this RFC implements; ORDERED (execution sequence)
+```
+
+The `stories:` field is **ordered** — array order IS the execution sequence per the user's traversal. **Cardinality is genuinely 0..N**: atomic RFCs that don't decompose into stories MAY ship with empty `stories: []` (composes with JTBD-101 atomic-fix-adopter friction guard — Reassessment Criterion (a) names exactly this signal class). `/wr-itil:manage-rfc <NNN> accepted` does NOT require the field to be populated; story-decomposed RFCs SHOULD populate it for the working-the-problem flow's per-story dispatch, but atomic RFCs with empty `stories: []` are legitimate and inherit the Phase 1 per-RFC iter dispatch (no per-story scoping). `/wr-itil:work-problem <NNN>` reads the linked RFC's `stories:` array; on empty, falls back to the Phase 1 per-RFC iter dispatch with no per-story decomposition.
+
+**Reverse-trace surfaces** (auto-maintained, refresh contract analogous to RFC's `## RFCs` section per Phase 1 item 10):
+
+- `## Story Maps` section on each problem ticket whose ID appears in any map's `problems:` array.
+- `## Story Maps` section on each RFC whose ID appears in any map's `rfcs:` array.
+- `## Story Maps` section on each JTBD file whose ID appears in any map's `jtbd:` array. **NEW reverse-trace surface** on JTBDs.
+- `## Stories` section on each problem ticket whose ID appears in any story's `problems:` array.
+- `## Stories` section on each RFC's body listing the RFC's `stories:` array IN ORDER (this is forward-trace from the RFC's frontmatter, rendered as a body section so working-the-problem reads it inline; auto-refreshed on RFC frontmatter edits).
+- `## Stories` section on each JTBD file whose ID appears in any story's `jtbd:` array.
+- `## RFCs` section on each story (showing which RFCs reference it).
+- `## Story Maps` section on each story (showing which maps include it).
+- **Generalised reverse-trace helpers** (4 polymorphic scripts taking a `<section-name>` argument — per architect-amendment-2026-05-10 A5 firing on the 3-JTBD-surface threshold):
+  - `update-problem-references-section.sh <section-name>` — covers `## Story Maps`, `## Stories` on problem tickets (and absorbs the existing `update-problem-rfcs-section.sh` for `## RFCs` per the cleanup contract; existing single-purpose helper retained as a thin shim during the deprecation window per ADR-010 forwarder pattern).
+  - `update-rfc-references-section.sh <section-name>` — covers `## Story Maps`, `## Stories` on RFCs (forward-trace from RFC frontmatter `stories:` for the Stories surface).
+  - `update-jtbd-references-section.sh <section-name>` — covers `## RFCs`, `## Story Maps`, `## Stories` on JTBD files. **NEW reverse-trace surface tier** — JTBDs currently have no auto-maintained reverse-trace sections; this helper introduces the JTBD reverse-trace surface generally, with all three section names supported from the start per A5.
+  - `update-story-references-section.sh <section-name>` — covers `## RFCs`, `## Story Maps` on story files.
+
+The 4-helper generalisation closes the count-mismatch flagged at A2 (the prior 6/8 enumeration was a counting bug; the surface map is 8 reverse-trace surfaces collapsed to 4 polymorphic helpers). Behavioural bats per ADR-052 covers all 4 helpers with parameterised section-name input.
+
+**Skills** (Phase 2 ship — design accepted, code deferred):
+
+Story-map skills (4):
+- **`/wr-itil:capture-story-map`** — lightweight aside per ADR-032. Mandatory leading argument: at least one problem trace, at least one JTBD trace. I3 + I4 hard-block. Status: `draft` on capture.
+- **`/wr-itil:manage-story-map`** — heavyweight intake + lifecycle management. Backbone/ribs/slices authoring guidance; trace-gate enforcement; **slices reference story IDs** (not contain stories inline) once the story corpus exists.
+- **`/wr-itil:reconcile-story-maps`** — diagnose-only README drift detector for `docs/story-maps/README.md`.
+- **`/wr-itil:list-story-maps`** — read-only display.
+
+Story skills (4 — NEW per the refinement):
+- **`/wr-itil:capture-story`** — lightweight aside. Mandatory: ≥1 problem trace, ≥1 JTBD trace. RFC + story-map traces optional at capture (I7 / I8 enforce at accepted transition). Status: `draft`.
+- **`/wr-itil:manage-story`** — heavyweight lifecycle. INVEST checks (I10) at accepted transition; trace-gate enforcement (I7 / I8 / I9); auto-transition draft→in-progress on first `Implements: STORY-NNN` trailer; auto-transition in-progress→done on RFC-closes + acceptance-criteria all-ticked.
+- **`/wr-itil:reconcile-stories`** — diagnose-only README drift for `docs/stories/README.md`.
+- **`/wr-itil:list-stories`** — read-only display, with optional `--rfc RFC-NNN` filter to surface a specific RFC's ordered story list.
+
+Plus extension to existing `/wr-itil:capture-rfc` + `/wr-itil:manage-rfc`: support `--stories STORY-NNN,STORY-NNN,...` argument; render `## Stories` body section from frontmatter `stories:` array.
+
+Behavioural bats per ADR-052 for all 8 new skills + 6 reverse-trace helpers + I3-I11 invariant tests + RFC stories-frontmatter extension test.
+
+**Working-the-problem flow** (the load-bearing data flow — what `/wr-itil:work-problem <NNN>` does post-Phase-2):
+
+1. Read problem `P<NNN>`'s `## Fix Strategy` section. Extract referenced RFC IDs.
+2. For each RFC, read its frontmatter `stories:` array (ordered).
+   - If `stories:` is non-empty: pick the first story whose status is `accepted` or `in-progress` (skipping `done` stories that already shipped, skipping `draft` stories that aren't ready). Continue to step 3.
+   - If `stories:` is empty (atomic RFC, JTBD-101 friction guard): fall back to Phase 1 per-RFC iter dispatch — read the RFC body's tasks/steps section directly; no per-story scoping. Skip to step 7's RFC-closure handling.
+3. Read the picked story's body — user-value statement, acceptance criteria, implementation notes.
+4. Implement the story. Each commit references it via `Refs: STORY-NNN` trailer (matches the existing `Refs: RFC-NNN` trailer pattern from ADR-060 line 111 + Phase 1 item 12 — single trailer vocabulary, single hook parses both, per architect-amendment-2026-05-10 nitpick N2).
+5. Mark acceptance criteria checkboxes as work lands.
+6. When all criteria ticked + linked RFC closes, story auto-transitions to `done`.
+7. Pick next story from RFC's `stories:` array (or next task/step from RFC body for atomic-RFC fallback); repeat.
+
+This replaces the current `/wr-itil:manage-problem`'s "Working a Problem (Known Error)" flow which says vaguely *"Read the root cause analysis and fix strategy. Implement the fix following the project's development workflow"* — Phase 2 makes "implement the fix" concretely traceable via stories (or via the atomic-RFC fallback for non-decomposed work).
+
+**Composition with other artefacts**:
+
+- Story maps and stories DO NOT own RFCs or get owned by RFCs (orthogonal per hierarchy decision above).
+- Story maps reference STORIES BY ID (not contain stories inline). The map's backbone/ribs/slices structure is a layout of story-references; the stories themselves live as their own artefacts. A single story can appear in multiple maps (the maps are journey-context lenses on the story corpus).
+- RFCs reference stories BY ID in an ORDERED frontmatter `stories:` array. The order IS the execution sequence. Working-the-problem reads it linearly.
+- Story maps DO compose with held-changeset windows per ADR-042 — if a map's stories ride a held window, the map's `in-progress` status reflects that.
+- Stories DO compose with `/wr-itil:work-problems` orchestrator selection — the orchestrator picks problems / RFCs as today (NOT story maps; I5: no WSJF on maps); within an RFC iteration, the iter dispatches the next-actionable story from the RFC's ordered `stories:` array.
+
+**Bootstrap migration**:
+
+The existing `docs/plans/170-rfc-framework-story-map.md` migrates to `docs/story-maps/in-progress/STORY-MAP-001-rfc-framework-phase-1-bootstrap.md` when Phase 2 framework code ships (NOT in this amendment commit; this amendment lands the design only). Frontmatter populated:
+
+```yaml
+status: in-progress
+problems: [P170]
+rfcs: [RFC-001, RFC-002]
+jtbd: [JTBD-001, JTBD-008, JTBD-006, JTBD-101]
+adrs: [ADR-060]
+stories: [STORY-NNN, STORY-NNN, ...]    # Phase 2 ship: extract slices into individual stories
+```
+
+Status `in-progress` because Slice 5 (RFC-002 forward-dogfood) is underway. Same dogfood discipline as RFC-001 retro on P168 (architect finding 14 forward-dogfood requirement). The frontmatter migration is the dogfood test that the schema is implementable against a real planning artefact — if it can't represent the Phase 1 work, the design is wrong.
+
+Concurrently with the STORY-MAP-001 migration, every existing slice in the bootstrap map (Slices 1-6 backbone + B1-B10 ribs + T1-T11 tasks) extracts to an individual `STORY-NNN-<slug>.md` file in the appropriate lifecycle subdir (Slices 1-3 done; Slices 4-5 in-progress; Slice 6 in-progress; T1-T5a done; T5b through T11 not-yet-started). RFC-001's frontmatter gains `stories: [...]` listing its slices in execution order; RFC-002's frontmatter gains `stories: [...]` listing T1-T11 + L2-L3 in execution order.
+
+**Bootstrap I7/I8/I9/I10 retrofit + exemption** (per architect-amendment-2026-05-10 A4): bootstrap stories that ship in `done/` or `in-progress/` subdirs MUST have their I7/I8/I9/I10 gates retrofitted at migration time — RFC + story-map + JTBD references populated in frontmatter, and INVEST shape backfilled from slice descriptions. The migration script bypasses the `manage-story <NNN> accepted` runtime gate for these stories via a one-time **bootstrap exemption marker** (`<!-- bootstrap-exempt: STORY-MAP-001 migration per ADR-060 amendment 2026-05-10 -->` HTML comment inline with the frontmatter). This matches the ADR-053 Bootstrapping precedent (same pattern ADR-051 used for its hook bootstrap commit). Stories created post-Phase-2 ship through the gates normally — no exemption marker permitted on non-bootstrap captures (behavioural test asserts).
+
+**Phase 2 framework code shipment** (8 skills + scaffold + 2 reconcile scripts + 2 bin shims + bats coverage + 4 generalised reverse-trace refresh helpers + RFC frontmatter `stories:` extension + working-the-problem flow rewrite + ADR-019 collision-guard extension) remains in Out of Scope per the existing entry; that entry is updated by this amendment to point at this design subsection.
+
+**Phase 2 commit-grain decomposition** (per architect-amendment-2026-05-10 A3 + ADR-014 single-purpose grain — Phase 2 ship is itself a multi-commit chain; making the decomposition explicit prevents implementer reading "Phase 2 ship" as a single commit):
+
+Phase 2 graduates as its own RFC under the framework Phase 1 produces (eat-our-own-dogfood at the meta-level). Recommended decomposition (illustrative; the actual decomposition lives in the Phase 2 RFC's `stories:` array):
+
+1. **Scaffold** — `docs/story-maps/`, `docs/stories/` directory layouts + 5-state subdirs each + READMEs.
+2. **ADR-019 collision-guard extension** — extend `packages/itil/scripts/check-id-collision.sh` (or equivalent) to enumerate `docs/story-maps/` + `docs/stories/` recursive trees per ADR-031 P056 `--name-only` + `-r` pattern. Either amend ADR-019 in place OR add a Phase 2 Confirmation criterion that capture-story-map + capture-story run the collision guard against `origin/<base>` before ID allocation.
+3. **4 story-map skills** — one commit per skill per ADR-014 (capture-story-map; manage-story-map; reconcile-story-maps; list-story-maps).
+4. **4 story skills** — one commit per skill per ADR-014 (capture-story; manage-story; reconcile-stories; list-stories).
+5. **4 generalised reverse-trace helpers** — grouped by adjacent surface (likely 2 commits — problems+RFCs in one, JTBDs+stories in another).
+6. **RFC frontmatter `stories:` extension + capture-rfc / manage-rfc updates** — one commit covering the schema extension + skill updates + behavioural test for the empty-stories fallback.
+7. **Working-the-problem flow rewrite** — `/wr-itil:work-problem <NNN>` rewrite per the traversal above. Behavioural test asserting the traversal end-to-end.
+8. **Bootstrap migration** — STORY-MAP-001 + extracted bootstrap stories. Per A4 below, the bootstrap migration carries an explicit I7/I8/I9/I10 retrofit + bootstrap-exemption marker per ADR-053 Bootstrapping precedent.
+
+This decomposition makes the Phase 2 ship correctly grain-able into ADR-014 single-commit-per-bounded-sub-task; Phase 2 itself becomes RFC-NNN traced to P170 per the dogfood discipline (the framework's own next-graduation cycle eats its own outputs).
+
+**Confirmation (Phase 2 — when framework code ships)**:
+
+- `docs/story-maps/` and `docs/stories/` directories exist with the 5 lifecycle subdirs each.
+- STORY-MAP-001 migrated from `docs/plans/170-rfc-framework-story-map.md` with the frontmatter above; frontmatter validates against the schema; reverse-trace `## Story Maps` sections appear on P170 / RFC-001 / RFC-002 / JTBD-001 / JTBD-008 / JTBD-006 / JTBD-101.
+- Bootstrap stories STORY-001..STORY-N extracted from the original map's slices/tasks; frontmatter validates against the schema (with bootstrap-exemption marker on done/in-progress stories per A4); reverse-trace `## Stories` sections appear on P170, on the appropriate RFCs (referencing the stories in execution order), on STORY-MAP-001, and on JTBDs.
+- All 8 skills (`capture-story-map` / `manage-story-map` / `reconcile-story-maps` / `list-story-maps` / `capture-story` / `manage-story` / `reconcile-stories` / `list-stories`) ship with green behavioural bats covering I3-I11 invariants. Behavioural test asserts that the bootstrap-exemption marker is permitted ONLY on bootstrap-migration stories; non-bootstrap captures with the marker fail.
+- RFC frontmatter `stories:` extension shipped + capture-rfc / manage-rfc updated to populate it; `## Stories` body section auto-rendered from frontmatter. Behavioural test asserts the empty-stories fallback (atomic RFCs ship with empty `stories: []` and inherit Phase 1 per-RFC iter dispatch).
+- ADR-019 collision-guard extension shipped — capture-story-map + capture-story run the collision guard against `origin/<base>` before ID allocation per the `max(local, origin) + 1` pattern. Behavioural test asserts that a same-tier collision on origin triggers the renumber.
+- 4 generalised reverse-trace helpers (`update-problem-references-section.sh`, `update-rfc-references-section.sh`, `update-jtbd-references-section.sh`, `update-story-references-section.sh`) ship with parameterised `<section-name>` argument; behavioural bats covers each section name across each helper.
+- `/wr-itil:work-problem <NNN>` rewritten to traverse Problem → Fix Strategy RFCs → RFC's `stories:` array → next-actionable story (per the working-the-problem flow above). Behavioural test asserts the traversal end-to-end on STORY-MAP-001 + RFC-001 + RFC-002 + their stories AND the empty-stories atomic-RFC fallback.
+- `/wr-itil:work-problems` Step 3 selection unchanged (regression test asserts no story-map ID and no story ID appear in the orchestrator's selection output; story IDs surface only inside iter dispatch via the linked RFC's `stories:` array).
+- Orchestrator iter prompts dispatch a SINGLE story per iteration when the targeted RFC has non-empty `stories:` (composability test — iter dispatched against an RFC reads the RFC's first not-yet-done story and scopes the iter to that story's acceptance criteria); falls back to per-RFC iter dispatch on empty `stories:`.
+
+**Reassessment Criteria (Phase 2 design)**: revisit if (a) >20% of multi-commit RFC bundles ship without a story map AND without a `stories:` array on the RFC (signal: design provides too much ceremony for the value), (b) cross-RFC maps prove rare in practice (signal: many-to-many was over-design; collapse to one-to-many), (c) a second JTBD reverse-trace surface emerges (signal: extract reverse-trace helpers into a generalised `packages/itil/scripts/update-jtbd-references-section.sh` taking a section-name argument), (d) story-level WSJF demand surfaces from `/wr-itil:work-problems` orchestrator users (signal: promote I11 from "no WSJF leak" to "story-level WSJF as Phase 3 deliverable" with the same RFC-frontmatter-extension pattern).
+
 ## Scope (Phase 1 — this ADR's bounded first shipment)
 
 Phase 1 lands the minimum viable RFC framework so it can dogfood on this very ADR's implementation. **Framework deliverables**:
@@ -142,7 +395,7 @@ Phase 1 is itself a multi-commit coordinated change of exactly the shape this AD
 
 ## Out of Scope
 
-- **Story mapping (Phase 2)**: backbone/ribs/slices template, INVEST checks, story-to-RFC trace, story status lifecycle, **story-level WSJF placement**. RFC-level WSJF placement IS in scope (resolved in "Decisions resolved" subsection above; deferred sub-decision is story-level only). Phase 2 deferred until Phase 1 dogfood evidence informs the design. Phase 1 uses **task** / **step** terminology for ordered work-items inside an RFC body (per architect-review finding 13 — reserves "story" for Phase 2's INVEST-shaped + JTBD-anchored shape).
+- **Story mapping framework code (Phase 2)**: 8 skills + 2 reconcile scripts + 4 generalised reverse-trace helpers + RFC frontmatter `stories:` extension + working-the-problem flow rewrite + ADR-019 collision-guard extension. **DESIGN is now in-scope** per ADR-060 amendment 2026-05-10 — see "Story Map + Story design (Phase 2 deliverables)" subsection in Decision Outcome above. **SHIPMENT** of the framework code remains deferred until Phase 1 dogfood graduation. Phase 1 uses **task** / **step** terminology for ordered work-items inside an RFC body (per architect-review finding 13 — reserves "story" for Phase 2's INVEST-shaped + JTBD-anchored shape). **Story-level WSJF placement** — Phase 3 deferred per Reassessment Criteria item (d) below.
 - **Type-as-workflow-split (rejected, load-bearing)**: type-tag is classification only, never a workflow split. **Phase 3 type-conditional capture-flow differentiation is rejected** (per architect-review finding 2): any UX differentiation must be JTBD-trace-conditional or nullable-field-conditional, never type-conditional. The I2 behavioural test (Phase 1 item 8d) enforces this at the lifecycle / WSJF / skill-set surfaces; Phase 3 design must respect the same prohibition at the UX surface.
 - **JTBD unification (Phase 4)**: deferred. Recorded as future direction. Implementation depth requires migration scripts and possible deprecation of `docs/jtbd/` directory; not viable until story-mapping (Phase 2) lands and informs the JTBD-as-problem composition shape. **Phase 4 design must answer**: does every user-business problem ticket carry a `persona:` frontmatter field, or is persona-anchoring optional? Persona-anchoring is JTBD-essential and problem-optional — the unification cannot collapse one into the other (per JTBD-review nitpick 7).
 - **External RFC homes** (per architect-review optional Option G — folded here rather than re-opening Considered Options): GitHub Discussions / Issues+Projects / Notion-style external tools / `changesets`-style per-package version-bump metadata as RFC home. **Rejected**: this is a docs-driven monorepo where RFCs are first-class versioned artefacts under `docs/rfcs/`; routing through any external tool creates a second source of truth and breaks gate-enforceability on I1. `changesets` specifically is per-package publish-axis metadata, not coordination-axis metadata — wrong granularity.
