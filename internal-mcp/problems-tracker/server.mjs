@@ -40,17 +40,70 @@ function git(args, cwd) {
   return r.stdout;
 }
 
+// Set of states recognised in both the old (.state.md suffix) and new
+// (docs/problems/<state>/) layouts. Order matters for stack rendering.
+const STATES = ['open', 'verifying', 'known-error', 'closed', 'parked'];
+
+function emptyCounts() {
+  const c = {};
+  for (const s of STATES) c[s] = 0;
+  return c;
+}
+
+// Determine state from a path under docs/problems/. Handles both layouts:
+//   Old (pre-P069): docs/problems/<id>-<slug>.<state>.md
+//   New (post-P069): docs/problems/<state>/<id>-<slug>.md
+// Returns null for non-ticket files (README, etc.) and unknown states.
+function stateOfPath(p) {
+  if (!p.startsWith('docs/problems/')) return null;
+  const basename = p.split('/').pop();
+  // Tickets are named `NNN-slug…` — filter out README.md, README-history.md, etc.
+  if (!/^\d{3}-/.test(basename)) return null;
+
+  // New layout
+  const m1 = p.match(/^docs\/problems\/([a-z][a-z-]*)\/[^/]+\.md$/);
+  if (m1 && STATES.includes(m1[1])) return m1[1];
+
+  // Old layout
+  const m2 = basename.match(/\.([a-z][a-z-]*)\.md$/);
+  if (m2 && STATES.includes(m2[1])) return m2[1];
+
+  return null;
+}
+
+// Walk what's currently on disk (handles both layouts) and return per-state
+// counts. Used as a safety override for the most recent day in the timeseries
+// — the git-log walk can be off by one across messy rename windows.
+function countByStateOnDisk(repoRoot) {
+  const counts = emptyCounts();
+  const dir = join(repoRoot, 'docs', 'problems');
+  if (!existsSync(dir)) return counts;
+
+  // New layout: per-state subdirectory
+  for (const state of STATES) {
+    const sd = join(dir, state);
+    if (!existsSync(sd)) continue;
+    for (const f of readdirSync(sd)) {
+      if (f.endsWith('.md') && /^\d{3}-/.test(f)) counts[state] += 1;
+    }
+  }
+  // Old layout: flat directory with .state.md suffix (still possible if the
+  // user re-runs against a repo that hasn't migrated)
+  for (const f of readdirSync(dir)) {
+    if (!/^\d{3}-/.test(f)) continue;
+    const m = f.match(/\.([a-z][a-z-]*)\.md$/);
+    if (m && STATES.includes(m[1])) counts[m[1]] += 1;
+  }
+  return counts;
+}
+
 // ----- timeseries -----
 //
 // Walk every commit that touched docs/problems/ in chronological order using
-// a SINGLE `git log --name-status` call, tracking each ticket's current state
-// as we go. At each commit boundary, emit (date, count of tickets in 'open'
-// state). Forward-fill gaps to today.
-//
-// This replaced an earlier implementation that ran one `git ls-tree` per
-// commit — fine in a Linux sandbox but expensive on macOS where every spawn
-// goes through Gatekeeper / launchd / antivirus checks. With ~260 commits
-// that's ~260 spawns vs 1.
+// a SINGLE `git log --name-status` call. At each commit boundary, emit per-
+// state counts for the current set of ticket files. Forward-fill gaps to
+// today. The single-pass git call (vs N ls-tree calls) avoids paying macOS
+// per-spawn overhead on every commit.
 function buildTimeseries(repoRoot) {
   const log = git(
     [
@@ -64,24 +117,25 @@ function buildTimeseries(repoRoot) {
     repoRoot,
   );
 
-  // We mirror what `git ls-tree` would return at each commit by tracking a
-  // Set of file paths under docs/problems/. Each commit's `--name-status`
-  // lines mutate the set: A/M add, D removes, R deletes the old + adds the
-  // new, C adds the new. This is equivalent to ls-tree but in one git call.
-  //
-  // Tracking by file path (not by ticket-id) is important: some commits add
-  // `004-foo.closed.md` before deleting `004-foo.open.md` in a later commit,
-  // so a ticket-id-keyed map collapses the transition window incorrectly.
+  // Mirror what `git ls-tree` would return at each commit by tracking a Set
+  // of file paths under docs/problems/. Each commit's --name-status lines
+  // mutate the set: A/M add, D removes, R deletes the old + adds the new,
+  // C adds the new. Tracking by full path (not ticket-id) is important: some
+  // commits add `004-foo.closed.md` before deleting `004-foo.open.md`, so a
+  // ticket-id-keyed map collapses the transition window incorrectly.
   const filePaths = new Set();
 
-  const byDay = new Map(); // ISO date -> open count
+  const byDay = new Map(); // ISO date -> { open, verifying, ..., parked }
   let currentDate = null;
 
   function snapshotCurrent() {
     if (!currentDate) return;
-    let n = 0;
-    for (const p of filePaths) if (p.endsWith('.open.md')) n += 1;
-    byDay.set(currentDate, n);
+    const counts = emptyCounts();
+    for (const p of filePaths) {
+      const s = stateOfPath(p);
+      if (s) counts[s] += 1;
+    }
+    byDay.set(currentDate, counts);
   }
 
   for (const line of log.split('\n')) {
@@ -121,16 +175,15 @@ function buildTimeseries(repoRoot) {
   let last = null;
   for (let d = start; d <= end; d = nextDay(d)) {
     if (byDay.has(d)) last = byDay.get(d);
-    if (last != null) out.push([d, last]);
+    if (last) out.push({ date: d, ...last });
   }
 
-  // Safety override: the state-tracking walk can get one off-by-one if a
+  // Safety override: the rename-tracking walk can get off by one if a single
   // commit applies multiple renames to the same ticket out of order. Trust
-  // the actual on-disk count for the last day.
-  const dir = join(repoRoot, 'docs', 'problems');
-  if (existsSync(dir) && out.length) {
-    const diskOpens = readdirSync(dir).filter((f) => f.endsWith('.open.md')).length;
-    out[out.length - 1] = [out[out.length - 1][0], diskOpens];
+  // the actual on-disk counts for today.
+  if (out.length) {
+    const diskCounts = countByStateOnDisk(repoRoot);
+    out[out.length - 1] = { date: out[out.length - 1].date, ...diskCounts };
   }
   return out;
 }
@@ -165,13 +218,37 @@ function buildOpens(repoRoot) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const files = readdirSync(dir)
-    .filter((f) => f.endsWith('.open.md'))
-    .sort();
+  // Collect candidate open-state files from both layouts so the server keeps
+  // working through and after a P069-style migration.
+  const candidates = []; // { fullPath, basename, displayPath }
+
+  const newOpenDir = join(dir, 'open');
+  if (existsSync(newOpenDir)) {
+    for (const f of readdirSync(newOpenDir)) {
+      if (f.endsWith('.md') && /^\d{3}-/.test(f)) {
+        candidates.push({
+          fullPath: join(newOpenDir, f),
+          basename: f,
+          displayPath: `open/${f}`,
+        });
+      }
+    }
+  }
+  for (const f of readdirSync(dir)) {
+    if (f.endsWith('.open.md') && /^\d{3}-/.test(f)) {
+      candidates.push({
+        fullPath: join(dir, f),
+        basename: f,
+        displayPath: f,
+      });
+    }
+  }
+
+  candidates.sort((a, b) => a.basename.localeCompare(b.basename));
 
   const opens = [];
-  for (const f of files) {
-    const text = readFileSync(join(dir, f), 'utf8');
+  for (const { fullPath, basename, displayPath } of candidates) {
+    const text = readFileSync(fullPath, 'utf8');
 
     let title = '';
     for (const ln of text.split('\n')) {
@@ -193,14 +270,14 @@ function buildOpens(repoRoot) {
     }
 
     opens.push({
-      id: f.slice(0, 3),
+      id: basename.slice(0, 3),
       title,
       reported,
       priority: Number.isFinite(priority) ? priority : null,
       wsjf,
       effort,
       age,
-      file: f,
+      file: displayPath,
     });
   }
 
@@ -252,9 +329,11 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       name: 'get_problems_status',
       description:
         'Returns the current open-problems backlog as { timeseries, opens, generated, repoRoot }. ' +
-        'timeseries is one [date,openCount] pair per day, reconstructed from git rename history of ' +
-        'docs/problems/*.{open,verifying,closed,parked}.md. opens is the current list of *.open.md ' +
-        'tickets sorted by WSJF desc, with id, title, reported, priority, wsjf, effort, age (days).',
+        'timeseries is one entry per day with shape { date, open, verifying, "known-error", closed, parked } ' +
+        '— per-state ticket counts reconstructed from git rename history of docs/problems/. Handles both ' +
+        'the flat .state.md layout and the post-P069 docs/problems/<state>/ layout. opens is the current ' +
+        'list of open tickets sorted by WSJF desc, with id, title, reported, priority, wsjf, effort, age ' +
+        '(days), file.',
       inputSchema: {
         type: 'object',
         properties: {
