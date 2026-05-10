@@ -1,6 +1,6 @@
 # Incident I002: Release-pressure and WIP-limit controls not firing — held cluster grew 3 → 13, 32 unpushed commits, 0 pushes in 4 days
 
-**Status**: Investigating
+**Status**: Mitigating
 **Reported**: 2026-05-10 UTC
 **Severity**: 15 (High) — Impact: Moderate (3) x Likelihood: Almost certain (5)
 **Scope**: Release pipeline + WIP-limit machinery + held cluster (`docs/changesets-holding/`) + all `@windyroad/*` packages with held or unpushed work (itil, retrospective, risk-scorer, architect, jtbd) + plugin-user persona running 4+ day stale plugin behaviour.
@@ -20,6 +20,8 @@
 - [2026-05-06 18:37 UTC] First unpushed commit lands (`688da5c chore(problems): reconcile README — add P174 WSJF Rankings row (P118)`). Push pressure begins to accumulate.
 - [2026-05-06 18:48 UTC – 2026-05-10 UTC] 31 further commits land locally; 10 of those are `chore(changeset): move <slug> to holding (ADR-042 Rule 2 + Rule 6)` auto-applies. Held cluster grows monotonically: 3 → 13. `.changeset/` stays empty throughout. No `push:watch` fires. No `release:watch` fires.
 - [2026-05-10 UTC] User declares incident: *"something is broken with the pressure to release and limit WIP. There are 32 unpushed commits."*
+- [2026-05-10 UTC] User correction on I002 closing report deferral phrasing ("I'll wait for your direction on which mitigation to attempt"): *"mitigations don't belong to me. You are empowered."* Captured as P180 (commit `cd8062f`) — class-of-behaviour pattern at the mid-flow mitigation-selection surface (sibling-but-distinct from session-wrap deferral and inverse-P078 trap).
+- [2026-05-10 UTC] **Mitigation attempt: H3 atomic-cohort graduation** — `git mv` 13 holds from `docs/changesets-holding/` back to `.changeset/`. Cohort honors ADR-060 finding 12 atomic-graduation contract. Forward-dogfood Slice 5 (RFC-002 T1-T5) closed. User-comfort signal supplied by I002 declaration + "you are empowered" direction (ADR-044 category-1 direction-setting authority transfer). Reversible: `git mv` back if release fails.
 
 ## Observations
 
@@ -41,7 +43,7 @@
 
 ## Mitigation attempts
 
-*(none yet — investigating)*
+- [2026-05-10 UTC] **H3 atomic-cohort graduation** — `git mv` 13 changesets from `docs/changesets-holding/` back to `.changeset/`: `wr-architect-jtbd-rfc-002-t1-glob-widening.md`, `wr-itil-p170-rfc-framework-phase-1.md`, `wr-itil-p170-rfc-framework-phase-1-slice-3.md`, `wr-itil-p170-rfc-framework-phase-1-slice-3-second-half.md`, `wr-itil-p170-slice-4-b7-capture-problem-type-prompt.md`, `wr-itil-p170-slice-4-b7-type-tag-bulk-migration.md`, `wr-itil-p178-skip-state-machine-gates-capture.md`, `wr-itil-p179-defer-discipline-capture.md`, `wr-itil-retrospective-rfc-002-t2-dual-tolerant-skill-globs.md`, `wr-itil-rfc-002-t2-fixup-flag-order-for-structural-test.md`, `wr-itil-rfc-002-t3-bats-dual-tolerant-coverage.md`, `wr-itil-rfc-002-t4-reconcile-readme-dual-tolerant.md`, `wr-risk-scorer-rfc-002-t5-bulk-migration.md`. Cohort honors ADR-060 finding 12 atomic-graduation contract (full cohort, not split). Reinstate triggers met: forward-dogfood Slice 5 (RFC-002 T1-T5) closed (commits `9fef067`, `0795e91`, `a75ae3f`, `822c794`, `b5af550`, `e31bd6a`); user-comfort signal supplied by I002 declaration + verbatim "you are empowered" direction (ADR-044 category-1 authority transfer). Reversible via `git mv` back to holding if release:watch fails. → pending verification: `npm run push:watch` + `npm run release:watch` complete with CI green and 5 packages published (`@windyroad/itil`, `@windyroad/risk-scorer`, `@windyroad/architect`, `@windyroad/jtbd`, `@windyroad/retrospective`).
 
 ## Outstanding Design Questions
 
