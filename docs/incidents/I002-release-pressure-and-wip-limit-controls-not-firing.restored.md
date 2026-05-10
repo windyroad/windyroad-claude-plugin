@@ -1,6 +1,6 @@
 # Incident I002: Release-pressure and WIP-limit controls not firing — held cluster grew 3 → 13, 32 unpushed commits, 0 pushes in 4 days
 
-**Status**: Mitigating
+**Status**: Restored
 **Reported**: 2026-05-10 UTC
 **Severity**: 15 (High) — Impact: Moderate (3) x Likelihood: Almost certain (5)
 **Scope**: Release pipeline + WIP-limit machinery + held cluster (`docs/changesets-holding/`) + all `@windyroad/*` packages with held or unpushed work (itil, retrospective, risk-scorer, architect, jtbd) + plugin-user persona running 4+ day stale plugin behaviour.
@@ -22,6 +22,7 @@
 - [2026-05-10 UTC] User declares incident: *"something is broken with the pressure to release and limit WIP. There are 32 unpushed commits."*
 - [2026-05-10 UTC] User correction on I002 closing report deferral phrasing ("I'll wait for your direction on which mitigation to attempt"): *"mitigations don't belong to me. You are empowered."* Captured as P180 (commit `cd8062f`) — class-of-behaviour pattern at the mid-flow mitigation-selection surface (sibling-but-distinct from session-wrap deferral and inverse-P078 trap).
 - [2026-05-10 UTC] **Mitigation attempt: H3 atomic-cohort graduation** — `git mv` 13 holds from `docs/changesets-holding/` back to `.changeset/`. Cohort honors ADR-060 finding 12 atomic-graduation contract. Forward-dogfood Slice 5 (RFC-002 T1-T5) closed. User-comfort signal supplied by I002 declaration + "you are empowered" direction (ADR-044 category-1 direction-setting authority transfer). Reversible: `git mv` back if release fails.
+- [2026-05-11 UTC] **Service restored** — verification signal: `push:watch` CI green (3m21s, Quality Gates run 25630392789) + Run Release workflow success creating release PR #116 + `release:watch` merged PR #116 (commit `5c6d9de`) + npm publish success across 5 packages: `@windyroad/itil@0.27.0` (minor), `@windyroad/risk-scorer@0.7.1` (patch), `@windyroad/architect@0.6.1` (patch), `@windyroad/jtbd@0.7.3` (patch), `@windyroad/retrospective@0.18.1` (minor). Held cluster reduced 13 → 0; `.changeset/` drained to 0; unpushed-commit count 33 → 0; last-push gap closed (5 days → 0). Pipeline residual at appetite ceiling (commit=4 push=4 release=3 Low) post-graduation — well within RISK-POLICY band, no above-appetite escalation.
 
 ## Observations
 
@@ -65,6 +66,10 @@ Surfaced by architect review at I002 declaration (do not block declaration; trac
 
 ## Linked Problem
 
-*(none yet — added on restore transition)*
+**P162** (`Codify dogfood-graduation criteria for held changesets — symmetric risk assessment (release-risk vs delay-risk) drives the reinstate decision, not arbitrary calendar guards`) — `.open.md`, WSJF 6.0.
 
-The pre-existing **P162** (`Codify dogfood-graduation criteria for held changesets — symmetric risk assessment (release-risk vs delay-risk) drives the reinstate decision, not arbitrary calendar guards`) is the most likely linkage candidate, since it covers ranked-1 + ranked-3 + ranked-4 hypotheses. I001 already linked to P162; I002 is the same problem class re-manifesting at higher amplitude despite I001 mitigation. The restore-transition (Step 8 → `/wr-itil:restore-incident`) will resolve linkage and may extend P162's Fix Strategy to cover ranked-2 (drain-condition empty-conjunct coupling), per the Outstanding Design Question above.
+P162 is the existing backlog ticket that covers I002's ranked-1 + ranked-3 + ranked-4 hypotheses (no graduation pressure mechanism / no quantitative WIP-size guard / no automated graduation-pressure-release valve). I001 (restored 2026-05-06) already linked to P162; I002 is the same problem class re-manifesting at higher amplitude (held cluster 3 → 13 vs I001's 6; 32 unpushed commits vs I001's 4) despite I001 mitigation. P162's Change Log has been updated with a 2026-05-11 entry recording I002's empirical inputs.
+
+I002's ranked-2 hypothesis (the drain-condition empty-conjunct coupling across ADR-018 / ADR-020 / ADR-042 / ADR-060) is a previously-undocumented downstream interaction surfaced fresh by I002 — see Outstanding Design Questions above. Architect verdict recommends extending P162's Phase 1 ADR scope to cover the empty-conjunct coupling as Phase 1b (three remediation options enumerated). The 2026-05-11 P162 Change Log entry records this extension recommendation alongside the empirical evidence from I002's atomic-cohort graduation (5-package release succeeded cleanly, validating user-comfort-signal-as-graduation-trigger at larger scale).
+
+P180 (`docs/problems/open/180-agent-defers-mitigation-selection-to-user-during-active-incident.md`) captures the in-loop agent-discipline pattern observed during I002 mitigation; it composes with this incident but is a distinct problem ticket (behavioural pattern, not the structural drain-condition gap).
