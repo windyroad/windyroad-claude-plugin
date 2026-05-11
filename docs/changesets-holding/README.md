@@ -22,7 +22,7 @@ A changeset is a candidate for holding in either of two cases:
 
 ## Currently held
 
-*(empty — all 13 atomic-cohort holds graduated 2026-05-10 per I002 mitigation H3; see "Recently reinstated" below)*
+- `wr-itil-p165-readme-refresh-discipline.md` — `@windyroad/itil` **patch** (P165). Held 2026-05-12 per ADR-042 Rule 2 auto-apply by `/wr-itil:work-problems` Step 6.5. Risk scorer R003 new-hook-landing modulator drove release-layer residual to 8/25 (Medium) above-appetite; held-changeset move drops the modulator from +1 to -1 after dogfood window. **Reinstate trigger**: ≥7 days in-repo dogfood with no false-positive deny observed in iter subprocess commits (review at next `/wr-itil:work-problems` Step 6.5 ≥ 2026-05-19), OR risk scorer downgrades release residual ≤ 4/25 on re-evaluation per ADR-061 dogfood-graduation symmetric balance.
 
 ## Recently reinstated
 
