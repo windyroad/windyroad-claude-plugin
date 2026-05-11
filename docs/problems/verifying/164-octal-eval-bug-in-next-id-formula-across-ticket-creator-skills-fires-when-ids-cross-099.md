@@ -1,9 +1,10 @@
 # Problem 164: Latent octal-eval bug in next-ID formula across all 4 ticket-creator skills — `$(( $local_max + 1 ))` fails with "value too great for base" when local_max reaches 099
 
-**Status**: Open
+**Status**: Verifying
 **Reported**: 2026-05-04
+**Fix Released**: 2026-05-11 (committed; awaiting next plugin release for field verification)
 **Priority**: 16 (High) — Impact: Significant (4) x Likelihood: Almost certain (4)
-**Effort**: S — one-line fix per skill across 4 skills (≈ 4 edits + bats updates)
+**Effort**: S — one-line fix per skill across 6 skills (scope expanded from 4 to 6 after grep verification per Investigation Task; ≈ 6 SKILL.md edits + 2 bats fixture updates + 2 new regression tests)
 
 **WSJF**: (16 × 1.0) / 1 = **16.0**
 **Type**: technical
@@ -70,14 +71,22 @@ The fix is the standard `10#` base-10 prefix that all robust shell-arithmetic-on
 
 ### Investigation Tasks
 
-- [ ] Confirm the four ticket-creator skills affected (likely list above is complete; verify by greping for `\$\(\(\s*\$\(echo` shape).
-- [ ] Apply the `10#` fix consistently across all four skills.
-- [ ] Add regression bats fixture: synthetic `099-foo.open.md` + assert next-ID computation returns `100` cleanly without bash error.
-- [ ] Optionally: shared helper `lib/next-id.sh` with the canonical formula, sourced by all four skills.
+- [x] Confirm the ticket-creator skills affected — grep for `\$\(\(\s*\$\(echo` shape verified **6 affected SKILL.md** (scope expanded from the originally-named 4): `manage-problem`, `capture-problem`, `capture-rfc`, `create-adr`, `capture-adr`, `create-risk`.
+- [x] Apply the `10#` fix consistently across all six skills.
+- [x] Add regression bats fixture: synthetic `099-foo.open.md` + assert next-ID computation returns `100` cleanly without bash error. Added to `capture-adr.bats` (test 6) and `capture-problem.bats` (test 21); both pass.
+- [ ] Optionally: shared helper `lib/next-id.sh` with the canonical formula, sourced by all six skills. **Deferred** — DRY benefit is small versus the risk of introducing a sourcing-order regression across the 6 currently-independent skills. Re-evaluate if a 7th ticket-creator surface is added.
 
 ## Fix Strategy
 
-Phase 1 (this iter or next): apply the `10#` prefix across all 4 skills. Bats regression fixture in `packages/itil/skills/manage-problem/test/`, `packages/architect/skills/create-adr/test/`, etc. Single commit per ADR-014 covers all 4 fixes.
+Phase 1 (completed 2026-05-11): applied the `10#` prefix across all 6 SKILL.md (verified by re-grep showing zero `\$\(\(\s*\$\(echo` matches without `10#`). Bats regression fixtures added to `packages/itil/skills/capture-problem/test/capture-problem.bats` and `packages/architect/skills/capture-adr/test/capture-adr.bats`. Single commit per ADR-014 covers all 6 fixes + regression tests.
+
+Sanity check confirming the unfixed formula fires the documented error:
+```
+$ bash -c 'local_max=099; $(( $(echo -e "${local_max}\n0" | sort -n | tail -1) + 1 ))'
+bash: line 1: 099: value too great for base (error token is "099")
+$ bash -c 'local_max=099; echo $(( 10#$(echo -e "${local_max}\n0" | sort -n | tail -1) + 1 ))'
+100
+```
 
 ## Dependencies
 
@@ -94,3 +103,4 @@ Phase 1 (this iter or next): apply the `10#` prefix across all 4 skills. Bats re
 ## Change Log
 
 - **2026-05-04** — Opened by orchestrator's main turn at end of `/wr-itil:work-problems` AFK loop iter 7 per user direction "capture all four now". Sibling finding from iter 3 P156 commit. Skeleton ticket; one-line fix scope plus bats fixture.
+- **2026-05-11** — Fix applied by `/wr-itil:work-problems` AFK iter. Scope expanded from 4 → 6 SKILL.md after grep verification (added `capture-rfc` and `create-risk` to the originally-named 4). All 6 SKILL.md formulas now use `10#` base-10 prefix. Two regression bats tests added (`capture-adr` + `capture-problem`, exercising the `099 → 100` boundary). All 28 bats tests pass. Manual sanity check confirms unfixed formula fires `bash: 099: value too great for base` and fixed formula returns `100`. Architect + JTBD reviews PASS. Status: Open → Verifying (awaiting field verification on next plugin release per ADR-014).

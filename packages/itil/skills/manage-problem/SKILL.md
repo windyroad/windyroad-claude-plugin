@@ -331,7 +331,7 @@ local_max=$(ls docs/problems/*.md docs/problems/*/*.md 2>/dev/null | sed 's|.*/|
 origin_max=$(git ls-tree --name-only -r origin/main docs/problems/ 2>/dev/null | sed 's|.*/||' | grep -oE '^[0-9]+' | sort -n | tail -1)
 
 # Take the max of the two and increment.
-next=$(printf '%03d' $(( $(echo -e "${local_max:-0}\n${origin_max:-0}" | sort -n | tail -1) + 1 )))
+next=$(printf '%03d' $(( 10#$(echo -e "${local_max:-0}\n${origin_max:-0}" | sort -n | tail -1) + 1 )))
 ```
 
 If the local choice would have collided with an origin ticket created since the last fetch, the `git ls-tree origin/<base>` lookup catches it here and the renumber is automatic. Log the renumber decision in the operation report (e.g. "Bumped next ID from 042 → 043 to avoid collision with origin").

@@ -128,7 +128,7 @@ Same `max(local, origin) + 1` formula as `capture-problem` Step 3, scanning `doc
 ```bash
 local_max=$(ls docs/rfcs/RFC-*.md 2>/dev/null | sed 's|.*/RFC-||;s|-.*||' | grep -oE '^[0-9]+' | sort -n | tail -1)
 origin_max=$(git ls-tree --name-only origin/main docs/rfcs/ 2>/dev/null | sed 's|^docs/rfcs/RFC-||;s|-.*||' | grep -oE '^[0-9]+' | sort -n | tail -1)
-next=$(printf '%03d' $(( $(echo -e "${local_max:-0}\n${origin_max:-0}" | sort -n | tail -1) + 1 )))
+next=$(printf '%03d' $(( 10#$(echo -e "${local_max:-0}\n${origin_max:-0}" | sort -n | tail -1) + 1 )))
 ```
 
 Log the renumber decision in the operation report if origin and local diverged.

@@ -56,7 +56,7 @@ Same P056-safe `local_max + origin_max + 1` formula as `/wr-architect:create-adr
 ```bash
 local_max=$(ls docs/decisions/*.md 2>/dev/null | sed 's/.*\///' | grep -oE '^[0-9]+' | sort -n | tail -1)
 origin_max=$(git ls-tree --name-only origin/main docs/decisions/ 2>/dev/null | sed 's|^docs/decisions/||' | grep -oE '^[0-9]+' | sort -n | tail -1)
-next=$(printf '%03d' $(( $(echo -e "${local_max:-0}\n${origin_max:-0}" | sort -n | tail -1) + 1 )))
+next=$(printf '%03d' $(( 10#$(echo -e "${local_max:-0}\n${origin_max:-0}" | sort -n | tail -1) + 1 )))
 ```
 
 `--name-only` is required (P056): without it, each `git ls-tree` line includes the 40-char blob SHA which can contain three-digit runs that the digit-extraction regex false-matches.

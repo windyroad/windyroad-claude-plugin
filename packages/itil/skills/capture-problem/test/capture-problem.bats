@@ -131,7 +131,7 @@ teardown() {
   [ "$local_max" = "107" ]
 
   # No origin available in the fixture; default to 0 then increment.
-  next=$(printf '%03d' $(( $(echo -e "${local_max:-0}\n0" | sort -n | tail -1) + 1 )))
+  next=$(printf '%03d' $(( 10#$(echo -e "${local_max:-0}\n0" | sort -n | tail -1) + 1 )))
   [ "$next" = "108" ]
 }
 
@@ -141,8 +141,27 @@ teardown() {
               | sed 's/.*\///' \
               | grep -oE '^[0-9]+' \
               | sort -n | tail -1)
-  next=$(printf '%03d' $(( $(echo -e "${local_max:-0}\n0" | sort -n | tail -1) + 1 )))
+  next=$(printf '%03d' $(( 10#$(echo -e "${local_max:-0}\n0" | sort -n | tail -1) + 1 )))
   [ "$next" = "001" ]
+}
+
+@test "capture-problem: next-ID handles 099 → 100 transition without octal-eval failure (P164)" {
+  # P164 regression: bash $(( ... )) parses leading-zero numbers as octal.
+  # `099` is invalid octal (digits >= 8). Without `10#` prefix, this fires:
+  #   bash: 099: value too great for base (error token is "099")
+  # The fix is the standard `10#` base-10 prefix on the inner $(echo ... | tail -1).
+  mkdir -p "$TMPROOT/docs/problems"
+  : > "$TMPROOT/docs/problems/098-foo.open.md"
+  : > "$TMPROOT/docs/problems/099-bar.open.md"
+
+  local_max=$(ls "$TMPROOT/docs/problems"/*.md 2>/dev/null \
+              | sed 's/.*\///' \
+              | grep -oE '^[0-9]+' \
+              | sort -n | tail -1)
+  [ "$local_max" = "099" ]
+
+  next=$(printf '%03d' $(( 10#$(echo -e "${local_max:-0}\n0" | sort -n | tail -1) + 1 )))
+  [ "$next" = "100" ]
 }
 
 # ---------------------------------------------------------------------------

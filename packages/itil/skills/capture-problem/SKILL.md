@@ -125,7 +125,7 @@ Same P056-safe local_max + origin_max formula as `/wr-itil:manage-problem` Step 
 # extends the same coverage to the origin tree.
 local_max=$(ls docs/problems/*.md docs/problems/*/*.md 2>/dev/null | sed 's|.*/||' | grep -oE '^[0-9]+' | sort -n | tail -1)
 origin_max=$(git ls-tree -r --name-only origin/main docs/problems/ 2>/dev/null | sed 's|.*/||' | grep -oE '^[0-9]+' | sort -n | tail -1)
-next=$(printf '%03d' $(( $(echo -e "${local_max:-0}\n${origin_max:-0}" | sort -n | tail -1) + 1 )))
+next=$(printf '%03d' $(( 10#$(echo -e "${local_max:-0}\n${origin_max:-0}" | sort -n | tail -1) + 1 )))
 ```
 
 Log the renumber decision in the operation report if origin and local diverged.
