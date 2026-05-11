@@ -1,6 +1,7 @@
 # Problem 167: Risk register aggregate reads as "don't ship" — sparse coverage + undercredited controls
 
-**Status**: Known Error
+**Status**: Verification Pending
+**Fix Released**: 2026-05-04 (commit `9e339d0` — `RISK-POLICY.md` `## Risk Catalog` + `## Control Composition` sections)
 **Reported**: 2026-05-04
 **Priority**: 3 (Low) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: S (post-correction; substantive remaining work delegated to P168 — this ticket's residual is the cross-reference + transition only)
@@ -129,8 +130,19 @@ The gap-analysis Recommend further: "Residual ≥ appetite is intentional for po
 - [x] Land catalog framing + composition rule in `RISK-POLICY.md` — **DONE** (commit `9e339d0`).
 - [x] Re-rate Priority and Effort — **DONE** (Effort dropped M → S inline at this transition; Priority unchanged at 3 / Low).
 - [x] Cross-reference the wipe-and-bootstrap ticket from `## Related` once captured — **DONE** (P168 link added below).
-- [ ] Optionally: TEMPLATE.md citation pointer to the `## Control Composition` rule.
-- [x] Transition to `.known-error.md` once the wipe-and-bootstrap ticket is captured and cross-referenced — **DONE** (this transition; substantive remaining work delegated to P168; root cause documented).
+- [x] ~~Optionally: TEMPLATE.md citation pointer to the `## Control Composition` rule.~~ — **SUPERSEDED** (2026-05-11): TEMPLATE.md was wiped by P168's wipe-and-bootstrap. No file to cite-pointer at. The `## Control Composition` rule is canonically owned by `RISK-POLICY.md` (commit `9e339d0`); bootstrap-derived risk entries (R001-R010) compose with the policy directly rather than via a TEMPLATE.md pointer.
+- [x] Transition to `.known-error.md` once the wipe-and-bootstrap ticket is captured and cross-referenced — **DONE** (substantive remaining work delegated to P168; root cause documented).
+- [x] Transition to `.verifying.md` once policy-framing fix is verifiable via the bootstrapped `docs/risks/` catalog — **DONE** (this transition, 2026-05-11; fix released in commit `9e339d0` 2026-05-04 — `RISK-POLICY.md` `## Risk Catalog` + `## Control Composition` sections; verifiable by reading `docs/risks/README.md` and confirming aggregate no longer reads as "don't ship" once P168 bootstrap entries land).
+
+## Fix Released
+
+**Release marker**: commit `9e339d0` (2026-05-04) — `RISK-POLICY.md` `## Risk Catalog` + `## Control Composition` sections.
+
+**Fix summary**: corrected catalog framing landed at the policy layer. `docs/risks/` is now framed as the persistent catalog of per-action risks consumed by per-action assessments at the same 4/Low appetite uniformly — eliminating the "register reads as don't ship" misreading. The `## Control Composition` rule clarifies that defense-in-depth control stacks compose multiplicatively on likelihood, addressing RC2's undercredited-controls failure mode. RC3 (per-action vs lifetime appetite framing) was determined to be a misreading and superseded.
+
+**Awaiting user verification**: read `docs/risks/README.md` against the new `## Risk Catalog` framing in `RISK-POLICY.md` and confirm the aggregate residual distribution no longer reads as "every standing risk above appetite ⇒ don't ship". Substantive structural verification (bootstrap-derived entries applying `## Control Composition`) lives on P168.
+
+**Exercise evidence**: P168 wipe-and-bootstrap (commits `ab73328` + `af5447c` + `8edaf7b`) consumes the corrected framing — bootstrap-derived entries R001-R010 in `docs/risks/` apply the `## Control Composition` rule and are catalog-consumed by per-action assessments under the uniform 4/Low appetite per the new `## Risk Catalog` section. The framing fix is load-bearing for P168's bootstrap mechanism.
 
 ## Dependencies
 
