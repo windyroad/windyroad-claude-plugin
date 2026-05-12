@@ -1,5 +1,0 @@
----
-"@windyroad/itil": minor
----
-
-New generalised reverse-trace helper `packages/itil/scripts/update-problem-references-section.sh` refreshing auto-maintained `## RFCs` / `## Story Maps` / `## Stories` sections on problem tickets (P170 Phase 2 Slice 2a). Lookup-table-driven dispatch — adding a new section is a table extension; the helper body carries NO per-section-name branching (per ADR-060 § Phase 2 encoding amendment 2026-05-12 architect finding 4). Polymorphic extraction: HTML `<meta name="problems" content="P<NNN>">` data-attribute grep for story-map traces; YAML frontmatter `problems:` parse for story + RFC traces. Lazy-empty discipline removes the section when no artefacts match. Idempotent rerun. 10-test behavioural bats fixture covers both extraction paths + lazy-empty + idempotency + HTML-style-agnostic extraction + structural no-branching guard. Absorbs the existing single-purpose `update-problem-rfcs-section.sh` contract for the `## RFCs` section per the cleanup contract; the existing helper stays in place as a deprecated forwarder candidate for the deprecation window.

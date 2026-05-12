@@ -1,5 +1,16 @@
 # @windyroad/risk-scorer
 
+## 0.8.0
+
+### Minor Changes
+
+- afddda0: Phase 2a of P162 dogfood-graduation criteria — new `evaluate-graduation.sh` script + `wr-risk-scorer-evaluate-graduation` shim implement ADR-061 Rule 1a deterministic join (changeset filename convention primary + body-grep fallback + multi-ticket `max(Priority)`) and Rule 2 VP carve-out detection over dual-tolerant problem-ticket layout per ADR-031 / RFC-002. The script emits structured `GRADUATION_CANDIDATE:` lines for each held changeset with resolved problem-ticket ID + Priority + class + status; `wr-risk-scorer:pipeline` agent prompt extended with "Held-Changeset Graduation Evaluation" section codifying Rule 1 symmetric comparison + Rule 4 evidence-floor judgement per ADR-026 cite + persist + uncertainty + `reinstate-from-holding` emission shape. Behavioural bats `evaluate-graduation.bats` covers ADR-061 Confirmation criterion 2 items (a)-(f); item (g) atomic-cohort Class 3b RFC cohort enumeration is deferred to Phase 2b per the architect-approved orthogonal-gate-now / atomic-cohort-later split.
+
+### Patch Changes
+
+- 7741fd4: `risk-score-commit-gate.sh` recognises commit-message-embedded `RISK_BYPASS: adr-031-migration` token as a self-attestation bypass for adopter `docs/problems/` auto-migration commits (P170 / RFC-002 / ADR-031 T11 / Open-Execution Q3 lean (b)). Pure-rename + pure-mkdir migration commits emitted by `migrate_problems_to_per_state_layout` (shipped in `@windyroad/itil` T7/T8/T9) skip the full risk-score overhead while preserving the audit trail. Case-sensitive token match; `adr-031-MIGRATION` and unrelated tokens (e.g. `reducing`, `incident`) do NOT match this path. Future commit-message-embedded bypass markers MUST be added explicitly here and to ADR-014's commit-message convention table.
+- 880c9a5: Narrative-only: consolidate `packages/risk-scorer/agents/wip.md` governance-artefact detection glob from dual `docs/problems/*.md` + `docs/problems/*/*.md` to a single recursive `docs/problems/**/*.md` (behavioural superset — matches both pre-T5a flat-layout and post-T5a per-state-subdir-layout adopter repos). Aligns wip.md with ADR-016's amended path-list shape per P170 Slice 5 T5b cross-reference reconciliation. No behavioural change to the governance-artefact detection set; clarifies the post-ADR-031 (accepted 2026-05-12) encoding canonical.
+
 ## 0.7.2
 
 ### Patch Changes

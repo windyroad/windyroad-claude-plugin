@@ -1,5 +1,0 @@
----
-"@windyroad/risk-scorer": minor
----
-
-Phase 2a of P162 dogfood-graduation criteria — new `evaluate-graduation.sh` script + `wr-risk-scorer-evaluate-graduation` shim implement ADR-061 Rule 1a deterministic join (changeset filename convention primary + body-grep fallback + multi-ticket `max(Priority)`) and Rule 2 VP carve-out detection over dual-tolerant problem-ticket layout per ADR-031 / RFC-002. The script emits structured `GRADUATION_CANDIDATE:` lines for each held changeset with resolved problem-ticket ID + Priority + class + status; `wr-risk-scorer:pipeline` agent prompt extended with "Held-Changeset Graduation Evaluation" section codifying Rule 1 symmetric comparison + Rule 4 evidence-floor judgement per ADR-026 cite + persist + uncertainty + `reinstate-from-holding` emission shape. Behavioural bats `evaluate-graduation.bats` covers ADR-061 Confirmation criterion 2 items (a)-(f); item (g) atomic-cohort Class 3b RFC cohort enumeration is deferred to Phase 2b per the architect-approved orthogonal-gate-now / atomic-cohort-later split.
