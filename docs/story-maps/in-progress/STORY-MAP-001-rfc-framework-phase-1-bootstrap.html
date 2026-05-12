@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>STORY-MAP-001: RFC Framework Phase 1 + Phase 2 Bootstrap</title>
+  <meta name="story-map-id" content="STORY-MAP-001">
+  <meta name="status" content="in-progress">
+  <meta name="problems" content="P170">
+  <meta name="rfcs" content="RFC-001,RFC-002,RFC-003">
+  <meta name="jtbd" content="JTBD-008,JTBD-001,JTBD-006,JTBD-101">
+  <meta name="adrs" content="ADR-060">
+  <meta name="reported" content="2026-05-12">
+  <meta name="decision-makers" content="Tom Howard">
+  <style>
+    /* Layout-only rules per docs/STYLE-GUIDE.md.
+       No styling on data-bearing elements; status conveyed by neighbour
+       prose rather than inline style. */
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 1200px;
+      margin: 1rem auto;
+      padding: 0 1rem;
+    }
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.125rem; margin-top: 1.5rem; }
+    .backbone {
+      display: grid;
+      grid-template-columns: repeat(var(--cols), 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .rib-header { grid-column: 1 / -1; border-bottom: 1px solid #ccc; padding-bottom: 0.25rem; }
+    .rib { display: contents; }
+    .slice {
+      border: 1px solid #ccc;
+      padding: 0.5rem;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .slice:hover { border-color: #666; }
+  </style>
+</head>
+<body>
+  <h1>STORY-MAP-001: RFC Framework Phase 1 + Phase 2 Bootstrap</h1>
+
+  <p>Story map for the P170 RFC framework work, spanning Phase 1 (RFC tier — RFC-001 retro on P168 + RFC-002 forward-dogfood on P069) and Phase 2 (story tier — RFC-003 framework code). Backbone × ribs × slices layout per Patton, <em>User Story Mapping</em> (O'Reilly, 2014).</p>
+
+  <p>This file migrates the planning artefact previously at <code>docs/plans/170-rfc-framework-story-map.md</code> into the canonical HTML encoding per ADR-060 § Phase 2 encoding amendment 2026-05-12. Phase 1 ribs reference RFC-001 + RFC-002 work that shipped in prior sessions; Phase 2 ribs reference the seven STORY-NNN files captured under RFC-003 this session.</p>
+
+  <section class="backbone" style="--cols: 4">
+    <header class="rib-header">
+      <h2 data-rib="phase-2-framework-code">Phase 2 — Framework code (RFC-003, this session)</h2>
+    </header>
+    <div class="rib">
+      <a class="slice" href="../../stories/done/STORY-001-hook-exemption-globs.md"
+         data-story-id="STORY-001"
+         data-rfc="RFC-003"
+         data-jtbd="JTBD-008"
+         data-status="done">
+        STORY-001: Hook exemption globs (Slice 2.5)
+      </a>
+      <a class="slice" href="../../stories/done/STORY-002-capture-story.md"
+         data-story-id="STORY-002"
+         data-rfc="RFC-003"
+         data-jtbd="JTBD-008"
+         data-status="done">
+        STORY-002: capture-story skill (Slice 7)
+      </a>
+      <a class="slice" href="../../stories/done/STORY-003-list-stories.md"
+         data-story-id="STORY-003"
+         data-rfc="RFC-003"
+         data-jtbd="JTBD-008"
+         data-status="done">
+        STORY-003: list-stories skill (Slice 10)
+      </a>
+      <a class="slice" href="../../stories/done/STORY-004-rfc-stories-extension.md"
+         data-story-id="STORY-004"
+         data-rfc="RFC-003"
+         data-jtbd="JTBD-008"
+         data-status="done">
+        STORY-004: RFC stories: extension (Slice 11)
+      </a>
+      <a class="slice" href="../../stories/done/STORY-005-working-the-problem-traversal.md"
+         data-story-id="STORY-005"
+         data-rfc="RFC-003"
+         data-jtbd="JTBD-008"
+         data-status="done">
+        STORY-005: Working-the-problem traversal (Slice 13)
+      </a>
+      <a class="slice" href="../../stories/done/STORY-006-reconcile-stories.md"
+         data-story-id="STORY-006"
+         data-rfc="RFC-003"
+         data-jtbd="JTBD-008"
+         data-status="done">
+        STORY-006: reconcile-stories trio (Slice 9)
+      </a>
+      <a class="slice" href="../../stories/done/STORY-007-manage-story.md"
+         data-story-id="STORY-007"
+         data-rfc="RFC-003"
+         data-jtbd="JTBD-008"
+         data-status="done">
+        STORY-007: manage-story skill (Slice 8)
+      </a>
+    </div>
+  </section>
+
+  <section class="backbone" style="--cols: 3">
+    <header class="rib-header">
+      <h2 data-rib="phase-2-story-map-skills">Phase 2 — Story-map skills (this session post-policy-setup)</h2>
+    </header>
+    <div class="rib">
+      <a class="slice" href="#"
+         data-story-id="STORY-008"
+         data-rfc="RFC-003"
+         data-jtbd="JTBD-008"
+         data-status="in-progress">
+        STORY-008: capture-story-map skill (Slice 3)
+      </a>
+      <a class="slice" href="#"
+         data-story-id="STORY-009"
+         data-rfc="RFC-003"
+         data-jtbd="JTBD-008"
+         data-status="in-progress">
+        STORY-009: list-story-maps skill (Slice 6)
+      </a>
+      <a class="slice" href="#"
+         data-story-id="STORY-010"
+         data-rfc="RFC-003"
+         data-jtbd="JTBD-008"
+         data-status="in-progress">
+        STORY-010: manage-story-map skill (Slice 4)
+      </a>
+      <a class="slice" href="#"
+         data-story-id="STORY-011"
+         data-rfc="RFC-003"
+         data-jtbd="JTBD-008"
+         data-status="in-progress">
+        STORY-011: reconcile-story-maps trio (Slice 5)
+      </a>
+    </div>
+  </section>
+
+  <section class="backbone" style="--cols: 1">
+    <header class="rib-header">
+      <h2 data-rib="phase-1-rfc-tier">Phase 1 — RFC tier (prior sessions; reference only)</h2>
+    </header>
+    <div class="rib">
+      <a class="slice" href="../../rfcs/RFC-001-pipeline-consume-catalog-and-bootstrap-from-reports.verifying.md"
+         data-rfc="RFC-001"
+         data-jtbd="JTBD-008"
+         data-status="verifying">
+        RFC-001: Pipeline consume-catalog + bootstrap-from-reports (P168 retro)
+      </a>
+      <a class="slice" href="../../rfcs/RFC-002-docs-problems-flat-layout-migration-per-state-subdirs-adopter-auto-migration.verifying.md"
+         data-rfc="RFC-002"
+         data-jtbd="JTBD-008"
+         data-status="verifying">
+        RFC-002: docs/problems flat → per-state-subdir migration (P069 forward-dogfood)
+      </a>
+    </div>
+  </section>
+
+  <p>Out-of-scope rendering: the full backbone (B1-B10) and task lattice (T1-T11) from <code>docs/plans/170-rfc-framework-story-map.md</code> is preserved as a planning artefact at that path; this story-map captures the slice-grain decomposition that ships through the framework. The plans file represents pre-Phase-2 thinking and will be superseded by extracted bootstrap stories in a follow-on session.</p>
+</body>
+</html>
