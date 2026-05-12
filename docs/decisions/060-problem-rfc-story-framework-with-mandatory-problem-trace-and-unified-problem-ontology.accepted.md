@@ -2,15 +2,18 @@
 status: "accepted"
 date: 2026-05-04
 accepted-date: 2026-05-05
-amended: 2026-05-10
-amendment-driver: P170-Slice-5-RFC-002-T5b-orchestrator-main-turn (story-map + story design landed; Phase 2 / 2.5 split collapsed; stories first-class from the start)
+amended: 2026-05-12
+amendment-driver: P170-Phase-2-Slice-0-HTML-encoding (story-map artefact encoding choice — HTML for 2D spatial story-maps; markdown unchanged for individual stories + RFCs + problems + decisions); Phase 2 commit-grain insertion of encoding-scaffold sub-slice; ADR-019 collision-guard extension; hook exemption globs extension; reconcile-story-maps README rendering helper; bootstrap-migration grain split; JTBD-302 correction (was incorrectly tagged JTBD-007)
+prior-amendments: [2026-05-10 (Phase 2 design accepted, ship deferred)]
 decision-makers: [Tom Howard]
-consulted: [wr-architect:agent (initial review + re-review 2026-05-05 + amendment review 2026-05-10), wr-jtbd:agent (initial review + re-review 2026-05-05)]
+consulted: [wr-architect:agent (initial review + re-review 2026-05-05 + amendment review 2026-05-10 + Phase 2 HTML encoding review 2026-05-12), wr-jtbd:agent (initial review + re-review 2026-05-05 + Phase 2 HTML encoding review 2026-05-12)]
 informed: [Windy Road plugin users, adopter maintainers]
 reassessment-date: 2026-08-04
 ---
 
 # Problem-RFC-Story framework with mandatory problem-trace and unified problem ontology
+
+> **Amendment 2026-05-12 (Phase 2 Slice 0 — HTML encoding for story-maps)**: User direction 2026-05-12: encode `docs/story-maps/` artefacts as HTML rather than markdown — Patton's whole point is that the 2D spatial backbone × ribs × slices layout *is* the meaning; markdown linearises that away. Individual stories + RFCs + problems + decisions stay markdown (each is a 1D card, not a 2D grid). HTML carries `data-story-id` / `data-rfc` / `data-jtbd` / `data-status` attributes for deterministic agent parsing; structure-only HTML5 + minimal embedded `<style>` for grid layout; no inline `style=""` on data-bearing elements. Phase 2 commit-grain gains an encoding-scaffold sub-slice between scaffold and ADR-019 extension. ADR-019 collision-guard extends to `*.html` for `docs/story-maps/`. Hook exemption globs (architect-enforce-edit.sh / jtbd-enforce-edit.sh / risk-policy-enforce-edit.sh / style-guide-enforce-edit.sh / voice-tone-enforce-edit.sh) extend to `docs/story-maps/**/*.html` in the same slice that ships the first HTML map. JTBD-302 (not JTBD-007 — prior-amendment typo) carries the README-currency rule for `docs/story-maps/README.md`. Architect verdict AMEND 2026-05-12 (7 findings; all closed in this amendment). JTBD verdict PASS 2026-05-12 (2 non-blocking notes applied). See "Phase 2 encoding amendment (2026-05-12)" subsection in Decision Outcome.
 
 > **Amendment 2026-05-10**: Phase 2 design (user story maps + individual stories) is accepted; framework code remains deferred. User direction (3-message refinement mid-P170 Slice 5 work) collapsed the original Phase 2 / Phase 2.5 split into a single Phase 2 ship — stories are first-class artefacts from the start so RFCs can reference them by ID for the working-the-problem traversal (Problem → Fix Strategy RFCs → RFC's ordered `stories:` array → next-actionable story). Spec corrections ride this amendment per architect-review verdict (8 amendments + 3 nitpicks applied). See "Story Map + Story design (Phase 2 deliverables)" subsection in Decision Outcome.
 
@@ -366,6 +369,140 @@ This decomposition makes the Phase 2 ship correctly grain-able into ADR-014 sing
 - Orchestrator iter prompts dispatch a SINGLE story per iteration when the targeted RFC has non-empty `stories:` (composability test — iter dispatched against an RFC reads the RFC's first not-yet-done story and scopes the iter to that story's acceptance criteria); falls back to per-RFC iter dispatch on empty `stories:`.
 
 **Reassessment Criteria (Phase 2 design)**: revisit if (a) >20% of multi-commit RFC bundles ship without a story map AND without a `stories:` array on the RFC (signal: design provides too much ceremony for the value), (b) cross-RFC maps prove rare in practice (signal: many-to-many was over-design; collapse to one-to-many), (c) a second JTBD reverse-trace surface emerges (signal: extract reverse-trace helpers into a generalised `packages/itil/scripts/update-jtbd-references-section.sh` taking a section-name argument), (d) story-level WSJF demand surfaces from `/wr-itil:work-problems` orchestrator users (signal: promote I11 from "no WSJF leak" to "story-level WSJF as Phase 3 deliverable" with the same RFC-frontmatter-extension pattern).
+
+### Phase 2 encoding amendment (2026-05-12)
+
+User direction 2026-05-12 (after the prior session's premature P170 Verification Pending transition was reverted to surface Phase 2 as in-scope): **encode story-maps as HTML, keep everything else markdown.** Patton's 2D backbone × ribs × slices layout *is* the meaning; markdown linearises that away. Individual stories + RFCs + problems + decisions stay markdown — each is a 1D card / decision record / ticket, not a 2D grid, so markdown is the right tool. This amendment captures the encoding decision + the four cascading scope adjustments per architect re-review verdict AMEND 2026-05-12 (7 findings) + JTBD re-review verdict PASS 2026-05-12 (2 non-blocking notes).
+
+#### Encoding choice for story-maps
+
+**Chosen**: structure-only HTML5 + minimal embedded `<style>` block for grid layout + `data-*` attributes on `<a>`-card elements for machine readability. File extension: `.html`. Path: `docs/story-maps/<state>/STORY-MAP-NNN-<slug>.html`.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>STORY-MAP-NNN: <title></title>
+  <meta name="story-map-id" content="STORY-MAP-NNN">
+  <meta name="status" content="<draft|accepted|in-progress|completed|archived>">
+  <meta name="problems" content="P<NNN>[,P<NNN>...]">
+  <meta name="rfcs" content="RFC-<NNN>[,RFC-<NNN>...]">
+  <meta name="jtbd" content="JTBD-<NNN>[,JTBD-<NNN>...]">
+  <style>
+    /* Grid layout for backbone × ribs × slices. Minimal embedded only;
+       no inline style="" on data-bearing elements. */
+    .backbone { display: grid; grid-template-columns: repeat(var(--cols), 1fr); gap: 1rem; }
+    .rib { display: contents; }
+    .slice { border: 1px solid #ccc; padding: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>STORY-MAP-NNN: <title></h1>
+  <section class="backbone" style="--cols: <N>">
+    <header class="rib-header">
+      <h2 data-rib="<rib-N-name>">Rib N</h2>
+      <!-- ... -->
+    </header>
+    <div class="rib">
+      <a class="slice" href="../../stories/<state>/STORY-NNN-<slug>.md"
+         data-story-id="STORY-NNN"
+         data-rfc="RFC-<NNN>"
+         data-jtbd="JTBD-<NNN>"
+         data-status="<draft|accepted|in-progress|done|archived>">
+        Story title
+      </a>
+      <!-- more slices in this rib -->
+    </div>
+  </section>
+</body>
+</html>
+```
+
+**Considered alternatives**:
+
+- **Option G — JSON-LD island** (`<script type="application/ld+json">` block carrying the trace graph). Rejected: split-source-of-truth between visual (HTML elements) and machine data (JSON island); reverse-trace helpers must parse both and reconcile drift between them.
+- **Option H — YAML frontmatter in `<head>` `<meta>`** (a YAML block embedded in `<meta name="frontmatter">`). Rejected: re-introduces markdown frontmatter parser dependency for what is otherwise pure HTML; loses the structural advantage of co-locating data with the visual element.
+- **Option I — Pure markdown with ASCII-art 2D grid** (the existing approach in `docs/plans/170-rfc-framework-story-map.md`). Rejected per user direction — drives the entire reason for HTML.
+- **Option J — External tool format** (StoriesOnBoard XML / FeatureMap CSV / drawio). Rejected: introduces external-tool dependency; loses repo-grep + IDE-native-render properties.
+
+`data-*` attributes (chosen) are the most idiomatic HTML for this surface: co-located with the visual element, parseable by `grep`/`xmllint --xpath`, and HTML5-compliant without parser dependency.
+
+#### Prohibition: inline `style=""` on data-bearing elements
+
+`<a class="slice">` and `<h2 class="rib-header">` and any element carrying `data-*` attributes MUST NOT carry inline `style=""` attributes. Rationale: keeps `grep`-as-lint deterministic (data-attribute extraction never matches a styling string); allows future project-wide stylesheet without breaking existing maps; protects against drift between presentation and semantic data. Embedded `<style>` blocks in `<head>` are permitted for layout-only rules keyed on classes; `--<custom-property>` variables for grid sizing are permitted as inline because they are layout-not-data.
+
+Behavioural bats per ADR-052 asserts this prohibition: `grep -E '<[^>]+data-[a-z-]+="[^"]+"[^>]*style="' docs/story-maps/**/*.html` MUST return zero matches.
+
+#### Reverse-trace helper polymorphism (architect finding 4)
+
+The 4 generalised reverse-trace helpers (`update-problem-references-section.sh`, `update-rfc-references-section.sh`, `update-jtbd-references-section.sh`, `update-story-references-section.sh`) handle two input artefact shapes:
+
+- **HTML maps** (story-map IDs): `grep` for `data-story-id="STORY-NNN"` / `<meta name="story-map-id" content="STORY-MAP-NNN">` / `<meta name="rfcs" content="...">` etc.
+- **Markdown files with frontmatter** (story / RFC / problem / decision IDs): YAML frontmatter parse for `problems:`, `rfcs:`, `jtbd:`, `stories:` arrays.
+
+The helper body dispatches on input-file extension (`.html` → HTML grep path; `.md` → frontmatter parse path) at the entry point, then the per-section render path is identical regardless of source-extraction method. Behavioural bats asserts NO per-section-name branching inside the helper body — the section-name is a positional argument, not a control-flow key. (Architect finding 4 confirmation criterion.)
+
+#### Phase 2 commit-grain decomposition (revised — architect finding 3)
+
+Updates the 8-commit decomposition in the prior 2026-05-10 amendment. Insert sub-slice 1.5 between Scaffold (sub-slice 1) and ADR-019 collision-guard (sub-slice 2). Renumbered:
+
+1. Scaffold (`docs/story-maps/` + `docs/stories/` directories with 5 lifecycle subdirs each + READMEs anchored to JTBD-008 and JTBD-302 per the JTBD-currency-rule sibling pattern of ADR-051).
+1.5. **NEW — Phase 2 Slice 0 encoding scaffold**: HTML story-map schema definition + 4 generalised reverse-trace helpers + hook exemption globs extension to `docs/story-maps/**/*.html` (architect finding 7 — hook gates fire on their own seed artefact otherwise; same slice that introduces the first HTML map). Lands alongside the ADR-060 amendment commit OR in the immediately-following commit (single-purpose grain per ADR-014).
+2. ADR-019 collision-guard extension to `*.html` for `docs/story-maps/` enumeration (architect finding 7 — `max(local, origin) + 1` allocation misses HTML otherwise; STORY-MAP IDs collide silently).
+3. 4 story-map skills — one commit per skill per ADR-014 (capture-story-map; manage-story-map; reconcile-story-maps; list-story-maps).
+4. 4 story skills — one commit per skill per ADR-014 (capture-story; manage-story; reconcile-stories; list-stories).
+5. (Reverse-trace helpers folded into sub-slice 1.5; this slot vacated.)
+6. RFC frontmatter `stories:` extension + capture-rfc / manage-rfc updates — one commit covering the schema extension + skill updates + behavioural test for the empty-stories fallback.
+7. Working-the-problem flow rewrite — `/wr-itil:work-problem <NNN>` rewrite per the traversal above. Behavioural test asserting the traversal end-to-end.
+8. Bootstrap migration — STORY-MAP-001 (HTML) + extracted bootstrap stories (markdown) split into TWO commits per ADR-014 single-purpose grain + architect finding 3 lean: (8a) HTML scaffold + ADR-060 amendment land as the encoding-decision commit; (8b) story extraction + `stories:` populated on RFC-001/RFC-002 lands as the migration-application commit. Bootstrap stories carry I7/I8/I9/I10 retrofit + bootstrap-exemption marker per ADR-053 Bootstrapping precedent.
+
+#### `docs/story-maps/README.md` index rendering (architect finding 7)
+
+The README index renders one row per story-map. Helper `packages/itil/scripts/render-story-map-index.sh` parses each `<meta>` block from each HTML map (status, problems, rfcs, jtbd) plus the `<title>` element, emits a markdown table. Same advisory-exit-0 contract as the other reconcile helpers per ADR-040.
+
+```bash
+# Pseudo:
+for map in docs/story-maps/*/*.html; do
+  status=$(xmllint --xpath 'string(//meta[@name="status"]/@content)' "$map")
+  problems=$(xmllint --xpath 'string(//meta[@name="problems"]/@content)' "$map")
+  # ... emit markdown row
+done
+```
+
+`xmllint` ships with macOS + GNU libxml2 on Linux; bash-only fallback (grep on `<meta>` lines) is the pure-shell alternative for adopters without libxml2. Document both paths in the helper.
+
+#### JTBD-302 (not JTBD-007) — README-currency rule applies to `docs/story-maps/README.md`
+
+Prior amendment incorrectly referenced JTBD-007 (Keep Plugins Current Across Projects) when the load-bearing JTBD for the README-currency rule is **JTBD-302 (Trust That the README Describes the Plugin I Just Installed)**. Per JTBD-review nitpick 1 (2026-05-12): `docs/story-maps/README.md` follows the ADR-051 sibling pattern — cites at least one current JTBD ID (JTBD-008 primary; JTBD-302 secondary); the helper-emits-markdown-table-from-data-attributes approach preserves the load-bearing-at-commit-time signal from JTBD-302 § 2026-05-04 amendment.
+
+Replace prior amendment references to "JTBD-007" with "JTBD-302" in any Phase 2 documentation that ships during this amendment cycle.
+
+#### Hook exemption globs (architect finding 7)
+
+Five gate hooks currently exempt `docs/problems/*/*.md` from their respective edit gates:
+
+- `packages/architect/hooks/architect-enforce-edit.sh`
+- `packages/jtbd/hooks/jtbd-enforce-edit.sh`
+- `packages/risk-scorer/hooks/risk-policy-enforce-edit.sh`
+- `packages/style-guide/hooks/style-guide-enforce-edit.sh`
+- `packages/voice-tone/hooks/voice-tone-enforce-edit.sh`
+
+Each gate's exemption glob extends in sub-slice 1.5 (encoding scaffold) to also exempt:
+
+- `docs/story-maps/**/*.html` — both flat and per-state subdir paths
+- `docs/stories/**/*.md` — both flat and per-state subdir paths
+
+P131 read-tolerance-not-write-permission still holds — these are `docs/` paths, agent write targets when invoked via the new capture/manage skills, not `.claude/`.
+
+#### ADR-019 collision-guard extension (architect finding 7)
+
+`packages/itil/scripts/check-id-collision.sh` (or equivalent ADR-019 surface) extends to enumerate:
+
+- `docs/story-maps/` recursive — `.html` files matching `^STORY-MAP-[0-9]+-` filename pattern
+- `docs/stories/` recursive — `.md` files matching `^STORY-[0-9]+-` filename pattern
+
+Both lists feed the `max(local, origin) + 1` allocation per ADR-019. capture-story-map + capture-story MUST run the guard against `origin/<base>` before ID allocation. Behavioural test asserts that a same-tier collision on origin triggers the renumber.
 
 ## Scope (Phase 1 — this ADR's bounded first shipment)
 

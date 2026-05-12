@@ -250,13 +250,16 @@ Both `wr-architect:agent` and `wr-jtbd:agent` returned **AMEND** verdicts on ADR
 
 **Phase 2 implementation tasks** (DESIGN accepted in ADR-060 amendment 2026-05-10 per user direction; **SHIP NOW IN-SCOPE 2026-05-12** — Phase 1 has graduated; the "SHIP deferred to post-Phase-1-graduation" gate has lifted. User direction 2026-05-12 (re-opening P170 from premature Verification Pending transition): *"You MUST not move P170 to verifying. You need to do phase 2 first."* **Note 2026-05-10**: original Phase 2 / Phase 2.5 split collapsed into a single Phase 2 ship per user refinement — *"the Problem, when it's a known error and has a proposed fix, should link to 1 or more RFCs. Each of those RFCs should reference specific stories in a user story map, so when we work the problem, we know what to implement and in what order"* — stories are first-class from the start so RFCs can reference them by ID):
 
+**Encoding decision** (ADR-060 amendment 2026-05-12): story-maps encode as HTML (`docs/story-maps/<state>/STORY-MAP-NNN-<slug>.html`); individual stories stay markdown (`docs/stories/<state>/STORY-NNN-<slug>.md`). Patton's 2D spatial layout is the meaning. `data-*` attributes carry the machine-readable trace graph. See ADR-060 § Phase 2 encoding amendment (2026-05-12).
+
 Story-map skills + scaffold:
 
-- [ ] **Build `/wr-itil:capture-story-map` skill** (lightweight aside per ADR-032; mandatory leading problem-trace + JTBD-trace arguments; I3 + I4 hard-block).
-- [ ] **Build `/wr-itil:manage-story-map` skill** (heavyweight intake + lifecycle management; backbone/ribs/slices authoring guidance; **slices reference story IDs**, not contain stories inline; trace-gate enforcement).
-- [ ] **Build `/wr-itil:reconcile-story-maps` skill + `packages/itil/scripts/reconcile-story-maps.sh` + `packages/itil/bin/wr-itil-reconcile-story-maps` shim** per ADR-049.
+- [x] **Phase 2 Slice 0 — ADR-060 HTML encoding amendment**. **Done 2026-05-12** (this commit chain) — ADR-060 amendment block 2026-05-12 captures the encoding decision + 4 considered alternatives + prohibition on inline style on data elements + reverse-trace helper polymorphism constraint + Phase 2 commit-grain insertion of encoding-scaffold sub-slice + ADR-019 collision-guard extension + hook exemption globs extension + README rendering helper + JTBD-302 correction.
+- [ ] **Build `/wr-itil:capture-story-map` skill** (lightweight aside per ADR-032; mandatory leading problem-trace + JTBD-trace arguments; I3 + I4 hard-block; HTML skeleton with the schema in ADR-060 amendment 2026-05-12).
+- [ ] **Build `/wr-itil:manage-story-map` skill** (heavyweight intake + lifecycle management; backbone/ribs/slices authoring guidance in HTML; **slices reference story IDs via `<a href data-story-id>`**, not contain stories inline; trace-gate enforcement).
+- [ ] **Build `/wr-itil:reconcile-story-maps` skill + `packages/itil/scripts/reconcile-story-maps.sh` + `packages/itil/bin/wr-itil-reconcile-story-maps` shim** per ADR-049. Includes `render-story-map-index.sh` helper for `docs/story-maps/README.md` rendering from `<meta>` data attributes.
 - [ ] **Build `/wr-itil:list-story-maps` skill** (read-only display per the `list-problems` precedent P071).
-- [ ] **Scaffold `docs/story-maps/` directory** with 5 lifecycle subdirs (`draft/`, `accepted/`, `in-progress/`, `completed/`, `archived/`) + `README.md` lifecycle index.
+- [ ] **Scaffold `docs/story-maps/` directory** with 5 lifecycle subdirs (`draft/`, `accepted/`, `in-progress/`, `completed/`, `archived/`) + `README.md` lifecycle index anchored to JTBD-008 + JTBD-302 per ADR-051 sibling pattern.
 
 Story skills + scaffold (NEW — promoted from Phase 2.5 per user refinement):
 
