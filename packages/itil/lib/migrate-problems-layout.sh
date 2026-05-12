@@ -77,7 +77,7 @@ migrate_problems_to_per_state_layout() {
     return 1
   fi
 
-  local state f base target
+  local state f base target moved_count=0
   shopt -s nullglob
   for state in open known-error verifying parked closed; do
     mkdir -p "$problems_dir/$state"
@@ -94,6 +94,7 @@ migrate_problems_to_per_state_layout() {
         echo "ERROR: git mv failed for $f" >&2
         return 1
       }
+      moved_count=$((moved_count + 1))
     done
   done
   shopt -u nullglob
@@ -102,8 +103,18 @@ migrate_problems_to_per_state_layout() {
     return 0
   fi
 
+  # JTBD-006 AFK transparency (T8 jtbd-review nitpick c): single stderr
+  # line on first-fire so AFK orchestrator output records the action.
+  echo "migrate-problems-layout: relocated $moved_count tickets to per-state subdirs (ADR-031)" >&2
+
+  # JTBD-201 audit-trail forward-pointer (T8 jtbd-review nitpick b):
+  # commit body cites ADR-031 so future `git log` readers have the
+  # semantic context without needing to grep the trailer.
+  local commit_msg
+  commit_msg=$'docs(problems): auto-migrate to per-state subdirectory layout (ADR-031)\n\nSee: docs/decisions/031-problem-ticket-directory-layout.accepted.md\n\nPolicy-authorised under ADR-013 Rule 6 + ADR-019 precedent (pure-rename + pure-mkdir; fully reversible via git revert).'
+
   (cd "$repo_root" && git commit \
-    --message "docs(problems): auto-migrate to per-state subdirectory layout (ADR-031)" \
+    --message "$commit_msg" \
     --trailer "RISK_BYPASS: adr-031-migration") || {
     echo "ERROR: migration commit failed" >&2
     return 1

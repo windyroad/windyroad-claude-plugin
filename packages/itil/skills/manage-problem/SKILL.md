@@ -181,6 +181,31 @@ What "work" means depends on the problem's status:
 
 ## Steps
 
+### 0a. Auto-migrate adopter layout (P170 / RFC-002 / ADR-031)
+
+Before the README-reconciliation preflight (Step 0) and any other layout-dependent logic, source the shared shell migration routine and call the idempotent entrypoint:
+
+```bash
+# Source the synced copy from this package's lib/ (canonical lives at
+# packages/shared/lib/migrate-problems-layout.sh per ADR-017 sync pattern).
+source packages/itil/lib/migrate-problems-layout.sh
+migrate_problems_to_per_state_layout "$PWD"
+```
+
+The routine is **idempotent and partial-migration-safe**. It no-ops when no flat-layout files (`docs/problems/*.<state>.md` at the top level of `docs/problems/`) are detected — the common case in this monorepo (post-Slice-5 T5a 2026-05-10) and in freshly-migrated adopter repos.
+
+On a flat-layout adopter repo (first invocation post-update — JTBD-101 plugin-developer auto-migration path), the routine:
+
+1. Creates the five state subdirectories (`docs/problems/open/`, `/known-error/`, `/verifying/`, `/parked/`, `/closed/`).
+2. Runs `git mv docs/problems/<NNN>-<slug>.<state>.md docs/problems/<state>/<NNN>-<slug>.md` for every existing ticket. `nullglob` is enabled so partial-migration tails don't trip on literal-glob expansion.
+3. Emits a standalone commit (per ADR-031 § Backward Compatibility line 124 "not folded into other work — so adopters can audit / revert in isolation") with subject `docs(problems): auto-migrate to per-state subdirectory layout (ADR-031)` and footer trailer `RISK_BYPASS: adr-031-migration` (recognised by the commit-gate hook per T11; allows the migration to skip the full risk-score overhead while preserving the audit trail).
+
+**AFK authorisation per ADR-013 Rule 6**: this fires unconditionally even in AFK / non-interactive / orchestrated mode. Pure-rename + pure-mkdir + standalone-commit actions are policy-authorised under ADR-019 precedent — they are fully reversible (`git revert`), have no external-comms surface, no secrets, no destructive overwrite. No `AskUserQuestion` gate.
+
+**First-fire signal (JTBD-006 AFK transparency per T8 jtbd-review nitpick c)**: the routine emits a single stderr line `migrate-problems-layout: relocated N tickets to per-state subdirs (ADR-031)` on the migrating invocation; silent on no-op re-invocations.
+
+After Step 0a completes (whether no-op or migration), proceed to Step 0 README reconciliation preflight. The reconcile-readme script reads the post-migration layout; the in-flow Step 5 / Step 7 README refresh paths re-render the README from the per-state subdir shape.
+
 ### 0. README reconciliation preflight (P118)
 
 Before parsing the request, run the diagnose-only reconciliation check. The contract here catches **cross-session drift** that per-operation refresh paths (P094 refresh-on-create + P062 refresh-on-transition) cannot retroactively see — if any past session committed a ticket change without staging the README refresh, the next manage-problem invocation reads a stale README that lies about what is open / verifying / closed.
