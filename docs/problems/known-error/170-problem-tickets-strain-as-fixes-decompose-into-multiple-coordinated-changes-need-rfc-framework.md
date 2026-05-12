@@ -1,12 +1,13 @@
 # Problem 170: Problem tickets strain as fixes decompose into multiple coordinated changes — need an RFC framework that ties all changes back to problems (and unifies technical with user/business problems)
 
-**Status**: Verification Pending
+**Status**: Known Error
 **Reported**: 2026-05-04
 **Transitioned to Known Error**: 2026-05-10 (RCA closed using session evidence + base-rate sweep; see updated Investigation Tasks below)
-**Transitioned to Verification Pending**: 2026-05-12 (Phase 1 + Slice 5 primary scope complete — RFC-002 Verification Pending at L2 commit `8799f7b`; T6 deferred-to-post-verification per its calendar-gated trigger; Phase 2/3/4 explicitly deferred per ADR-060 § Out of Scope. See ## Fix Released below.)
+**Phase 1 + Slice 5 primary scope shipped**: 2026-05-12 (commits `880c9a5` T5b → `8799f7b` L2 RFC-002 verifying; Phase 1 graduated). Phase 2 SHIP now in-scope per ADR-060 amendment 2026-05-10 ("DESIGN accepted now, SHIP deferred to post-Phase-1-graduation" — the gating dependency lifted today).
+**Phase-2 reversion note (2026-05-12)**: An earlier transition to Verification Pending was reverted at this commit. The agent treated "SHIP deferred to post-Phase-1-graduation" as equivalent to "permanently out of scope" and prematurely transitioned to Verification Pending. User correction 2026-05-12: P170 must do Phase 2 to completion before it transitions. The deferral was conditional on a dependency that has now lifted, not on indefinite future work — Phase 2 is in scope NOW.
 **Priority**: 8 (Medium) — Impact: 2 (Minor) x Likelihood: 4 (Likely) — re-rated 2026-05-05 (was 3 (Low) deferred); strain pattern N=4 in single session = Likely; impact is dev-tooling / framework-integrity slow-burn (not npm publish disruption) = Minor
-**Effort**: XL — re-rated 2026-05-05 (was M deferred); Phase 1 alone is XL (2 new skills, type-tag schema migration with capture-problem AskUserQuestion update + I2 behavioural test, P168 retrospective RFC migration, behavioural bats coverage, held-changeset window) + ADR-060 amendments before code
-**WSJF**: 0 — Verification Pending status excluded from dev ranking per ADR-022 (was 1.0 at Known Error)
+**Effort**: XL — re-rated 2026-05-05 (was M deferred). Phase 1 alone was XL (now shipped); Phase 2 SHIP is an additional XL (8 new skills + 2 reconcile scripts + 4 generalised reverse-trace helpers + RFC frontmatter `stories:` extension + working-the-problem flow rewrite + ADR-019 collision-guard extension + STORY-MAP-001 bootstrap migration + Phase 2 commit-grain decomposition per ADR-060 architect-amendment-2026-05-10 A3).
+**WSJF**: 1.0 — (8 × 1.0) / 8 (Known Error status multiplier 1.0)
 **Type**: technical
 
 ## Description
@@ -247,7 +248,7 @@ Both `wr-architect:agent` and `wr-jtbd:agent` returned **AMEND** verdicts on ADR
 - [x] **JTBD-001 § Desired Outcomes amendment** — multi-commit-coordination outcome per JTBD-review finding 2. **Done 2026-05-05** at `docs/jtbd/solo-developer/JTBD-001-enforce-governance.proposed.md` line 19 (annotated *"Added 2026-05-05 per ADR-060 RFC framework — JTBD-review finding 2"*). The P179-flagged "silent skip" was actually a tracking-failure-not-execution-failure: the work landed but was never ticked off because no one circled back. JTBD-review 2026-05-10 confirmed presence on disk.
 - [x] **JTBD-101 § Persona Constraints amendment** — atomic-fix-adopter scaling concern per JTBD-review finding 3. **Done 2026-05-05** at `docs/jtbd/plugin-developer/JTBD-101-extend-suite.proposed.md` line 27 (annotated *"Added 2026-05-05 per ADR-060 RFC framework — JTBD-review finding 3"*). Same tracking-failure-not-execution-failure shape as JTBD-001. JTBD-review 2026-05-10 confirmed presence on disk.
 
-**Phase 2 implementation tasks** (DESIGN accepted in ADR-060 amendment 2026-05-10 per user direction; SHIP deferred to post-Phase-1-graduation. **Note 2026-05-10**: original Phase 2 / Phase 2.5 split collapsed into a single Phase 2 ship per user refinement — *"the Problem, when it's a known error and has a proposed fix, should link to 1 or more RFCs. Each of those RFCs should reference specific stories in a user story map, so when we work the problem, we know what to implement and in what order"* — stories are first-class from the start so RFCs can reference them by ID):
+**Phase 2 implementation tasks** (DESIGN accepted in ADR-060 amendment 2026-05-10 per user direction; **SHIP NOW IN-SCOPE 2026-05-12** — Phase 1 has graduated; the "SHIP deferred to post-Phase-1-graduation" gate has lifted. User direction 2026-05-12 (re-opening P170 from premature Verification Pending transition): *"You MUST not move P170 to verifying. You need to do phase 2 first."* **Note 2026-05-10**: original Phase 2 / Phase 2.5 split collapsed into a single Phase 2 ship per user refinement — *"the Problem, when it's a known error and has a proposed fix, should link to 1 or more RFCs. Each of those RFCs should reference specific stories in a user story map, so when we work the problem, we know what to implement and in what order"* — stories are first-class from the start so RFCs can reference them by ID):
 
 Story-map skills + scaffold:
 
@@ -311,9 +312,11 @@ Bootstrap migration of existing planning artefact:
 
 **Migration trigger to story-map representation**: when Phase 2 ships and STORY-MAP-001 is created, this entire `## Implementation Tasks` section migrates into STORY-MAP-001's backbone/ribs/slices structure. This ticket body then carries only a forward pointer to STORY-MAP-001 + the high-level "what is the strain pattern + what's the framework solution" context. Tracking moves from prose-in-ticket-body to first-class story-map artefact per the user direction 2026-05-10 ("user story maps and user stories and incremental delivery of those user stories is exactly how we track it").
 
-## Fix Released
+## Phase 1 + Slice 5 evidence (partial-fix; Phase 2 still ahead)
 
-Phase 1 + Slice 5 primary scope shipped as a multi-commit coordinated change traced through RFC-001 (P168 retrospective migration; verifying) and RFC-002 (P069 driver / forward-dogfood; verifying as of 2026-05-12 commit `8799f7b`). This is the framework's own meta-recursive proof: the RFC framework that P170 defines was used to manage the work that ships P170.
+Phase 1 + Slice 5 primary scope shipped as a multi-commit coordinated change traced through RFC-001 (P168 retrospective migration; verifying) and RFC-002 (P069 driver / forward-dogfood; verifying as of 2026-05-12 commit `8799f7b`). This is the framework's own meta-recursive proof at the Phase 1 layer: the RFC framework that P170 defines was used to manage the work that ships P170 Phase 1.
+
+**This is NOT a fix-released signal for P170 as a whole** — Phase 2 SHIP is now in-scope (was deferred-pending-Phase-1-graduation; gate lifted today). P170 stays at Known Error until Phase 2 ships + user verification.
 
 **Phase 1 framework deliverables (per ADR-060 § Scope item 1)**:
 - Slice 2 (commit `12725a3`): `/wr-itil:capture-rfc` + `/wr-itil:manage-rfc` skill skeletons; `docs/rfcs/` scaffold + README.
@@ -346,14 +349,7 @@ Phase 1 + Slice 5 primary scope shipped as a multi-commit coordinated change tra
 - `--problem` flag denial rate during dogfood — operational evidence pending broader use.
 - RFC framework + adopter auto-migration validated on forward dogfood (RFC-002 reaches verifying) — architect finding 14 closed.
 
-**Verification check** (user action to transition Verification Pending → Closed):
-1. Confirm the P170 ticket transitioned correctly (this file now lives at `docs/problems/verifying/170-...md`; no `.verifying.md` filename suffix per ADR-031 encoding).
-2. Confirm RFC-002 is in `verifying` (file at `docs/rfcs/RFC-002-...verifying.md`; status frontmatter = `verifying`).
-3. Confirm ADR-031 is in `accepted` (file at `docs/decisions/031-...accepted.md`; status frontmatter = `accepted`; transitional-shape carve-out subsection present).
-4. Confirm the framework is usable end-to-end: `/wr-itil:capture-rfc <title> --problems P170` produces a well-shaped RFC stub traceable to this problem; `/wr-itil:manage-rfc <RFC-NNN> <transition>` advances RFCs through lifecycle states.
-5. Confirm RFC-001 → closed path: RFC-001 verifying was gated on RFC-002 reaching closed per ADR-060 § Confirmation criterion 6 — now that RFC-002 is verifying, the held-changeset window can graduate per ADR-042 / P162 counterfactual risk assessment once user verification of RFC-002 fires.
-
-**Closure path**: when the user verifies, transition Verification Pending → Closed (`git mv docs/problems/verifying/170-...md docs/problems/closed/170-...md` + Status field update + add closure commit + README refresh per ADR-022). The Phase 2/3/4 deferred work migrates to per-phase tracking (story-map artefacts for Phase 2 once shipped; standalone problem tickets for Phase 3/4 if reactivated).
+**Phase 2 next**: P170 stays at Known Error. The next coordinated change ships Phase 2 SHIP per the task list in § Implementation Tasks (Phase 2 implementation tasks block lines 249-294 of this ticket). When Phase 2 ships + user verification, P170 transitions Known Error → Verification Pending (this time legitimately) → Closed.
 
 ## Dependencies
 
