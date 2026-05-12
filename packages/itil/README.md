@@ -90,6 +90,7 @@ See [ADR-011](../../docs/decisions/011-manage-incident-skill.proposed.md) for th
 | `/wr-itil:manage-rfc` | Heavyweight RFC intake + lifecycle management — proposed → accepted → in-progress → verifying → closed; sibling to `manage-problem` at the RFC tier (ADR-060) |
 | `/wr-itil:capture-story` | Lightweight story-capture skill — mandatory problem-trace AND JTBD-trace per ADR-060 I6 + I9 invariants; optional `--rfc` / `--story-map` flags (I7 + I8 enforce at `accepted` transition); drafts an INVEST-shaped sub-workstream entity under a parent RFC (Phase 2 of the Problem-RFC-Story framework, P170 / ADR-060) |
 | `/wr-itil:list-stories` | Read-only display of stories grouped by lifecycle state, with optional `--rfc RFC-<NNN>` filter rendering the RFC's ordered story list per ADR-060 line 259 (Phase 2 / P170) |
+| `/wr-itil:reconcile-stories` | Detect and correct drift between `docs/stories/README.md` and on-disk story inventory + reverse-trace `## Stories` sections on driving problems / RFCs / JTBDs (Phase 2 / P170) |
 | `/wr-itil:manage-incident` | Declare, triage, mitigate, and close an incident with evidence-first discipline |
 | `/wr-itil:list-incidents` | Read-only display of active incidents by severity |
 | `/wr-itil:mitigate-incident` / `/wr-itil:restore-incident` / `/wr-itil:close-incident` / `/wr-itil:link-incident` | Incident lifecycle transitions (ADR-011) |
