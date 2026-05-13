@@ -64,8 +64,10 @@ fi
 | `--type=technical` | Pre-resolves type to `technical`; Step 1.5 skips the classifier and the AskUserQuestion. |
 | `--type=user-business` | Pre-resolves type to `user-business`; Step 1.5 skips the classifier and the AskUserQuestion. |
 | `--no-prompt` | Pre-resolves type to `technical` (default); Step 1.5 skips the classifier and the AskUserQuestion. |
+| `--jtbd=JTBD-NNN[,JTBD-NNN...]` | Pre-resolves the JTBD-trace value (Phase 4 P3.1 + I12 invariant per ADR-060 § Phase 3 + Phase 4 in-scope amendment 2026-05-13). Step 1.5b skips the JTBD-trace lexical dispatch and the I12 hard-block. Comma-separated list of JTBD IDs (no spaces). |
+| `--persona=<value>` | Pre-resolves the persona value (Phase 4 P4.2). Step 1.5b skips persona derivation. Value MUST be one of: `solo-developer`, `tech-lead`, `plugin-developer`, `plugin-user`. |
 
-Strip recognised leading flags from `$ARGUMENTS`; the remainder (after flags) is the free-text description. If both `--type=<value>` and `--no-prompt` are present, `--type=<value>` wins (more specific). Unknown leading flags halt-with-stderr-directive: print "capture-problem: unknown flag '<flag>' — recognised flags: --type=technical, --type=user-business, --no-prompt" and exit.
+Strip recognised leading flags from `$ARGUMENTS`; the remainder (after flags) is the free-text description. If both `--type=<value>` and `--no-prompt` are present, `--type=<value>` wins (more specific). Unknown leading flags halt-with-stderr-directive: print "capture-problem: unknown flag '<flag>' — recognised flags: --type=technical, --type=user-business, --no-prompt, --jtbd=JTBD-NNN, --persona=<value>" and exit.
 
 Empty description (post-flag-strip) halts per the Rule 6 audit above.
 
@@ -110,6 +112,29 @@ Resolve `type_value` ∈ {`technical`, `user-business`} per the following framew
 **I2 invariant guard (ADR-060 line 98)**: the resolved `type_value` is used at Step 4 ONLY as a substituted string in the skeleton template's `**Type**:` body field. Steps 2, 3, 4 (other than the `**Type**:` substitution), 5, 6, 7 execute identically regardless of `type_value`. The skill carries NO control-flow branch keyed on `type` — that would convert classification into a workflow split and violate I2. The lexical-signal classifier is UPSTREAM of the value's substitution (it resolves WHICH value to substitute, not WHICH workflow to execute); the substitution and all downstream steps remain uniform. Pure-bash supporting-script enforcement of this invariant lives in `packages/itil/scripts/test/i2-no-type-branching.bats`; the SKILL.md surface coverage gap is named at P176 (descendant of P012 master harness).
 
 **JTBD-301 scope guard**: this dispatch fires on the maintainer-side `/wr-itil:capture-problem` skill only. The plugin-user-side intake (`.github/ISSUE_TEMPLATE/problem-report.yml`) MUST NOT carry an equivalent type selector — plugin-user persona constraint is "no pre-classification". Triage assigns `type` during `/wr-itil:manage-problem` ingestion of user-reported issues, not at user-report time. **The lexical-signal classifier is ALSO NOT invoked from `/wr-itil:manage-problem`'s ingestion-of-plugin-user-reports path** — plugin-user descriptions do not carry the same authorial intent as maintainer-internal captures (a plugin-user describing their friction in maintainer-vocabulary terms would mis-classify); triage stays user-judgement, not lexical-classifier inference.
+
+### 1.5b JTBD-trace + persona dispatch (Phase 3 P3.1 + Phase 4 P4.2 + I12 invariant)
+
+Per ADR-060 § Phase 3 + Phase 4 in-scope amendment (2026-05-13). Fires ONLY when `type_value` resolved to `user-business` (whether via `--type=user-business` flag, `--no-prompt` default override is impossible since `--no-prompt` defaults to `technical`, the classifier silent-resolve to `user-business`, or the ambiguous-fallback AskUserQuestion). For `type_value = technical`, Steps 1.5b and the I12 hard-block do NOT fire (technical problems may carry empty `jtbd:` array; persona is optional). The whole dispatch keys on **nullable-field-conditional** shape per ADR-060 line 536 — NEVER on `type` value as a control-flow branch (preserves I2 invariant; the type co-incidence is upstream input, not control-flow key).
+
+**Resolve `jtbd_trace_value`** (an ORDERED list of JTBD IDs, possibly empty) via the following dispatch:
+
+1. **If `--jtbd=JTBD-NNN[,JTBD-NNN...]` was set in Step 1**: parse comma-separated list; assign to `jtbd_trace_value`; do NOT run the lexical detector; do NOT fire AskUserQuestion (silent-proceed per ADR-013 Rule 5).
+2. **Else** run the **lexical JTBD-trace detector** against the description: `grep -oE '\bJTBD-[0-9]+\b' | sort -u`. If matches found, set `jtbd_trace_value` to the matched IDs (de-duplicated, sorted ascending) and emit stderr advisory: `capture-problem: derived jtbd-trace=<id-list> from description JTBD-NNN citations; re-invoke with --jtbd= to override`. Do NOT fire AskUserQuestion.
+3. **Else (no flag, no lexical detection, type=user-business)**: **I12 hard-block** per ADR-060 Confirmation criterion 10. Halt-with-stderr-directive: print `capture-problem: I12 invariant — type: user-business requires ≥1 JTBD trace. Re-invoke with --jtbd=JTBD-NNN, OR edit the description to cite a JTBD-NNN ID, OR re-classify as technical via --type=technical.` and exit. This branch is the load-bearing enforcement of the new I12 invariant — JTBD-as-source-of-truth for persona-anchored unmet need; user-business problems MUST cite ≥1 JTBD.
+
+**Resolve `persona_value`** (a scalar enum value OR empty) via the following dispatch:
+
+1. **If `--persona=<value>` was set in Step 1**: validate `<value>` ∈ `{solo-developer, tech-lead, plugin-developer, plugin-user}`; halt with directive if invalid; otherwise assign and proceed silently.
+2. **Else if `jtbd_trace_value` is non-empty**: derive persona from cited JTBDs' frontmatter. Read each cited `docs/jtbd/<persona>/JTBD-<NNN>-*.md` file; extract its `persona:` (and optionally `secondary-persona:`) frontmatter values; if all cited JTBDs agree on a single persona, set `persona_value` to that persona silently and emit stderr advisory: `capture-problem: derived persona=<value> from cited JTBD <id> frontmatter`. If cited JTBDs disagree, fire AskUserQuestion with the union-of-derived-personas as options.
+3. **Else if `type_value = user-business`**: AskUserQuestion fires with the closed enum as options. Per ADR-060 P4.2: `solo-developer | tech-lead | plugin-developer | plugin-user`. Question text: *"What persona does this user-business problem serve?"*
+4. **Else (`type_value = technical`)**: leave `persona_value` empty. `persona:` frontmatter is OPTIONAL on technical problems.
+
+**I12 hard-block escape hatch (none)**: there is no `BYPASS_I12=1` env override at the SKILL surface. The block is a load-bearing schema constraint per ADR-060 Confirmation criterion 10; if a maintainer captures a user-business problem without yet knowing the JTBD trace, they must EITHER capture as `--type=technical` and re-classify during `/wr-itil:manage-problem` ingestion (when the JTBD becomes clear), OR fast-capture a placeholder JTBD via `/wr-itil:capture-jtbd` (when it ships under Phase 4 follow-on) and reference it.
+
+**JTBD-301 scope preservation**: this dispatch ALSO fires on the maintainer-side `/wr-itil:capture-problem` only. Plugin-user-side `.github/ISSUE_TEMPLATE/problem-report.yml` MUST NOT prompt for JTBD trace or persona — preserves the JTBD-301 firewall per ADR-060 P4.3 maintainer-side / plugin-user-side asymmetry clarifier. Triage during `/wr-itil:manage-problem` ingestion assigns both fields from the reporter's symptom signals (per the JTBD-301 maintainer-side-complement extension landed 2026-05-13).
+
+**Phase 3 P3.1 nullable-field-conditional shape**: the JTBD-trace prompt + I12 hard-block fire on `jtbd_trace_value` nullability (absent vs present), NOT on the `type` field's value. The composite gate (`type == user-business AND jtbd_trace_value == empty`) treats `type` as upstream-determined co-incident input — exactly the carve-out permitted by ADR-060 line 536. Steps 2-7 below execute identically regardless of `type_value`, `jtbd_trace_value`, or `persona_value`; only the values substituted into the Step 4 skeleton template differ. This preserves I2 control-flow uniformity AND extends the I2 behavioural test (per ADR-060 Confirmation criterion 11) to assert no control-flow branch on `persona:` field presence.
 
 ### 2. Minimal-grep duplicate check (3-keyword title-only)
 
@@ -170,6 +195,8 @@ Log the renumber decision in the operation report if origin and local diverged.
 **Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
 **Type**: <type_value>
+**JTBD**: <jtbd_trace_value_as_comma_separated_list_OR_omit_line_when_empty>
+**Persona**: <persona_value_OR_omit_line_when_empty>
 
 ## Description
 

@@ -153,3 +153,26 @@ EOF
 @test "Related problems: helper still no per-section-name branch (P4.1 lookup-table-row addition only)" {
   ! grep -E 'case[[:space:]]+"\$\{?section[_-]?name\}?"|if[[:space:]]+\[[[:space:]]+"\$\{?section[_-]?name\}?"[[:space:]]+=' "$SCRIPT"
 }
+
+@test "Related problems: extracts problem using body-field **JTBD**: convention (capture-problem schema P3.1)" {
+  # P3.1 capture-problem skeleton writes body-field **JTBD**: (matches
+  # existing **Status**: / **Type**: schema); helper must accept both
+  # frontmatter `jtbd:` arrays AND body-field **JTBD**: lines.
+  cat > docs/problems/open/506-body-field-business-problem.md <<'EOF'
+# Problem 506: Body-field business problem
+
+**Status**: Open
+**Reported**: 2026-05-13
+**Type**: user-business
+**JTBD**: JTBD-999
+**Persona**: solo-developer
+
+## Description
+
+Problem captured via Phase 4 P3.1 capture-problem with body-field JTBD trace.
+EOF
+
+  run bash "$SCRIPT" docs/jtbd/solo-developer/JTBD-999-sample-job.proposed.md "Related problems"
+  [ "$status" -eq 0 ]
+  grep -q '| P506 |' docs/jtbd/solo-developer/JTBD-999-sample-job.proposed.md
+}

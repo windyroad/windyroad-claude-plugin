@@ -68,7 +68,16 @@ declare -a matched_ids=() matched_titles=() matched_statuses=()
 
 extract_from_markdown_frontmatter_jtbd() {
   local file="$1"
-  awk '/^---$/{f=!f;next} f && /^jtbd:/' "$file" | head -1 | grep -qE "\\b${jtbd_id}\\b"
+  # YAML frontmatter `jtbd:` array OR body-field `**JTBD**:` line.
+  # Problem tickets use body-field convention (per existing P170 / P189
+  # schema); RFCs / Stories / Story Maps use frontmatter `jtbd:` arrays.
+  # Phase 4 P4.2: capture-problem skeleton uses body field `**JTBD**:`
+  # per the existing convention; frontmatter migration is deferred to
+  # a follow-on slice.
+  if awk '/^---$/{f=!f;next} f && /^jtbd:/' "$file" | head -1 | grep -qE "\\b${jtbd_id}\\b"; then
+    return 0
+  fi
+  grep -m1 -E '^\*\*JTBD\*\*:' "$file" 2>/dev/null | grep -qE "\\b${jtbd_id}\\b"
 }
 
 extract_from_html_data_jtbd() {
