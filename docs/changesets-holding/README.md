@@ -23,6 +23,7 @@ A changeset is a candidate for holding in either of two cases:
 ## Currently held
 
 - `wr-itil-p165-readme-refresh-discipline.md` — `@windyroad/itil` **patch** (P165). Held 2026-05-12 per ADR-042 Rule 2 auto-apply by `/wr-itil:work-problems` Step 6.5. Risk scorer R003 new-hook-landing modulator drove release-layer residual to 8/25 (Medium) above-appetite; held-changeset move drops the modulator from +1 to -1 after dogfood window. **Reinstate trigger**: ≥7 days in-repo dogfood with no false-positive deny observed in iter subprocess commits (review at next `/wr-itil:work-problems` Step 6.5 ≥ 2026-05-19), OR risk scorer downgrades release residual ≤ 4/25 on re-evaluation per ADR-061 dogfood-graduation symmetric balance.
+- `wr-itil-p170-phase4-p4-1-related-problems-lookup-row.md` — `@windyroad/itil` **patch** (P170 Phase 4 P4.1). Held 2026-05-13 per ADR-060 § Phase 3 + Phase 4 in-scope amendment commit-grain decomposition — Phase 3 + Phase 4 ship as a single graduation cohort. **Reinstate trigger**: Phase 3 + Phase 4 end-of-chain user verification fires (after P3.1 capture-problem Step 1.5 JTBD-trace extension + P4.2/P4.3/I12 capture-problem hard-block + extended I2 behavioural test + P3.2 story-level WSJF tie-break key all land in subsequent commits).
 
 ## Recently reinstated
 
