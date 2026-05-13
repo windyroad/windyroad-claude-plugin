@@ -21,25 +21,44 @@ SECTION_NAME="${2:-}"
 [ -n "$SECTION_NAME" ] || { echo "ERROR: missing section-name argument" >&2; exit 1; }
 [ -f "$JTBD_FILE" ] || { echo "ERROR: jtbd file not found: $JTBD_FILE" >&2; exit 1; }
 
-declare -A SECTION_GLOB SECTION_MODE SECTION_ID_PATTERN
+declare -A SECTION_GLOB SECTION_MODE SECTION_ID_PATTERN SECTION_ID_PREFIX
 
 SECTION_GLOB["RFCs"]="docs/rfcs/RFC-*.md"
 SECTION_MODE["RFCs"]="markdown-frontmatter-jtbd"
 SECTION_ID_PATTERN["RFCs"]="RFC-[0-9]+"
+SECTION_ID_PREFIX["RFCs"]=""
 
 SECTION_GLOB["Story Maps"]="docs/story-maps/*/STORY-MAP-*.html"
 SECTION_MODE["Story Maps"]="html-data-attribute-jtbd"
 SECTION_ID_PATTERN["Story Maps"]="STORY-MAP-[0-9]+"
+SECTION_ID_PREFIX["Story Maps"]=""
 
 SECTION_GLOB["Stories"]="docs/stories/*/STORY-*.md"
 SECTION_MODE["Stories"]="markdown-frontmatter-jtbd"
 SECTION_ID_PATTERN["Stories"]="STORY-[0-9]+"
+SECTION_ID_PREFIX["Stories"]=""
+
+# P170 Phase 4 P4.1 — Related problems reverse-trace from problem
+# tickets that cite this JTBD in their `jtbd:` frontmatter array.
+# Per ADR-060 § Phase 3 + Phase 4 in-scope amendment (2026-05-13)
+# P4.1 + JTBD finding F5: lookup-table row addition (no per-section
+# branching). Searches per-state subdirs (RFC-002 layout) via the
+# `*/` glob segment; the flat-layout half is intentionally omitted
+# because Phase 4 ships after RFC-002 T5 has completed migration.
+# Problem-ticket filenames are `<NNN>-<title>.md` without the `P`
+# prefix; render-prefix "P" produces the canonical `P<NNN>` form
+# for the rendered table row.
+SECTION_GLOB["Related problems"]="docs/problems/*/[0-9]*-*.md"
+SECTION_MODE["Related problems"]="markdown-frontmatter-jtbd"
+SECTION_ID_PATTERN["Related problems"]="^[0-9]+"
+SECTION_ID_PREFIX["Related problems"]="P"
 
 glob_pattern="${SECTION_GLOB[$SECTION_NAME]:-}"
 extraction_mode="${SECTION_MODE[$SECTION_NAME]:-}"
 id_pattern="${SECTION_ID_PATTERN[$SECTION_NAME]:-}"
+id_prefix="${SECTION_ID_PREFIX[$SECTION_NAME]:-}"
 
-[ -n "$glob_pattern" ] || { echo "ERROR: unknown section-name '$SECTION_NAME'. Supported: RFCs, Story Maps, Stories" >&2; exit 1; }
+[ -n "$glob_pattern" ] || { echo "ERROR: unknown section-name '$SECTION_NAME'. Supported: RFCs, Story Maps, Stories, Related problems" >&2; exit 1; }
 
 jtbd_basename=$(basename "$JTBD_FILE")
 jtbd_id=$(echo "$jtbd_basename" | grep -oE '^JTBD-[0-9]+' | head -1)
@@ -60,7 +79,18 @@ extract_from_html_data_jtbd() {
 extract_id_from_filename() { basename "$1" | grep -oE "$id_pattern" | head -1; }
 extract_title_md() { awk '/^# / { sub(/^# /, ""); print; exit }' "$1"; }
 extract_title_html() { grep -oE '<title>[^<]+</title>' "$1" | head -1 | sed -E 's|<title>([^<]+)</title>|\1|'; }
-extract_status_md() { awk '/^---$/{f=!f;next} f && /^status:/{ sub(/^status:[[:space:]]*/, ""); gsub(/"/, ""); print; exit }' "$1"; }
+extract_status_md() {
+  # Frontmatter `status:` first; body `**Status**: <value>` fallback
+  # (problem tickets store Status as a body field, not frontmatter,
+  # so the fallback fires when frontmatter is silent — preserves
+  # backward-compat for Story / RFC files that DO carry frontmatter).
+  local s
+  s=$(awk '/^---$/{f=!f;next} f && /^status:/{ sub(/^status:[[:space:]]*/, ""); gsub(/"/, ""); print; exit }' "$1")
+  if [ -z "$s" ]; then
+    s=$(grep -m1 -E '^\*\*Status\*\*:' "$1" 2>/dev/null | sed -E 's/^\*\*Status\*\*:[[:space:]]*//')
+  fi
+  printf '%s\n' "$s"
+}
 extract_status_html() { grep -oE '<meta[[:space:]]+name="status"[[:space:]]+content="[^"]+"' "$1" | head -1 | sed -E 's|.*content="([^"]+)".*|\1|'; }
 
 case "$extraction_mode" in
@@ -86,7 +116,7 @@ for artefact in $glob_pattern; do
   if "$extract_match" "$artefact"; then
     aid=$(extract_id_from_filename "$artefact")
     [ -n "$aid" ] || continue
-    matched_ids+=("$aid")
+    matched_ids+=("${id_prefix}${aid}")
     matched_titles+=("$("$extract_title" "$artefact" 2>/dev/null || echo "")")
     matched_statuses+=("$("$extract_status" "$artefact" 2>/dev/null || echo "unknown")")
   fi
