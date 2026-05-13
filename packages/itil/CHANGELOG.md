@@ -1,5 +1,11 @@
 # @windyroad/problem
 
+## 0.28.1
+
+### Patch Changes
+
+- 29b2e4d: P185: `/wr-itil:capture-problem` Step 1.5 derive-first refactor. The type classification AskUserQuestion no longer fires unconditionally — a lexical-signal classifier reads the description and silently classifies unambiguous cases (with stderr advisory `"capture-problem: classified type=<value> from description signals: <s1>, <s2>; re-invoke with --type=<other> to override"`). The AskUserQuestion fallback fires only on genuinely-ambiguous descriptions (mixed signals or zero signals). Five technical signal classes (camelCase / kebab-case / snake_case identifiers + file paths + command-name patterns + mechanism words + error patterns) and three user-business signal classes (persona names + journey words + JTBD-shaped need words). Dispatch order is `--type=<value>` → `--no-prompt` → classifier → fallback; pre-resolution flags still short-circuit per the existing AFK contract. Taxonomy recategorised from "taste authority per ADR-044 category 5" to "silent-framework per category 4 on unambiguous; taste per category 5 fallback on ambiguous" per architect verdict (no ADR amendment needed — in-scope under ADR-044 Reassessment Criteria). I2 invariant preserved (advisory text shape isomorphic across both type classifications); JTBD-301 plugin-user firewall preserved + scope guard extended to name the manage-problem ingestion path; classifier scoped to maintainer-side `/wr-itil:capture-problem` only. 17 new behavioural bats in `capture-problem.bats` (32/32 green); i2-no-type-branching.bats 9/9 green.
+
 ## 0.28.0
 
 ### Minor Changes
