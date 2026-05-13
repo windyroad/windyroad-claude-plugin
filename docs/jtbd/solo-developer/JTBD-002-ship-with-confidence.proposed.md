@@ -2,6 +2,7 @@
 status: proposed
 job-id: ship-with-confidence
 persona: solo-developer
+secondary-persona: tech-lead
 date-created: 2026-04-14
 ---
 

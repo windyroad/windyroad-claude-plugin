@@ -20,6 +20,7 @@ When I hit a problem with a windyroad plugin I installed, I want to describe wha
 - Intake files (`problem-report.yml`, `config.yml`, `SUPPORT.md`, `CONTRIBUTING.md`, `SECURITY.md`) exist in every `@windyroad/*` repo AND in every downstream project that installs the suite — the scaffolding is provided, not hand-authored.
 - Submitted reports receive a predictable acknowledgement: labelled (`problem`, `needs-triage`), routed into the maintainers' problem-management queue, and eventually responded to with a verdict (fix released / parked / duplicate / won't-fix).
 - When a report is likely a duplicate of an existing upstream issue, the reporter is told before they invest in re-describing it — or the filing tool dedups automatically.
+- **Maintainer-side complement** (added 2026-05-13 per ADR-060 Phase 4 amendment, F7 Option (b)): when a report lands, maintainer triage can assign persona + JTBD using the report's symptom signals without round-tripping back to the reporter. The reporter-side "no pre-classification" contract is symmetric to the maintainer-side "no re-asking" obligation — the symptom signals captured at intake must be rich enough for `/wr-itil:manage-problem` ingestion to derive type, persona, and JTBD trace deterministically. Preserves the firewall (plugin-user never prompted) by making the maintainer derivation a first-class job.
 
 ## Persona Constraints
 

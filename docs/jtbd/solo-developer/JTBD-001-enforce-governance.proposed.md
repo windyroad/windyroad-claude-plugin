@@ -2,6 +2,7 @@
 status: proposed
 job-id: enforce-governance
 persona: solo-developer
+secondary-persona: tech-lead
 date-created: 2026-04-14
 ---
 
