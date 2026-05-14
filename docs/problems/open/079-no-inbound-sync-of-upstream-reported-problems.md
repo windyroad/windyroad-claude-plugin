@@ -171,6 +171,48 @@ Architect call required at implementation time to finalise ADR shape + extension
 - **Blocked by**: P064 (risk-scoring gate on external comms — required for the assessment-pipeline pushback + acknowledgement comment paths), P038 (voice-and-tone gate on external comms — same paths). Without P064/P038, the assessment pipeline cannot ship the comment-back paths; only the local-ticket-creation path could ship in isolation, which would be a partial implementation.
 - **Composes with**: P065 (skill scaffolds intake files in downstream projects — extends to schema-compatibility with our own report-upstream's discovery), P063 (external-root-cause lineage — sub-concern 7's upstream-resolution-driven local lifecycle transitions ride P063's lineage marker), P070 (semantic-comparator from report-upstream's dedup branch — could be reused for matched-local-ticket detection on inbound), P122 (orchestrator stop-condition #2 routing — fix to that ticket's interactive-default branch is what surfaced these answers in the first place), P123-candidate (blocked-user list — composes with the assessment pipeline's clear-malicious branch)
 
+## RCA extensions from 2026-05-14 architect + JTBD reviews (P038/P064 unblocked)
+
+P064 closed (commit `15df29d`, 2026-05-14) and P038 fix-released (commit `0fda8a5`, 2026-05-14) unblock the comment-gate side of P079's assessment pipeline. Architect (PASS with 6 issues) + JTBD (PASS with 4 gaps) reviews surfaced six concrete additions to P079's scope. Captured here to keep the ticket body authoritative; full design lands in **ADR-062** (`docs/decisions/062-inbound-upstream-report-discovery-assessment-pipeline.proposed.md`).
+
+### 1. Sibling subagent, not extension of `wr-risk-scorer:external-comms`
+
+**Architect finding** — the original P079 user-direction proposed extending `wr-risk-scorer:external-comms` (the leak-detection evaluator that P064 shipped) with two new axes (request-text risk + fix-risk). Architect verdict: **sibling subagent `wr-risk-scorer:inbound-report`** instead, peer of `:external-comms` rather than extension. Reasoning: `:external-comms` reviews outbound prose for confidential-information leaks (THIS repo's data leaking outward); inbound-report classification reviews third-party prose for malicious intent + fix-risk (third-party intent flowing inward). Semantically distinct evaluator concerns. Overloading `:external-comms` would be circular (an evaluator reviewing its own outbound responses against the inbound-report risk axes). ADR-015 Scope table gains the new row when implementation lands. ADR-062 documents this decision.
+
+### 2. JTBD-301 verdict-on-close requirement — no silent malicious close
+
+**JTBD finding** — the original user-direction's "clear-malicious path" said: "close the upstream ticket AND add the user to a blocked-user list". This violates JTBD-301 (Report a Problem Without Pre-Classifying It) outcome: *"Submitted reports receive a predictable acknowledgement: labelled, routed, and eventually responded to with a verdict (fix released / parked / duplicate / won't-fix)"*. Even a malicious-perceived submission deserves a verdict comment before close. **Renamed branch**: "policy-violation close with verdict comment" — emit a brief gated comment on close (rides external-comms gates), then close. Block-list enforcement (P123) stays separate. ADR-062 documents this constraint.
+
+### 3. Mechanical-stage carve-out (P132) — pipeline branches do NOT use AskUserQuestion
+
+**JTBD + P132 finding** — `/wr-itil:review-problems` is a maintainer-facing skill that runs during AFK loops (`/wr-itil:work-problems` Step 6.5). The three branch decisions (above-threshold-pushback / clear-malicious / safe-and-valid) are **policy-resolvable** from the JTBD-alignment + dual-axis risk verdicts — that's mechanical per P132's framework-resolution-boundary doctrine. Per-branch `AskUserQuestion` would re-introduce the friction P132 was engineered to remove (inverse-P078 trap). Explicit carve-out in ADR-062's Decision Outcome so future agents don't over-generalise into asking. User-attention surfaces ONLY at hook-gate delegations (the existing external-comms gate UX) and ambiguity edge cases (cache_audit_note).
+
+### 4. Downstream-adopter non-obligation (JTBD-101 ceremony-tax prevention)
+
+**JTBD finding** — without an explicit non-obligation statement, downstream plugin-developers who scaffold intake templates per ADR-036 will read the inbound contract and ask *"do I implement inbound-discovery on my repo too?"* Without clarification, they pay ceremony tax they don't need (ADR-060 anti-pattern). **ADR-062 has an explicit "Downstream Adopters" section**: inbound-discovery runs on the upstream maintainer's repo where reports were filed; downstream adopters scaffold intake (ADR-036) but do NOT inherit an obligation to implement inbound-discovery — their tracker is their own concern. Adoption is opt-in (the channel-config schema is portable for downstream projects that DO want symmetric inbound-discovery).
+
+### 5. Audit-log surface at `docs/audits/inbound-discovery-log.md` (P131-compliant)
+
+**JTBD finding** — JTBD-201 requires "Timeline, observations, mitigations, and verification signals captured as an audit trail". The `.upstream-cache.json` records discovered reports + when; this is audit-relevant for "did we miss this report?" replay. Local ticket bodies cover the classification decision but not the discovery-pass evidence chain. **ADR-062 adds `docs/audits/inbound-discovery-log.md`** as a forward-chronology archive of each discovery pass (channels polled, reports discovered, pipeline outcomes, cache refresh confirmation). Path is intentional per CLAUDE.md P131: project-generated artefacts go under `docs/`, never `.claude/`. The log is read by P123's enforcement when it lands; until then it's the closure-record for the clear-malicious branch.
+
+### 6. New ADR (ADR-062) cross-references and ADR-029 evidence/hypothesis discipline
+
+**Architect finding** — the new peer-ADR must explicitly reference its relationship to ADR-024 (outbound peer), ADR-029 (Diagnose before implement — hypothesis/evidence/structured-verdict shape for the assessment pipeline's classifier steps), ADR-031 (problem-ticket directory layout — cache + channel-config file placement), ADR-046 (blocked-reporters persistence — already accepted; this ADR's clear-malicious branch consumes the block-list scaffold), ADR-028 (external-comms gate — pushback + acknowledgement + verdict comments ride this). ADR-062 carries all six cross-references in its Related section + names ADR-029's discipline as governing the JTBD-alignment + dual-axis-risk classifier steps.
+
+### Remaining implementation slices (deferred to follow-up sessions)
+
+ADR-062 ships as the foundational architecture. Implementation slices (separately trackable):
+
+- **Slice A** — channel-config + cache JSON schema files committed; `review-problems` SKILL.md Step 8.5 added documenting the contract.
+- **Slice B** — `wr-risk-scorer:inbound-report` subagent + on-demand skill; RISK-POLICY.md amendment enumerating Request-risk + Fix-risk classes.
+- **Slice C** — `review-problems` Step 8.5 implementation (gh CLI polling, cache write, pipeline orchestration, README.md `## Inbound Upstream Reports` renderer).
+- **Slice D** — audit-log file scaffold + first-pass entry shape.
+- **Slice E** — bats coverage per ADR-037 (synthetic-channel fixture; six pipeline outcomes).
+- **Slice F** — `--force-upstream-recheck` flag wiring; TTL-expiry auto-recheck.
+- **Slice G** — `## Inbound Upstream Reports` renderer in README.md.
+
+Each slice should compose with the others; ordering is A → D → B → C → E → F → G (lightest first, gives a working scaffold, then enriches). When P129 (version-aware classification) lands separately, it integrates at Step 1 of the pipeline (the integration seam is documented in ADR-062's Decision Outcome).
+
 ## Confirming evidence — 2026-04-25 anthropics/claude-code#52831 retrospective
 
 Concrete instance of the inbound-discovery gap and the three new sub-concerns above. Agent posted upstream issue anthropics/claude-code#52831 (P113's Reported Upstream URL) on 2026-04-24. On 2026-04-25, the upstream duplicate-detection bot replied flagging three possible duplicates with a 3-day auto-close countdown. The reply was discovered only because the user manually checked the upstream issue — no inbound-discovery surface in this skill suite would have surfaced (a) the bot reply (sub-concern 5), (b) the 3-day deadline (sub-concern 6), or — had it auto-closed — (c) the resulting upstream resolution-as-duplicate that should propagate back to the local ticket lifecycle (sub-concern 7). All three sub-concerns were live on the same comment thread within 24 h of filing. Workaround was `gh issue view 52831 --comments` per upstream-reported ticket; doesn't scale to N tickets, doesn't fire on time-sensitive triggers, doesn't classify bot vs. maintainer comments. Concrete cost: without the user's manual check, the upstream issue would have silently auto-closed despite our report having two unique asks not covered by the suggested duplicate, and we'd have learned only by re-discovering the closed issue weeks later. This is the inbound-side counterpart to the outbound gap class tracked under P038 / P064 (no latch on outbound public comms) — wr-itil ships the outbound half of an interaction without the inbound half.
