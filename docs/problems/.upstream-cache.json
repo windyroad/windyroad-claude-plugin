@@ -1,0 +1,6 @@
+{
+  "$schema": "https://windyroad.github.io/agent-plugins/schemas/upstream-cache.json",
+  "$comment": "Cache file for inbound report discovery (P079 / ADR-062). Written by /wr-itil:review-problems Step 8.5 after each discovery pass. Committed to repo for audit-replay determinism; rebuild via --force-upstream-recheck. Initial empty-cache state matches the shape the writer produces on first run with no reports.",
+  "last_checked": null,
+  "channels": {}
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://windyroad.github.io/agent-plugins/schemas/upstream-channels.json",
+  "$comment": "Channel config for inbound report discovery (P079 / ADR-062). Read by /wr-itil:review-problems Step 8.5. Adopters edit channels[] to suit their tracker setup. ttl_seconds controls cache freshness; --force-upstream-recheck flag bypasses.",
+  "channels": [
+    {
+      "type": "github-issues",
+      "repo": "windyroad/agent-plugins",
+      "label": "problem-report",
+      "template": "problem-report.yml"
+    },
+    {
+      "type": "github-discussions",
+      "repo": "windyroad/agent-plugins",
+      "category": "Q&A"
+    },
+    {
+      "type": "github-security-advisories",
+      "repo": "windyroad/agent-plugins"
+    }
+  ],
+  "ttl_seconds": 86400
+}
