@@ -230,3 +230,9 @@ Concrete instance of the inbound-discovery gap and the three new sub-concerns ab
 - **ADR-036** (`docs/decisions/036-scaffold-downstream-oss-intake.proposed.md`) — downstream scaffolding; defines the channel shape this ticket's inbound discovery follows.
 - **ADR-014** (`docs/decisions/014-governance-skills-commit-their-own-work.proposed.md`) — the inbound-discovery sub-step must commit its cache + README refresh per this ADR.
 - **JTBD-001**, **JTBD-101**, **JTBD-201**, **JTBD-301** — personas whose end-to-end promise this ticket restores.
+
+## RFCs
+
+| RFC | Status | Title |
+|-----|--------|-------|
+| RFC-004 | proposed | P079 inbound upstream-report discovery + assessment pipeline (ADR-062 implementation rollout) |
