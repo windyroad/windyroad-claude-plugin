@@ -48,8 +48,15 @@ setup() {
   grep -qE 'BYPASS_RISK_GATE' "$CANONICAL"
 }
 
-@test "canonical hook references the wr-risk-scorer:external-comms delegation" {
-  grep -qE 'wr-risk-scorer:external-comms' "$CANONICAL"
+@test "canonical hook sources per-package external-comms-evaluator.conf (ADR-028 amended 2026-05-14)" {
+  # Per-evaluator marker scheme: canonical no longer hard-codes a subagent type;
+  # each consumer plugin's .conf names its evaluator id + subagent + verdict prefix.
+  grep -qE 'external-comms-evaluator\.conf' "$CANONICAL"
+}
+
+@test "canonical hook uses per-evaluator marker filename (external-comms-<id>-reviewed-<KEY>)" {
+  # Per ADR-028 amended 2026-05-14: marker filename embeds evaluator id from .conf.
+  grep -qE 'external-comms-\$\{EXTERNAL_COMMS_EVALUATOR_ID\}-reviewed-' "$CANONICAL"
 }
 
 @test "canonical hook sources leak-detect.sh from lib/" {

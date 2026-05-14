@@ -27,6 +27,23 @@ setup() {
   [ -f "$REPO_ROOT/packages/risk-scorer/hooks/lib/leak-detect.sh" ]
 }
 
+@test "sync-external-comms-gate: voice-tone per-package copy exists (P038 / ADR-028 amended 2026-05-14)" {
+  [ -f "$REPO_ROOT/packages/voice-tone/hooks/external-comms-gate.sh" ]
+  [ -f "$REPO_ROOT/packages/voice-tone/hooks/lib/leak-detect.sh" ]
+}
+
+@test "sync-external-comms-gate: each consumer carries its own external-comms-evaluator.conf (per-package, NOT synced)" {
+  # The .conf file is per-package divergence by design (ADR-028 amended
+  # 2026-05-14). Each consumer must ship its own; the canonical does NOT
+  # carry one.
+  [ -f "$REPO_ROOT/packages/risk-scorer/hooks/external-comms-evaluator.conf" ]
+  [ -f "$REPO_ROOT/packages/voice-tone/hooks/external-comms-evaluator.conf" ]
+  [ ! -f "$REPO_ROOT/packages/shared/hooks/external-comms-evaluator.conf" ]
+  # Each .conf must declare an evaluator id matching its package.
+  grep -qE '^EXTERNAL_COMMS_EVALUATOR_ID=risk$' "$REPO_ROOT/packages/risk-scorer/hooks/external-comms-evaluator.conf"
+  grep -qE '^EXTERNAL_COMMS_EVALUATOR_ID=voice-tone$' "$REPO_ROOT/packages/voice-tone/hooks/external-comms-evaluator.conf"
+}
+
 @test "sync-external-comms-gate: --check passes when copies are byte-identical" {
   run bash "$SYNC_SCRIPT" --check
   [ "$status" -eq 0 ]

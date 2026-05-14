@@ -113,16 +113,30 @@ run_hook() {
   [ -z "$output" ]
 }
 
-@test "marker present for matching draft+surface key allows the call" {
+@test "per-evaluator marker (external-comms-risk-reviewed-<KEY>) allows the call (ADR-028 amended 2026-05-14)" {
   DRAFT="we observed a build failure on Node 20"
   SURFACE="gh-issue-create"
   KEY=$(printf '%s\n%s' "$DRAFT" "$SURFACE" | shasum -a 256 | cut -d' ' -f1)
-  touch "${RDIR}/external-comms-reviewed-${KEY}"
+  touch "${RDIR}/external-comms-risk-reviewed-${KEY}"
 
   INPUT=$(build_bash_input "gh issue create --title T --body '$DRAFT'")
   run_hook "$INPUT"
   [ "$status" -eq 0 ]
   [ -z "$output" ]
+}
+
+@test "legacy combined marker (external-comms-reviewed-<KEY>) does NOT satisfy the risk gate (P038 per-evaluator scheme)" {
+  DRAFT="we observed a build failure on Node 20"
+  SURFACE="gh-issue-create"
+  KEY=$(printf '%s\n%s' "$DRAFT" "$SURFACE" | shasum -a 256 | cut -d' ' -f1)
+  # Pre-amendment combined marker — should NOT satisfy the new per-evaluator gate.
+  touch "${RDIR}/external-comms-reviewed-${KEY}"
+
+  INPUT=$(build_bash_input "gh issue create --title T --body '$DRAFT'")
+  run_hook "$INPUT"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"deny"* ]]
+  [[ "$output" == *"wr-risk-scorer:external-comms"* ]]
 }
 
 @test "RISK-POLICY.md absent yields advisory-only mode (permits)" {

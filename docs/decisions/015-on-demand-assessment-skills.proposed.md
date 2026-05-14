@@ -87,6 +87,8 @@ Keep assessments hook-triggered only. Document the manual Task-tool invocation p
 |--------|-----------|-----------------|-------------|
 | `wr-risk-scorer` | `assess-release` | `wr-risk-scorer:pipeline` | Commit/push/release risk score |
 | `wr-risk-scorer` | `assess-wip` | `wr-risk-scorer:wip` | Uncommitted-diff risk score |
+| `wr-risk-scorer` | `assess-external-comms` | `wr-risk-scorer:external-comms` | Risk/leak review of outbound prose drafts (P064 / ADR-028 amended 2026-05-14) |
+| `wr-voice-tone` | `assess-external-comms` | `wr-voice-tone:external-comms` | Voice + tone review of outbound prose drafts (P038 / ADR-028 amended 2026-05-14) |
 | `wr-architect` | `review-design` | `wr-architect:agent` | ADR compliance review |
 | `wr-jtbd` | `review-jobs` | `wr-jtbd:agent` | Persona/job alignment review |
 

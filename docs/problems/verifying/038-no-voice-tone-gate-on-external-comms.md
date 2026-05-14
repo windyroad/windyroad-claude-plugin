@@ -1,10 +1,10 @@
 # Problem 038: No voice-and-tone gate on external communications
 
-**Status**: Open
+**Status**: Verification Pending
 **Reported**: 2026-04-17
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
-**Effort**: XL — multi-surface PreToolUse hook (gh, npm, RapidAPI, marketplace) + pre-flight rewrite skill + voice profile integration + ADR for new enforcement surface + regression fixtures; cross-plugin with voice-tone
-**WSJF**: 1.5 — (12 × 1.0) / 8
+**Effort**: XL — multi-surface PreToolUse hook (gh, npm, RapidAPI, marketplace) + pre-flight rewrite skill + voice profile integration + ADR for new enforcement surface + regression fixtures; cross-plugin with voice-tone. Marginal at fold-fix time (2026-05-14) was L — canonical hook + composite-marker scheme + sync script already shipped under P064 / ADR-028 amended 2026-04-21; P038 marginal work was per-package wiring (.conf + agent + mark hook + skill + 13 bats).
+**WSJF**: 0 — Verification Pending excluded from dev-work ranking per ADR-022 (was 1.5 as Open).
 **Type**: technical
 
 ## Direction decision (2026-04-20, user — AFK loop stop-condition #2)
@@ -60,6 +60,19 @@ The user manually reviews every external-comms output before publishing and rewr
 ## Confirming evidence — 2026-04-25 #52831 retrospective
 
 Concrete instance of the gap: agent posted a substantive comment to anthropics/claude-code#52831 via `gh issue comment` with no PreToolUse gate firing. User asked retrospectively whether voice-and-tone review had run; it had not. Retrospective `wr-voice-tone:agent` invocation returned `FAIL — guide gap` because `docs/VOICE-AND-TONE.md` does not exist in this monorepo (the publishing repo doesn't dogfood the guide it ships — the "advisory-only when absent" branch from line 12-13 of this ticket fired in practice). Comment was defensible against generic norms, but every control intended to govern outbound public copy was bypassed. Confirms: (a) the latch from this ticket is not yet in place for `gh issue comment`; (b) the dogfooding gap (no `docs/VOICE-AND-TONE.md` here) makes this the first project that will hit the auto-create-on-missing pathway when the gate lands; (c) the existing review-gate auto-create-on-missing pattern (which works for file-edit gates per `voice-tone-enforce-edit.sh` line 57-60) should be reused for the outbound-comm gate too — same UX contract.
+
+## Fix Released
+
+- **Released**: 2026-05-14 — `@windyroad/voice-tone` minor + `@windyroad/risk-scorer` patch (fold-fix Open → Verification Pending per ADR-022). Changeset `.changeset/p038-voice-tone-external-comms-gate.md`.
+- **Summary**: Voice-tone half of ADR-028 amended external-comms gate ships alongside the existing risk evaluator (P064). When both plugins installed, both gates fire on the same outbound prose call; each denies until its own evaluator emits PASS (per-evaluator markers `external-comms-voice-tone-reviewed-<KEY>` + `external-comms-risk-reviewed-<KEY>`). Composition at firing level — no shared composite marker, no install-detection at runtime. ADR-028 amendment 2026-05-14 ratifies the simplified per-evaluator scheme and supersedes the original combined-marker design (architect + JTBD PASS confirmed 2026-05-14).
+- **Architecture**: Per-package config file `external-comms-evaluator.conf` (NOT synced; package-specific by design) declares evaluator id + subagent type + verdict prefix + assess-skill path + policy file + leak-prefilter flag. The byte-identical canonical `packages/shared/hooks/external-comms-gate.sh` sources this .conf at runtime — single canonical executable, per-package data.
+- **Surface coverage** (mirrors P064): `gh issue create|comment|edit`, `gh pr create|comment|edit`, `gh api .../security-advisories`, `gh api .../comments`, `npm publish`, `PreToolUse:Write|Edit on .changeset/*.md` (P073 author-time gate).
+- **Voice-tone agent**: new `packages/voice-tone/agents/external-comms.md` reviews drafts against `docs/VOICE-AND-TONE.md`. Emits structured `EXTERNAL_COMMS_VOICE_TONE_VERDICT: PASS|FAIL` + `EXTERNAL_COMMS_VOICE_TONE_KEY: <sha256>` consumed by new PostToolUse:Agent hook `packages/voice-tone/hooks/external-comms-mark-reviewed.sh`. Voice-tone evaluator skips leak pre-filter (`EXTERNAL_COMMS_LEAK_PREFILTER=no`) — leak detection is the risk evaluator's concern.
+- **On-demand skill**: new `/wr-voice-tone:assess-external-comms` per ADR-015 (peer of `/wr-risk-scorer:assess-external-comms`).
+- **Advisory-only fallback**: `docs/VOICE-AND-TONE.md` absent → voice-tone gate is advisory-only on each surface (permits with systemMessage). Same graceful-adoption arc as risk evaluator's RISK-POLICY.md fallback (ADR-008 / ADR-025).
+- **Bats coverage**: 13 new in `packages/voice-tone/hooks/test/external-comms-gate.bats` (surface match / clean draft deny+delegate / leak-prefilter skip / BYPASS / per-evaluator marker permit / risk marker does NOT satisfy voice-tone / policy-absent advisory / changeset author-time / non-changeset path bypass / gh api security-advisories / npm publish / skill reference / legacy combined marker rejected); risk-scorer bats extended from 12 to 13 (legacy combined marker rejection added); canonical bats extended from 11 to 12 (.conf-sourcing + per-evaluator marker filename); sync bats extended from 7 to 9 (voice-tone copy + per-package .conf). All 35 new/updated assertions green at commit time.
+- **ADR cross-updates landed in same commit**: ADR-028 `## Amendments` section 2026-05-14 (per-evaluator marker scheme; drops `age_bucket` + `evaluator_set` from marker key; documents per-package .conf pattern; Confirmation criteria delta). ADR-015 Scope table gains BOTH `wr-risk-scorer:external-comms` (retroactive — P064's iter never landed it) + `wr-voice-tone:external-comms` (new for P038).
+- **Awaiting user verification**: real-world exercise of the voice-tone gate on at least one outbound `gh issue comment` / `gh pr create` / `npm publish` / `.changeset` author event — gate denies with directive to `wr-voice-tone:external-comms`; delegation completes; subsequent retry permits. When both plugins installed, both gates' denials should appear independently (each names its own subagent).
 
 ## Decision record
 

@@ -1,7 +1,7 @@
 ---
 status: "proposed"
 date: 2026-04-20
-amended-date: 2026-04-21
+amended-date: 2026-05-14
 decision-makers: [tomhoward]
 consulted: [wr-architect:agent, wr-jtbd:agent]
 informed: [Windy Road plugin users, addressr maintainer, bbstats maintainer]
@@ -148,6 +148,8 @@ Rationale:
 
 ## Confirmation
 
+> **See Amendments §2026-05-14 for current criteria 1 + section 6 (partial supersession).** The criteria below reflect the 2026-04-21 design; the 2026-05-14 amendment refines criterion 1 (marker key shape + filename) and section 6's composite-marker regression sub-bullet (replaced with per-evaluator-marker regression).
+
 Compliance is verified by:
 
 1. **Source review:**
@@ -242,3 +244,87 @@ Revisit this decision if:
 - `packages/shared/install-utils.mjs` — ADR-017 distribution precedent this ADR follows.
 - `docs/VOICE-AND-TONE.md` — voice profile source; scope covers external text per this ADR.
 - `RISK-POLICY.md` — risk/leak policy source; Confidential Information classes drive the risk evaluator's leak-pattern list.
+
+## Amendments
+
+### 2026-05-14 — Per-evaluator marker scheme (P038 land iter)
+
+Resolves the composite-marker design ambiguity surfaced during P038 implementation review. Architect (PASS) + JTBD (PASS) confirmed 2026-05-14.
+
+**Marker key (ratification + simplification):**
+
+The Decision Outcome section line 75 proposed `sha256(draft_body + target_surface + age_bucket + evaluator_set)`. Production implementation under P064 shipped `sha256(DRAFT + '\n' + SURFACE)` — dropping `age_bucket` and `evaluator_set`. This amendment ratifies the simpler 2-component key:
+
+- **`age_bucket` dropped** — age-check fires as an independent gate clause (separate deny path) rather than as a marker key component. Putting age into the key forces re-review when a stale-target follow-up is updated even though neither voice-tone nor risk content changed. Better: age-check denies independently with its own remediation message; marker key reflects only the content+surface.
+- **`evaluator_set` dropped from key** — superseded by the per-evaluator marker scheme below. Within a single session (markers live under `${TMPDIR:-/tmp}/claude-risk-${SESSION_ID}/`), the installed evaluator set is stable, so the `evaluator_set` key component is redundant. The cross-session reuse risk that `evaluator_set` was designed to mitigate is already prevented by session-scoping.
+
+Final marker key: `sha256(DRAFT + '\n' + SURFACE)` — unchanged from P064 implementation.
+
+**Per-evaluator marker scheme (replaces combined-marker design):**
+
+The Decision Outcome line 53 proposed a combined marker `external-comms-reviewed-<key>` written only when ALL installed evaluators emit PASS, with a composite-mark helper coordinating across packages. This amendment replaces it with per-evaluator markers:
+
+- Each plugin's gate checks for its OWN per-evaluator marker `external-comms-<evaluator>-reviewed-<KEY>` where `<evaluator>` is the plugin's evaluator id (`risk`, `voice-tone`, …).
+- Each plugin's PostToolUse:Agent mark hook writes its own per-evaluator marker on PASS.
+- When both plugins installed, both gates fire on the same PreToolUse event; both deny until both per-evaluator markers exist. Gates compose at the firing level, not via shared state.
+
+**Rationale for per-evaluator markers:**
+
+- Eliminates the shared mark-helper race condition (which hook fires second writes the combined marker; if both fire concurrently the marker might be written twice or once with stale state).
+- Eliminates the need for cross-plugin install-detection at runtime (no need to know "is voice-tone installed?" from within risk-scorer's hook — each plugin's gate fires only if its own hook is registered).
+- Tests are cleaner: voice-tone gate tests live entirely in `packages/voice-tone/`, risk-scorer gate tests entirely in `packages/risk-scorer/`, composite behaviour emerges from running both gates which is naturally captured by sync-script drift tests.
+- Single-evaluator install scenarios are correct by construction: only one gate is registered, only one marker is required, single PASS unblocks the retry.
+- Cross-evaluator-install changes between sessions are correct by construction: each session starts with empty marker state.
+- The Reassessment Criteria section already anticipated this pivot ("Per-package drift: ... consider whether the combined marker's `evaluator_set` component is noisy enough to warrant a per-evaluator marker scheme instead").
+
+**Per-package config file (replaces evaluator_set runtime detection):**
+
+Each consumer plugin carries `packages/<plugin>/hooks/external-comms-evaluator.conf` (NOT synced — per-package divergence by design). The canonical gate sources this file to determine:
+
+- `EXTERNAL_COMMS_EVALUATOR_ID` — short id used in marker filename (`risk`, `voice-tone`).
+- `EXTERNAL_COMMS_SUBAGENT_TYPE` — subagent type the deny message directs to (`wr-risk-scorer:external-comms`, `wr-voice-tone:external-comms`).
+- `EXTERNAL_COMMS_VERDICT_PREFIX` — structured-output prefix the mark hook parses (`EXTERNAL_COMMS_RISK`, `EXTERNAL_COMMS_VOICE_TONE`).
+- `EXTERNAL_COMMS_ASSESS_SKILL` — on-demand skill path (`/wr-risk-scorer:assess-external-comms`, `/wr-voice-tone:assess-external-comms`).
+
+The canonical `packages/shared/hooks/external-comms-gate.sh` remains byte-identical across per-package copies (synced via ADR-017); the per-package `.conf` file is the only divergence and is package-specific by design (a single file lookup, no logic). The `.conf` file is explicitly EXCLUDED from `scripts/sync-external-comms-gate.sh` sweep.
+
+**Structured-output contract (clarification):**
+
+Each evaluator subagent emits structured output to stdout (NOT to a `/tmp/<evaluator>-verdict` file). The PostToolUse:Agent hook parses:
+
+- `EXTERNAL_COMMS_<EVALUATOR>_VERDICT: PASS|FAIL` (e.g. `EXTERNAL_COMMS_RISK_VERDICT`, `EXTERNAL_COMMS_VOICE_TONE_VERDICT`).
+- `EXTERNAL_COMMS_<EVALUATOR>_KEY: <sha256>` (matches the gate's marker key computation).
+- `EXTERNAL_COMMS_<EVALUATOR>_REASON: <one-line>` (FAIL only).
+
+Per-evaluator marker is written as `external-comms-<evaluator>-reviewed-<KEY>` on PASS; on FAIL no marker is written and the gate continues to deny on retry.
+
+**Sync targets (extends `scripts/sync-external-comms-gate.sh`):**
+
+The sync script's CONSUMERS list extends to include `voice-tone`. Canonical files synced byte-identically across all consumers:
+
+- `packages/shared/hooks/external-comms-gate.sh` → `packages/<consumer>/hooks/external-comms-gate.sh`
+- `packages/shared/hooks/lib/leak-detect.sh` → `packages/<consumer>/hooks/lib/leak-detect.sh`
+
+Per-package files (NOT synced; package-specific):
+
+- `packages/<consumer>/hooks/external-comms-evaluator.conf` — evaluator id + subagent + verdict prefix + assess-skill.
+- `packages/<consumer>/hooks/external-comms-mark-reviewed.sh` — per-package PostToolUse:Agent wrapper (sources .conf; parses verdict prefix; writes per-evaluator marker on PASS).
+- `packages/<consumer>/agents/external-comms.md` — package-specific subagent prompt.
+- `packages/<consumer>/skills/assess-external-comms/` — package-specific on-demand skill.
+
+**Cross-ADR updates landed in the same commit:**
+
+- This ADR (ADR-028) — adds this Amendments section, updates `amended-date` to 2026-05-14, inserts cross-ref note at top of Confirmation section.
+- ADR-015 — Scope table gains BOTH `wr-risk-scorer:external-comms` row (retroactive — P064's iter did not land it) AND `wr-voice-tone:external-comms` row + paired `/wr-voice-tone:assess-external-comms` skill.
+- ADR-017 — already names hooks/ as a sync target alongside lib/ per the 2026-04-21 amendment; no further change for P038.
+
+**Confirmation criteria delta (supersedes Confirmation criterion 1 and section 6 sub-bullet 7):**
+
+- **Criterion 1** (was: "Composite marker key includes evaluator_set component") — superseded. Current: per-evaluator marker key is `sha256(draft + '\n' + surface)`; marker filename is `external-comms-<evaluator>-reviewed-<KEY>`; evaluator id sourced from per-package `external-comms-evaluator.conf`. No combined marker; no composite-mark helper.
+- **Section 6 Behavioural replay sub-bullet 7** (was: "Composite-marker regression test: voice-tone PASS + risk FAIL on the same draft → no combined marker → retry still denies") — superseded. Current: "Per-evaluator-marker regression test: voice-tone PASS without risk PASS → risk gate still denies; risk PASS without voice-tone PASS → voice-tone gate still denies; both PASS → both gates permit (per-evaluator markers compose at gate firing level)."
+- **Section 2 Tests (bats)** — partial supersede: `packages/shared/test/external-comms-composite-marker.bats` is REMOVED from the required list (no composite marker to test). Voice-tone gate bats `packages/voice-tone/hooks/test/external-comms-gate.bats` is ADDED. `packages/shared/test/sync-external-comms-gate.bats` (already present) gains voice-tone copy assertions.
+
+**Out-of-scope decisions deferred (not addressed by this amendment):**
+
+- Whether to publish a future `external-comms-mark.sh` shared helper if a third evaluator emerges and the per-package wrapper logic begins to duplicate. The current 2-evaluator scope is well-served by per-package wrappers each ≤30 lines.
+- ADR-028 status flip from proposed → accepted. Stays proposed until both halves observed in production for one release cycle per the project's ADR-006-vintage deliberation discipline (per the architect verdict on this amendment).

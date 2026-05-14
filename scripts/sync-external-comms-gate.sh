@@ -35,9 +35,10 @@ if [ "${1:-}" = "--check" ]; then
   MODE="check"
 fi
 
-# Consumer plugins that ship the external-comms gate evaluator.
-# When P038 (voice-tone evaluator) lands, append `voice-tone` to this list.
-CONSUMERS=(risk-scorer)
+# Consumer plugins that ship the external-comms gate evaluator (ADR-028 amended 2026-05-14).
+# Each consumer maintains its OWN external-comms-evaluator.conf (NOT synced)
+# alongside the byte-identical canonical gate.sh + lib/leak-detect.sh.
+CONSUMERS=(risk-scorer voice-tone)
 
 DIVERGED=0
 SYNCED=0
