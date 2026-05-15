@@ -1,6 +1,305 @@
 {
   "$schema": "https://windyroad.github.io/agent-plugins/schemas/upstream-cache.json",
-  "$comment": "Cache file for inbound report discovery (P079 / ADR-062). Written by /wr-itil:review-problems Step 8.5 after each discovery pass. Committed to repo for audit-replay determinism; rebuild via --force-upstream-recheck. Initial empty-cache state matches the shape the writer produces on first run with no reports.",
-  "last_checked": null,
-  "channels": {}
+  "$comment": "Cache file for inbound report discovery (P079 / ADR-062). Written by /wr-itil:review-problems Step 8.5 after each discovery pass.",
+  "last_checked": "2026-05-15T04:56:14Z",
+  "channels": {
+    "github-issues:windyroad/agent-plugins": {
+      "fetched_at": "2026-05-15T04:56:14Z",
+      "filter": "title_prefix=[problem] (label filter removed; see channels-config $filter-note)",
+      "status": "ok",
+      "reports": [
+        {
+          "number": 126,
+          "title": "[problem] capture-problem \u2192 manage-problem same-session halts at Step 0 reconcile (HALT_ROUTE_RECONCILE on deferred-refresh seam)",
+          "author": "tompahoward",
+          "createdAt": "2026-05-13T20:13:45Z",
+          "body_hash": "43eeab2af47e1acb",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 125,
+          "title": "[problem] external-comms gate marker key cannot be computed by the reviewer agent (Read/Glob/Grep tool surface \u2014 no shasum); hash-scope ambiguity adds three recurrences",
+          "author": "tompahoward",
+          "createdAt": "2026-05-13T20:12:24Z",
+          "body_hash": "8e2fa16bdf660e46",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 124,
+          "title": "[problem] wr-voice-tone:agent returns blanket FAIL when docs/VOICE-AND-TONE.md is missing",
+          "author": "tompahoward",
+          "createdAt": "2026-05-13T13:12:54Z",
+          "body_hash": "10996f5c68dbb795",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 123,
+          "title": "[problem] @windyroad/tdd hook only recognises same-dir or __tests__/ test associations",
+          "author": "tompahoward",
+          "createdAt": "2026-05-13T13:12:00Z",
+          "body_hash": "f4b976746da40578",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 121,
+          "title": "[problem] wr-risk-scorer:pipeline treats changesets as queued when introducing commits are already on origin",
+          "author": "tompahoward",
+          "createdAt": "2026-05-13T07:58:34Z",
+          "body_hash": "32305e86135390bf",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 120,
+          "title": "[problem] architect-enforce-edit + jtbd-enforce-edit hooks should add docs/retros/ to the exclusion list",
+          "author": "tompahoward",
+          "createdAt": "2026-05-13T07:55:22Z",
+          "body_hash": "e733d89ac41027d7",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 117,
+          "title": "[problem] No /wr-retrospective:migrate-briefing skill \u2014 legacy docs/BRIEFING.md \u2192 docs/briefing/ topic-tree migration is manual per-adopter",
+          "author": "tompahoward",
+          "createdAt": "2026-05-10T20:10:01Z",
+          "body_hash": "1761465715adefe1",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 110,
+          "title": "[problem] wr-risk-scorer:assess-release SKILL.md step 5 prose says \"Skill tool\" but provides Agent-tool parameter",
+          "author": "tompahoward",
+          "createdAt": "2026-05-03T05:04:36Z",
+          "body_hash": "e6858e0229de550e",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 98,
+          "title": "[problem] work-problems iter workers don't add changesets \u2014 fix commits accumulate without release path",
+          "author": "tompahoward",
+          "createdAt": "2026-04-28T02:31:57Z",
+          "body_hash": "b2c16163511e0421",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 97,
+          "title": "[problem] work-problems orchestrator carries prior-ticket Fix Strategy text into iter dispatch without re-grounding in design intent",
+          "author": "tompahoward",
+          "createdAt": "2026-04-28T02:31:22Z",
+          "body_hash": "56ae9180570cc656",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 87,
+          "title": "[problem] report-upstream SKILL.md Step 5 example uses --label flag that fails when upstream repo hasn't pre-created the label",
+          "author": "tompahoward",
+          "createdAt": "2026-04-27T04:04:16Z",
+          "body_hash": "0404f2ade77d5ef7",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 86,
+          "title": "[problem] git-push-gate.sh does not check CI status on push/release before scoring risk",
+          "author": "tompahoward",
+          "createdAt": "2026-04-27T03:50:15Z",
+          "body_hash": "52723fd380617eb7",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 85,
+          "title": "[problem] manage-problem Step 0 reconcile-readme.sh hits exit 127 on marketplace consumers; script only on disk for vendored installs",
+          "author": "tompahoward",
+          "createdAt": "2026-04-26T22:56:18Z",
+          "body_hash": "ad27ab6902636a54",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 84,
+          "title": "[problem] work-problems SKILL.md AFK-fallback marker wording uses em-dash, forces consumer-side whitelist",
+          "author": "tompahoward",
+          "createdAt": "2026-04-26T22:55:02Z",
+          "body_hash": "4050a0ab7c86e6df",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 83,
+          "title": "[problem] work-problems iteration boundary leaves run-retro BRIEFING.md edits uncommitted",
+          "author": "tompahoward",
+          "createdAt": "2026-04-26T22:53:33Z",
+          "body_hash": "8a11e12c7cf209ef",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 82,
+          "title": "[problem] risk-scorer 30-min TTL expired during long-running orchestrator turns",
+          "author": "tompahoward",
+          "createdAt": "2026-04-26T22:52:22Z",
+          "body_hash": "7050cd894bc13771",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 81,
+          "title": "[problem] work-problems Step 5 exit-code rule does not handle is_error:true transient API failures (529 Overloaded)",
+          "author": "tompahoward",
+          "createdAt": "2026-04-26T22:51:15Z",
+          "body_hash": "e47f49a05811005d",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 80,
+          "title": "[problem] architect-gate drift detection rm's marker without offering recovery path",
+          "author": "tompahoward",
+          "createdAt": "2026-04-26T22:50:09Z",
+          "body_hash": "c655a2c4bab5a4d6",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 79,
+          "title": "[problem] architect-refresh-hash.sh only refreshes hash on docs/decisions/* writes, leaving cross-session drift on other gated paths",
+          "author": "tompahoward",
+          "createdAt": "2026-04-26T22:48:55Z",
+          "body_hash": "698160ca31f76ec6",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 78,
+          "title": "[problem] architect-mark-reviewed.sh strict-verdict-string parsing under-counts affirmative ISSUES FOUND verdicts as FAIL",
+          "author": "tompahoward",
+          "createdAt": "2026-04-26T22:47:24Z",
+          "body_hash": "3d7151ba72e89323",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 77,
+          "title": "[problem] manage-problem SKILL.md doesn't explain how to obtain the actual session UUID for the P119 marker",
+          "author": "tompahoward",
+          "createdAt": "2026-04-26T20:58:59Z",
+          "body_hash": "7b972d19f2d2a4c0",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 76,
+          "title": "[problem] manage-problem SKILL.md uses repo-relative script path that fails for plugin-installed users",
+          "author": "tompahoward",
+          "createdAt": "2026-04-26T20:58:23Z",
+          "body_hash": "702f7b8aaea70578",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 63,
+          "title": "[problem] manage-problem has no cadence for checking upstream-bound tickets",
+          "author": "tompahoward",
+          "createdAt": "2026-04-24T00:04:58Z",
+          "body_hash": "4387d60dbaf303df",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 62,
+          "title": "[problem] work-problems Step 6.5 lacks baseline CI health check before drain",
+          "author": "tompahoward",
+          "createdAt": "2026-04-24T00:02:30Z",
+          "body_hash": "256fe774ce03fbc4",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 61,
+          "title": "[problem] manage-problem skill should auto-commit ticket file changes",
+          "author": "tompahoward",
+          "createdAt": "2026-04-24T00:02:29Z",
+          "body_hash": "f0f4b8475e2317db",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 60,
+          "title": "[problem] Risk scorer ignores release-risk accumulation across commits",
+          "author": "tompahoward",
+          "createdAt": "2026-04-24T00:02:27Z",
+          "body_hash": "bae46e8f3cc60865",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 59,
+          "title": "[problem] Risk-scorer agent does not write numeric score to gate files",
+          "author": "tompahoward",
+          "createdAt": "2026-04-24T00:02:25Z",
+          "body_hash": "a807b7dae1004900",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 58,
+          "title": "[problem] Docs-only changes should not invoke risk scorer or trigger drift detection",
+          "author": "tompahoward",
+          "createdAt": "2026-04-24T00:02:24Z",
+          "body_hash": "6ccd5e56a7531244",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 57,
+          "title": "[problem] Review-marker TTL forces repeated re-review cycles on multi-file work",
+          "author": "tompahoward",
+          "createdAt": "2026-04-24T00:02:22Z",
+          "body_hash": "2062a14e3aaf4944",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 56,
+          "title": "[problem] Risk scorer credits monitoring/post-release activities as residual-risk reducers",
+          "author": "tompahoward",
+          "createdAt": "2026-04-24T00:02:16Z",
+          "body_hash": "7c1c3eac26e80d90",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        },
+        {
+          "number": 42,
+          "title": "[problem] ADR-022 .known-error.md \u2192 .verifying.md transition not happening consistently at release time",
+          "author": "tompahoward",
+          "createdAt": "2026-04-21T00:20:36Z",
+          "body_hash": "b66ba6368d1d0dae",
+          "classification": "pending-pipeline-processing",
+          "cache_audit_note": "discovery-only; pipeline-classification deferred per 2026-05-15 user direction (external-comms-gate sha-bug bottleneck on per-report ack comments)"
+        }
+      ]
+    },
+    "github-discussions:windyroad/agent-plugins": {
+      "fetched_at": "2026-05-15T04:56:14Z",
+      "reports": [],
+      "status": "skipped",
+      "skip_reason": "discussions-disabled-for-repo (HTTP 410)"
+    },
+    "github-security-advisories:windyroad/agent-plugins": {
+      "fetched_at": "2026-05-15T04:56:14Z",
+      "reports": [],
+      "status": "skipped",
+      "skip_reason": "external-comms-gate-misclassifies-read-only-list-as-outbound (gate bug \u2014 see upstream issue #125)"
+    }
+  }
 }

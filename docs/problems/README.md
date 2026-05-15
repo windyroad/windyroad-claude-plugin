@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-05-15 **RFC-004 Slice G + P196 reconcile** — added `## Inbound Upstream Reports` section renderer to README per ADR-062 § Step 9e (lazy-empty discipline; advisory row pending first discovery pass). Reconciled P196 (premature-completion class-of-behavior ticket captured this session) into WSJF Rankings at WSJF 1.0 placeholder. Prior same-day P191-P195 reconcile fragment supplanted in-place per P134 same-day-duplicate carve-out.
+> Last reviewed: 2026-05-15 **inaugural inbound-discovery pass + Step 0b shipped** — first `/wr-itil:review-problems` Step 4.5 pass executed (aacec45 wired Step 0b pre-flight into work-problems); cache transitioned `last_checked: null` → `2026-05-15T04:33:26Z`; three channels polled (issues OK 0 reports; discussions skipped HTTP 410 disabled; security-advisories skipped fail-soft — gate misclassifies read-only LIST as outbound, pending bug-capture). Inbound Upstream Reports section transitioned advisory-row → lazy-empty body per ADR-062 § Step 9e. Prior same-day Slice G + P196 fragment supplanted in-place per P134 same-day-duplicate carve-out.
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -146,7 +146,6 @@ Reports discovered by `/wr-itil:review-problems` Step 4.5 inbound-discovery pipe
 
 | # | Source | Title | Author | Created | Classification | Matched local ticket |
 |---|--------|-------|--------|---------|----------------|----------------------|
-| — | — | _No inbound discovery pass has run yet. Run `/wr-itil:review-problems` to poll the configured channels (see `docs/problems/.upstream-channels.json`)._ | — | — | — | — |
 
 ## Closed
 

@@ -5,8 +5,9 @@
     {
       "type": "github-issues",
       "repo": "windyroad/agent-plugins",
-      "label": "problem-report",
-      "template": "problem-report.yml"
+      "title_prefix": "[problem]",
+      "template": "problem-report.yml",
+      "$filter-note": "label filter removed 2026-05-15 — repo has no `problem-report` label configured AND `problem-report.yml`'s auto-applied `[problem, needs-triage]` labels also don't exist in the repo, so every open inbound report from the template currently carries zero labels. Title prefix `[problem]` (set by `problem-report.yml` line 3) is the reliable signal. The JTBD-alignment + dual-axis-risk classifiers in Step 4.5e are the de-facto filters; label was redundant defense. Captured as a separate P-ticket: missing-labels-and-channels-config-drift."
     },
     {
       "type": "github-discussions",
