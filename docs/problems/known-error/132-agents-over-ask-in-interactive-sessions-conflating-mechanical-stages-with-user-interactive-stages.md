@@ -24,6 +24,21 @@ Captured as `feedback_dont_subcontract_declaration_fields.md` memory (project-sc
 
 **Updated Fix Strategy refinement**: extend Phase 2a (per-skill SKILL.md reinforcement) to declaration skills (manage-incident Step 4, manage-problem create flow, create-adr argument-collection): rewrite "Use AskUserQuestion for anything not in args" to "Derive every observable field; use AskUserQuestion only for genuinely-direction-setting fields". Composes with P136 ADR-044 alignment audit (this is one of the audit's worked-example shapes).
 
+**Phase 2a-i: manage-incident Step 4 (shipped 2026-05-15)** — `/wr-itil:work-problems` iter 3 of 2026-05-15 (commit `<TBD>`). Rewrote `packages/itil/skills/manage-incident/SKILL.md` Step 4 from a single "Use AskUserQuestion for anything not in $ARGUMENTS" instruction to a derive-first dispatch table mirroring `/wr-itil:capture-problem` Step 1.5 (P185 worked example):
+- **Title**: silent kebab-case-from-prose derivation + stderr advisory citing source tokens.
+- **Symptoms**: pulled verbatim from prose into Step 5's `## Observations` section.
+- **Start time**: three-source dispatch (description timestamp regex → `git log --diff-filter=A --follow` first-touch → wall-clock UTC default) + stderr advisory citing the source.
+- **Severity**: RISK-POLICY matrix lookup against description signals + named anchors; clear-cell maps silently; ambiguous evidence falls back to AskUserQuestion as the genuine ADR-044 cat-5 (taste) surface.
+- **Scope**: retained as AskUserQuestion ADR-044 cat-1 (direction-setting) — the genuine user-judgment surface (semantic blast radius the framework cannot infer).
+
+Closes the 2026-05-06 I001 regression on the manage-incident surface (3 of 4 lazy sub-questions become 0 of 1 lazy sub-question; Scope alone is the surviving genuine cat-1 surface). Bats coverage extended in `manage-incident-adr-044-contract.bats` with 7 new Surface 2 assertions (cat-4 cross-ref, Title derive-from-prose, Start time derive-from-evidence, Severity derive-from-matrix, Scope-retains-Ask negative-of-negative guard, P132 traceability, ADR-026 stderr advisory contract). All 53 manage-incident bats green.
+
+**Phase 2a-ii (manage-problem create flow) — DEFERRED** to subsequent `/wr-itil:work-problems` iter per ADR-014 commit-grain discipline (this iter scoped to ONE declaration skill).
+
+**Phase 2a-iii (wr-architect:create-adr argument-collection) — DEFERRED** to subsequent iter per same discipline.
+
+**Reassessment trigger**: if a regression analogous to I001 fires on either deferred surface (manage-problem create flow or create-adr argument-collection) before the deferred phases ship, escalate priority via WSJF re-rank.
+
 ## Fix Released
 
 Declarative-layer fix shipped 2026-04-28 in this commit. Phases:

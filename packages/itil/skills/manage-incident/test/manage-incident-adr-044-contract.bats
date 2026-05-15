@@ -67,7 +67,8 @@ setup() {
 }
 
 # ----------------------------------------------------------------------
-# Surface 2 — Step 4 gather info (cat-1 cosmetic cross-ref)
+# Surface 2 — Step 4 gather info (P132 derive-first refactor — cat-4 silent-framework
+# on derivable fields; cat-1 direction-setting fallback only on Scope)
 # ----------------------------------------------------------------------
 
 @test "SKILL.md Step 4 gather-info cross-references ADR-044 category-1 (direction-setting)" {
@@ -75,6 +76,73 @@ setup() {
   [ "$status" -eq 0 ]
   [[ "$output" == *"ADR-044"* ]]
   [[ "$output" == *"direction-setting"* ]] || [[ "$output" == *"category 1"* ]] || [[ "$output" == *"category-1"* ]]
+}
+
+@test "SKILL.md Step 4 cross-references ADR-044 category-4 (silent-framework) for derivable fields (P132 derive-first)" {
+  # P132 derive-first refactor: Title / Symptoms / Start time / Severity-when-evidence-present
+  # resolve via silent-framework per ADR-044 category 4. Only Scope retains AskUserQuestion as
+  # the genuine category-1 direction-setting surface.
+  run awk '/^### 4\. /,/^### 5\. /' "$SKILL_FILE"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"silent-framework"* ]] || [[ "$output" == *"category 4"* ]] || [[ "$output" == *"category-4"* ]]
+}
+
+@test "SKILL.md Step 4 derives Title from prose silently (P132 inverse-P078)" {
+  # I001 regression cited in P132 line 14: agent asked "Title" with 3 candidate
+  # options when kebab-casing the description would have produced the slug directly.
+  # The refactor names "Title" + "derive"/"derived"/"kebab" in the same step.
+  run awk '/^### 4\. /,/^### 5\. /' "$SKILL_FILE"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Title"* ]]
+  [[ "$output" == *"derive"* ]] || [[ "$output" == *"derived"* ]]
+  [[ "$output" == *"kebab"* ]] || [[ "$output" == *"prose"* ]]
+}
+
+@test "SKILL.md Step 4 derives Start time from evidence sources (P132 inverse-P078)" {
+  # I001 regression cited in P132 line 16: agent asked "Start time" with 3 candidate
+  # options when git log first-touch evidence would have produced 2026-04-24 directly.
+  # The refactor names git-log / timestamp / wall-clock as the three priority-ordered sources.
+  run awk '/^### 4\. /,/^### 5\. /' "$SKILL_FILE"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Start time"* ]] || [[ "$output" == *"start-time"* ]]
+  [[ "$output" == *"git log"* ]] || [[ "$output" == *"timestamp"* ]]
+}
+
+@test "SKILL.md Step 4 derives Severity from RISK-POLICY matrix + evidence (P132 inverse-P078)" {
+  # I001 regression cited in P132 line 15: agent asked "Severity" with 4 candidate
+  # options when the RISK-POLICY matrix + observable evidence (cluster age, scorer
+  # state) maps to a clear cell. The refactor cites RISK-POLICY.md + evidence in
+  # the Severity row of the dispatch table. Ambiguous-evidence fallback to
+  # AskUserQuestion is preserved as the genuine cat-5 (taste) surface.
+  run awk '/^### 4\. /,/^### 5\. /' "$SKILL_FILE"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Severity"* ]]
+  [[ "$output" == *"RISK-POLICY"* ]]
+}
+
+@test "SKILL.md Step 4 retains Scope as AskUserQuestion direction-setting (negative-of-negative guard)" {
+  # Regression-resistance: the refactor MUST preserve the genuine cat-1 direction-setting
+  # surface on Scope. Semantic scope (who/what affected, blast radius) is user-judgment;
+  # the framework cannot resolve it deterministically. Same reasoning as Step 2 duplicate-check.
+  run awk '/^### 4\. /,/^### 5\. /' "$SKILL_FILE"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Scope"* ]]
+  [[ "$output" == *"AskUserQuestion"* ]]
+}
+
+@test "SKILL.md Step 4 cites P132 (inverse-P078 audit traceability)" {
+  # P132 + ADR-044 must appear in Step 4 or Related section so the audit trail
+  # for the I001 regression fix is recoverable from the SKILL.md surface.
+  run grep -nE "P132" "$SKILL_FILE"
+  [ "$status" -eq 0 ]
+}
+
+@test "SKILL.md Step 4 documents stderr advisory shape for derived fields (ADR-026 grounding)" {
+  # ADR-026 cost-source grounding: each silent derivation emits a stderr advisory
+  # citing the source. Pattern parity with capture-problem Step 1.5 stderr advisory.
+  run awk '/^### 4\. /,/^### 5\. /' "$SKILL_FILE"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"stderr"* ]] || [[ "$output" == *"advisory"* ]]
 }
 
 # ----------------------------------------------------------------------
