@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-05-15 **P199-P202 captured (inbound #126/#124/#123/#121 batch) + P198 (#125) + P197 (contract-bypass-reflex) + inbound-discovery filter fix + Step 0b shipped** — second pipeline batch shipped via `/wr-itil:review-problems` Step 4.5e safe-and-valid branch: P199 capture→manage same-session halt; P200 wr-voice-tone blanket FAIL (safe-high-fix-risk flag); P201 @windyroad/tdd test/-mirror; P202 risk-scorer pipeline changeset-on-origin false-high. 5 of 31 inbound reports processed end-to-end (26 remaining). Prior same-day fragment supplanted in-place per P134 same-day-duplicate carve-out.
+> Last reviewed: 2026-05-15 **P203-P206 captured (inbound #120/#117/#110/#98 batch)** — third pipeline batch: P203 architect/jtbd docs/retros exclusion; P204 wr-retrospective:migrate-briefing skill (new-jtbd-flag); P205 assess-release SKILL.md prose-vs-parameter; P206 work-problems iter workers no changesets. 9 of 31 reports processed end-to-end (22 remaining). Earlier same-day P197/P198/P199-P202 + inbound-discovery foundation + Step 0b. Prior fragment supplanted in-place per P134 same-day-duplicate carve-out.
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -67,6 +67,10 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 0.75 | P200 | wr-voice-tone:agent returns blanket FAIL when docs/VOICE-AND-TONE.md is missing — **safe-high-fix-risk flag** (upstream-mirror of #124 from dry-aged-deps P005) | 3 Med | Open | M | 2026-05-15 |
 | 0.75 | P201 | @windyroad/tdd hook only recognises same-dir or __tests__/ test associations (upstream-mirror of #123) | 3 Med | Open | M | 2026-05-15 |
 | 0.75 | P202 | wr-risk-scorer:pipeline treats changesets as queued when introducing commits are already on origin (upstream-mirror of #121) | 3 Med | Open | M | 2026-05-15 |
+| 0.75 | P203 | architect-enforce-edit + jtbd-enforce-edit hooks should add docs/retros/ to exclusion paths (upstream-mirror of #120) | 3 Med | Open | M | 2026-05-15 |
+| 0.75 | P204 | No /wr-retrospective:migrate-briefing skill — legacy docs/BRIEFING.md → docs/briefing/ tree migration is manual (upstream-mirror of #117; **new-jtbd-flag**) | 3 Med | Open | M | 2026-05-15 |
+| 0.75 | P205 | wr-risk-scorer:assess-release SKILL.md step 5 prose-vs-parameter mismatch (upstream-mirror of #110) | 3 Med | Open | M | 2026-05-15 |
+| 0.75 | P206 | work-problems iter workers don't add changesets — fix commits accumulate without release (upstream-mirror of #98 / bbstats P195) | 3 Med | Open | M | 2026-05-15 |
 
 ## Verification Queue
 
