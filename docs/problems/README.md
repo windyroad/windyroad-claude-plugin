@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-05-15 **P207-P210 captured (inbound #87/#86/#85/#84 batch)** — fourth pipeline batch: P207 report-upstream --label flag fails on label-less upstreams; P208 git-push-gate CI-status gap (safe-high-fix-risk — load-bearing gate hardening); P209 manage-problem Step 0 exit 127 on marketplace consumers; P210 work-problems em-dash. 13 of 31 reports processed end-to-end (18 remaining). Prior fragment supplanted in-place per P134 same-day-duplicate carve-out.
+> Last reviewed: 2026-05-15 **P211-P214 captured (inbound #97/#83/#82/#81 batch)** — fifth pipeline batch: P211 orchestrator Fix-Strategy leakage; P212 BRIEFING handoff uncommitted; P213 risk-scorer 30-min TTL too short; P214 work-problems is_error:true unhandled. 17 of 31 reports processed (14 remaining). Prior fragment supplanted in-place per P134.
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -75,6 +75,10 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 0.75 | P208 | git-push-gate.sh does not check CI status on push/release before scoring risk — **safe-high-fix-risk** (load-bearing gate hardening) (upstream-mirror of #86) | 3 Med | Open | M | 2026-05-15 |
 | 0.75 | P209 | manage-problem Step 0 reconcile-readme.sh hits exit 127 on marketplace consumers; script only resolves via repo-relative path (upstream-mirror of #85) | 3 Med | Open | M | 2026-05-15 |
 | 0.75 | P210 | work-problems SKILL.md AFK-fallback marker uses em-dash, forces consumer whitespace surgery (upstream-mirror of #84) | 3 Med | Open | M | 2026-05-15 |
+| 0.75 | P211 | work-problems orchestrator carries prior-ticket Fix Strategy verbatim into iter dispatch without re-grounding (upstream-mirror of #97 / bbstats P194) | 3 Med | Open | M | 2026-05-15 |
+| 0.75 | P212 | work-problems iter boundary leaves run-retro BRIEFING.md edits uncommitted (upstream-mirror of #83) | 3 Med | Open | M | 2026-05-15 |
+| 0.75 | P213 | risk-scorer 30-min TTL expires during long orchestrator turns (upstream-mirror of #82) | 3 Med | Open | M | 2026-05-15 |
+| 0.75 | P214 | work-problems Step 5 exit-code rule doesn't handle is_error:true transient API failures 529 Overloaded (upstream-mirror of #81) | 3 Med | Open | M | 2026-05-15 |
 
 ## Verification Queue
 
