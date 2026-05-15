@@ -269,6 +269,9 @@ Compliance is verified by:
    - ADR-015 Scope table has the `wr-risk-scorer:inbound-report` row.
    - ADR-046 audit-log shape extended to enumerate this ADR's append entries.
 
+5. **Work-problems pre-flight wiring (JTBD-006 driver):**
+   - `packages/itil/skills/work-problems/SKILL.md` Step 0b sources `packages/itil/lib/check-upstream-cache-staleness.sh` and pre-flights `/wr-itil:review-problems` when the upstream inbound-discovery cache is stale, missing, or has `last_checked: null`. Pre-flight dispatch shape mirrors Step 5's `claude -p` subprocess wrapper per P084 + ADR-032 subprocess isolation. Behavioural test: `packages/itil/skills/work-problems/test/work-problems-step-0b-cache-staleness-behavioural.bats`. JTBD-006's "Desired Outcomes" lists this pre-flight as a documented expectation. The staleness comparison stays symmetric with review-problems Step 4.5b's branches; the contract-source marker `<!-- INBOUND-CACHE-STALENESS-CONTRACT-SOURCE -->` is anchored in both spots so future TTL-semantics changes update them in the same commit.
+
 ## Reassessment Criteria
 
 Revisit this decision if:

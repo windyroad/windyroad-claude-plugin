@@ -21,6 +21,7 @@ When I step away from the keyboard, I want the agent to autonomously work throug
 - Git commits happen automatically when risk is within appetite; uncommitted work is reported transparently when risk is above appetite
 - Between iterations, the loop drains push/release queues when unreleased risk would reach appetite, so risk never silently accumulates across AFK iterations (see ADR-018)
 - Before each iteration, the loop reconciles with `origin/<base>`; trivial fast-forward divergence pulls non-interactively, non-fast-forward divergence halts the loop with a clear report (see ADR-019)
+- Before opening the work loop, the orchestrator checks whether the upstream inbound-discovery cache is fresh; stale-cache or missing-cache auto-promotes `/wr-itil:review-problems` as a pre-flight pass so upstream-reported problems stay visible to the loop without the maintainer remembering to invoke review-problems first (see ADR-062 § Decision Drivers + work-problems Step 0b)
 - Next-ID assignment is verified against `origin/<base>` before any new ticket (problem, ADR, JTBD) is created, preventing collisions with parallel sessions (see ADR-019)
 - The loop stops gracefully when nothing actionable remains, or when it hits a blocker like a git conflict
 

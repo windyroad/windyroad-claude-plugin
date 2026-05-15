@@ -145,7 +145,46 @@ On a flat-layout adopter repo (first invocation post-update — JTBD-101 plugin-
 
 **First-fire signal**: the routine emits a single stderr line on the migrating invocation; silent on no-op re-invocations.
 
-After Step 0a completes (whether no-op or migration), proceed to Step 1 backlog scan. The dual-tolerant glob at Step 1 (RFC-002 transitional window) continues to match both layouts; post-T6 (single-pattern collapse), Step 1 will tighten to per-state only and the migration commit ensures the adopter tree matches.
+After Step 0a completes (whether no-op or migration), proceed to Step 0b's inbound-discovery pre-flight check. The dual-tolerant glob at Step 1 (RFC-002 transitional window) continues to match both layouts; post-T6 (single-pattern collapse), Step 1 will tighten to per-state only and the migration commit ensures the adopter tree matches.
+
+### Step 0b: Upstream inbound-discovery pre-flight (per ADR-062 § JTBD-006 driver)
+
+After Step 0a's auto-migrate and before Step 1's backlog scan, check whether the upstream inbound-discovery cache is fresh. ADR-062 § Decision Drivers names `/wr-itil:work-problems` as the surface that should keep inbound reports visible during AFK loops; the TTL self-healing branch inside `/wr-itil:review-problems` Step 4.5b only fires if review-problems is entered. This step closes that gap by pre-flighting `/wr-itil:review-problems` when the cache is stale or missing.
+
+**Mechanism:**
+
+```bash
+source packages/itil/lib/check-upstream-cache-staleness.sh
+preflight_reason="$(should_promote_inbound_discovery_preflight "$PWD")"
+```
+
+The helper returns one of five outcomes (contract documented at `packages/itil/lib/check-upstream-cache-staleness.sh` + asserted by `packages/itil/skills/work-problems/test/work-problems-step-0b-cache-staleness-behavioural.bats`):
+
+| `preflight_reason`                | Action                                                                                                |
+|-----------------------------------|--------------------------------------------------------------------------------------------------------|
+| `no-channels-config`              | Silent-pass. Downstream-adopter non-obligation per ADR-062 § Downstream-adopter contract. Proceed to Step 1. |
+| `first-run-cache-absent`          | Dispatch `/wr-itil:review-problems` as a pre-flight iter via the standard `claude -p` subprocess wrapper (same shape as Step 5; see Step 5 for the subprocess invocation contract). |
+| `first-run-last-checked-null`     | Same as `first-run-cache-absent` — cache schema present but never populated.                          |
+| `ttl-expiry age=<N>s ttl=<M>s`    | Dispatch `/wr-itil:review-problems` as a pre-flight iter. Cache is stale; review-problems' Step 4.5b's TTL-expiry auto-recheck branch fires inside the dispatched subprocess and refreshes the cache + audit-log + README. |
+| `fresh-within-ttl`                | Silent-pass per ADR-013 Rule 5 + P132 mechanical-stage carve-out. Proceed to Step 1.                  |
+
+**Pre-flight dispatch shape**: when promoted, dispatch a single `claude -p --permission-mode bypassPermissions --output-format json` subprocess that invokes `/wr-itil:review-problems` (per P084 + ADR-032 subprocess isolation). The subprocess runs the full Step 4.5 inbound-discovery + assessment pipeline; the cache + `docs/audits/inbound-discovery-log.md` + `docs/problems/README.md` are refreshed in its own commit per ADR-014 (review-problems' Slice E commit grain). After the subprocess completes, the orchestrator reads the freshly-refreshed README at Step 1.
+
+**Iter-summary annotation**:
+
+- Channels-config absent: `Step 0b skipped — no upstream-channels.json (downstream-adopter non-obligation)`.
+- Cache fresh: `Step 0b skipped — upstream inbound-discovery cache fresh within TTL`.
+- Pre-flight ran: `Step 0b pre-flighted /wr-itil:review-problems — reason=<preflight_reason>, <N> reports discovered, <M> local tickets created`.
+
+The annotation pre-empts the "surprise heavy iter" perception JTBD-006 expects auditability for — a maintainer running multiple short AFK loops within a 24h window will hit `fresh-within-ttl` on subsequent invocations and see the cache-fresh annotation, confirming the system's silent-pass discipline rather than wondering whether the check ran at all.
+
+**AFK authorisation per ADR-013 Rule 6**: review-problems' Step 4.5 pipeline is itself AFK-safe — branch decisions are mechanical per P132 / ADR-044 category 4 silent framework action; external-comms gates on verdict/acknowledgement/pushback comments silent-pass on low-risk verdicts per ADR-028 + the `wr-risk-scorer:external-comms` subagent's *"policy-authorised drafts proceed silently"* contract (`packages/risk-scorer/agents/external-comms.md` § PASS Output); gate-denial sub-branches fail-soft and retry on the next discovery pass. No new user-attention surface introduced at the Step 0b promotion point.
+
+**Compose-with**: ADR-014 (review-problems' Slice E commit grain holds — the pre-flight subprocess emits its own commit; orchestrator-main-turn does not commit Step 0b), ADR-013 Rule 5/6 (silent-pass + AFK fail-safe — both honored), P084 + P077 (subprocess isolation reuse — same `claude -p` wrapper as Step 5), ADR-019 (preflight surface — Step 0b is the natural extension of "reconcile state before opening the loop"), P132 (mechanical-stage carve-out — no `AskUserQuestion` at the promotion point). Mid-loop ticket creation by Step 4.5e's safe-and-valid branch enters the WSJF queue Step 1 reads on the same invocation — natural absorption, no deadlock; the pre-flight commit lands before Step 1's README read.
+
+**Staleness contract drift**: the staleness comparison MUST stay symmetric with `/wr-itil:review-problems` Step 4.5b's branches (first-run / TTL-expiry / cache-fresh). Drift here re-opens the inbound-discovery staleness contract — any change to TTL semantics MUST update both this Step 0b helper and review-problems Step 4.5b in the same commit. <!-- INBOUND-CACHE-STALENESS-CONTRACT-SOURCE: packages/itil/skills/review-problems/SKILL.md Step 4.5b -->
+
+After Step 0b completes (whether dispatched or silent-passed), proceed to Step 1.
 
 ### Step 1: Scan the backlog
 
@@ -157,7 +196,7 @@ Exclude:
 - `.closed.md` files (done)
 - `.parked.md` files (blocked on upstream)
 - `.verifying.md` files (Verification Pending — fix released, awaiting user verification per ADR-022; surfaced in the Verification Queue section, never in dev-work ranking)
-- Problems with no WSJF score (need a review first — run `/wr-itil:manage-problem review` as the first iteration if scores are missing)
+- Problems with no WSJF score (need a review first — run `/wr-itil:review-problems` as the first iteration if scores are missing)
 
 ### Step 2: Check stop conditions
 
@@ -668,7 +707,7 @@ The orchestrator MUST NOT call `AskUserQuestion` between iterations except at th
 
 ## Edge Cases
 
-**Review needed first**: If no problems have WSJF scores, run `/wr-itil:manage-problem review` as the first iteration to score everything, then proceed to the work loop.
+**Review needed first**: If no problems have WSJF scores, run `/wr-itil:review-problems` as the first iteration to score everything, then proceed to the work loop. (Independent of Step 0b's inbound-discovery pre-flight, which fires on cache staleness regardless of WSJF-score state.)
 
 **Scope creep during investigation**: If investigating an open problem reveals the scope is larger than expected (effort re-sized from S to L, or L to XL), save findings to the problem file, update the WSJF score, and move to the next problem. Don't sink unlimited effort into one problem during AFK mode — the user can decide when they return.
 
