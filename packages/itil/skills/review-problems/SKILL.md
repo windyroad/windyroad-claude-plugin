@@ -108,6 +108,83 @@ The question MUST include a fix summary extracted from the `## Fix Released` sec
 
 **AFK / non-interactive branch (ADR-013 Rule 6):** when `AskUserQuestion` is unavailable, record the Verification Queue in the review output and skip the prompt. Do NOT auto-close verifying tickets — only the user can make that call. The user sees the queue on next interactive invocation.
 
+<!-- ADR-062-step-naming-reconciliation: this skill's current numbering has 7 steps; ADR-062 was authored against a stale view that called the inbound-discovery sub-step "Step 8.5" and the README renderer "Step 9e". Both names appear verbatim in headers below so ADR-062 § Confirmation criterion 1 ("Step 8.5") and § Confirmation criterion final bullet ("Step 9e") remain string-anchorable. Do NOT strip the "Step 8.5" / "Step 9e" substrings on rename. -->
+
+### 4.5. Inbound-discovery + assessment-pipeline (ADR-062 § Step 8.5 / Decision Outcome)
+
+Per ADR-062 (peer of ADR-024). Polls configured upstream channels, runs each unmatched inbound report through the six-step assessment pipeline, and routes outcomes to one of three branches: safe-and-valid-local-ticket-create / above-threshold-pushback / clear-malicious-close-with-verdict. All external comms ride the P064 + P038 evaluator gates per ADR-028 amended. Mechanical-stage carve-out (P132 / ADR-044 category 4 silent framework action): branch decisions resolve from JTBD-alignment + dual-axis-risk verdicts; this step does NOT use `AskUserQuestion` at the branch decision. User-attention surfaces ONLY at hook gates (existing external-comms gate UX) and ambiguity edge cases recorded as `cache_audit_note` in the cache for the next interactive review.
+
+**Fail-soft contract**: any error in Step 4.5 (missing channel config, GH API failure, malformed cache, subagent failure, gate denial on a verdict-comment post) MUST NOT block the review — emit an advisory note, skip the failing channel/report, and continue. Step 5 (README rewrite) proceeds regardless. The assessment pipeline is purely additive; no-inbound-discovery is the status-quo baseline.
+
+#### 4.5a. Read channel config
+
+Read `docs/problems/.upstream-channels.json`. If missing or malformed: log an advisory note (`channel config absent or malformed; inbound-discovery skipped this pass`) and skip Step 4.5 entirely. Adopters who don't ship this file inherit zero ceremony tax — the downstream-adopter non-obligation per ADR-062 § Downstream-adopter contract + JTBD-101.
+
+When `$ARGUMENTS` contains the literal substring `--force-upstream-recheck`, set `force_recheck=true` for the cache TTL check in 4.5b. <!-- SLICE-C-FLAG-STUB: $ARGUMENTS string-match for --force-upstream-recheck is a Slice C minimal stub; Slice F (RFC-004) owns proper argument parsing + TTL-expiry auto-recheck. Remove this string-match when Slice F lands; replace with Slice F's parsed-flag variable. -->
+
+#### 4.5b. Cache TTL check
+
+Read `docs/problems/.upstream-cache.json`. If `last_checked` is non-null and within `ttl_seconds` of now AND `force_recheck` is false, skip polling: reuse the cached report list for the pipeline pass below. Otherwise proceed to 4.5c.
+
+#### 4.5c. Poll each channel
+
+For each channel in `channels[]`, run the appropriate `gh` invocation. Fail-soft per channel: missing `GH_TOKEN`, rate-limit, or HTTP error logs an advisory and skips that channel only:
+
+- `github-issues`: `gh issue list --repo <repo> --label <label> --state open --json number,title,author,createdAt,body,labels --limit 100`
+- `github-discussions`: `gh api repos/<repo>/discussions --jq '[.[] | select(.category.name == "<category>") | {number, title, author, createdAt, body}]'` (fall back to GraphQL `gh api graphql ...` if REST is insufficient for the discussions surface).
+- `github-security-advisories`: `gh api repos/<repo>/security-advisories --jq '[.[] | {ghsa_id, summary, description, author, published_at}]'`.
+
+Write the polled results to `docs/problems/.upstream-cache.json`, updating `last_checked` and the per-channel `fetched_at` + `reports` arrays. The cache file is committed to the repo for audit-replay determinism (per ADR-062).
+
+#### 4.5d. Match reports against local tickets (P070 semantic-comparator)
+
+For each fresh report (not present in the prior cache snapshot under the same `body_hash`), invoke P070's semantic-comparator infrastructure (the same comparator used by `/wr-itil:report-upstream` outbound dedup, per ADR-062 § Reassessment composes-with).
+
+**Semantic-comparator hit** → record `matched_local_ticket: P<NNN>` on the cache entry AND post a gated `gh issue comment` containing the local-ticket cross-reference (e.g., *"Tracked locally as `docs/problems/<state>/<NNN>-<title>.md` — see that ticket for the verdict trail"*). The acknowledgement comment fires through the external-comms gate (P064 risk + P038 voice-tone per ADR-028 amended). This comment is the JTBD-301 acknowledgement that the report has been received and routed; silent-skip on matched-local-ticket would break the contract per ADR-062 § Decision Drivers row 1 (every submitted report receives a verdict, even if the verdict is "duplicate of P<NNN>").
+
+**Semantic-comparator ambiguity** (multiple plausible matches) → annotate `cache_audit_note: ambiguous-match-candidates-P<X>-P<Y>-...` and DO NOT auto-route. The ambiguity surfaces at the next interactive `review-problems` invocation (the maintainer disambiguates from the cache_audit_note channel; this is the documented user-attention surface under the mechanical-stage carve-out).
+
+**No comparator hit** → continue to 4.5e.
+
+#### 4.5e. Six-step assessment pipeline
+
+For each unmatched fresh report, run these steps in order; record the outcome in the cache + audit-log.
+
+1. **Version-aware classification (P129 carve-out — stub seam)**: when P129 ships, this step compares reporter-version against closed-ticket fix-versions and routes to upgrade-pushback / recurrence / still-active. Until P129 lands: skip this step (all reports proceed to step 2). The integration seam is documented in ADR-062 § Decision Outcome step 1.
+
+2. **JTBD-alignment classifier**: invoke `wr-jtbd:agent` subagent with the report body + persona JTBDs. Three outcomes per ADR-062:
+   - `aligned-with-existing-JTBD` → continue to step 3.
+   - `aligned-with-new-JTBD-for-existing-persona` → continue to step 3 + annotate `cache_audit_note: new-jtbd-flag` on the cache entry. The flag surfaces at next interactive review for maintainer-attention; auto-creation honors JTBD-301 acknowledgement.
+   - `not-aligned` → route to step 4 (above-threshold-pushback) with reason `out-of-scope-for-documented-personas`; do NOT execute step 3.
+
+3. **Dual-axis risk classifier**: invoke `wr-risk-scorer:inbound-report` subagent (shipped Slice B) with the report body + JTBD-alignment context. Outcomes:
+   - `safe-low-fix-risk` → step 6 (safe-and-valid branch).
+   - `safe-high-fix-risk` → step 6 (safe-and-valid branch) + annotate `cache_audit_note: high-fix-risk-flag` on the cache entry.
+   - `clear-malicious-request` → step 5 (clear-malicious branch).
+   - `above-threshold-risk` → step 4 (above-threshold-pushback branch).
+
+4. **Above-threshold-pushback branch**: post a gated `gh issue comment` declining the report (the comment body names the reason — `out-of-scope-for-documented-personas` or the matched Request-risk class from step 3). Comment fires through the external-comms gate (P064 + P038 evaluators per ADR-028 amended). Upstream issue is NOT closed by the pipeline — maintainer decides closure manually after reading the pushback. Cache entry classification: `above-threshold-pushback`. Audit-log append. **Gate-denial sub-branch**: if the external-comms gate denies the comment write (either evaluator FAILs), record `cache_audit_note: gate-denied-pushback` and continue to the next report.
+
+5. **Clear-malicious branch**: post a brief gated verdict comment (JTBD-301 acknowledgement contract — silent close is forbidden per ADR-062 Decision Drivers row 1). Comment body names the policy-violation classification verbatim from the `wr-risk-scorer:inbound-report` verdict. External-comms gates ride. Then close the upstream issue via `gh issue close <id>`. Append the reporter handle + classification to `docs/audits/inbound-discovery-log.md` for P123 block-list consumption when that ticket lands. Cache entry classification: `clear-malicious-closed`. **Gate-denial sub-branch**: if the verdict-comment gate denies, record `cache_audit_note: gate-denied-clear-malicious-pre-close` and do NOT close the upstream issue (silent close is forbidden — preserve the report for the next pass).
+
+6. **Safe-and-valid branch**: invoke `/wr-itil:capture-problem --no-prompt <report-body-verbatim>` to create the local ticket. The `--no-prompt` flag defaults to `type=technical`; the maintainer re-classifies at next interactive `review-problems` re-rate. Rationale: a default of `user-business` would mis-classify security-advisory-channel reports as user-business when they're often deep technical bugs; the maintainer-re-classify path is the safety net. Verbatim body preservation honors JTBD-301 persona constraint "capture context faithfully without cognitive re-shaping" and JTBD-201 audit-trail fidelity. Then post a gated `gh issue comment` acknowledgement carrying the new local-ticket reference. Cache entry classification: `safe-and-valid-local-ticket-created`; populate `matched_local_ticket: P<NNN>` with the freshly-allocated ID. **Gate-denial sub-branch**: if the acknowledgement comment gate denies, the local ticket already exists — record `cache_audit_note: gate-denied-safe-and-valid-acknowledgement` and continue. The acknowledgement comment will retry on the next discovery pass.
+
+#### 4.5f. Audit-log append
+
+Append a `## YYYY-MM-DDTHH:MM:SSZ — Discovery pass` heading to `docs/audits/inbound-discovery-log.md` per ADR-062 § Audit-log surface shape. The entry includes:
+
+- Channels polled (N) and per-channel report counts (new vs unchanged).
+- Pipeline outcomes by classification (counts + local-ticket IDs created + upstream issues closed + audit-flagged reporter handles for P123 future consumption).
+- Cache refresh confirmation (`docs/problems/.upstream-cache.json` rewritten at `last_checked: <ISO timestamp>`).
+
+#### 4.5g. Render-time integration
+
+The `## Inbound Upstream Reports` README section (ADR-062 § Step 9e renderer per the naming-reconciliation note at the top of this section) is populated by Step 5's renderer reading `docs/problems/.upstream-cache.json` — that renderer ships in Slice G of RFC-004. This step (4.5g) is the integration seam; the renderer is the consumer.
+
+#### 4.5 AFK-loop behaviour
+
+When invoked from `/wr-itil:work-problems` Step 6.5 (AFK orchestrator), Step 4.5 runs silently per the mechanical-stage carve-out. The only user-attention surface during AFK is the existing external-comms gate UX (a known interrupt class per ADR-028 amended); per-branch `AskUserQuestion` would re-introduce the friction P132 was engineered to remove.
+
 ### 5. Rewrite `docs/problems/README.md`
 
 Write / overwrite `docs/problems/README.md` with the refreshed ranking so future `work-problem` / `list-problems` fast-paths can skip the full re-scan. Rendering rules match the SKILL.md `Present the refreshed ranking` section above — driven off globs, not file-body scans:
