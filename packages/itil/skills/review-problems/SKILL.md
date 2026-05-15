@@ -73,7 +73,13 @@ After re-scoring, present three sections matching the README.md format (same ren
 |------|-----|-------|----------|--------|--------|----------|-------|
 ```
 
-**Verification Queue** — `.verifying.md` tickets, sorted by `Released date ASC` (oldest at row 1; same-day releases tiebreak by ID ASC) per ADR-022 + P048 user-task semantics. Older entries are the most likely-verified candidates the user wants to surface first when closing the queue; newest-first ordering pushes those actionable closure candidates below the fold and contradicts the section header. <!-- VQ-SORT-DIRECTION: oldest-first per ADR-022 --> Any change to the VQ sort direction MUST update this rendering block, Step 5's README template, AND `/wr-itil:manage-problem` SKILL.md Step 5 P094 / Step 7 P062 / Step 9c / Step 9e + `/wr-itil:transition-problem` + `/wr-itil:transition-problems` + `/wr-itil:reconcile-readme` + `/wr-itil:list-problems` — drift re-opens P150. Highlight any ticket whose release age is **≥ 14 days** with a `yes (N days)` marker in the `Likely verified?` column (within-skill default per P048 Candidate 4 — tunable; promote to cross-skill policy if needed):
+**Verification Queue** — `.verifying.md` tickets, sorted by `Released date ASC` (oldest at row 1; same-day releases tiebreak by ID ASC) per ADR-022 + P048 user-task semantics. Older entries are the most likely-verified candidates the user wants to surface first when closing the queue; newest-first ordering pushes those actionable closure candidates below the fold and contradicts the section header. <!-- VQ-SORT-DIRECTION: oldest-first per ADR-022 --> Any change to the VQ sort direction MUST update this rendering block, Step 5's README template, AND `/wr-itil:manage-problem` SKILL.md Step 5 P094 / Step 7 P062 / Step 9c / Step 9e + `/wr-itil:transition-problem` + `/wr-itil:transition-problems` + `/wr-itil:reconcile-readme` + `/wr-itil:list-problems` — drift re-opens P150. The `Likely verified?` column carries an **evidence-first** cell (per P186 — supersedes the age-based heuristic). <!-- LIKELY-VERIFIED-CELL-SHAPE: evidence-based per P186 --> Three canonical values:
+
+- `yes — observed: <evidence>` — a Step 4 user confirmation, an in-session test invocation + observable outcome (per ADR-026 grounding), or a `run-retro` Step 4a close-on-evidence citation. Quote the evidence inline (≤ 120 chars; abbreviate to ticket/commit/version anchor + verb).
+- `no — not observed` — fix released but no session-observable evidence yet. Default for newly-released tickets. Aging is preserved separately via the `Released` column — the Released column is the aging signal, `Likely verified?` is the evidence signal.
+- `no — observed regression` — fix released and the bug recurred this session. Cite the recurrence inline (≤ 120 chars).
+
+Any change to the canonical cell shape MUST update this rendering block, Step 5's README template, AND every co-located render site listed in the VQ-SORT-DIRECTION drift-tripwire above — drift re-opens P186. Surface `yes — observed: …` rows first in Step 4's verification prompt (user can batch-close them); `no — observed regression` rows must NOT be batch-closed (they may signal a botched fix and warrant a flip-back to `.known-error.md`).
 
 ```
 | ID | Title | Released | Fix summary | Likely verified? |
@@ -102,9 +108,9 @@ Target the dual-tolerant glob `docs/problems/*.verifying.md docs/problems/verify
 
 The question MUST include a fix summary extracted from the `## Fix Released` section — include the first sentence (or first bullet list) of that section in the question body or as the option description, so the user can answer without reading the full problem file. Do NOT ask with only the problem ID + title + version.
 
-- Surface the Step 3 `yes (N days)` tickets first so the user can batch-close them.
-- If the user confirms: close the problem (`git mv` from `.verifying.md` to `.closed.md`, update Status to "Closed", re-stage per the P057 staging trap).
-- If the user says no or is unsure: leave the ticket as Verification Pending.
+- Surface the Step 3 `yes — observed: …` tickets first so the user can batch-close them (per P186 evidence-first cell shape).
+- If the user confirms: close the problem (`git mv` from `.verifying.md` to `.closed.md`, update Status to "Closed", re-stage per the P057 staging trap). Update the `Likely verified?` cell on the same render path to `yes — observed: user confirmed <YYYY-MM-DD>`.
+- If the user says no or is unsure: leave the ticket as Verification Pending. If the user reports recurrence, update the cell to `no — observed regression — <one-line citation>` and flag for `.verifying.md` → `.known-error.md` flip-back via `/wr-itil:transition-problem`.
 
 **AFK / non-interactive branch (ADR-013 Rule 6):** when `AskUserQuestion` is unavailable, record the Verification Queue in the review output and skip the prompt. Do NOT auto-close verifying tickets — only the user can make that call. The user sees the queue on next interactive invocation.
 
@@ -222,11 +228,11 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 
 ## Verification Queue
 
-Fix released, awaiting user verification (driven off the dual-tolerant glob `docs/problems/*.verifying.md docs/problems/verifying/*.md` per ADR-022 + RFC-002 migration window). Sorted by `Released date ASC` (oldest at row 1; same-day releases tiebreak by ID ASC). <!-- VQ-SORT-DIRECTION: oldest-first per ADR-022 --> `Likely verified?` column marks tickets ≥14 days old (P048 Candidate 4 default).
+Fix released, awaiting user verification (driven off the dual-tolerant glob `docs/problems/*.verifying.md docs/problems/verifying/*.md` per ADR-022 + RFC-002 migration window). Sorted by `Released date ASC` (oldest at row 1; same-day releases tiebreak by ID ASC). <!-- VQ-SORT-DIRECTION: oldest-first per ADR-022 --> `Likely verified?` column carries an **evidence-first** cell per P186 — three canonical values: `yes — observed: <evidence>`, `no — not observed` (default for newly-released tickets), `no — observed regression`. <!-- LIKELY-VERIFIED-CELL-SHAPE: evidence-based per P186 --> Age is preserved separately via the `Released` column — aging surfaces there, not in `Likely verified?`.
 
 | ID | Title | Released | Likely verified? |
 |----|-------|----------|------------------|
-| P<NNN> | <title> | <release marker> | <yes (N days) / no (N days)> |
+| P<NNN> | <title> | <release marker> | <yes — observed: …  /  no — not observed  /  no — observed regression> |
 ...
 
 ## Inbound Upstream Reports
@@ -293,7 +299,8 @@ Otherwise, after the commit in Step 6 lands, drain the release queue per the mec
 - **ADR-037** (`docs/decisions/037-skill-testing-strategy.proposed.md`) — contract-assertion bats pattern applied to this skill.
 - **P031** — git-history freshness check rationale (mtime unreliable in worktrees). Applies to the README cache this skill owns.
 - **P047** — live-estimate effort buckets; the Step 2 re-estimate is the lifecycle transition this ticket closes.
-- **P048** Candidate 4 — the 14-day `Likely verified?` heuristic in Step 3.
+- **P048** Candidate 4 — original `Likely verified?` column introduction (14-day age-heuristic). Superseded by P186 evidence-first cell shape.
+- **P186** — evidence-first cell shape (`yes — observed: <evidence>` / `no — not observed` / `no — observed regression`) supersedes the age-based heuristic in Step 3 + Step 5; `<!-- LIKELY-VERIFIED-CELL-SHAPE: evidence-based per P186 -->` marker drives cross-skill drift detection (P138 / P150 fix-shape precedent).
 - **P057** — staging trap. Step 2's auto-transition MUST re-stage after Edit.
 - **P062** — README.md refresh on transitions. Step 5 is the review-path of the same refresh; `/wr-itil:manage-problem` Step 7 carries the transition-path.
 - **JTBD-001** (`docs/jtbd/solo-developer/JTBD-001-enforce-governance.proposed.md`) — discoverable surface via `/wr-itil:` autocomplete.

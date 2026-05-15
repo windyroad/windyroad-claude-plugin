@@ -56,7 +56,7 @@ ls docs/problems/*.parked.md docs/problems/parked/*.md 2>/dev/null        # for 
 
 For each `.open.md` and `.known-error.md` file, read the `**Status**`, `**Priority**`, `**Effort**`, and `**WSJF**` lines from the frontmatter section. Compute WSJF if missing: `WSJF = (Severity × StatusMultiplier) / EffortDivisor` per `/wr-itil:manage-problem` WSJF Prioritisation. Default to M (divisor 2) when Effort is absent; flag missing scores so the user knows a review is overdue.
 
-For each `.verifying.md` file, read the `## Fix Released` marker and extract the release age for the `Likely verified?` column per P048 Candidate 4 (within-skill default: 14 days = `yes`).
+For each `.verifying.md` file, read the `## Fix Released` marker. The `Likely verified?` column carries an **evidence-first** cell per P186 (supersedes the original P048 Candidate 4 14-day heuristic). <!-- LIKELY-VERIFIED-CELL-SHAPE: evidence-based per P186 --> When this skill runs against a stale cache, the live-scan path reads the cell value from the `.verifying.md` ticket's `## Fix Released` section (or carries forward the prior cell value from the cached README when present); it does NOT compute the cell from age — that responsibility moved to `/wr-itil:review-problems` Step 4 (user confirmation populates `yes — observed: …`) and `run-retro` Step 4a close-on-evidence citations.
 
 ### 3. Display
 
@@ -70,12 +70,12 @@ Render three sections matching the README.md format so cached and live output lo
 | <score> | P<NNN> | <title> | <severity> | <status> | <effort> |
 ```
 
-**Verification Queue** — `.verifying.md` tickets, sorted by `Released date ASC` (oldest at row 1; same-day releases tiebreak by ID ASC) per ADR-022 + P048 user-task semantics. <!-- VQ-SORT-DIRECTION: oldest-first per ADR-022 --> Drift here re-opens P150.
+**Verification Queue** — `.verifying.md` tickets, sorted by `Released date ASC` (oldest at row 1; same-day releases tiebreak by ID ASC) per ADR-022 + P048 user-task semantics. <!-- VQ-SORT-DIRECTION: oldest-first per ADR-022 --> Drift here re-opens P150. The `Likely verified?` column carries an **evidence-first** cell per P186 — three canonical values: `yes — observed: <evidence>`, `no — not observed` (default for newly-released tickets), `no — observed regression`. <!-- LIKELY-VERIFIED-CELL-SHAPE: evidence-based per P186 --> Drift on the cell shape re-opens P186.
 
 ```
 | ID | Title | Released | Likely verified? |
 |----|-------|----------|------------------|
-| P<NNN> | <title> | <release marker> | yes (N days) / no (N days) |
+| P<NNN> | <title> | <release marker> | <yes — observed: …  /  no — not observed  /  no — observed regression> |
 ```
 
 **Parked** — `.parked.md` tickets:
@@ -106,7 +106,8 @@ After the tables, print one of two short pointers depending on what the output s
 - **ADR-022** (`docs/decisions/022-verification-pending-status.proposed.md`) — Verification Pending status conventions; `.verifying.md` exclusion from WSJF ranking.
 - **ADR-037** (`docs/decisions/037-skill-testing-strategy.proposed.md`) — contract-assertion bats pattern applied to this skill.
 - **P031** — git-history freshness check rationale (mtime unreliable in worktrees).
-- **P048** Candidate 4 — the 14-day `Likely verified?` heuristic.
+- **P048** Candidate 4 — original `Likely verified?` column (14-day age-heuristic). Superseded by P186.
+- **P186** — evidence-first cell shape (`yes — observed: <evidence>` / `no — not observed` / `no — observed regression`) replaces the age-based heuristic; `<!-- LIKELY-VERIFIED-CELL-SHAPE: evidence-based per P186 -->` drives cross-skill drift detection.
 - **JTBD-001** (`docs/jtbd/solo-developer/JTBD-001-enforce-governance.proposed.md`) — discoverable surface via `/wr-itil:` autocomplete.
 - **JTBD-101** (`docs/jtbd/plugin-developer/JTBD-101-extend-suite.proposed.md`) — one skill per distinct user intent.
 - `packages/itil/skills/manage-problem/SKILL.md` — hosts the thin-router forwarder for the deprecated `manage-problem list` form.

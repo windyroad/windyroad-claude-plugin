@@ -85,10 +85,10 @@ For each `MISSING` Verification Queue entry, read the `## Fix Released` block:
 sed -n '/^## Fix Released/,/^## /p' docs/problems/<NNN>-*.verifying.md
 ```
 
-Render the Verification Queue row in the existing format:
+Render the Verification Queue row in the existing format. The `Likely verified?` cell carries an **evidence-first** value per P186 (supersedes the original P048 Candidate 4 14-day heuristic). <!-- LIKELY-VERIFIED-CELL-SHAPE: evidence-based per P186 --> When reconcile-readme synthesises a missing row, default the cell to `no — not observed` — the row is being added because some prior session committed the `.verifying.md` transition without staging the README refresh; reconcile-readme has no session-observed evidence to cite. Subsequent `/wr-itil:review-problems` Step 4 or `run-retro` Step 4a passes populate `yes — observed: <evidence>` when the user verifies. Drift on the cell shape re-opens P186.
 
 ```
-| P<NNN> | <title> | <release marker> | <Likely verified? per P048 Candidate 4: yes if ≥14 days, else no (<N> days)> |
+| P<NNN> | <title> | <release marker> | no — not observed |
 ```
 
 ### Step 4. Apply edits via Edit tool — preserve narrative
@@ -99,7 +99,7 @@ For each REMOVE: `Edit` with the existing row as `old_string`, and remove it (re
 
 For each ADD to WSJF Rankings: locate the correct WSJF position by descending order. Use `Edit` to insert the new row immediately above the next-lower-WSJF row (or append at the bottom of the table if the new row's WSJF is the lowest). The Edit's `old_string` is the line that the new row inserts above; the `new_string` is the new row + the same line below.
 
-For each ADD to Verification Queue: insert the new row in `Released date ASC` position (oldest at row 1; same-day releases tiebreak by ID ASC) per the canonical VQ sort direction. <!-- VQ-SORT-DIRECTION: oldest-first per ADR-022 --> Recent releases land at the bottom; oldest-pending verifications surface at the top so the user lands on actionable closure candidates first per P048 user-task semantics. Drift here re-opens P150.
+For each ADD to Verification Queue: insert the new row in `Released date ASC` position (oldest at row 1; same-day releases tiebreak by ID ASC) per the canonical VQ sort direction. <!-- VQ-SORT-DIRECTION: oldest-first per ADR-022 --> Recent releases land at the bottom; oldest-pending verifications surface at the top so the user lands on actionable closure candidates first per P048 user-task semantics. Drift here re-opens P150. The synthesised cell defaults to `no — not observed` per the P186 evidence-first cell shape — see the "Render the Verification Queue row" block above. <!-- LIKELY-VERIFIED-CELL-SHAPE: evidence-based per P186 -->
 
 After all edits, re-run `packages/itil/scripts/reconcile-readme.sh docs/problems` to confirm exit 0. If the second run still reports drift, investigate the residual edits — do NOT re-run reconciliation in a loop, as that hides systematic edit failures.
 

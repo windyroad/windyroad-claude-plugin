@@ -173,6 +173,8 @@ The refresh uses the same rendering rules as `/wr-itil:review-problems` Step 9e 
 
 **Verification Queue sort direction (P150)**: Verification Queue rows are sorted by `Released date ASC` (oldest at row 1; same-day releases tiebreak by ID ASC) per ADR-022 + P048 user-task semantics — older entries are the most likely-verified candidates the user wants to surface first when closing the queue. <!-- VQ-SORT-DIRECTION: oldest-first per ADR-022 --> Drift here re-opens P150.
 
+**Likely-verified cell shape (P186)**: the `Likely verified?` column carries an **evidence-first** cell — `yes — observed: <evidence>` / `no — not observed` / `no — observed regression`. On a Known Error → Verification Pending transition the refresh writes `no — not observed` as the default (no observed evidence yet at the moment of release). On a Verification Pending → Closed transition the closing commit's session-observed evidence should populate the cell as `yes — observed: <evidence>` before the row exits the queue. <!-- LIKELY-VERIFIED-CELL-SHAPE: evidence-based per P186 --> Drift on the cell shape re-opens P186.
+
 **Mechanism:**
 
 1. After renaming + Editing + `git add`-ing the transitioned ticket file (per the staging-trap rule above), regenerate `docs/problems/README.md` in-place reflecting the new filename set and the transitioned ticket's new Status.
@@ -234,6 +236,7 @@ Release draining is owned by the caller — `/wr-itil:manage-problem` Step 12 (i
 - **ADR-037** (`docs/decisions/037-skill-testing-strategy.proposed.md`) — contract-assertion bats pattern applied to this skill.
 - **P057** — `git mv` + Edit staging trap rationale; the delegated Step 7 block implements the re-stage. Named here as a transitive contract so callers can reason about the dependency.
 - **P062** — `/wr-itil:review-problems` is the canonical README.md cache writer, but Step 7 transitions also refresh README.md in-place per P062's mechanism. Named here as a transitive contract.
+- **P186** — evidence-first `Likely verified?` cell shape (`yes — observed: <evidence>` / `no — not observed` / `no — observed regression`); `<!-- LIKELY-VERIFIED-CELL-SHAPE: evidence-based per P186 -->` marker drives cross-skill drift detection (P138 / P150 fix-shape precedent).
 - **P063** — external-root-cause detection at Open → Known Error and at the `upstream-blocked` park path. The delegated Step 7 block owns the prompt; this skill inherits the AFK fallback without re-implementing.
 - **JTBD-001** (`docs/jtbd/solo-developer/JTBD-001-enforce-governance.proposed.md`) — discoverable surface via `/wr-itil:` autocomplete. Users type `/wr-itil:transition-problem 042 known-error` rather than remembering the `manage-problem <NNN> known-error` subcommand.
 - **JTBD-101** (`docs/jtbd/plugin-developer/JTBD-101-extend-suite.proposed.md`) — one skill per distinct user intent.

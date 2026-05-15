@@ -483,6 +483,8 @@ After writing the new `.open.md` file, regenerate `docs/problems/README.md` to i
 
 **Verification Queue sort direction (P150)**: rows in the Verification Queue table are sorted by `Released date ASC` (oldest at row 1; same-day releases tiebreak by ID ASC) per ADR-022 + P048 user-task semantics — older entries are the most likely-verified candidates the user wants to surface first when closing the queue. Newest-first ordering pushes those actionable closure candidates below the fold and contradicts the section header. <!-- VQ-SORT-DIRECTION: oldest-first per ADR-022 --> Any future change to the VQ sort direction MUST update this render block, the Step 7 P062 block, the Step 9c presentation block, the Step 9e template, AND `/wr-itil:review-problems` + `/wr-itil:transition-problem` + `/wr-itil:transition-problems` + `/wr-itil:reconcile-readme` + `/wr-itil:list-problems` — drift here re-opens P150.
 
+**Likely-verified cell shape (P186)**: the `Likely verified?` column carries an **evidence-first** cell — `yes — observed: <evidence>` / `no — not observed` / `no — observed regression`. The 14-day age-based heuristic (originally introduced by P048 Candidate 4) is superseded — age is preserved separately via the `Released` column; the `Likely verified?` column is reserved for session-observed evidence (Step 4 user confirmation, in-session test invocation outcome per ADR-026 grounding, or `run-retro` Step 4a close-on-evidence citation). <!-- LIKELY-VERIFIED-CELL-SHAPE: evidence-based per P186 --> Any future change to the cell shape MUST update this render block, the Step 7 P062 block, the Step 9c presentation block, the Step 9e template, AND `/wr-itil:review-problems` + `/wr-itil:transition-problem` + `/wr-itil:transition-problems` + `/wr-itil:reconcile-readme` + `/wr-itil:list-problems` — drift here re-opens P186.
+
 1. After `Write`-ing the new `.open.md` file (and, for multi-concern splits per step 4b, after all split files are written), regenerate `docs/problems/README.md` in-place reflecting the new filename set.
 2. Update the "Last reviewed" line per the **Last-reviewed line discipline (P134)** subsection below — name the new ticket as the most-recent fragment (e.g. `P<NNN> opened — <one-line title>`); displaced prior fragments rotate to `docs/problems/README-history.md`.
 3. `git add docs/problems/README.md` — the stage list at Step 11 must include it alongside the new `.open.md` file (Step 11's `git add -u` catch-all handles tracked-file modifications; the new README render lands via this path when README.md already exists in git, and via an explicit `git add docs/problems/README.md` when it is newly created). When line-3 truncation displaces prior content, also `git add docs/problems/README-history.md`.
@@ -650,6 +652,8 @@ The refresh uses the same rendering rules as Step 9e (dual-tolerant glob per RFC
 
 **Verification Queue sort direction (P150)**: rows in the Verification Queue table are sorted by `Released date ASC` (oldest at row 1; same-day releases tiebreak by ID ASC) per ADR-022 + P048 user-task semantics — older entries are the most likely-verified candidates the user wants to surface first when closing the queue. Newest-first ordering pushes those actionable closure candidates below the fold and contradicts the section header. <!-- VQ-SORT-DIRECTION: oldest-first per ADR-022 --> Any future change to the VQ sort direction MUST update this render block, the Step 5 P094 block, the Step 9c presentation block, the Step 9e template, AND `/wr-itil:review-problems` + `/wr-itil:transition-problem` + `/wr-itil:transition-problems` + `/wr-itil:reconcile-readme` + `/wr-itil:list-problems` — drift here re-opens P150.
 
+**Likely-verified cell shape (P186)**: the `Likely verified?` column carries an **evidence-first** cell — `yes — observed: <evidence>` / `no — not observed` / `no — observed regression`. Age is preserved separately via the `Released` column; session-observed evidence drives the cell. On a Known Error → Verification Pending transition the refresh writes `no — not observed` as the default (no observed evidence yet at the moment of release). <!-- LIKELY-VERIFIED-CELL-SHAPE: evidence-based per P186 --> Any future change to the cell shape MUST update this render block, the Step 5 P094 block, the Step 9c presentation block, the Step 9e template, AND `/wr-itil:review-problems` + `/wr-itil:transition-problem` + `/wr-itil:transition-problems` + `/wr-itil:reconcile-readme` + `/wr-itil:list-problems` — drift here re-opens P186.
+
 **Mechanism:**
 
 1. After renaming + Editing + `git add`-ing the transitioned ticket file (per the staging-trap rule above), regenerate `docs/problems/README.md` in-place reflecting the new filename set and the transitioned ticket's new Status.
@@ -745,14 +749,15 @@ After reviewing all problems, present a WSJF-ranked table for open/known-error p
 | WSJF | ID | Title | Severity | Status | Effort | Reported | Notes |
 |------|-----|-------|----------|--------|--------|----------|-------|
 
-Then present a separate **Verification Queue** section for `.verifying.md` files (per ADR-022 — ranked by release age, oldest first; no WSJF because the multiplier is 0). Sort key + direction is the canonical `Released date ASC` (oldest at row 1; same-day releases tiebreak by ID ASC) — drift here re-opens P150. <!-- VQ-SORT-DIRECTION: oldest-first per ADR-022 --> Highlight each ticket whose release age is **≥ 14 days** (the within-skill default per P048 Candidate 4 — tunable; if it needs cross-skill consistency later, promote to policy) with a `likely verified` marker in the final column. This makes the Verification Queue not just a list but a ranked view of which verifications are most likely ready to close — older entries are the most likely-verified candidates the user wants to surface first when closing the queue:
+Then present a separate **Verification Queue** section for `.verifying.md` files (per ADR-022 — ranked by release age, oldest first; no WSJF because the multiplier is 0). Sort key + direction is the canonical `Released date ASC` (oldest at row 1; same-day releases tiebreak by ID ASC) — drift here re-opens P150. <!-- VQ-SORT-DIRECTION: oldest-first per ADR-022 --> The final `Likely verified?` column carries an **evidence-first** cell (per P186 — supersedes the original P048 Candidate 4 14-day heuristic). <!-- LIKELY-VERIFIED-CELL-SHAPE: evidence-based per P186 --> Three canonical values:
 
 | ID | Title | Released | Fix summary | Likely verified? |
 |----|-------|----------|-------------|------------------|
 
-The `Likely verified?` column takes values:
-- `yes (N days)` — release age ≥ 14 days; the user is unlikely to revert a landed fix after this long. Surface these first in step 9d's verification prompt so the user can batch-close them.
-- `no (N days)` — release age < 14 days; may still be in validation. Fire step 9d for these too, but without the highlight.
+The `Likely verified?` column takes values (per P186):
+- `yes — observed: <evidence>` — session-observed evidence the fix works. Cite the evidence inline (≤ 120 chars): a Step 9d user confirmation phrase quoted, an in-session test invocation + observable outcome per ADR-026 grounding, or a `run-retro` Step 4a close-on-evidence citation. Surface these FIRST in step 9d's verification prompt so the user can batch-close them.
+- `no — not observed` — fix released but no session-observable evidence yet. Default for newly-released tickets. Fire step 9d for these too, without batch-close highlight. Aging surfaces via the `Released` column — NOT in this cell.
+- `no — observed regression` — fix released and the bug recurred this session. Cite the recurrence inline (≤ 120 chars). Do NOT batch-close — these may warrant `.verifying.md` → `.known-error.md` flip-back via `/wr-itil:transition-problem`.
 
 Then present a separate **Parked** section listing `.parked.md` files (no ranking):
 
@@ -805,11 +810,11 @@ Edit each problem file where the priority changed. Then write/overwrite `docs/pr
 
 ## Verification Queue
 
-Fix released, awaiting user verification (driven off `docs/problems/*.verifying.md` via glob — per ADR-022). Sorted by `Released date ASC` (oldest at row 1; same-day releases tiebreak by ID ASC). <!-- VQ-SORT-DIRECTION: oldest-first per ADR-022 --> Drift here re-opens P150 — any change to VQ sort direction MUST update the Step 5 P094 block, the Step 7 P062 block, the Step 9c presentation block, this template, AND `/wr-itil:review-problems` + `/wr-itil:transition-problem` + `/wr-itil:transition-problems` + `/wr-itil:reconcile-readme` + `/wr-itil:list-problems`.
+Fix released, awaiting user verification (driven off `docs/problems/*.verifying.md` via glob — per ADR-022). Sorted by `Released date ASC` (oldest at row 1; same-day releases tiebreak by ID ASC). <!-- VQ-SORT-DIRECTION: oldest-first per ADR-022 --> Drift here re-opens P150 — any change to VQ sort direction MUST update the Step 5 P094 block, the Step 7 P062 block, the Step 9c presentation block, this template, AND `/wr-itil:review-problems` + `/wr-itil:transition-problem` + `/wr-itil:transition-problems` + `/wr-itil:reconcile-readme` + `/wr-itil:list-problems`. The `Likely verified?` column carries an **evidence-first** cell per P186 — three canonical values: `yes — observed: <evidence>`, `no — not observed` (default for newly-released tickets), `no — observed regression`. <!-- LIKELY-VERIFIED-CELL-SHAPE: evidence-based per P186 --> Age is preserved separately via the `Released` column — drift on the cell shape re-opens P186.
 
-| ID | Title | Released | Fix summary |
-|----|-------|----------|-------------|
-| P<NNN> | <title> | <release marker> | <one-sentence fix summary> |
+| ID | Title | Released | Fix summary | Likely verified? |
+|----|-------|----------|-------------|------------------|
+| P<NNN> | <title> | <release marker> | <one-sentence fix summary> | <yes — observed: …  /  no — not observed  /  no — observed regression> |
 ...
 
 ## Parked

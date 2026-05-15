@@ -180,6 +180,8 @@ Per P062, every Step 7 status transition refreshes README.md. At the batch grain
 
 The refresh follows the same render rules as `/wr-itil:review-problems` Step 9e (glob `docs/problems/*.open.md` / `*.known-error.md` / `*.verifying.md` / `*.parked.md`; rank open + known-error by WSJF; Verification Queue sorted by `Released date ASC` with same-day tiebreak by ID ASC per ADR-022 + P048; Parked section). It does NOT re-rank — existing WSJF values on ticket files are trusted; the refresh is a render, not a re-rank. <!-- VQ-SORT-DIRECTION: oldest-first per ADR-022 --> Drift on the VQ sort direction re-opens P150.
 
+**Likely-verified cell shape (P186)**: the `Likely verified?` column carries an **evidence-first** cell — `yes — observed: <evidence>` / `no — not observed` / `no — observed regression`. At batch grain the refresh writes the per-pair cell from the per-pair transition context: a `verifying` destination defaults to `no — not observed` (the batch just released the fix; evidence accrues subsequently); a `close` destination assumes session-observed evidence was the trigger for the batch close (the upstream caller — `run-retro` Step 4a, `review-problems` Step 9d — already verified the evidence) and the row exits the queue (not re-rendered as VQ). <!-- LIKELY-VERIFIED-CELL-SHAPE: evidence-based per P186 --> Drift on the cell shape re-opens P186.
+
 ```bash
 git add docs/problems/README.md
 ```
