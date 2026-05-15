@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-05-15 **P215-P218 captured (inbound #80/#79/#78/#77 architect-cluster batch)** — sixth pipeline batch: P215 architect-gate marker recovery; P216 hash-refresh path-filter under-scoped; P217 mark-reviewed strict-verdict miscount; P218 manage-problem SID-derivation undoc'd (in-session repro). 21 of 31 reports processed (10 remaining). Prior fragment supplanted in-place per P134.
+> Last reviewed: 2026-05-15 **P219-P222 captured (inbound #76/#63/#62/#61 batch)** — seventh pipeline batch: P219 manage-problem script-path; P220 upstream-bound-ticket cadence; P221 work-problems Step 6.5 CI-health (safe-high-fix-risk); P222 manage-problem auto-commit (likely ADR-014). 25 of 31 reports processed (6 remaining). Prior fragment supplanted in-place per P134.
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -83,6 +83,10 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 0.75 | P216 | architect-refresh-hash only refreshes on docs/decisions/ writes, leaves cross-session drift on other gated paths (upstream-mirror of #79) | 3 Med | Open | M | 2026-05-15 |
 | 0.75 | P217 | architect-mark-reviewed strict-verdict-string parsing under-counts affirmative ISSUES FOUND verdicts as FAIL (upstream-mirror of #78) | 3 Med | Open | M | 2026-05-15 |
 | 0.75 | P218 | manage-problem SKILL.md doesn't explain how to obtain SESSION_ID for P119 marker (upstream-mirror of #77; in-session repro this monorepo) | 3 Med | Open | M | 2026-05-15 |
+| 0.75 | P219 | manage-problem SKILL.md uses repo-relative script path that fails for plugin-installed users (upstream-mirror of #76; sibling P209) | 3 Med | Open | M | 2026-05-15 |
+| 0.75 | P220 | manage-problem has no cadence for checking upstream-bound tickets (upstream-mirror of #63; composes P063+ADR-062) | 3 Med | Open | M | 2026-05-15 |
+| 0.75 | P221 | work-problems Step 6.5 lacks baseline CI health check before drain — **safe-high-fix-risk** (load-bearing AFK drain; sibling P208/#86) (upstream-mirror of #62) | 3 Med | Open | M | 2026-05-15 |
+| 0.75 | P222 | manage-problem skill should auto-commit ticket file changes — likely resolved by ADR-014 (upstream-mirror of #61) | 3 Med | Open | M | 2026-05-15 |
 
 ## Verification Queue
 
