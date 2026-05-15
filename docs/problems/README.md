@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-05-15 **inaugural inbound-discovery pass + Step 0b shipped** — first `/wr-itil:review-problems` Step 4.5 pass executed (aacec45 wired Step 0b pre-flight into work-problems); cache transitioned `last_checked: null` → `2026-05-15T04:33:26Z`; three channels polled (issues OK 0 reports; discussions skipped HTTP 410 disabled; security-advisories skipped fail-soft — gate misclassifies read-only LIST as outbound, pending bug-capture). Inbound Upstream Reports section transitioned advisory-row → lazy-empty body per ADR-062 § Step 9e. Prior same-day Slice G + P196 fragment supplanted in-place per P134 same-day-duplicate carve-out.
+> Last reviewed: 2026-05-15 **P197 captured (contract-bypass-reflex class) + inbound-discovery filter fix + Step 0b shipped** — P197 captured via `/wr-itil:capture-problem` after user correction "DONT skip using the capture-problem skill"; bypass-reflex pattern recorded (sibling P078/P119/P196). Earlier same-day: `/wr-itil:review-problems` Step 4.5 inaugural pass surfaced label-filter drift (31 inbound issues unlabelled; `title_prefix: "[problem]"` filter substituted; cache transitioned `last_checked: null` → `2026-05-15T04:33:26Z`; 31 reports recorded `pending-pipeline-processing`); Step 0b pre-flight wired into work-problems (aacec45). Prior same-day Slice G + P196 fragment supplanted in-place per P134 same-day-duplicate carve-out.
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -61,6 +61,7 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 1.0 | P194 | ADRs accumulate forward-chronology evidence inline (Phase 2 dogfood evidence, amendment history, cross-iter cross-references) — `decisions` bucket dominates context at 41% / 1.3 MiB | 6 Med | Open | L | 2026-05-15 |
 | 0.75 | P012 | Skill testing harness scope undefined | 6 Med | Open | XL | 2026-04-16 |
 | 0.75 | P034 | Centralise risk reports for cross-project skill improvement | 6 Med | Open | XL | 2026-04-17 |
+| 0.75 | P197 | Agent proposes bypassing documented processes (SKILL contracts, classifier pipelines, changeset discipline) when work feels large/expensive — contract-bypass-reflex class-of-behaviour (sibling of P078/P119/P196; captured via /wr-itil:capture-problem post-correction "DONT skip using the capture-problem skill") | 3 Med | Open | M | 2026-05-15 |
 
 ## Verification Queue
 
