@@ -52,3 +52,20 @@ Session scope: user correction recovery — P229 capture (ack-comment JTBD-301 v
 **Correction-followup count: 0**
 
 Trend: 3 retros 2026-05-15, all `lazy=0`. R6 gate (lazy ≥2 across 3 consecutive retros) not at risk.
+
+## Fourth retro append — 2026-05-15 (P162 Phase 4 AFK iter)
+
+Iter scope: P162 Phase 4 documentation amendments — docs/changesets-holding/README.md Process step 5 + ADR-018 + ADR-020 Rule 8 disjunct prose. AFK orchestrator subprocess; `AskUserQuestion` forbidden mid-loop per task constraints (P135 / ADR-044 framework-resolution boundary).
+
+| Call # | Header | Classification | Citation |
+|--------|--------|----------------|----------|
+| (none) | (no AskUserQuestion calls fired this iter — AFK constraint) | n/a | Framework constraint: AFK iter subprocesses defer all interactive surfaces to `outstanding_questions` queue for loop-end batched presentation. Same shape as prior 2026-05-13 P162 Phase 2a iter (also `lazy=0`). |
+
+**Lazy count: 0**
+**Direction count: 0**
+**Override count: 0**
+**Silent-framework count: 0**
+**Taste count: 0**
+**Correction-followup count: 0**
+
+Trend: 4 retros 2026-05-15, all `lazy=0`. R6 gate (lazy ≥2 across 3 consecutive retros) not at risk.
