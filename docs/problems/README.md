@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-05-15 **P198 captured (inbound #125 → external-comms gate sha-bug) + P197 (contract-bypass-reflex class) + inbound-discovery filter fix + Step 0b shipped** — P198 captured via `/wr-itil:capture-problem` from inbound-discovery pipeline (review-problems Step 4.5e safe-and-valid branch processing upstream #125); first of 31 inbound reports processed end-to-end (30 remaining queued at `pending-pipeline-processing` in cache). P197 + Step 0b + inbound-discovery foundation earlier same-day. Prior same-day fragment supplanted in-place per P134 same-day-duplicate carve-out.
+> Last reviewed: 2026-05-15 **P199-P202 captured (inbound #126/#124/#123/#121 batch) + P198 (#125) + P197 (contract-bypass-reflex) + inbound-discovery filter fix + Step 0b shipped** — second pipeline batch shipped via `/wr-itil:review-problems` Step 4.5e safe-and-valid branch: P199 capture→manage same-session halt; P200 wr-voice-tone blanket FAIL (safe-high-fix-risk flag); P201 @windyroad/tdd test/-mirror; P202 risk-scorer pipeline changeset-on-origin false-high. 5 of 31 inbound reports processed end-to-end (26 remaining). Prior same-day fragment supplanted in-place per P134 same-day-duplicate carve-out.
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -63,6 +63,10 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 0.75 | P034 | Centralise risk reports for cross-project skill improvement | 6 Med | Open | XL | 2026-04-17 |
 | 0.75 | P197 | Agent proposes bypassing documented processes (SKILL contracts, classifier pipelines, changeset discipline) when work feels large/expensive — contract-bypass-reflex class-of-behaviour (sibling of P078/P119/P196; captured via /wr-itil:capture-problem post-correction "DONT skip using the capture-problem skill") | 3 Med | Open | M | 2026-05-15 |
 | 0.75 | P198 | external-comms gate marker key cannot be computed by the reviewer agent (Read/Glob/Grep tool surface — no shasum); hash-scope ambiguity adds three+ recurrences (upstream-mirror of inbound #125 from downstream bbstats P205; sibling P163/P166) | 3 Med | Open | M | 2026-05-15 |
+| 0.75 | P199 | capture-problem → manage-problem same-session halts at Step 0 reconcile (HALT_ROUTE_RECONCILE on deferred-refresh seam; upstream-mirror of #126 from bbstats P221) | 3 Med | Open | M | 2026-05-15 |
+| 0.75 | P200 | wr-voice-tone:agent returns blanket FAIL when docs/VOICE-AND-TONE.md is missing — **safe-high-fix-risk flag** (upstream-mirror of #124 from dry-aged-deps P005) | 3 Med | Open | M | 2026-05-15 |
+| 0.75 | P201 | @windyroad/tdd hook only recognises same-dir or __tests__/ test associations (upstream-mirror of #123) | 3 Med | Open | M | 2026-05-15 |
+| 0.75 | P202 | wr-risk-scorer:pipeline treats changesets as queued when introducing commits are already on origin (upstream-mirror of #121) | 3 Med | Open | M | 2026-05-15 |
 
 ## Verification Queue
 
