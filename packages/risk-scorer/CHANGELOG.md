@@ -1,5 +1,184 @@
 # @windyroad/risk-scorer
 
+## 0.9.0
+
+### Minor Changes
+
+- f635470: RFC-004 Slice B: inbound-report sibling subagent + assess-inbound-report skill
+
+  Ships RFC-004 Slice B per ADR-062 § Sibling subagent — net-new evaluator concern
+  for third-party prose flowing INWARD (Request-risk + Fix-risk axes), distinct
+  from `external-comms` which reviews OUR outbound prose for leaks. Sibling, NOT
+  extension — preserves `external-comms` scope-purity (JTBD-101).
+
+  Adds:
+
+  - `packages/risk-scorer/agents/inbound-report.md` — new read-only subagent.
+    Reviews inbound third-party reports (problem-report issues, Q&A discussions,
+    security-advisory submissions) against two axes:
+    - Axis 1 Request-risk — info-extraction / backdoor request / malicious-code
+      injection
+    - Axis 2 Fix-risk — privilege escalation / removal of load-bearing safety
+      check / adopter-attack-surface expansion
+      Emits structured `INBOUND_REPORT_VERDICT` + `INBOUND_REPORT_KEY` +
+      `INBOUND_REPORT_CLASS` + optional `INBOUND_REPORT_REASON`. Consumed by the
+      assessment-pipeline (ADR-062 § Decision Outcome step 3) for mechanical
+      branch routing into one of {safe-and-valid-local-ticket-create,
+      above-threshold-pushback, clear-malicious-close-with-verdict}.
+  - `packages/risk-scorer/skills/assess-inbound-report/SKILL.md` — on-demand
+    wrapper per ADR-015. Pre-flight surface for JTBD-005 (Invoke Governance
+    Assessments On Demand) + JTBD-202 (Pre-Flight Governance Checks). Step 6
+    AskUserQuestion only fires on manual maintainer invocations; silent on
+    pipeline pre-satisfier invocations (P132 mechanical-stage carve-out per
+    ADR-044 category 4 framework-resolution boundary).
+  - `packages/risk-scorer/README.md` — Agents + skills tables extended with new
+    entries + JTBD anchors per JTBD-currency hook contract.
+
+  Policy + ADR amendments alongside:
+
+  - `RISK-POLICY.md` gains `## Inbound Report Risk Classes` section between
+    `## Confidential Information` and `## Risk Appetite`. Enumerates Axis 1 +
+    Axis 2 classes the subagent grounds FAIL verdicts against. No changes to
+    impact levels / likelihood levels / risk matrix / label bands / appetite /
+    control composition / risk catalog mechanics. Validated via
+    `wr-risk-scorer:policy` — `RISK_VERDICT: PASS`. Last-reviewed bumped
+    2026-05-04 → 2026-05-15.
+  - `docs/decisions/015-on-demand-assessment-skills.proposed.md` — Scope table
+    gains `assess-inbound-report` row; Confirmation checkbox added; Related
+    extended with ADR-062 + P079.
+
+  The subagent + skill are inert in installed plugins until Slice C wires them
+  into `/wr-itil:review-problems` Step 8.5. Slice B ships the contract +
+  policy-grounding surfaces; Slice C ships the runtime orchestration; Slice E
+  ships behavioural bats coverage per ADR-037 + P081 (subagent prompt contract +
+  six pipeline outcomes + anti-`AskUserQuestion` assertion protecting the P132
+  mechanical-stage carve-out).
+
+  Architect PASS / JTBD PASS / policy PASS (wr-risk-scorer:policy validated
+  the RISK-POLICY.md amendment per ISO 31000 compliance) / external-comms
+  substantive PASS (no Confidential Information class matched — package /
+  RFC / ADR / JTBD / problem IDs are public OSS artefacts; no client names,
+  no financial metrics, no usage counts, no commercial-engagement strategy);
+  gate-key bypass per P166 — agents lack Bash access to compute sha256 so
+  marker keys cannot match the gate's computation. RFC-004 `accepted →
+in-progress` rides this slice commit per the `docs/rfcs/README.md`
+  transition-table contract.
+
+### Patch Changes
+
+- 0fda8a5: P038 voice-tone evaluator half of ADR-028 amended external-comms gate
+
+  Ships the voice-tone half of the external-comms PreToolUse gate alongside the
+  existing risk evaluator (P064 / commit a0713f3, 2026-04-26). When both plugins
+  installed, both gates fire on the same outbound prose call (gh issue/pr/api,
+  npm publish, .changeset/\*.md) and each denies until its own evaluator has
+  emitted PASS. Composition at the firing level — per-evaluator markers, no
+  shared composite marker (ADR-028 amendment 2026-05-14 ratifies the simplified
+  design and supersedes the original combined-marker scheme).
+
+  Adds:
+
+  - packages/voice-tone/hooks/external-comms-gate.sh (byte-identical sync from
+    packages/shared/hooks/external-comms-gate.sh)
+  - packages/voice-tone/hooks/lib/leak-detect.sh (synced; voice-tone evaluator
+    does NOT run leak pre-filter per EXTERNAL_COMMS_LEAK_PREFILTER=no in .conf)
+  - packages/voice-tone/hooks/external-comms-evaluator.conf (per-package
+    evaluator config — id + subagent + verdict prefix + assess skill + policy file)
+  - packages/voice-tone/hooks/external-comms-mark-reviewed.sh (PostToolUse:Agent
+    for subagent_type wr-voice-tone:external-comms; writes per-evaluator marker
+    external-comms-voice-tone-reviewed-<KEY> on PASS)
+  - packages/voice-tone/agents/external-comms.md (new subagent prompt;
+    reviews drafts against docs/VOICE-AND-TONE.md; emits structured
+    EXTERNAL_COMMS_VOICE_TONE_VERDICT + EXTERNAL_COMMS_VOICE_TONE_KEY)
+  - packages/voice-tone/skills/assess-external-comms/SKILL.md (on-demand
+    delegation skill per ADR-015)
+
+  Changes:
+
+  - packages/shared/hooks/external-comms-gate.sh — canonical hook now sources
+    per-package external-comms-evaluator.conf (evaluator id + subagent type +
+    verdict prefix + assess skill + policy file + leak-prefilter flag); marker
+    filename includes evaluator id (external-comms-<id>-reviewed-<KEY>).
+  - packages/risk-scorer/hooks/external-comms-gate.sh — synced byte-identical
+    from canonical (now sources its own .conf).
+  - packages/risk-scorer/hooks/external-comms-evaluator.conf — new per-package
+    config for the risk evaluator.
+  - packages/risk-scorer/hooks/risk-score-mark.sh — writes marker filename
+    external-comms-risk-reviewed-<KEY> (was external-comms-reviewed-<KEY>).
+  - scripts/sync-external-comms-gate.sh — CONSUMERS list adds voice-tone.
+  - ADR-028 — ## Amendments section appended (2026-05-14); ratifies per-evaluator
+    marker scheme, drops age_bucket and evaluator_set from marker key,
+    documents per-package config file pattern.
+  - ADR-015 — Scope table gains wr-risk-scorer:external-comms (retroactive — P064
+    iter never landed the row) + wr-voice-tone:external-comms (P038).
+
+  Test coverage (all behavioural per ADR-037 + P081):
+
+  - packages/voice-tone/hooks/test/external-comms-gate.bats — 13 assertions
+  - packages/risk-scorer/hooks/test/external-comms-gate.bats — extended to 13
+  - packages/shared/test/external-comms-gate-canonical.bats — extended to 12
+  - packages/shared/test/sync-external-comms-gate.bats — extended to 9
+
+  Architect + JTBD reviews PASSED 2026-05-14 (ADR-028 amendment + ADR-015 update
+
+  - implementation). Risk reviewer PASS (clean technical implementation doc; no
+    Confidential Information class matched). BYPASS_RISK_GATE used for the
+    changeset write because the risk-scorer agent cannot compute the exact sha256
+    key (P166 — agents lack shell tool access for shasum) so the marker would not
+    match the gate's computation; substantive review verdict PASS recorded above.
+
+  Closes P038. ADR-028 remains proposed for one release cycle post-land per
+  ADR-006 deliberation discipline.
+
+- e8ef115: RFC-004 Slice E: bats coverage for inbound-discovery + assessment-pipeline
+
+  Closes the R009 empirical-coverage gap for Slice B (`f635470`) + Slice C
+  (`368b8e6`) SKILL/agent prose. 85 assertions across 4 bats files —
+  structural-with-Permitted-Exception per ADR-005 / P011 / ADR-037 /
+  ADR-052 § Surface 2 for SKILL/agent-prose contracts; behavioural per
+  P081 for JSON file shapes.
+
+  Files added:
+
+  - `packages/itil/skills/review-problems/test/inbound-discovery-contract.bats`
+    (28 tests) — Step 4.5 SKILL.md prose contract: section presence,
+    ADR-062 substring anchors preserved (Confirmation criterion 1
+    string-anchorable), sub-step structure, six pipeline outcomes
+    enumerated, JTBD-301 acknowledgement on all four outcome paths, P070
+    matched-local-ticket cross-reference comment, **load-bearing
+    anti-AskUserQuestion assertion** at the branch decision (protects
+    JTBD-001 + JTBD-006 against inverse-P078 drift per P132
+    mechanical-stage carve-out / ADR-044 category 4), fail-soft, downstream
+    non-obligation, AFK silent path, SLICE-C-FLAG-STUB marker.
+
+  - `packages/risk-scorer/agents/test/inbound-report-contract.bats`
+    (27 tests) — inbound-report subagent prompt contract: frontmatter,
+    sibling-not-extension framing, two-axis rubric, four classifications,
+    structured verdict block, ADR-026 grounding, read-only invariant,
+    P123 block-list scope carve-out, RISK-POLICY.md integration.
+
+  - `packages/risk-scorer/skills/assess-inbound-report/test/assess-inbound-report-contract.bats`
+    (14 tests) — on-demand skill contract: frontmatter, subagent
+    delegation, no marker self-writes, manual-vs-pipeline carve-out,
+    JTBD-005 + JTBD-202 drivers, ADR-015 Scope-table row.
+
+  - `packages/itil/skills/review-problems/test/inbound-channels-cache-shape.bats`
+    (16 tests — behavioural per P081) — JSON file shape contracts:
+    upstream-channels.json + upstream-cache.json + inbound-discovery-log.md
+    P131 path discipline.
+
+  All 85 assertions pass; broader test suite (205 tests across
+  review-problems + risk-scorer surfaces) green.
+
+  Full behavioural synthetic-channel fixture (running the pipeline
+  end-to-end with synthetic gh API responses and asserting six-outcome
+  routing) remains deferred to the P012 master harness ticket; in-skill
+  behavioural-replay is structurally limited per ADR-005 / P011 Permitted
+  Exception.
+
+  Slice E closes the R009 SKILL-prose-class empirical-coverage gap that
+  the pipeline scorer flagged on Slice B + Slice C ship.
+
 ## 0.8.0
 
 ### Minor Changes

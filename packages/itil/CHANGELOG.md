@@ -1,5 +1,189 @@
 # @windyroad/problem
 
+## 0.29.0
+
+### Minor Changes
+
+- 368b8e6: RFC-004 Slice C: review-problems Step 4.5 inbound-discovery + assessment-pipeline
+
+  Implements `/wr-itil:review-problems` Step 4.5 (ADR-062 § Step 8.5 / Decision
+  Outcome) per RFC-004 Slice C. Wires the runtime orchestration that activates
+  the channel-config + cache + audit-log scaffold (Slice A + D, shipped
+  `ca4f6e4`) and consumes the `wr-risk-scorer:inbound-report` subagent
+  (Slice B, shipped `f635470`).
+
+  The step polls three GitHub channels (`github-issues` / `github-discussions` /
+  `github-security-advisories`), matches fresh reports against local tickets via
+  P070's semantic-comparator, and routes unmatched reports through the
+  six-step assessment pipeline:
+
+  1. Version-aware classification (P129 carve-out — stub seam; skipped until P129
+     lands).
+  2. JTBD-alignment classifier (`wr-jtbd:agent`): three outcomes —
+     aligned-with-existing-JTBD / aligned-with-new-JTBD-for-existing-persona /
+     not-aligned.
+  3. Dual-axis risk classifier (`wr-risk-scorer:inbound-report` from Slice B):
+     four outcomes — safe-low-fix-risk / safe-high-fix-risk /
+     above-threshold-risk / clear-malicious-request.
+  4. Above-threshold-pushback branch: gated `gh issue comment` declining the
+     report (external-comms gate per ADR-028 amended).
+  5. Clear-malicious branch: brief gated verdict comment BEFORE close (JTBD-301
+     acknowledgement contract — silent close forbidden). Append handle to
+     `docs/audits/inbound-discovery-log.md` for P123 block-list future
+     consumption.
+  6. Safe-and-valid branch: invoke `/wr-itil:capture-problem --no-prompt
+<body-verbatim>` (default `type=technical`; maintainer re-classifies at
+     next interactive review-problems re-rate) + gated acknowledgement
+     `gh issue comment` carrying the new local-ticket reference.
+
+  JTBD-301 acknowledgement contract honored on the matched-local-ticket path
+  too: P070 semantic-comparator hit posts a gated cross-reference comment naming
+  the local ticket (silent-skip would break "every report receives a verdict").
+
+  Mechanical-stage carve-out (P132 / ADR-044 category 4 silent framework
+  action): branch decisions resolve from JTBD-alignment + dual-axis-risk
+  verdicts; Step 4.5 does NOT use `AskUserQuestion` at the branch decision.
+  AFK orchestrator (`/wr-itil:work-problems` Step 6.5) calls into Step 4.5
+  silently; user-attention surfaces only at existing external-comms gates
+  (known interrupt class per ADR-028).
+
+  Fail-soft contract: any error in Step 4.5 emits advisory and continues to
+  Step 5 README rewrite. Per-branch gate-denial sub-branches preserve the
+  report for the next pass when an external-comms gate denies a verdict /
+  acknowledgement / pushback comment (silent-skip would break JTBD-301).
+
+  `--force-upstream-recheck` parsed as a Slice C minimal string-match stub
+  (marked `SLICE-C-FLAG-STUB` in the SKILL.md prose); Slice F replaces with
+  proper argument parsing + TTL-expiry auto-recheck branch.
+
+  Bats coverage deferred to Slice E per RFC scope (synthetic-channel fixture
+  exercising each of the six pipeline outcomes + anti-`AskUserQuestion`
+  assertion protecting the P132 mechanical-stage carve-out).
+
+  The SKILL.md naming-reconciliation note at the top of Step 4.5 preserves the
+  "Step 8.5" and "Step 9e" substring anchors verbatim so ADR-062 § Confirmation
+  criterion 1 remains string-anchorable without mid-stream ADR amendment.
+
+  Architect PASS (5 inline-prose hardenings folded in). JTBD PASS (no gaps).
+  External-comms substantive PASS (no Confidential Information class matched —
+  project-internal artefact IDs only); gate-key bypass per P166 (agents lack
+  Bash for shasum). Pipeline PROCEED.
+
+### Patch Changes
+
+- e8ef115: RFC-004 Slice E: bats coverage for inbound-discovery + assessment-pipeline
+
+  Closes the R009 empirical-coverage gap for Slice B (`f635470`) + Slice C
+  (`368b8e6`) SKILL/agent prose. 85 assertions across 4 bats files —
+  structural-with-Permitted-Exception per ADR-005 / P011 / ADR-037 /
+  ADR-052 § Surface 2 for SKILL/agent-prose contracts; behavioural per
+  P081 for JSON file shapes.
+
+  Files added:
+
+  - `packages/itil/skills/review-problems/test/inbound-discovery-contract.bats`
+    (28 tests) — Step 4.5 SKILL.md prose contract: section presence,
+    ADR-062 substring anchors preserved (Confirmation criterion 1
+    string-anchorable), sub-step structure, six pipeline outcomes
+    enumerated, JTBD-301 acknowledgement on all four outcome paths, P070
+    matched-local-ticket cross-reference comment, **load-bearing
+    anti-AskUserQuestion assertion** at the branch decision (protects
+    JTBD-001 + JTBD-006 against inverse-P078 drift per P132
+    mechanical-stage carve-out / ADR-044 category 4), fail-soft, downstream
+    non-obligation, AFK silent path, SLICE-C-FLAG-STUB marker.
+
+  - `packages/risk-scorer/agents/test/inbound-report-contract.bats`
+    (27 tests) — inbound-report subagent prompt contract: frontmatter,
+    sibling-not-extension framing, two-axis rubric, four classifications,
+    structured verdict block, ADR-026 grounding, read-only invariant,
+    P123 block-list scope carve-out, RISK-POLICY.md integration.
+
+  - `packages/risk-scorer/skills/assess-inbound-report/test/assess-inbound-report-contract.bats`
+    (14 tests) — on-demand skill contract: frontmatter, subagent
+    delegation, no marker self-writes, manual-vs-pipeline carve-out,
+    JTBD-005 + JTBD-202 drivers, ADR-015 Scope-table row.
+
+  - `packages/itil/skills/review-problems/test/inbound-channels-cache-shape.bats`
+    (16 tests — behavioural per P081) — JSON file shape contracts:
+    upstream-channels.json + upstream-cache.json + inbound-discovery-log.md
+    P131 path discipline.
+
+  All 85 assertions pass; broader test suite (205 tests across
+  review-problems + risk-scorer surfaces) green.
+
+  Full behavioural synthetic-channel fixture (running the pipeline
+  end-to-end with synthetic gh API responses and asserting six-outcome
+  routing) remains deferred to the P012 master harness ticket; in-skill
+  behavioural-replay is structurally limited per ADR-005 / P011 Permitted
+  Exception.
+
+  Slice E closes the R009 SKILL-prose-class empirical-coverage gap that
+  the pipeline scorer flagged on Slice B + Slice C ship.
+
+- fb8f326: RFC-004 Slice F: --force-upstream-recheck flag wiring + TTL-expiry auto-recheck
+
+  Replaces the Slice C SLICE-C-FLAG-STUB string-match with proper tokenized
+  $ARGUMENTS parsing. Step 4.5a now recognises `--force-upstream-recheck`
+  and `--no-force-upstream-recheck` flags; unknown inbound-discovery flags
+  surface an advisory rather than silently ignoring.
+
+  Step 4.5b refactored into four explicit branches:
+
+  - force-flag branch — `--force-upstream-recheck` bypasses TTL.
+  - first-run branch — `last_checked == null`; fresh cache.
+  - TTL-expiry auto-recheck branch — `cache_age > ttl_seconds`; self-healing
+    across maintainer cadence without requiring the explicit flag.
+  - cache-fresh within-TTL branch — silent-pass per ADR-013 Rule 5.
+
+  The auto-recheck branch is what makes the system self-healing — a
+  maintainer who runs `/wr-itil:review-problems` once a week still gets a
+  fresh poll after the 24h default TTL expires. The explicit flag is the
+  JTBD-202 pre-flight surface for tighter cadence (e.g. immediately before
+  a release).
+
+  Bats: SLICE-C-FLAG-STUB-absent assertion + 5 new Slice F assertions
+  covering tokenized parsing + TTL-expiry + cache-fresh + within-TTL
+  silent-pass + unknown-flag advisory.
+
+  Refs: RFC-004
+
+- ae73b7c: RFC-004 Slice G + in-progress → verifying transition (P079 fix shipped)
+
+  Slice G adds the `## Inbound Upstream Reports` section renderer to
+  `/wr-itil:review-problems` Step 5 README template and applies it to the
+  live `docs/problems/README.md` as an advisory-row initial state. ADR-062
+  § Step 9e per the naming-reconciliation note (current SKILL numbering:
+  Step 5).
+
+  Columns: `# | Source | Title | Author | Created | Classification |
+Matched local ticket`. Lazy-empty discipline — empty table body when
+  discovery has run with zero reports; advisory row when no discovery pass
+  has run yet.
+
+  RFC-004 transitions in-progress → verifying per the manage-rfc
+  transition-table contract (terminal-slice commit folds in the rename +
+  § Verification section per the skill spec). All seven slices (A-G)
+  shipped. Closure gated on user-side behavioural replay per ADR-062
+  § Confirmation criterion 3 — four synthetic-report scenarios (clean /
+  out-of-scope / info-extraction / matched-local-ticket) — and two
+  future-touch cross-reference notes (ADR-024 + ADR-046 amendments).
+
+  Bats refresh adds 3 Slice G assertions to inbound-discovery-contract.bats
+  (section header + lazy-empty discipline + column shape).
+
+  README index housekeeping:
+
+  - docs/rfcs/README.md WSJF Rankings empties; Verification Queue gains
+    RFC-004 row with the seven-slice commit chain.
+  - docs/problems/README.md P079 reverse-trace ## RFCs Status column
+    flips in-progress → verifying via idempotent helper.
+  - docs/problems/README.md P196 (premature-completion class-of-behavior
+    ticket captured this session) added to WSJF Rankings at WSJF 1.0
+    placeholder — reconciles the P196 capture commit's deferred README
+    refresh per capture-problem Step 6 contract.
+
+  Refs: RFC-004
+
 ## 0.28.1
 
 ### Patch Changes
