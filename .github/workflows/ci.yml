@@ -85,6 +85,9 @@ jobs:
       - name: Check external-comms-gate.sh copies in sync (P064, ADR-028 amended)
         run: npm run check:external-comms-gate
 
+      - name: Check derive-first-dispatch.sh copies in sync (P132 Phase 2a-iii-B, ADR-017)
+        run: npm run check:derive-first-dispatch
+
       - name: Check plugin manifest versions in sync with package.json (P042, ADR-021)
         run: npm run check:plugin-manifests
 

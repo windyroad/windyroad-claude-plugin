@@ -18,19 +18,50 @@ Scan for existing ADRs:
 - Read any decisions related to the topic being discussed (if the user has mentioned a topic)
 - If `docs/decisions/` does not exist, create it
 
-### 2. Gather context from the user
+### 2. Gather context (P132 derive-first; ADR-044 category-4 silent-framework on derivable fields; category-1 direction-setting only on user-judgment fields)
 
-You MUST use the AskUserQuestion tool to collect the decision context. Do not proceed to step 3 until you have answers.
+**Shared dispatch helper**: this surface invokes `packages/architect/lib/derive-first-dispatch.sh` for the canonical slug derivation (Title) and I2-isomorphic stderr advisory format. The canonical source-of-truth lives at `packages/shared/derive-first-dispatch.sh`; the architect package carries a synced per-package copy at `packages/architect/lib/derive-first-dispatch.sh` per ADR-017 (Shared code duplicated into per-package lib/ kept in sync). The same helper is sourced by `/wr-itil:capture-problem` Step 1.5, `/wr-itil:manage-incident` Step 4, and `/wr-itil:manage-problem` Step 4 (each from its own per-package `packages/itil/lib/` copy); drift in the advisory shape across the four surfaces re-opens P132.
 
-Ask the user:
+**Derive-first dispatch.** ADR creation is fundamentally user-judgment-bound — only the user knows the decision space, the alternatives considered, and the chosen-option rationale. But the **declaration-skeleton fields** (Title, status, date, reassessment-date, context-and-problem-statement) carry observable evidence in the user's prose, the working tree, and the wall-clock — the framework can resolve them without firing `AskUserQuestion`. The retained `AskUserQuestion` surfaces (Decision Drivers, Considered Options, Decision Outcome, Consequences, Confirmation, decision-makers) are the genuine **category-1 direction-setting** fields.
 
-1. **What is the decision about?** A brief title and the problem being solved.
-2. **What options were considered?** At least 2 alternatives (including "do nothing" if applicable). For each option, ask for key pros and cons.
-3. **What was chosen and why?** The selected option and the primary reason.
-4. **Who are the decision-makers?** Who made or is making this decision.
-5. **Any consequences to note?** Known good, neutral, or bad outcomes.
+The P132 inverse-P078 trap (`docs/problems/known-error/132-...md`) is the load-bearing motivation. create-adr Step 2 is the **fourth declaration-skill surface** under Phase 2a to ship the derive-first dispatch (after `/wr-itil:capture-problem` Step 1.5, `/wr-itil:manage-incident` Step 4, and `/wr-itil:manage-problem` Step 4). The pattern is I2-isomorphic across all four — the stderr advisory shape `<skill>: derived <field>=<value> from <source>; <reversibility>` is identical beyond substituted values per the helper's `emit_stderr_advisory` function (architect verdict 2026-05-16 P132 Phase 2a-iii-B: pattern lock-in across the 4-surface set).
 
-If the user has already provided this context in the conversation (e.g., as arguments), use what they've given and only ask about what's missing.
+Resolve each field via the following dispatch. **The order is load-bearing** — every derivable field resolves silently with a stderr advisory citing the source; only user-judgment fields fire `AskUserQuestion`.
+
+| Field | Dispatch | ADR-044 category |
+|-------|----------|------------------|
+| **Title** | Derive silently. Kebab-case the first 8-10 non-stopword tokens of the user's prose problem-statement (same slug derivation as `/wr-itil:capture-problem` Step 1.4, `/wr-itil:manage-incident` Step 4, and `/wr-itil:manage-problem` Step 4 — uses the shared helper's `derive_kebab_slug` function). Emit stderr advisory: `create-adr: derived title='<slug>' from problem-statement; re-invoke with the desired title or rename the file if the slug is wrong`. Do NOT fire AskUserQuestion. | category-4 silent-framework |
+| **status** (frontmatter) | Always `proposed` for new ADRs per Step 4 template convention. No ask, no advisory needed — SKILL convention is unambiguous. | category-4 silent-framework |
+| **date** (frontmatter) | Today's date (`date +%Y-%m-%d`) per Step 4 template. No ask, no advisory needed — wall-clock derivation is unambiguous. | category-4 silent-framework |
+| **reassessment-date** (frontmatter) | Today + 3 months (`date -v+3m +%Y-%m-%d` on BSD-date / `date -d '+3 months' +%Y-%m-%d` on GNU-date) per Step 4 template. Emit stderr advisory: `create-adr: derived reassessment-date='<YYYY-MM-DD>' from today+3-months default; re-invoke with --reassessment-date= or edit the frontmatter to override`. | category-4 silent-framework |
+| **Context and Problem Statement** | Pull verbatim from `$ARGUMENTS` prose into the Step 4 template's `## Context and Problem Statement` section. **Fallback**: when `$ARGUMENTS` carries NO problem prose (only flags or empty body), fire AskUserQuestion as the genuine category-1 direction-setting surface — *"only the user knows the problem being solved."* Question text: *"What problem does this ADR solve? Why is a decision needed now?"* This is the prose-fallback path; the typical maintainer invocation carries the problem-statement in arguments. | category-1 direction-setting (fallback only; category-4 silent-framework on the typical path where prose is present) |
+| **decision-makers** | Retain AskUserQuestion. Architect verdict 2026-05-16: silent derivation from `git config user.name` would conflate "who committed the ADR" with "who made the decision" — a multi-party decision is one of the canonical mis-attribution risks ADR-013's identity model rejects. Once-per-ADR ask is low-friction in absolute terms. Question text: *"Who are the decision-makers?"* | category-1 direction-setting |
+| **Decision Drivers** | Retain AskUserQuestion. Only the user knows which factors weighted the decision. This is the create-adr-equivalent of manage-problem Step 4's Description (the user-judgment surface). | category-1 direction-setting |
+| **Considered Options** | Retain AskUserQuestion. Only the user knows the alternatives evaluated. ADR-044 cat-5 (taste) would only apply if the framework could offer 2+ valid options — but the alternative space is genuinely user-knowledge (the framework can offer "do nothing" + a status-quo option but the actual alternatives are the user's). Architect verdict 2026-05-16: confirmed cat-1 over cat-5. Per MADR 4.0: ≥2 alternatives including "do nothing" where applicable. | category-1 direction-setting |
+| **Decision Outcome** / **Rationale** | Retain AskUserQuestion. The chosen option + primary reason for the choice. | category-1 direction-setting |
+| **Consequences** (Good / Neutral / Bad) | Retain AskUserQuestion. Only the user knows the expected consequences of the decision. | category-1 direction-setting |
+| **Confirmation** | Retain AskUserQuestion. Testable verification criteria. | category-1 direction-setting |
+| **consulted** / **informed** (frontmatter) | Default to empty list per Step 4 template; fold into the decision-makers AskUserQuestion call if the user surfaces stakeholders. | category-4 silent-framework (default empty); category-1 (when user cites stakeholders) |
+
+**Inferred fields (no ask, no advisory needed)**:
+
+- **supersedes** (frontmatter): empty list by default; populated only via Step 6 supersession handling when the user explicitly cites a superseded decision.
+
+**Stderr advisory contract**: each derived field emits a SINGLE line to stderr (NOT stdout, NOT in the ADR body) via the shared helper's `emit_stderr_advisory` function in `packages/architect/lib/derive-first-dispatch.sh`. The canonical format produced by the helper:
+
+```
+create-adr: derived <field>=<value> from <source>; <reversibility-clause>
+```
+
+The advisory text shape is I2-isomorphic — same sentence structure across all four derive-first declaration-skill surfaces (`capture-problem`, `manage-incident`, `manage-problem`, `create-adr`) beyond substituted values + source names. The helper is the single source-of-truth for this format; drift here re-opens P132. Embedding the advisory in stdout would risk machine-readers parsing it as an ADR-body line; embedding it in the ADR body would violate the MADR 4.0 schema. Stderr is the correct channel — visible to interactive maintainers in the terminal; invisible to ADR consumers; loggable by orchestrators that capture subprocess stderr.
+
+**ADR-026 cost-source grounding**: each derived field cites its source in the advisory (problem-statement token sequence for Title; today's date for date / reassessment-date; default convention for status). The `re-invoke or update if mis-rated` clause carries the reversibility marker ADR-026 mandates for ungrounded outputs.
+
+**AFK fail-safe (ADR-013 Rule 6)**: under AFK orchestration, derivable fields (Title / status / date / reassessment-date / Context-when-prose-present) resolve without interactive input. The 6 retained cat-1 AskUserQuestion surfaces (decision-makers / Decision Drivers / Considered Options / Decision Outcome / Consequences / Confirmation) WILL halt AFK execution — that is **correct behaviour** because ADR creation is genuinely user-judgment-bound (the user authors the decision; the framework cannot). JTBD-006 protection: AFK orchestrators that need ADR creation should call `/wr-architect:capture-adr` (the lightweight aside surface) for the skeleton + Title derivation, then defer the cat-1 field collection to the user's next interactive session via the capture-adr deferred-flagged-sections mechanism.
+
+**Cross-skill consistency note**: this is the **fourth declaration-skill surface** to ship the derive-first dispatch (after `/wr-itil:capture-problem` Step 1.5, `/wr-itil:manage-incident` Step 4, and `/wr-itil:manage-problem` Step 4 in commits b7cc645 / 43255d2 / 30fd22b). Phase 2a-iii-B (2026-05-16) closes Phase 2a's full 4-surface scope — the I2-isomorphic stderr advisory format is now locked-in across `capture-problem`, `manage-incident`, `manage-problem`, AND `create-adr` via the shared helper at `packages/shared/derive-first-dispatch.sh` with synced per-package lib/ copies. Per ADR-017, drift between copies is caught by `npm run check:derive-first-dispatch` in CI.
+
+If the user has already provided context in `$ARGUMENTS` or earlier conversation, use what they've given and only fire AskUserQuestion for the cat-1 fields still missing.
 
 ### 2b. Decision-boundary analysis (multi-decision check)
 

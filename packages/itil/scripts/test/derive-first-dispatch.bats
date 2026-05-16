@@ -33,6 +33,8 @@ setup() {
   # shellcheck disable=SC1090
   source "$HELPER"
   PKG_ROOT="$(cd "$(dirname "$BATS_TEST_FILENAME")/../.." && pwd)"
+  REPO_ROOT="$(cd "$(dirname "$BATS_TEST_FILENAME")/../../../.." && pwd)"
+  ARCHITECT_PKG_ROOT="$REPO_ROOT/packages/architect"
 }
 
 # ----------------------------------------------------------------------
@@ -231,9 +233,14 @@ setup() {
 }
 
 # ----------------------------------------------------------------------
-# Cross-skill consistency: all 3 SKILL.md surfaces reference the helper
+# Cross-skill consistency: all 4 SKILL.md surfaces reference the helper
 # as the shared dispatch mechanism. The I2-isomorphic stderr advisory
 # format is locked-in by reference to derive-first-dispatch.sh.
+#
+# Phase 2a-iii-B (2026-05-16): 4th adopter wr-architect:create-adr added.
+# Helper canonical source moved to packages/shared/ per ADR-017 sync
+# pattern; per-package lib/ copies in packages/itil/lib/ and
+# packages/architect/lib/ stay byte-identical via scripts/sync-derive-first-dispatch.sh.
 # ----------------------------------------------------------------------
 
 @test "capture-problem Step 1.5 cross-references derive-first-dispatch.sh helper" {
@@ -257,9 +264,41 @@ setup() {
   [ "$output" -ge 1 ]
 }
 
-@test "helper file documents its three caller surfaces (audit trail)" {
-  # The helper's header comment must name the three SKILL.md surfaces it
+@test "create-adr Step 2 cross-references derive-first-dispatch.sh helper (Phase 2a-iii-B 4th adopter)" {
+  # The 4th adopter (architect package) sources from its own per-package
+  # lib/ copy (NOT cross-package from itil) per ADR-017.
+  run grep -c "derive-first-dispatch\\.sh\\|packages/architect/lib/derive-first-dispatch" \
+    "${ARCHITECT_PKG_ROOT}/skills/create-adr/SKILL.md"
+  [ "$status" -eq 0 ]
+  [ "$output" -ge 1 ]
+}
+
+@test "helper file documents its four caller surfaces (audit trail)" {
+  # The helper's header comment must name the four SKILL.md surfaces it
   # serves so the audit trail is recoverable from the helper itself.
-  run grep -E "capture-problem|manage-incident|manage-problem" "$HELPER"
+  # Phase 2a-iii-B adds create-adr as the 4th adopter.
+  run grep -E "capture-problem" "$HELPER"
+  [ "$status" -eq 0 ]
+  run grep -E "manage-incident" "$HELPER"
+  [ "$status" -eq 0 ]
+  run grep -E "manage-problem" "$HELPER"
+  [ "$status" -eq 0 ]
+  run grep -E "create-adr" "$HELPER"
+  [ "$status" -eq 0 ]
+}
+
+@test "per-package lib/ copies are byte-identical to canonical packages/shared/ source (ADR-017)" {
+  # Phase 2a-iii-B + ADR-017: canonical at packages/shared/, synced copies
+  # in per-package lib/. The sync script (scripts/sync-derive-first-dispatch.sh)
+  # in --check mode is the CI guard; this test asserts the post-condition.
+  local shared_src="${REPO_ROOT}/packages/shared/derive-first-dispatch.sh"
+  local itil_copy="${REPO_ROOT}/packages/itil/lib/derive-first-dispatch.sh"
+  local architect_copy="${REPO_ROOT}/packages/architect/lib/derive-first-dispatch.sh"
+  [ -f "$shared_src" ]
+  [ -f "$itil_copy" ]
+  [ -f "$architect_copy" ]
+  run diff -q "$shared_src" "$itil_copy"
+  [ "$status" -eq 0 ]
+  run diff -q "$shared_src" "$architect_copy"
   [ "$status" -eq 0 ]
 }

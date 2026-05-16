@@ -23,6 +23,8 @@
     "check:session-marker": "bash scripts/sync-session-marker.sh --check",
     "sync:external-comms-gate": "bash scripts/sync-external-comms-gate.sh",
     "check:external-comms-gate": "bash scripts/sync-external-comms-gate.sh --check",
+    "sync:derive-first-dispatch": "bash scripts/sync-derive-first-dispatch.sh",
+    "check:derive-first-dispatch": "bash scripts/sync-derive-first-dispatch.sh --check",
     "sync:migrate-problems-layout": "bash scripts/sync-migrate-problems-layout.sh",
     "check:migrate-problems-layout": "bash scripts/sync-migrate-problems-layout.sh --check",
     "sync:plugin-manifests": "node scripts/sync-plugin-manifests.mjs",
