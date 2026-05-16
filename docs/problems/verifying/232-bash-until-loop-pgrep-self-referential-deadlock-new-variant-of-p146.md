@@ -1,6 +1,6 @@
 # Problem 232: bash until-loop with `pgrep -f 'bats --recursive'` self-references the polling loop's own command line — new variant of P146 stuck-before-emit deadlock; SKILL.md prompt warning insufficient
 
-**Status**: Open
+**Status**: Verification Pending
 **Reported**: 2026-05-16
 **Priority**: 9 (Med) — Impact: 3 (Moderate — iter wastes 30–60 min wall-clock + $20–30 in subscription cost; ITERATION_SUMMARY metadata lost per P147 stuck-before-emit; retro commit lost; requires manual SIGTERM) × Likelihood: 3 (Likely — recurred during P132 Phase 2a-iii-B iter despite explicit SKILL.md prompt warning against the antipattern class)
 **Effort**: M (deferred — re-rate at next `/wr-itil:review-problems`)
@@ -56,9 +56,9 @@ Manual SIGTERM. Wall-clock + cost already spent; metadata reconstructed from `gi
 
 ### Investigation Tasks
 
-- [ ] Confirm the self-referential `pgrep -f` deadlock pattern in a behavioural bats fixture
-- [ ] Audit the SKILL.md prompt warnings — do they explicitly cite the self-reference failure mode, or only the TAP-vs-console-summary failure mode? (Empirically the prompt warns about TAP-vs-console but not self-reference.)
-- [ ] Decide structural enforcement shape (see Fix Strategy)
+- [x] Confirm the self-referential `pgrep -f` deadlock pattern in a behavioural bats fixture — `packages/itil/hooks/test/itil-bash-polling-antipattern-detect.bats` (17 cases: 6 positive deny shapes including the P232 deadlock witness, 7 allow negatives including one-shot `pgrep -f`, non-`-0` `pkill`, `wait $!`, plus tool-name + parse-incomplete fail-open + advisory-message content + ADR-045 budget).
+- [x] Audit the SKILL.md prompt warnings — confirmed the P146 clause cites TAP-vs-console-summary failure mode only; the self-reference failure mode is now added as a second parallel clause in Step 5 iter prompt with worked-example syntax (`until ! pgrep -f 'bats --recursive'`).
+- [x] Decide structural enforcement shape — both Option A (prompt extension) and Option B (PreToolUse:Bash hook) shipped together. Option B is the load-bearing structural enforcement; Option A is documentation belt+suspenders.
 
 ## Fix Strategy
 
@@ -84,6 +84,26 @@ Three options enumerated:
 - [[P147]] — stuck-before-emit subclass. P232 is a new recurrence at the stuck-before-emit boundary.
 - [[P083]] — iteration worker prompt forbids ScheduleWakeup. Same prompt-discipline class; demonstrates prompt-level enforcement has precedent.
 
+## Fix Released
+
+Released in the same commit (fold-fix Open → Verification Pending per ADR-022 amendment 2026-04-29). Awaiting user verification on the next `/wr-itil:work-problems` iter that backgrounds a `bats` run — the PreToolUse:Bash hook should deny any `until ! pgrep -f` polling shape with the P232 deny message before the loop runs. Manual exercise:
+
+```
+$ echo '{"tool_name":"Bash","tool_input":{"command":"until ! pgrep -f bats; do sleep 5; done"}}' | bash packages/itil/hooks/itil-bash-polling-antipattern-detect.sh
+# Expect: permissionDecision: deny, reason cites P232 + names wait $bg_pid + BashOutput.
+```
+
+**What changed**:
+
+- `packages/itil/hooks/itil-bash-polling-antipattern-detect.sh` — new PreToolUse:Bash hook. Detection regex `(until|while)[[:space:]]+!?[[:space:]]*(pgrep|pkill[[:space:]]+-0)` catches the polling-loop shape (loop construct + pgrep/pkill -0 polling mechanism) without false-matching one-shot `pgrep -f` calls or non-`-0` `pkill` signals. Deny message cites P232 and names both recovery alternatives (`wait $bg_pid` shell-native; Bash-tool `run_in_background=true` + `BashOutput` harness-native). Mirrors the `p057-staging-trap-detect.sh` shape per architect verdict 2026-05-16.
+- `packages/itil/hooks/hooks.json` — registered the new hook as a sibling PreToolUse:Bash entry alongside `p057-staging-trap-detect.sh`.
+- `packages/itil/hooks/test/itil-bash-polling-antipattern-detect.bats` — 17 behavioural cases (6 positive deny, 7 allow negatives, 1 tool-name filter, 2 parse-incomplete fail-open, 1 deny-message content cite, 1 ADR-045 deny-budget). Confirms detection of the P232 deadlock-witness shape verbatim + the heredoc-body and signal-0 sibling variants + multi-line trailing-tail shape. Per ADR-052 behavioural default.
+- `packages/itil/skills/work-problems/SKILL.md` Step 5 iter prompt — added a second polling-discipline clause parallel to the existing P146 clause. Names the self-reference failure mode, gives the `until ! pgrep -f 'bats --recursive'` worked-example syntax with the empirical 2026-05-16 deadlock-witness context (4 concurrent polling loops + 45 min wall-clock waste + $20-30 cost), names both recovery alternatives, and points at the structural hook for belt-and-suspenders enforcement.
+- `packages/itil/skills/work-problems/SKILL.md` Related section — added P232 reference between P147 and the existing P146 entry.
+
+**Why both Option A and Option B in one commit**: architect verdict 2026-05-16 — same root cause (polling-shape detection), two enforcement layers (structural deny at PreToolUse + prompt discipline in the iter-dispatch context). ADR-014 supports one cohesive commit; the changeset entry describes both.
+
 ## Change Log
 
+- **2026-05-16** (later) — Fix Released. Option A (SKILL.md prompt extension) + Option B (PreToolUse:Bash hook) shipped together in the manage-problem commit. Architect APPROVE (no new ADR; sibling to `p057-staging-trap-detect.sh` precedent); JTBD ALIGN (JTBD-006 AFK orchestrator primary beneficiary). Transition Open → Verification Pending via fold-fix per ADR-022 amendment.
 - **2026-05-16** — Captured by `/wr-itil:work-problems` orchestrator main-turn post-SIGTERM wrap, per user direction "Yes — capture as new ticket" to AskUserQuestion batch after iter 4 deadlock recovery. Iter 4 (P132 Phase 2a-iii-B) was the recurrence — main commit `da1a3fe` landed intact; retro lost; SIGTERM at 103 min.
