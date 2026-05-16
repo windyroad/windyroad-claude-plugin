@@ -1,6 +1,6 @@
 # Problem 038: No voice-and-tone gate on external communications
 
-**Status**: Verification Pending
+**Status**: Closed
 **Reported**: 2026-04-17
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: XL — multi-surface PreToolUse hook (gh, npm, RapidAPI, marketplace) + pre-flight rewrite skill + voice profile integration + ADR for new enforcement surface + regression fixtures; cross-plugin with voice-tone. Marginal at fold-fix time (2026-05-14) was L — canonical hook + composite-marker scheme + sync script already shipped under P064 / ADR-028 amended 2026-04-21; P038 marginal work was per-package wiring (.conf + agent + mark hook + skill + 13 bats).
