@@ -318,3 +318,53 @@ assert rec.get('last_invocation_iso') is not None, rec
   # Only the in-window invocation counts; old one drops.
   echo "$output" | grep -q '"invocations":1'
 }
+
+# ── Phase 2d: substring-prefilter false-positive fall-through ───────────────
+# Iter 6 (2026-05-17) adds a cheap substring guard before json.loads() to skip
+# lines that cannot possibly contribute counts. The filter checks for the
+# literal substrings `"type":"assistant"` and `"tool_use"` in each line; lines
+# missing either are skipped without parsing. Correctness invariant: any line
+# whose body content (a `type=text` block, a tool_result, a user message
+# rendered into the transcript verbatim) happens to contain those substrings
+# MUST fall through to full JSON parse and the existing not-a-real-tool_use
+# check MUST exclude it from counts. This fixture seeds exactly that scenario:
+# an assistant message carrying a single `type=text` content block whose body
+# literally contains both trigger substrings. The legitimate tool_use line in
+# the same fixture establishes the expected count = 1. Without the existing
+# `c.get("type") == "tool_use"` guard, the false-positive line would inflate
+# counts; the assertion below catches any future regression on the
+# fall-through path.
+
+@test "Phase 2d: false-positive substring fall-through does not inflate counts" {
+  local sess="$TRANSCRIPT_ROOT/proj/falsepos.jsonl"
+  local ts=$(recent_iso 1)
+  # One legitimate Skill invocation (counts as 1).
+  write_skill_invocation "$sess" "wr-itil:manage-problem" "$ts"
+  # One adversarial assistant message: text body contains both trigger
+  # substrings but no real tool_use entry. Must NOT add to counts.
+  python3 - "$sess" "$ts" <<'PYEOF'
+import json, sys
+file, ts = sys.argv[1], sys.argv[2]
+rec = {
+  "type": "assistant",
+  "timestamp": ts,
+  "message": {
+    "role": "assistant",
+    "content": [
+      {"type": "text", "text": 'discussing "type":"assistant" and "tool_use" tokens in prose'}
+    ]
+  }
+}
+with open(file, "a") as fh:
+  fh.write(json.dumps(rec) + "\n")
+PYEOF
+
+  run "$SCRIPT" --window-days=30 --root="$TRANSCRIPT_ROOT" --project-root="$PROJECT_ROOT"
+  [ "$status" -eq 0 ]
+  # Exactly one record (the legitimate Skill invocation); count = 1.
+  local line_count
+  line_count="$(printf '%s' "$output" | grep -c .)"
+  [ "$line_count" -eq 1 ]
+  echo "$output" | grep -q '"invocations":1'
+  echo "$output" | grep -q '"surface":"wr-itil:manage-problem"'
+}

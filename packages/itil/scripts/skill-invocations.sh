@@ -169,6 +169,22 @@ for jsonl in jsonl_iter:
         continue
     with fh:
         for line in fh:
+            # Phase 2d (P087) substring pre-filter — skip json.loads() on lines
+            # that cannot possibly contribute a count. The literal substring
+            # `"tool_use"` is the discriminating token: every content block we
+            # count carries `"type":"tool_use"`, while ~60% of in-window
+            # transcript lines (user messages, tool_result blocks, snapshots,
+            # title records) carry no `"tool_use"` value at all. The check is
+            # whitespace-robust because `"tool_use"` is a string value, not a
+            # key:value pair — compact-JSON (`"type":"tool_use"`) and
+            # pretty-JSON (`"type": "tool_use"`) both contain the literal
+            # token verbatim. False-positives (content-body prose containing
+            # the substring) fall through to full parse and the existing
+            # `c.get("type") == "tool_use"` content-block check excludes them.
+            # The "false-positive substring fall-through" bats fixture pins
+            # this invariant.
+            if '"tool_use"' not in line:
+                continue
             try:
                 rec = json.loads(line)
             except Exception:
