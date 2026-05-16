@@ -1,5 +1,0 @@
----
-"@windyroad/itil": patch
----
-
-P132 Phase 2a-iii-A: extract shared derive-first dispatch helper at `packages/itil/lib/derive-first-dispatch.sh`. Centralises the dispatch mechanism shipped across three declaration-skill surfaces (`/wr-itil:capture-problem` Step 1.5, `/wr-itil:manage-incident` Step 4, `/wr-itil:manage-problem` Step 4) — slug derivation (Title), two-sided lexical classifier (Type for capture-problem), RISK-POLICY matrix lookup (Severity / Priority), and the I2-isomorphic stderr advisory format `<skill>: derived <field>=<value> from <source>; <reversibility>`. The three SKILL.md surfaces now name the helper as the canonical mechanism source-of-truth; surface-specific signal definitions stay inline per architect verdict. Capture-problem stderr verb renamed classified -> derived to align with helper. New behavioural bats `packages/itil/scripts/test/derive-first-dispatch.bats` (19 assertions). 297/297 tests green across affected suites. Phase 2a-iii-B remains DEFERRED. No public-API surface change — helper is project-internal.

@@ -1,5 +1,11 @@
 # @windyroad/architect
 
+## 0.7.1
+
+### Patch Changes
+
+- da1a3fe: P132 Phase 2a-iii-B: `/wr-architect:create-adr` Step 2 retrofitted as the 4th adopter of the shared derive-first dispatch helper. Canonical helper relocated from `packages/itil/lib/derive-first-dispatch.sh` to `packages/shared/derive-first-dispatch.sh` per ADR-017 (architect verdict: cross-package source would have violated the self-contained-published-package property). Synced per-package copies at `packages/itil/lib/` and `packages/architect/lib/`; new `scripts/sync-derive-first-dispatch.sh` (with `--check` mode) + `npm run check:derive-first-dispatch` + CI step + drift-detection bats. create-adr SKILL.md Step 2 rewritten from single AskUserQuestion-everything to 12-field derive-first dispatch table: silent-framework cat-4 on Title (kebab from prose), status=proposed, date=today, reassessment-date=today+3mo, Context-and-Problem-Statement (verbatim from `$ARGUMENTS`), consulted/informed defaults; cat-1 direction-setting retained on Decision Drivers, Considered Options, Decision Outcome, Consequences, Confirmation, decision-makers (architect verdict: no silent `git config user.name` derive — multi-party-decision mis-attribution risk). 13 new ADR-044-contract bats for create-adr; 7 new drift bats for sync; 2 new 4-surface assertions in derive-first-dispatch.bats. P132 transitions Known Error → Verification Pending per ADR-022 fold-fix. Phase 2b detection hook remains DEFERRED. Full suite green.
+
 ## 0.7.0
 
 ### Minor Changes
