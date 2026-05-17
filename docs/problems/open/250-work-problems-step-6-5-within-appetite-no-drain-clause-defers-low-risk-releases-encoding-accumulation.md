@@ -2,8 +2,9 @@
 
 **Status**: Open
 **Reported**: 2026-05-17
-**Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
-**Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
+**Priority**: 12 (High) — Impact: 3 (Moderate — encodes accumulation against the RISK-POLICY appetite invariant; defers low-risk releases against explicit user direction "If it's low risk, you should release") × Likelihood: 4 (Likely — fires on every Step 6.5 pass where there is something to release but the cohort isn't full AND risk is below 4/Low appetite; observed pattern, not hypothetical)
+**Effort**: M (Step 6.5 SKILL.md contract amendment — drop "at-appetite-only drain" semantics; drain whenever there is something to release; bats coverage for the new drain condition; potential ADR-018 amendment to align cadence framing with no-accumulation invariant)
+**WSJF**: 12/2 = **6.0** (Open multiplier 1.0; re-rated 2026-05-17 from placeholder during `/wr-itil:review-problems` — ties with P234 / P162 at top of WSJF ranking; sibling P246/P247 fictional-defer class at release-cadence surface)
 **Type**: technical
 
 ## Description

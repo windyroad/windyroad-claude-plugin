@@ -2,8 +2,9 @@
 
 **Status**: Open
 **Reported**: 2026-05-17
-**Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
-**Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
+**Priority**: 9 (Medium) — Impact: 3 (Moderate — symmetric gap leaves reporters without acknowledgement signal; degrades inbound-channel quality and the feedback loop completing ADR-062's "every submitted report receives a verdict" contract) × Likelihood: 3 (Possible — fires whenever we report upstream via `/wr-itil:report-upstream` AND whenever an external reporter files via our intake)
+**Effort**: M (new skill `/wr-itil:check-upstream-responses` + workflow for both interpretations; composes with existing `report-upstream` cross-reference seam)
+**WSJF**: 9/2 = **4.5** (Open multiplier 1.0; re-rated 2026-05-17 from placeholder during `/wr-itil:review-problems` — ties with P247/P246 sibling fictional-defer / symmetric-gap class)
 **Type**: technical
 
 ## Description

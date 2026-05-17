@@ -2,8 +2,9 @@
 
 **Status**: Open
 **Reported**: 2026-05-17
-**Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
-**Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
+**Priority**: 6 (Medium) — Impact: 2 (Minor — improves WSJF estimation accuracy; current t-shirt sizing functions but allows no calibration loop) × Likelihood: 3 (Possible — exercised on every `/wr-itil:review-problems` re-rate pass and every `/wr-itil:work-problem` selection; estimation drift compounds with backlog age)
+**Effort**: M (schema extension on `.afk-run-state/iter*.json` + per-ticket tally + retro-step calibration feedback hook)
+**WSJF**: 6/2 = **3.0** (Open multiplier 1.0; re-rated 2026-05-17 from placeholder during `/wr-itil:review-problems`)
 **Type**: technical
 
 ## Description
