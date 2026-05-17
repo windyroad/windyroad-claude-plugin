@@ -2,10 +2,16 @@
 # Behavioural-fixture coverage for packages/risk-scorer/scripts/evaluate-graduation.sh
 # per ADR-052 (behavioural tests default) and ADR-061 (dogfood graduation criteria).
 #
-# Phase 2a coverage — orthogonal-gate class (Class 3a) only. Atomic-cohort
-# class (Class 3b — Rule 3b RFC cohort enumeration) is deferred to Phase 2b.
-# Maps to ADR-061 Confirmation criterion 2 items a-f (item g atomic-cohort
-# lands in Phase 2b alongside the RFC enumeration logic).
+# Phase 2a coverage — orthogonal-gate class (Class 3a). Maps to
+# ADR-061 Confirmation criterion 2 items a-f.
+#
+# Phase 2b coverage — atomic-cohort class (Class 3b — Rule 3b cohort enumeration).
+# Maps to ADR-061 Confirmation criterion 2 item g (full-cohort evaluation,
+# max(Priority) across cohort tickets, atomic VP-blocked + halt propagation).
+# Cohort detection reads docs/changesets-holding/README.md "Currently held"
+# section and groups entries by shared reinstate-trigger prose (parenthetical
+# elaborations stripped before grouping). Single-member "cohorts" fall back
+# to class=3a (no Phase 2a regression).
 
 setup() {
   REPO_ROOT="$(cd "$(dirname "$BATS_TEST_FILENAME")/../../../.." && pwd)"
@@ -269,4 +275,199 @@ EOF
   echo "$output" | grep -q 'priority=5'
   # Confirm body-referenced P800 was NOT picked up
   ! echo "$output" | grep -q 'ticket=P800'
+}
+
+# ----- Phase 2b: ADR-061 Confirmation criterion 2 item (g) — atomic-cohort -----
+
+# Helper: seed a Currently held entry into docs/changesets-holding/README.md.
+# Cohort detection reads this file and groups entries by shared reinstate-trigger
+# prose (parenthetical elaborations stripped) — see evaluate-graduation.sh.
+seed_holding_readme() {
+  # seed_holding_readme <bullet-line> [<bullet-line>...]
+  local readme="docs/changesets-holding/README.md"
+  if [ ! -f "$readme" ]; then
+    cat > "$readme" <<'EOF'
+# Changesets Holding Area
+
+## Currently held
+
+EOF
+  fi
+  for bullet in "$@"; do
+    printf '%s\n' "$bullet" >> "$readme"
+  done
+}
+
+# Case (g.1) — two members sharing identical reinstate-trigger prose form a cohort
+@test "case (g.1): two members sharing reinstate-trigger form Class 3b cohort" {
+  seed_problem "170" "open" "9"
+  seed_problem "171" "open" "12"
+  seed_changeset "wr-itil-p170-phase4.md"
+  seed_changeset "wr-itil-p171-phase3.md"
+  seed_holding_readme \
+    "- \`wr-itil-p170-phase4.md\` — patch. **Reinstate trigger**: Phase 3 + Phase 4 end-of-chain user verification fires." \
+    "- \`wr-itil-p171-phase3.md\` — minor. **Reinstate trigger**: Phase 3 + Phase 4 end-of-chain user verification fires."
+  run bash "$SCRIPT" "$WORK_DIR"
+  [ "$status" -eq 0 ]
+  # Both members emit class=3b
+  echo "$output" | grep 'changeset=wr-itil-p170-phase4.md' | grep -q 'class=3b'
+  echo "$output" | grep 'changeset=wr-itil-p171-phase3.md' | grep -q 'class=3b'
+  # Both members share the same cohort= column
+  cohort_p170=$(echo "$output" | grep 'changeset=wr-itil-p170-phase4.md' | sed -n 's/.*cohort=\([^ |]*\).*/\1/p')
+  cohort_p171=$(echo "$output" | grep 'changeset=wr-itil-p171-phase3.md' | sed -n 's/.*cohort=\([^ |]*\).*/\1/p')
+  [ -n "$cohort_p170" ]
+  [ "$cohort_p170" = "$cohort_p171" ]
+}
+
+# Case (g.2) — cohort uses max(Priority) across all member tickets per ADR-061 Rule 3b
+@test "case (g.2): cohort priority is max across member tickets" {
+  seed_problem "172" "open" "6"
+  seed_problem "173" "open" "15"
+  seed_problem "174" "open" "9"
+  seed_changeset "wr-itil-p172-slice-a.md"
+  seed_changeset "wr-itil-p173-slice-b.md"
+  seed_changeset "wr-itil-p174-slice-c.md"
+  seed_holding_readme \
+    "- \`wr-itil-p172-slice-a.md\` — patch. **Reinstate trigger**: RFC-009 end-of-chain verification." \
+    "- \`wr-itil-p173-slice-b.md\` — patch. **Reinstate trigger**: RFC-009 end-of-chain verification." \
+    "- \`wr-itil-p174-slice-c.md\` — patch. **Reinstate trigger**: RFC-009 end-of-chain verification."
+  run bash "$SCRIPT" "$WORK_DIR"
+  [ "$status" -eq 0 ]
+  # Every cohort member carries priority=15 (max across P172/P173/P174)
+  echo "$output" | grep 'changeset=wr-itil-p172-slice-a.md' | grep -q 'priority=15'
+  echo "$output" | grep 'changeset=wr-itil-p173-slice-b.md' | grep -q 'priority=15'
+  echo "$output" | grep 'changeset=wr-itil-p174-slice-c.md' | grep -q 'priority=15'
+}
+
+# Case (g.3) — one VP-blocked cohort member marks the entire cohort vp-blocked
+@test "case (g.3): VP-blocked member blocks entire cohort (Rule 2 carve-out symmetric)" {
+  seed_problem "175" "open" "9"
+  seed_problem "176" "verifying" "12"
+  seed_changeset "wr-itil-p175-slice-a.md"
+  seed_changeset "wr-itil-p176-slice-b.md"
+  seed_holding_readme \
+    "- \`wr-itil-p175-slice-a.md\` — minor. **Reinstate trigger**: cohort verification fires." \
+    "- \`wr-itil-p176-slice-b.md\` — minor. **Reinstate trigger**: cohort verification fires."
+  run bash "$SCRIPT" "$WORK_DIR"
+  [ "$status" -eq 0 ]
+  # Both members report status=vp-blocked even though only P176 is in verifying state
+  echo "$output" | grep 'changeset=wr-itil-p175-slice-a.md' | grep -q 'status=vp-blocked'
+  echo "$output" | grep 'changeset=wr-itil-p176-slice-b.md' | grep -q 'status=vp-blocked'
+}
+
+# Case (g.4) — one halt-no-resolution member propagates to entire cohort (architect C1)
+@test "case (g.4): halt-no-resolution member propagates to entire cohort" {
+  seed_problem "177" "open" "9"
+  # P178 deliberately NOT seeded → halt-no-resolution
+  seed_changeset "wr-itil-p177-slice-a.md"
+  seed_changeset "wr-itil-p178-slice-b.md"
+  seed_holding_readme \
+    "- \`wr-itil-p177-slice-a.md\` — patch. **Reinstate trigger**: shared cohort fires." \
+    "- \`wr-itil-p178-slice-b.md\` — patch. **Reinstate trigger**: shared cohort fires."
+  run bash "$SCRIPT" "$WORK_DIR"
+  [ "$status" -eq 0 ]
+  # Both members report status=halt-no-resolution — cohort cannot graduate partially
+  echo "$output" | grep 'changeset=wr-itil-p177-slice-a.md' | grep -q 'status=halt-no-resolution'
+  echo "$output" | grep 'changeset=wr-itil-p178-slice-b.md' | grep -q 'status=halt-no-resolution'
+}
+
+# Case (g.5) — single-member "cohort" falls back to Class 3a (no Phase 2a regression)
+@test "case (g.5): single-member 'cohort' falls back to class=3a" {
+  seed_problem "179" "open" "9"
+  seed_changeset "wr-itil-p179-solo.md"
+  seed_holding_readme \
+    "- \`wr-itil-p179-solo.md\` — patch. **Reinstate trigger**: nobody else shares this trigger."
+  run bash "$SCRIPT" "$WORK_DIR"
+  [ "$status" -eq 0 ]
+  echo "$output" | grep 'changeset=wr-itil-p179-solo.md' | grep -q 'class=3a'
+  ! echo "$output" | grep 'changeset=wr-itil-p179-solo.md' | grep -q 'cohort='
+}
+
+# Case (g.6) — parenthetical elaborations stripped before grouping
+@test "case (g.6): parenthetical elaborations stripped before cohort grouping" {
+  seed_problem "180" "open" "9"
+  seed_problem "181" "open" "9"
+  seed_changeset "wr-itil-p180-a.md"
+  seed_changeset "wr-itil-p181-b.md"
+  # P180 trigger has no parens; P181 trigger has parenthetical elaboration —
+  # cohort detection must strip the paren content before comparison.
+  seed_holding_readme \
+    "- \`wr-itil-p180-a.md\` — patch. **Reinstate trigger**: end-of-chain fires." \
+    "- \`wr-itil-p181-b.md\` — patch. **Reinstate trigger**: end-of-chain fires (only the slice 3 dependency remains, can defer per Reassessment criterion k)."
+  run bash "$SCRIPT" "$WORK_DIR"
+  [ "$status" -eq 0 ]
+  # Despite different surface prose, the normalised trigger matches → both class=3b
+  echo "$output" | grep 'changeset=wr-itil-p180-a.md' | grep -q 'class=3b'
+  echo "$output" | grep 'changeset=wr-itil-p181-b.md' | grep -q 'class=3b'
+}
+
+# Case (g.7) — README without "Currently held" section → all entries fall back to class=3a
+@test "case (g.7): README without 'Currently held' section falls back to class=3a (defensive)" {
+  seed_problem "182" "open" "9"
+  seed_problem "183" "open" "12"
+  seed_changeset "wr-itil-p182-a.md"
+  seed_changeset "wr-itil-p183-b.md"
+  # README exists but has no "Currently held" section — cohort detection finds nothing.
+  cat > "docs/changesets-holding/README.md" <<'EOF'
+# Holding Area
+Some unrelated content.
+EOF
+  run bash "$SCRIPT" "$WORK_DIR"
+  [ "$status" -eq 0 ]
+  echo "$output" | grep 'changeset=wr-itil-p182-a.md' | grep -q 'class=3a'
+  echo "$output" | grep 'changeset=wr-itil-p183-b.md' | grep -q 'class=3a'
+}
+
+# Case (g.8) — README absent entirely → all entries fall back to class=3a (defensive)
+@test "case (g.8): missing README falls back to class=3a" {
+  seed_problem "184" "open" "9"
+  seed_changeset "wr-itil-p184-a.md"
+  # Do NOT create README at all
+  run bash "$SCRIPT" "$WORK_DIR"
+  [ "$status" -eq 0 ]
+  echo "$output" | grep 'changeset=wr-itil-p184-a.md' | grep -q 'class=3a'
+}
+
+# Case (g.9) — multiple distinct cohorts in the same holding-area resolve independently
+@test "case (g.9): multiple distinct cohorts coexist with distinct cohort= ids" {
+  seed_problem "185" "open" "9"
+  seed_problem "186" "open" "10"
+  seed_problem "187" "open" "12"
+  seed_problem "188" "open" "8"
+  seed_changeset "wr-itil-p185-cohort-a.md"
+  seed_changeset "wr-itil-p186-cohort-a.md"
+  seed_changeset "wr-itil-p187-cohort-b.md"
+  seed_changeset "wr-itil-p188-cohort-b.md"
+  seed_holding_readme \
+    "- \`wr-itil-p185-cohort-a.md\` — minor. **Reinstate trigger**: cohort alpha fires." \
+    "- \`wr-itil-p186-cohort-a.md\` — minor. **Reinstate trigger**: cohort alpha fires." \
+    "- \`wr-itil-p187-cohort-b.md\` — minor. **Reinstate trigger**: cohort beta fires." \
+    "- \`wr-itil-p188-cohort-b.md\` — minor. **Reinstate trigger**: cohort beta fires."
+  run bash "$SCRIPT" "$WORK_DIR"
+  [ "$status" -eq 0 ]
+  cohort_a1=$(echo "$output" | grep 'changeset=wr-itil-p185-cohort-a.md' | sed -n 's/.*cohort=\([^ |]*\).*/\1/p')
+  cohort_a2=$(echo "$output" | grep 'changeset=wr-itil-p186-cohort-a.md' | sed -n 's/.*cohort=\([^ |]*\).*/\1/p')
+  cohort_b1=$(echo "$output" | grep 'changeset=wr-itil-p187-cohort-b.md' | sed -n 's/.*cohort=\([^ |]*\).*/\1/p')
+  cohort_b2=$(echo "$output" | grep 'changeset=wr-itil-p188-cohort-b.md' | sed -n 's/.*cohort=\([^ |]*\).*/\1/p')
+  [ -n "$cohort_a1" ] && [ "$cohort_a1" = "$cohort_a2" ]
+  [ -n "$cohort_b1" ] && [ "$cohort_b1" = "$cohort_b2" ]
+  [ "$cohort_a1" != "$cohort_b1" ]
+  # Cohort A priority is max(9,10) = 10; Cohort B priority is max(12,8) = 12
+  echo "$output" | grep 'changeset=wr-itil-p185-cohort-a.md' | grep -q 'priority=10'
+  echo "$output" | grep 'changeset=wr-itil-p187-cohort-b.md' | grep -q 'priority=12'
+}
+
+# Case (g.10) — cohort detection does NOT regress Phase 2a summary counts
+@test "case (g.10): cohort members still count individually in GRADUATION_SUMMARY" {
+  seed_problem "190" "open" "9"
+  seed_problem "191" "open" "9"
+  seed_changeset "wr-itil-p190-cohort.md"
+  seed_changeset "wr-itil-p191-cohort.md"
+  seed_holding_readme \
+    "- \`wr-itil-p190-cohort.md\` — patch. **Reinstate trigger**: shared cohort." \
+    "- \`wr-itil-p191-cohort.md\` — patch. **Reinstate trigger**: shared cohort."
+  run bash "$SCRIPT" "$WORK_DIR"
+  [ "$status" -eq 0 ]
+  # Phase 2a parsers see total=2 resolved=2 — backwards compatible
+  echo "$output" | grep -q 'GRADUATION_SUMMARY: total=2 resolved=2 vp_blocked=0 halts=0'
 }

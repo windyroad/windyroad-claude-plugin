@@ -269,14 +269,17 @@ This is the symmetric counterpart to ADR-042 Rule 2's move-to-holding contract. 
 
 ### Mechanism — invoke the deterministic graduation evaluator
 
-The Rule 1a join (changeset → problem ID → ticket Priority) and the Rule 2 VP carve-out detection are deterministic lookups. Invoke the `wr-risk-scorer-evaluate-graduation` shim (ADR-049 `$PATH`-resolved) to read structured candidate lines for each held changeset:
+The Rule 1a join (changeset → problem ID → ticket Priority), the Rule 2 VP carve-out detection, and the Rule 3b cohort grouping are deterministic lookups. Invoke the `wr-risk-scorer-evaluate-graduation` shim (ADR-049 `$PATH`-resolved) to read structured candidate lines for each held changeset:
 
 ```
 GRADUATION_CANDIDATE: changeset=<filename> | ticket=P<NNN> | priority=<N> | class=3a | status=<resolved|vp-blocked|halt-no-resolution>
+GRADUATION_CANDIDATE: changeset=<filename> | ticket=P<NNN> | priority=<cohort-max-N> | class=3b | cohort=<id> | status=<resolved|vp-blocked|halt-no-resolution>
 GRADUATION_SUMMARY: total=<N> resolved=<N> vp_blocked=<N> halts=<N>
 ```
 
-The script does NOT compute release-risk and does NOT apply Rule 4 evidence-floor judgement — those are LLM-judgement surfaces you own per ADR-015's pure-scorer contract. The script's job is to emit candidates with their joined Priority; your job is to decide whether each candidate's release-risk + evidence-floor profile justifies emitting a `reinstate-from-holding` remediation line.
+Class 3b lines insert a `cohort=<id>` column between `class` and `status`. The cohort id is derived from the normalised reinstate-trigger prose (first 8 tokens, kebab-sanitised) of the `docs/changesets-holding/README.md` "Currently held" entries that share an identical normalised trigger. Cohort `priority` is `max(Priority)` across all member tickets per ADR-061 Rule 3b; cohort `status` propagates atomically — any halt → cohort halts, any VP-blocked → cohort VP-blocked, otherwise cohort resolved. Single-member "cohorts" are emitted as class=3a (no Phase 2a regression).
+
+The script does NOT compute release-risk and does NOT apply Rule 4 evidence-floor judgement — those are LLM-judgement surfaces you own per ADR-015's pure-scorer contract. The script's job is to emit candidates with their joined Priority + cohort classification; your job is to decide whether each candidate's release-risk + evidence-floor profile justifies emitting a `reinstate-from-holding` remediation line.
 
 ### Per-candidate evaluation rules
 
@@ -308,13 +311,31 @@ For each `status=halt-no-resolution` candidate (Rule 1a terminal — no ticket r
 
 - **DO NOT auto-graduate**. Surface the unresolved candidate in your report body under an "Unresolvable graduation candidates" section so the caller (orchestrator) sees the join failure and can present it as a user-decision surface per ADR-013 + ADR-044 framework-resolution boundary. Per ADR-061 Rule 1a, join ambiguity is a user-decision surface, not an agent-decision surface.
 
-### Scope — Phase 2a only
+### Class 3b atomic-cohort evaluation (Phase 2b — ADR-061 Rule 3b)
 
-This evaluation surface covers **orthogonal-gate class (3a) only** per ADR-061 Rule 3. Atomic-cohort class (3b — RFC-shaped held changesets that graduate as a single atomic unit per ADR-060 finding 12) requires RFC ticket cohort enumeration and is **deferred to Phase 2b**. When the holding-area contains entries that belong to an RFC cohort, the Phase 2a evaluator emits each entry as an independent 3a candidate; treat such candidates conservatively (the symmetric-balance math is identical but the evaluation unit is wrong) and prefer a `RISK_REGISTER_HINT:` over auto-emitting `reinstate-from-holding` until Phase 2b lands the cohort enumeration.
+When candidate lines emit `class=3b` with a `cohort=<id>` column, ADR-061 Rule 3b applies: **the entire cohort ships atomically or none of it does**. Per-member graduation is not authorised. Evaluate the cohort as a single unit:
+
+1. **Group candidates by cohort id** — collect all `class=3b` candidates sharing the same `cohort=` column into a single evaluation set.
+2. **Compute cohort release-risk** — re-score the current pipeline as if the **full cohort** were `git mv`'d back to `.changeset/` together (not one at a time). The marginal release-risk delta is computed against the cohort's combined diff surface, not any single member's diff.
+3. **Compare against cohort priority** — the `priority=<cohort-max-N>` column on every cohort-member line already carries `max(Priority)` across all member tickets (deterministic join, Rule 3b math). Apply Rule 1: cohort graduates when `cohort-release-risk ≤ cohort-priority`.
+4. **Verify Rule 4 evidence floor per cohort** — every cohort member must independently satisfy its class-specific evidence shape (PreToolUse:Bash gate / UserPromptSubmit detector / commit-hook-with-auto-fix / SessionStart additionalContext). One floor failure in any member blocks the whole cohort. Per ADR-026 cite + persist + uncertainty: cite the artefact for each member in the audit trail.
+5. **Cohort-level VP carve-out** — if the deterministic evaluator already returned `status=vp-blocked` for the cohort (any member's ticket in Verification Pending), DO NOT emit a reinstate. The carve-out lifts when all member tickets transition out of `.verifying.md`.
+6. **Cohort-level halt-and-prompt** — if the deterministic evaluator returned `status=halt-no-resolution` for the cohort (any member fails Rule 1a join), DO NOT auto-graduate. Surface the cohort in the "Unresolvable graduation candidates" section. Per architect C1 (2026-05-17 P162 Phase 2b review), partial-cohort resolution is NOT authorised — the cohort is atomic.
+7. **Emit one `reinstate-from-holding` line per cohort member** when all six checks pass, all referencing the same cohort id so the consuming orchestrator can apply them as an atomic batch:
+
+   ```
+   RISK_REMEDIATIONS:
+   - R<N> | reinstate-from-holding <member-1>: cohort <id> release-risk <release-score>/25 ≤ cohort-priority <priority-value>; class 3b; evidence: <member-1 artefact citation> | S | -<release-score-share> | docs/changesets-holding/<member-1>, .changeset/<member-1>
+   - R<N+1> | reinstate-from-holding <member-2>: cohort <id> release-risk <release-score>/25 ≤ cohort-priority <priority-value>; class 3b; evidence: <member-2 artefact citation> | S | -<release-score-share> | docs/changesets-holding/<member-2>, .changeset/<member-2>
+   ```
+
+   The agent consuming these lines applies them as a single batch — either all members reinstate in one operation or none do. Partial application breaks ADR-061 Rule 3b atomicity.
+
+The cohort id-from-prose detection is the Phase 2b shape per the architect-approved 2026-05-17 design. If cohort grouping false-positives appear (e.g. two unrelated changesets coincidentally sharing trigger prose), ADR-061 Reassessment Triggers ("Manual graduations diverge from criterion verdicts") covers the upgrade to a structured cohort-declaration field.
 
 ### Audit trail (Rule 6)
 
-Every emitted `reinstate-from-holding` line MUST cite the resolved problem-ticket ID and Priority value in the description column so the audit trail extends ADR-042 Rule 6. The consuming orchestrator additionally appends to `docs/changesets-holding/README.md` "Recently reinstated" per Rule 6 § 2.
+Every emitted `reinstate-from-holding` line MUST cite the resolved problem-ticket ID and Priority value in the description column so the audit trail extends ADR-042 Rule 6. For Class 3b cohort reinstates, every member line MUST additionally cite the cohort id and the cohort-level priority + release-risk values so the per-member audit row reconstructs the atomic cohort decision. The consuming orchestrator additionally appends to `docs/changesets-holding/README.md` "Recently reinstated" per Rule 6 § 2 with the class (3a or 3b) and, for cohort members, the cohort id.
 
 ## Confidential Information Disclosure
 
