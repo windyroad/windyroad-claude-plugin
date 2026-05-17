@@ -111,6 +111,7 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 0.75 | P228 | ADR-022 .known-error.md → .verifying.md transition not happening consistently at release time (upstream-mirror of #42) | 3 Med | Open | M | 2026-05-15 |
 | 0.75 | P229 | Inbound-discovery ack comments are bureaucratic, not verdict-shaped — JTBD-301 violation; 31 comments posted with framework-vocab boilerplate this session | 3 Med | Open | M | 2026-05-15 |
 | 1.5 | P254 | report-upstream skill has automation blocks that clamp the agent feedback signal — external-comms risk assessment is the actual protection layer (captured via /wr-itil:capture-problem; Priority/Effort deferred to next /wr-itil:review-problems) | 3 Med | Open | M | 2026-05-18 |
+| 1.5 | P255 | ADR-036 Rule 6 AFK fail-safe clamps intake-scaffold auto-execution — sibling-class to P254 at the intake-scaffold surface; external-comms risk assessment is the actual protection layer (captured via /wr-itil:capture-problem; Priority/Effort deferred to next /wr-itil:review-problems) | 3 Med | Open | M | 2026-05-18 |
 
 ## Verification Queue
 
