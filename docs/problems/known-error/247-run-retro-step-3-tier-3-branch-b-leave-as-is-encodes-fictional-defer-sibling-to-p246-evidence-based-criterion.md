@@ -1,7 +1,8 @@
 # Problem 247: run-retro Step 3 Tier 3 Branch B "leave-as-is" encodes fictional defer — sibling to P246 evidence-based criterion
 
-**Status**: Open
+**Status**: Known Error
 **Reported**: 2026-05-17
+**Fix Released**: pending (commit at this iter; release via orchestrator drain)
 **Priority**: 9 (Med) — Impact: 3 (Moderate — briefing topic files accumulate past Tier 3 thresholds; each retro defers ratherthan rotating; the deferred rotations have no scheduled-future-surface; same fictional-defer class as P234 / P145 / P246 at a different SKILL surface) × Likelihood: 3 (Likely — fired today on session 4 wrap retro for 14 OVER files; will fire on EVERY future retro until SKILL contract is amended)
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
 **WSJF**: 9/2 = **4.5** (deferred — provisional; ties with P132 + P246)
@@ -58,11 +59,33 @@ User catches each retro's defer + manually directs rotation. Currently manual (t
 
 ### Investigation Tasks
 
-- [ ] Re-rate Priority and Effort at next /wr-itil:review-problems
-- [ ] **Amend `/wr-retrospective:run-retro` Step 3 Tier 3 SKILL.md** to eliminate or tighten Branch B "leave-as-is" per the preferred fix (option (a) or (b))
-- [ ] **Rotate the 14 OVER files** currently in `docs/briefing/` per evidence-based criterion (the same work this ticket scope-defines — the ticket IS the scheduled-future-surface for that work per P179 carve-out)
-- [ ] Audit other run-retro Step contracts for similar "leave-as-is" / "defer to next retro" patterns (Step 1.5 Tier 1 promotion, Step 2b detection skipping, Step 4a verification-pending leaving-alone)
-- [ ] Create reproduction test — bats fixture: file at 1.5x ratio + with subtopic boundary → should rotate, not defer; file at 1.5x ratio + no boundary → should require per-file justification, not silent defer
+- [x] Re-rate Priority and Effort at next /wr-itil:review-problems (re-rated at WSJF 4.5 pre-iter; effort re-rated as S after architect-confirmed option A scope)
+- [x] **Amend `/wr-retrospective:run-retro` Step 3 Tier 3 SKILL.md** — option (a) shipped at this iter (eliminate "leave-as-is"; fall-through becomes split-by-date safe default mirroring Branch A precedent)
+- [x] Create reproduction test — `packages/retrospective/skills/run-retro/test/run-retro-step-3-tier-3-branch-b-evidence-based.bats` (11 assertions, all passing; behavioural input-signal fixtures + narrow SKILL-prose backstops per P081)
+- [ ] **Phase 2 — Rotate the 14 OVER files** currently in `docs/briefing/` per the new evidence-based criterion. Deferred to a separate iter (scope-bound per architect verdict 2026-05-18 — keeps the contract-fix commit clean per ADR-014 grain; rotation work is mechanical fall-through to split-by-date under the new contract). Phase 2 iter will: (a) run `check-briefing-budgets.sh` to enumerate the current OVER set; (b) apply Branch B rotation per file (split-by-subtopic / split-by-date / trim-noise with split-by-date safe-default fall-through); (c) commit per ADR-014 grain as `docs(briefing): rotate OVER files per evidence-based criterion (P247 Phase 2)`. This ticket IS the scheduled-future-surface for the Phase 2 rotation work per P179 carve-out — the ticket stays Known Error until Phase 2 ships, then transitions to Verifying.
+- [ ] **Phase 3 — Audit other run-retro Step contracts** for similar "leave-as-is" / "defer to next retro" patterns (Step 1.5 Tier 1 promotion, Step 2b detection skipping, Step 4a verification-pending leaving-alone). Separate ticket if any are found.
+
+## Fix
+
+**Iter (2026-05-18, /wr-itil:work-problems orchestrator iter 5)**: amended `packages/retrospective/skills/run-retro/SKILL.md` Step 3 Tier 3 Branch B (lines 334-340) to eliminate the "leave-as-is" fall-through. New contract:
+
+- Branch B always rotates — "wait for more signal to accumulate" is named as the fictional-defer anti-pattern P247 closes.
+- The three concrete triggers (subtopic / date / ≥3 noise entries) remain; the fall-through when none fire becomes **split-by-date (safe default)** mirroring Branch A's existing precedent ("zero false-split risk").
+- The trim-noise branch tightened: if trim alone brings the file below threshold, record as the rotation action; if still OVER, fall through to split-by-date in the same retro turn — do NOT defer.
+- ADR-013 Rule 5 + ADR-044 framework-mediated surface citations added inline so the silent-rotation discipline is discoverable from Branch B prose without cross-referencing.
+
+**User direction cited verbatim** in SKILL.md prose: *"The 14 files are over the limit, but you are deferring splitting them. Why? When are you hoping they will get dealt with?"* (2026-05-17 session 4 wrap retro).
+
+**Sibling-class linkage**: Fix mirrors P246 (commit 229539c, cohort-graduation surface) — same fictional-defer class, different SKILL surface, same evidence-based principle (ADR-061 Rule 1 symmetric balance — evidence-based, not time-based).
+
+**Bounded scope**: this iter's commit covers ONLY the SKILL contract amendment + bats fixture + ticket lifecycle. The Phase 2 rotation work for the 14 currently-OVER files is deferred to a separate iter per ADR-014 commit grain (architect verdict 2026-05-18). This ticket stays Known Error until Phase 2 ships.
+
+**Tests**: `npx bats packages/retrospective/skills/run-retro/test/run-retro-step-3-tier-3-branch-b-evidence-based.bats` — 11/11 pass. `npx bats packages/retrospective/scripts/test/check-briefing-budgets.bats` — 20/20 pass (input-signal layer unchanged).
+
+## Change Log
+
+- **2026-05-17** — Captured during session 4 wrap retro (P078 strong-signal user correction). Sibling-class to P246 at Tier 3 Branch B surface.
+- **2026-05-18** — Iter 5 of `/wr-itil:work-problems` AFK loop: architect-confirmed option A (eliminate "leave-as-is"; fall-through = split-by-date safe default). JTBD review PASS (JTBD-001 friction-removal, JTBD-006 AFK-safe-default, JTBD-101 reusable pattern). SKILL.md amended; behavioural+structural bats fixture (11 assertions) added; transitioned Open → Known Error. Phase 2 (14-file rotation) deferred to separate iter.
 
 ## Dependencies
 
