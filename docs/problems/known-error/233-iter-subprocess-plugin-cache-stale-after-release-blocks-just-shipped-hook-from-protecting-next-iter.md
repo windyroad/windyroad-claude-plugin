@@ -1,7 +1,8 @@
 # Problem 233: AFK iter subprocess plugin cache stale after release — just-shipped hook does not protect the next iter
 
-**Status**: Open
+**Status**: Known Error
 **Reported**: 2026-05-17
+**Known Error since**: 2026-05-17
 **Priority**: 8 (Med-High) — Impact: 4 (Significant — fix shipped today did not prevent the same antipattern from recurring 90 min later; cost ~$15 + 90 min wall-clock in a single iter; pattern will recur on every gate-class hook landing) × Likelihood: 2 (Likely — fires once per gate-class hook release until cache-refresh is automated)
 **Effort**: M (deferred — re-rate at next `/wr-itil:review-problems`)
 **WSJF**: (8 × 1.0) / 2 = **4.0** (deferred — provisional)
@@ -73,3 +74,4 @@ Three options enumerated:
 ## Change Log
 
 - **2026-05-17** — Captured by `/wr-retrospective:run-retro` session 3 retro. Driver: iter 7 deadlocked at ~10:31 in retro phase with the P232 antipattern that was supposed to have been caught by the hook shipped in `@windyroad/itil@0.30.3` at ~08:45 (90 min prior). Cache-staleness root cause confirmed by inspecting iter subprocess child processes (4 zsh polling loops self-referencing via `pgrep -f`). Captured via direct write (Step 4b Stage 1 mechanical ticketing per ADR-044 framework-resolution boundary); surfaced via Step 2b Pipeline Instability scan (Hook-protocol friction category — "hook silently skipping paths it should").
+- **2026-05-17** — Open → Known Error. Phase 1 implementation landed in session 4 iter 5: `/wr-itil:work-problems` Step 6.5 Drain action gains a step-4 `/install-updates` chain after successful within-appetite release drain (Fix Strategy Option C — preferred). Architect approved after empirical evidence at `docs/briefing/afk-subprocess.md` confirmed iter subprocesses re-resolve plugin cache on spawn (not parent-inherited). Changeset `.changeset/p233-work-problems-post-release-cache-refresh-chain.md` declares `@windyroad/itil` minor bump. 14 doc-lint contract assertions in `packages/itil/skills/work-problems/test/work-problems-step-6-5-cache-refresh-chain.bats` per ADR-037. Released-fix verification deferred to subsequent retro evidence on next gate-class hook release (orchestrator AFK loop running the new step 4 should refresh cache + protect next iter from cache staleness empirically).
