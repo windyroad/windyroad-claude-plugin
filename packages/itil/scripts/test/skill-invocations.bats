@@ -368,3 +368,168 @@ PYEOF
   echo "$output" | grep -q '"invocations":1'
   echo "$output" | grep -q '"surface":"wr-itil:manage-problem"'
 }
+
+# ── Phase 2e: binary-search-to-first-in-window byte-seek ────────────────────
+# Iter 7 (2026-05-17) adds a binary-search byte-seek before the line iterator
+# for files above a size threshold. JSONL is append-only — older lines appear
+# earlier in the file by author-timestamp monotonicity. The bisect locates the
+# first byte offset whose line carries a timestamp >= cutoff, then scans
+# forward. Files below the threshold linear-scan from byte 0 (bisect overhead
+# is not worth it for small files). Correctness invariants pinned below.
+
+# Helper: write a large jsonl that straddles the window cutoff. The first
+# `old_count` lines carry timestamps `old_iso` (out-of-window); the next
+# `new_count` lines carry timestamps `new_iso` (in-window). Pads each record
+# with a `_pad` field so the file is comfortably above the bisect threshold
+# even with modest line counts. Sets mtime to "fresh" so the file-level
+# mtime filter does not skip the file before the bisect runs.
+write_straddle_file() {
+  local file="$1"; local old_count="$2"; local new_count="$3"
+  local old_iso="$4"; local new_iso="$5"
+  mkdir -p "$(dirname "$file")"
+  python3 - "$file" "$old_count" "$new_count" "$old_iso" "$new_iso" <<'PYEOF'
+import json, sys
+file, old_count, new_count, old_iso, new_iso = sys.argv[1], int(sys.argv[2]), int(sys.argv[3]), sys.argv[4], sys.argv[5]
+# Pad each record so the file is comfortably > 256 KB even at modest line counts.
+pad = "x" * 2048
+def rec(ts, skill):
+    return {
+        "type": "assistant",
+        "timestamp": ts,
+        "_pad": pad,
+        "message": {
+            "role": "assistant",
+            "content": [{"type": "tool_use", "name": "Skill", "input": {"skill": skill}}],
+        },
+    }
+with open(file, "w") as fh:
+    for _ in range(old_count):
+        fh.write(json.dumps(rec(old_iso, "wr-itil:manage-problem")) + "\n")
+    for _ in range(new_count):
+        fh.write(json.dumps(rec(new_iso, "wr-itil:manage-problem")) + "\n")
+PYEOF
+}
+
+@test "Phase 2e: byte-seek straddle file counts only in-window lines" {
+  local sess="$TRANSCRIPT_ROOT/proj/straddle.jsonl"
+  local old_iso=$(recent_iso 1440)   # 60 days ago — out-of-window for 30d
+  local new_iso=$(recent_iso 1)      # 1 hour ago — in-window
+  # 200 old + 50 new = 250 lines × ~2.2KB padded = ~550KB → bisect path.
+  write_straddle_file "$sess" 200 50 "$old_iso" "$new_iso"
+  # Ensure file size is above the 256KB bisect threshold (sanity check).
+  local size
+  size=$(python3 -c 'import os,sys; print(os.path.getsize(sys.argv[1]))' "$sess")
+  [ "$size" -gt 262144 ]
+
+  run "$SCRIPT" --window-days=30 --root="$TRANSCRIPT_ROOT" --project-root="$PROJECT_ROOT"
+  [ "$status" -eq 0 ]
+  # Only the 50 in-window invocations count; the 200 historical lines are
+  # excluded by the message-level timestamp filter (already correct under
+  # linear scan; the bisect must preserve this invariant).
+  echo "$output" | grep -q '"invocations":50'
+  echo "$output" | grep -q '"surface":"wr-itil:manage-problem"'
+}
+
+@test "Phase 2e: byte-seek all-in-window file counts every line (no fallthrough loss)" {
+  local sess="$TRANSCRIPT_ROOT/proj/allnew.jsonl"
+  local new_iso=$(recent_iso 1)
+  # 250 lines × ~2.2KB = ~550KB → bisect path. Bisect finds offset 0 (every
+  # line already in-window) and the linear scan from there counts all 250.
+  write_straddle_file "$sess" 0 250 "$new_iso" "$new_iso"
+  local size
+  size=$(python3 -c 'import os,sys; print(os.path.getsize(sys.argv[1]))' "$sess")
+  [ "$size" -gt 262144 ]
+
+  run "$SCRIPT" --window-days=30 --root="$TRANSCRIPT_ROOT" --project-root="$PROJECT_ROOT"
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -q '"invocations":250'
+}
+
+@test "Phase 2e: small file under threshold takes linear-scan path correctly" {
+  local sess="$TRANSCRIPT_ROOT/proj/small.jsonl"
+  local old_iso=$(recent_iso 1440)
+  local new_iso=$(recent_iso 1)
+  # Three lines without padding — well under 256KB → linear-scan path.
+  write_skill_invocation "$sess" "wr-itil:manage-problem" "$old_iso"
+  write_skill_invocation "$sess" "wr-itil:manage-problem" "$new_iso"
+  write_skill_invocation "$sess" "wr-itil:manage-problem" "$new_iso"
+  local size
+  size=$(python3 -c 'import os,sys; print(os.path.getsize(sys.argv[1]))' "$sess")
+  [ "$size" -lt 262144 ]
+
+  run "$SCRIPT" --window-days=30 --root="$TRANSCRIPT_ROOT" --project-root="$PROJECT_ROOT"
+  [ "$status" -eq 0 ]
+  # 2 in-window (1 old, 2 new); message-timestamp filter excludes the old.
+  echo "$output" | grep -q '"invocations":2'
+}
+
+@test "Phase 2e: empty large file emits zero records and exits 0" {
+  local sess="$TRANSCRIPT_ROOT/proj/empty.jsonl"
+  mkdir -p "$(dirname "$sess")"
+  # Create empty file with fresh mtime.
+  : > "$sess"
+
+  run "$SCRIPT" --window-days=30 --root="$TRANSCRIPT_ROOT" --project-root="$PROJECT_ROOT"
+  [ "$status" -eq 0 ]
+  # No records.
+  [ -z "$output" ]
+}
+
+@test "Phase 2e: non-monotonic timestamps — graceful degradation, no crash, NDJSON well-formed" {
+  # Architect advisory (P087 iter-7 review 2026-05-17): pin behaviour under
+  # clock-skew / replay where in-window lines appear BEFORE out-of-window
+  # lines within the same file. Real Claude Code session jsonl files are
+  # append-only by a single process with a monotonic-ish wall clock; this
+  # fixture documents the contract under synthetic violation. Bisect MAY
+  # under-count under non-monotonic input (it locates the first in-window
+  # line by byte position, not by content scan); the contract is that the
+  # script exits 0 and emits structurally well-formed NDJSON. ADR-058
+  # §Performance amendment pins monotonicity as the input invariant.
+  local sess="$TRANSCRIPT_ROOT/proj/nonmono.jsonl"
+  local old_iso=$(recent_iso 1440)
+  local new_iso=$(recent_iso 1)
+  mkdir -p "$(dirname "$sess")"
+  # Interleave new / old / new / old ... pattern; padded so file is over
+  # threshold and bisect path activates.
+  python3 - "$sess" "$old_iso" "$new_iso" <<'PYEOF'
+import json, sys
+file, old_iso, new_iso = sys.argv[1], sys.argv[2], sys.argv[3]
+pad = "y" * 2048
+def rec(ts):
+    return {
+        "type": "assistant",
+        "timestamp": ts,
+        "_pad": pad,
+        "message": {
+            "role": "assistant",
+            "content": [{"type": "tool_use", "name": "Skill", "input": {"skill": "wr-itil:manage-problem"}}],
+        },
+    }
+with open(file, "w") as fh:
+    # 200 lines interleaved old/new — non-monotonic on purpose.
+    for i in range(200):
+        ts = new_iso if i % 2 == 0 else old_iso
+        fh.write(json.dumps(rec(ts)) + "\n")
+PYEOF
+  local size
+  size=$(python3 -c 'import os,sys; print(os.path.getsize(sys.argv[1]))' "$sess")
+  [ "$size" -gt 262144 ]
+
+  run "$SCRIPT" --window-days=30 --root="$TRANSCRIPT_ROOT" --project-root="$PROJECT_ROOT"
+  [ "$status" -eq 0 ]
+  # Structurally well-formed: zero-or-one record, each line valid JSON, no
+  # crash. Exact count is NOT pinned — bisect under-count under non-monotonic
+  # input is documented graceful degradation per ADR-058 amendment.
+  if [ -n "$output" ]; then
+    echo "$output" | python3 -c "
+import json, sys
+for line in sys.stdin.read().splitlines():
+    if not line: continue
+    rec = json.loads(line)
+    assert rec['schema_version'] == '1.0', rec
+    assert rec['axis'] == 'skill-invocations', rec
+    assert isinstance(rec.get('invocations'), int), rec
+    assert rec['invocations'] >= 0, rec
+"
+  fi
+}

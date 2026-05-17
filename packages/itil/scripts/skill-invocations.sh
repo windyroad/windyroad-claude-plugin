@@ -127,6 +127,82 @@ cutoff = now - window_days * 86400
 # `itil`, not `itil-reconcile`.
 BIN_RE = re.compile(r"\bwr-([a-z0-9]+)-[a-z0-9-]+")
 
+# Phase 2e (P087) byte-seek bisect — find the earliest byte offset whose
+# line carries a timestamp >= cutoff, then linear-scan from there. Files
+# below the threshold linear-scan from byte 0 (bisect overhead is not
+# worth it; the ratio of bisect-seeks to in-window lines flips around
+# this size on warm-cache developer laptops per Phase 2c profile data).
+# JSONL append-only monotonicity is the input invariant — pinned in
+# ADR-058 §Performance contract Phase 2e amendment. Non-monotonic input
+# under-counts gracefully (bisect locates by byte position, not by
+# content scan) without crashing or emitting malformed NDJSON; pinned
+# by the "non-monotonic timestamps — graceful degradation" bats fixture.
+BINARY_SEARCH_THRESHOLD = 256 * 1024  # bytes
+# Whitespace-tolerant: matches both compact `"timestamp":"..."` and
+# pretty `"timestamp": "..."` JSON shapes. The cheap-probe nature of the
+# bisect means the regex stays in bytes and skips json.loads on the
+# probe line entirely.
+TS_RE = re.compile(rb'"timestamp"\s*:\s*"([^"]+)"')
+
+
+def _parse_iso_ts(b):
+    """Parse ISO timestamp bytes → epoch seconds, or None on parse failure."""
+    try:
+        s = b.decode("ascii", errors="replace")
+        return datetime.fromisoformat(s.replace("Z", "+00:00")).timestamp()
+    except Exception:
+        return None
+
+
+def find_first_in_window_offset(fh, file_size, cutoff_epoch):
+    """Bisect byte offset of earliest line whose timestamp >= cutoff_epoch.
+
+    Returns 0 when every readable line is in-window, or `file_size` when
+    no in-window line is found (caller skips the file). Falls back
+    conservatively to the lo-bound on any per-line parse failure — the
+    canonical correctness invariant is "never miss an in-window line",
+    not "always converge to the tightest cutoff".
+
+    Termination: the boundary-aligning `readline()` always advances past
+    `mid` (the probed line starts strictly after `mid` when `mid != 0`).
+    On the in-window branch we tighten `hi = mid` rather than `hi = pos`
+    — the latter equals `hi` itself on line-aligned probes and stalls the
+    bisect. `best` records the actual byte position so the returned
+    offset is the discovered in-window line, even though `hi` shrinks
+    by `mid` to guarantee monotonic narrowing.
+    """
+    lo, hi = 0, file_size
+    best = file_size  # default: no in-window line discovered
+    while lo < hi:
+        mid = (lo + hi) // 2
+        fh.seek(mid)
+        if mid != 0:
+            fh.readline()  # discard partial line to align to boundary
+        pos = fh.tell()
+        if pos >= file_size:
+            hi = mid
+            continue
+        line = fh.readline()
+        if not line:
+            hi = mid
+            continue
+        m = TS_RE.search(line)
+        if not m:
+            # Unparseable timestamp on the probe line — back off to mid
+            # half. The next bisect step lands on a different probe.
+            hi = mid
+            continue
+        ts = _parse_iso_ts(m.group(1))
+        if ts is None:
+            hi = mid
+            continue
+        if ts < cutoff_epoch:
+            lo = pos + len(line)
+        else:
+            best = pos
+            hi = mid  # tighten to mid, not pos — guarantees progress
+    return best
+
 def plugin_from_skill(name):
     """`wr-itil:manage-problem` -> `itil`. Non-wr-prefixed or short-form
     names like `commit`, `loop` return None (excluded from per-plugin
@@ -164,28 +240,47 @@ for jsonl in jsonl_iter:
         # File hasn't been touched in the window; skip without parsing.
         continue
     try:
-        fh = jsonl.open("r", encoding="utf-8", errors="replace")
+        fh = jsonl.open("rb")
     except OSError:
         continue
     with fh:
-        for line in fh:
-            # Phase 2d (P087) substring pre-filter — skip json.loads() on lines
-            # that cannot possibly contribute a count. The literal substring
-            # `"tool_use"` is the discriminating token: every content block we
-            # count carries `"type":"tool_use"`, while ~60% of in-window
-            # transcript lines (user messages, tool_result blocks, snapshots,
-            # title records) carry no `"tool_use"` value at all. The check is
-            # whitespace-robust because `"tool_use"` is a string value, not a
-            # key:value pair — compact-JSON (`"type":"tool_use"`) and
-            # pretty-JSON (`"type": "tool_use"`) both contain the literal
-            # token verbatim. False-positives (content-body prose containing
+        # Phase 2e (P087) byte-seek bisect — for files at or above the
+        # threshold, locate the first line whose timestamp falls within
+        # the cutoff window and start the linear scan from there. Files
+        # below the threshold scan linearly from byte 0 (the bisect
+        # overhead exceeds the savings on small files). The bisect
+        # presumes JSONL append-only monotonic timestamps within a single
+        # session file — pinned as an input invariant in ADR-058
+        # §Performance Phase 2e amendment; non-monotonic input degrades
+        # gracefully via under-count, pinned by the bats "non-monotonic"
+        # fixture.
+        if st.st_size >= BINARY_SEARCH_THRESHOLD:
+            start_offset = find_first_in_window_offset(fh, st.st_size, cutoff)
+            if start_offset >= st.st_size:
+                # No in-window line found — skip the file entirely.
+                continue
+            fh.seek(start_offset)
+        for raw_line in fh:
+            # Phase 2d (P087) substring pre-filter — skip json.loads() on
+            # lines that cannot possibly contribute a count. The literal
+            # substring `"tool_use"` is the discriminating token: every
+            # content block we count carries `"type":"tool_use"`, while
+            # ~60% of in-window transcript lines (user messages,
+            # tool_result blocks, snapshots, title records) carry no
+            # `"tool_use"` value at all. The check is whitespace-robust
+            # because `"tool_use"` is a string value, not a key:value
+            # pair — compact-JSON (`"type":"tool_use"`) and pretty-JSON
+            # (`"type": "tool_use"`) both contain the literal token
+            # verbatim. False-positives (content-body prose containing
             # the substring) fall through to full parse and the existing
-            # `c.get("type") == "tool_use"` content-block check excludes them.
-            # The "false-positive substring fall-through" bats fixture pins
-            # this invariant.
-            if '"tool_use"' not in line:
+            # `c.get("type") == "tool_use"` content-block check excludes
+            # them. The substring check now runs on bytes (binary-mode
+            # file under Phase 2e) — `bytes.__contains__` is a fast
+            # memchr-backed operation in CPython.
+            if b'"tool_use"' not in raw_line:
                 continue
             try:
+                line = raw_line.decode("utf-8", errors="replace")
                 rec = json.loads(line)
             except Exception:
                 continue
