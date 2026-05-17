@@ -1,5 +1,41 @@
 # @windyroad/problem
 
+## 0.30.4
+
+### Patch Changes
+
+- 91d919b: P087 Phase 2d — wr-itil-skill-invocations transcript-axis performance optimization
+
+  Add a substring pre-filter on the `"tool_use"` discriminating token before `json.loads()` in `packages/itil/scripts/skill-invocations.sh`. Approximately 60% of in-window transcript lines (user messages, tool_result blocks, snapshots, title records) carry no `"tool_use"` value at all and now short-circuit without paying the JSON parse cost.
+
+  Warm-cache median against a 5155 jsonl / 1.13 GB / 380,898-line corpus: **7.12s → 5.34s** (1.78s reduction, 25%). The 5s ADR-058 §Reassessment Triggers threshold remains marginally exceeded (0.34s / 6.8%); Phase 2e binary-search-to-first-in-window queued within P087 to close the residual gap.
+
+  NDJSON output schema unchanged (`schema_version` stays 1.0). Privacy posture unchanged. ADR-013 Rule 6 exit-0-always preserved. Substring filter is whitespace-tolerant — works against both compact and pretty-printed JSONL. False-positive fall-through invariant pinned by new bats fixture; 14 tests now green.
+
+  ADR-058 §Performance contract amended with the Decision Outcome — Phase 2d block per ADR-023 template.
+
+- 4a06705: P087 Phase 2e — wr-itil-skill-invocations binary-search-to-first-in-window byte-seek
+
+  Add a binary-search byte-seek before the line iterator in `packages/itil/scripts/skill-invocations.sh`. Files at or above a 256 KB threshold bisect to the earliest byte offset whose line carries a `timestamp` at or after the cutoff, then linear-scan from that offset; files below threshold continue to scan linearly from byte 0 (bisect overhead is not worth it for small files). JSONL is append-only within a single session jsonl file — older lines appear earlier by author-timestamp monotonicity — so the bisect skips the historical pre-cutoff portion of long-lived session files without paying the read cost.
+
+  Warm-cache median against a 5164 jsonl / ~1.08 GB corpus: **5.34s → 4.04s** (1.30s reduction, 24%) and **7.12s → 4.04s** (3.08s reduction, 43%) from the Phase 2c baseline. The 5s ADR-058 §Reassessment Triggers threshold is **now silenced** — warm-cache wall-clock sits 0.96s / 19% under budget.
+
+  NDJSON output schema and record count unchanged (235 records on the live corpus, identical surface attribution and ordering). Privacy posture unchanged. ADR-013 Rule 6 exit-0-always preserved. Bisect uses a whitespace-tolerant byte-regex for timestamp probes; readline-boundary alignment guarantees byte-safety; loop termination guaranteed by `hi = mid` on the in-window branch. Append-only monotonic-timestamps within a single session jsonl is the documented input invariant — synthetic violation under-counts gracefully without crashing or emitting malformed NDJSON. Four new bats fixtures pin the byte-seek correctness boundary (straddle, all-in-window, small-file linear, non-monotonic graceful-degradation); 19 tests now green.
+
+  ADR-058 §Performance contract amended with the Decision Outcome — Phase 2e block; §Reassessment Triggers updated to record the threshold silencing.
+
+- 9117246: P234 Phase 1 — wr-itil PostToolUse:Write|Edit hook detecting fictional-defer rationales in retro outputs
+
+  Add `packages/itil/hooks/itil-fictional-defer-detect.sh` — a PostToolUse advisory hook that fires on Write / Edit / MultiEdit calls targeting `docs/retros/*.md` and scans the written file for defer-rationale phrases (`next retro`, `next session`, `defer pending`, `defer with cause:`, `deferred per`) lacking a SCHEDULED-FUTURE-SURFACE citation in the +/-5 line context window.
+
+  A SCHEDULED-FUTURE-SURFACE is one of: ticket ID (`P\d{3}` / `STORY-\d{3}` / `R\d{3}` / `RFC-\d{3}`), named skill invocation (`/wr-[a-z-]+:[a-z-]+`), hook / script path (`*.sh`), CI workflow path (`.github/workflows/`), or a dated ADR reference (`ADR-\d{3}` + `\d{4}-\d{2}-\d{2}` both present in the window). The allowlist carves out `deferred per Branch B` (the run-retro Step 3 Branch B path carries the next-retro `check-briefing-budgets.sh` trigger as the scheduled surface inside the SKILL contract itself).
+
+  Advisory only — never blocks. Emits a single stderr advisory naming file + line number + detected phrase + remediation pattern. Mirrors the `itil-rfc-trailer-advisory.sh` PostToolUse precedent (stderr + exit 0) and the just-shipped `itil-mid-loop-ask-detect.sh` (P132 Phase 2b) per-surface configuration shape (`DEFER_RATIONALE_RE` / `SCHEDULED_FUTURE_SURFACE_RE` / `EXEMPT_PHRASES_RE` at the top so extending coverage to other accumulator-doc surfaces is a copy-and-retarget operation).
+
+  Closes the under-do half of the ADR-044 framework-resolution-boundary inverse-correctness pair (P132 = over-ask / P234 = under-do). The fictional-defer pattern recurs across `/wr-retrospective:run-retro` Step 3 Tier 3 budget rotation, Step 1.5 Signal-vs-Noise pass, and Step 4b Stage 1 Tickets Deferred section — the hook surfaces all three at file-write time with a uniform structural enforcement rather than per-skill prose rules. Behavioural bats fixture in `packages/itil/hooks/test/itil-fictional-defer-detect.bats` (14 tests) pins the detection signal + allowlist + crash-safety + ADR-045 honour-system budget.
+
+  Sibling shape to P132 Phase 2b (commit 841db68, @windyroad/itil@0.30.3) — same advisory budget envelope (target ~600 bytes, hard ceiling <1000), same per-surface-config + copy-and-retarget extensibility, same behavioural-tests-default per ADR-052 + P081.
+
 ## 0.30.3
 
 ### Patch Changes
