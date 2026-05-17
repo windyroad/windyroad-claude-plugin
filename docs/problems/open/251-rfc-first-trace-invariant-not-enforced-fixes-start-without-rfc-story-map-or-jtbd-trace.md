@@ -69,3 +69,9 @@ Possible interim workarounds (to validate):
 - **P196** (`docs/problems/open/196-agent-reports-rfc-document-completion-as-fix-shipped-premature-completion-on-multi-slice-rfcs.md`) — sibling; agents complete RFC docs without shipping the slices. This ticket is the inverse — agents skip the RFC entirely.
 - **P189** (`docs/problems/open/189-...md`) — sibling; agent invents "deferred" framing on tracked phases without user direction. Same class-of-behaviour at a different SKILL surface (`/wr-itil:work-problems` / `/wr-itil:manage-problem` vs ADR-060 phase tracking).
 - (captured via /wr-itil:capture-problem; expand at next investigation)
+
+## RFCs
+
+| RFC | Status | Title |
+|-----|--------|-------|
+| RFC-005 | proposed | RFC-first trace invariant not enforced at fix-time |
