@@ -121,12 +121,15 @@ All in-scope skills MUST instruct the primary agent to follow this sequence when
 | Incident closed | `docs(incidents): close I<NNN>` | `docs(incidents): close I004` |
 | Context analysis report (P101 / ADR-043) | `docs(retros): context analysis YYYY-MM-DD` | `docs(retros): context analysis 2026-04-26` |
 | Adopter `docs/problems/` auto-migration (P170 / RFC-002 / ADR-031) | `docs(problems): auto-migrate to per-state subdirectory layout (ADR-031)` + body footer `RISK_BYPASS: adr-031-migration` | _(literal — emitted by `migrate_problems_to_per_state_layout` at adopter Step 0a)_ |
+| Upstream-responses check pass (P249 Phase 1 / ADR-062 outbound counterpart) | `chore(problems): check upstream responses — <N> polled, <M> new` | `chore(problems): check upstream responses — 7 polled, 2 new` |
 
 All commit messages must follow the conventional-commit format (`<type>(<scope>): <description>`) and reference the problem or incident ID.
 
 The `docs(retros): context analysis YYYY-MM-DD` row is amended within ADR-014's existing reassessment window (2026-10-16) — no new ADR. It carries the deep-layer `/wr-retrospective:analyze-context` skill output (`docs/retros/<date>-context-analysis.md` plus the directory's `README.md` index when newly scaffolded). Source decision: ADR-043.
 
 The `docs(problems): auto-migrate to per-state subdirectory layout (ADR-031)` row is amended within ADR-014's existing reassessment window — no new ADR. The migration commit is emitted by `migrate_problems_to_per_state_layout` (`packages/shared/lib/migrate-problems-layout.sh`, synced to `packages/itil/lib/`) at adopter Step 0a in `manage-problem` (P170 T8) + `work-problems` (P170 T9). The body footer `RISK_BYPASS: adr-031-migration` is recognised by `packages/risk-scorer/hooks/risk-score-commit-gate.sh` (P170 T11) and allows the commit to bypass the risk-score gate per ADR-031 § Open-Execution Q3 lean (b). Case-sensitive token match; new commit-message-embedded bypass markers MUST be added to this table + the gate's case-statement together. Source decisions: ADR-031, ADR-019 precedent (pure-rename + pure-mkdir policy-authorised), ADR-013 Rule 6 (AFK non-interactive authorisation).
+
+The `chore(problems): check upstream responses — <N> polled, <M> new` row is amended within ADR-014's existing reassessment window — no new ADR. The pass commit covers the outbound-responses cache file (`docs/problems/.outbound-responses-cache.json`) plus the appended audit-log entry (`docs/audits/outbound-responses-log.md`), both written by `packages/itil/scripts/check-upstream-responses.sh` (P249 Phase 1). The pass is the outbound symmetric counterpart to ADR-062's inbound discovery audit-log + cache pair; `chore(problems)` mirrors `chore(problems): reconcile README ...` precedent for read-only mechanical passes that write only data files (no source-of-truth changes). Source decisions: ADR-062 audit-log + cache patterns, ADR-024 outbound-report back-link contract.
 
 ### Non-Interactive Fail-Safe
 

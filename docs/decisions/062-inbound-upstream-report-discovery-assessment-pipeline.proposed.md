@@ -290,6 +290,7 @@ Revisit this decision if:
 - **P128** — outbound Versions schema. Consumed by this ADR's step 1 (P129 future extension).
 - **P129** — version-aware inbound classifier. Step 1 of this ADR's pipeline; future extension.
 - **P080** — bidirectional outbound-lifecycle update. Outbound-direction sibling.
+- **P249** — no process for issue reporters to check for responses. Phase 1 ships `/wr-itil:check-upstream-responses` skill as the **outbound-response-check sibling** of this ADR's inbound discovery pipeline. Together, both axes form the bidirectional cross-repo coordination surface JTBD-004 names: this ADR polls reports filed AGAINST our repos by external reporters; the P249 Phase 1 skill polls reports we filed AGAINST upstream repos. Outbound cache + audit-log mirror this ADR's `.upstream-cache.json` + `docs/audits/inbound-discovery-log.md` shapes (under `docs/problems/.outbound-responses-cache.json` + `docs/audits/outbound-responses-log.md`). P249 Phase 2 (external-reporter-as-our-reporter — plugin users polling responses to reports filed against THIS repo) is deferred to a separate iter as scheduled-future-surface per P179.
 - **P070** — semantic-comparator infrastructure. Used for matched-local-ticket detection at this ADR's cache layer.
 - **P132** — agents over-ask in mechanical-stage carve-outs. This ADR's mechanical-stage carve-out for the three pipeline branches is explicit per P132's framework-resolution boundary.
 - **ADR-024** — outbound problem-reporting contract. Explicit peer of this ADR.

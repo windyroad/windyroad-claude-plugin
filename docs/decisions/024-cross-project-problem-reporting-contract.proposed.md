@@ -165,6 +165,8 @@ Compliance is verified by:
 
 5. **End-to-end cross-reference confirmation**: after a real upstream report, verify the downstream ticket has `## Reported Upstream` section and its `## Related` section has the `Reported upstream: <URL>` line. Verify the upstream issue body has the `Cross-reference: <downstream URL>` line.
 
+   **(2026-05-18 amendment, P249 Phase 1)** The `## Reported Upstream` back-link section's `- **URL**:` line is now a **load-bearing contract surface for two skills**, not one. `/wr-itil:report-upstream` writes the section at Step 7. `/wr-itil:check-upstream-responses` (P249 Phase 1) reads the URL field to enumerate outbound reports for response polling — see [ADR-062](062-inbound-upstream-report-discovery-assessment-pipeline.proposed.md)'s symmetric inbound counterpart. Any future change to the section's shape (additional fields, renaming the URL key, alternative format) MUST be applied in coordination with both skills in the same commit. The reader's contract is documented in `packages/itil/skills/check-upstream-responses/SKILL.md` § Confirmation (#2) and tested via `packages/itil/scripts/test/check-upstream-responses.bats`. This amendment lands within ADR-024's existing reassessment window — no new ADR.
+
 6. **Downstream adoption** (advisory, non-blocking): at least one downstream project (addressr or bbstats) dogfoods the skill for a real upstream report within 3 months. Non-blocking for this ADR's acceptance; flagged in Reassessment Criteria below.
 
 ## Pros and Cons of the Options
