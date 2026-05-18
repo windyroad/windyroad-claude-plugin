@@ -19,8 +19,12 @@
 #
 # Allow paths (exit 0 silently per ADR-045 Pattern 1):
 #   - tool_name != "Bash"               (only Bash invocations are gated)
-#   - command does not contain         `git commit` substring (non-commit
-#                                      Bash bypasses entirely)
+#   - command does not invoke           (P268: leading-executable check
+#     `git commit` as its leading-       via `lib/command-detect.sh`
+#     effective command                  — replaces prior substring match
+#                                        that misfired on grep/sed/cat
+#                                        whose arguments contained the
+#                                        literal phrase)
 #   - staged set is README-discipline-  (helper returns 0)
 #     clean
 #   - BYPASS_README_REFRESH_GATE=1 env  (helper returns 0 first)
@@ -44,10 +48,13 @@
 #   P125    — sibling staging-trap hook (same enforcement-layer shape).
 #   P141    — sibling changeset-discipline hook (same shape).
 #   P165    — this hook.
+#   P268    — leading-executable-token command-detect helper.
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=lib/readme-refresh-detect.sh
 source "$SCRIPT_DIR/lib/readme-refresh-detect.sh"
+# shellcheck source=lib/command-detect.sh
+source "$SCRIPT_DIR/lib/command-detect.sh"
 
 INPUT=$(cat)
 
@@ -74,13 +81,14 @@ except:
     print('')
 " 2>/dev/null || echo "")
 
-# Only fire on `git commit` invocations. Substring match catches common
-# shapes (`git commit -m`, `git commit --amend`, leading `cd && git
-# commit`, etc.) without over-matching unrelated bash.
-case "$COMMAND" in
-  *"git commit"*) ;;
-  *) exit 0 ;;
-esac
+# Only fire on actual `git commit` invocations. Delegates to
+# `lib/command-detect.sh::command_invokes_git_commit`, which strips
+# common prefix shapes (leading whitespace, env-var assignments,
+# `cd <path> &&`) and checks whether the residual leading token pair
+# is literally `git commit`. P268: replaced the prior substring match
+# `*"git commit"*` that misfired on non-commit Bash whose argument
+# vectors merely mentioned the phrase (grep/sed/cat-heredoc/echo).
+command_invokes_git_commit "$COMMAND" || exit 0
 
 # Run detection. Helper echoes offending ticket path on stdout when
 # detected; returns 1 in that case. Returns 0 (allow) on no-trap,

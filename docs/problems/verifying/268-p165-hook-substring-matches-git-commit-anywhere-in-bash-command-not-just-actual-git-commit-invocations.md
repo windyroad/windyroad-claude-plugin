@@ -1,9 +1,12 @@
 # Problem 268: P165 hook substring-matches `git commit` anywhere in Bash command, not just actual git commit invocations
 
-**Status**: Open
+**Status**: Verifying
 **Reported**: 2026-05-18
+**Root cause confirmed**: 2026-05-18
+**Fix released**: 2026-05-18 (`@windyroad/itil@<pending release cycle>` — source commit (this iter) "fix(itil): P268 readme-refresh-discipline leading-executable command-detect helper" landing `packages/itil/hooks/lib/command-detect.sh` + `command_invokes_git_commit` substring-match replacement at `packages/itil/hooks/itil-readme-refresh-discipline.sh:80-83` + 28 helper bats fixtures + 10 hook integration regression fixtures; transitions Open → Verifying per ADR-022 P143 fold-fix amendment — bats 28/28 helper + 39/39 hook + 19/19 retrospective-sibling green; architect PASS + JTBD review marker green; orchestrator Step 6.5 owns the release-cycle drain; recovery path: `/wr-itil:transition-problem 268 known-error` after reverting this iter's commit)
 **Priority**: 3 (Medium) — Impact: 2 × Likelihood: 3 (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: S (deferred — re-rate at next /wr-itil:review-problems)
+**WSJF**: 6/2 = **3.0** (raw Priority/Effort retained per README display convention; multiplier 0 in WSJF Rankings table per ADR-022 Verifying state)
 **Type**: technical
 
 ## Description
@@ -56,10 +59,10 @@ Stage `docs/problems/README.md` first, then run the offending Bash command. The 
 ### Investigation Tasks
 
 - [ ] Re-rate Priority and Effort at next /wr-itil:review-problems
-- [ ] Investigate root cause — confirm B (leading-executable extraction) is sound across shell pipelines / chained commands / env-var prefixes
-- [ ] Create reproduction test (bats fixture: command with "git commit" in argument vs invocation; expect allow + deny respectively)
-- [ ] Sweep sibling PreToolUse:Bash hooks (P125, P141) for the same substring-match anti-pattern
-- [ ] Update P165 hook comment block to document the narrowed surface
+- [x] Investigate root cause — confirm B (leading-executable extraction) is sound across shell pipelines / chained commands / env-var prefixes — Fix shape B chosen per ticket recommendation. Iterative prefix-strip strategy validated by 28 helper bats fixtures covering env-var (quoted + unquoted + multi-env), `cd <path> &&` (quoted + unquoted), env+cd interleave, leading whitespace, tab-indent; 13 negative fixtures (grep / sed / echo / cat-heredoc / git-log / git-commit-tree boundary). Scope explicitly narrow per ticket Description: prefix shapes only. Mid-chain `&&` after a non-prefix-shape leading command (`git add foo && git commit`) is documented false-negative — acceptable because standalone re-commit re-triggers detection.
+- [x] Create reproduction test (bats fixture: command with "git commit" in argument vs invocation; expect allow + deny respectively) — landed at `packages/itil/hooks/test/command-detect.bats` (28 fixtures) + 10 P268-prefixed integration cases appended to `packages/itil/hooks/test/itil-readme-refresh-discipline.bats`. Pre-fix would-have-failed cases (grep pattern argument, cat heredoc body, echo string, sed substitution, `git log --grep`) now pass silently with `${#output}` == 0 per ADR-045 Pattern 1.
+- [x] Sweep sibling PreToolUse:Bash hooks (P125, P141) for the same substring-match anti-pattern — 4 sibling hooks confirmed sharing the pattern: `packages/retrospective/hooks/retrospective-readme-jtbd-currency.sh:126`, `packages/itil/hooks/itil-rfc-trailer-advisory.sh:94`, `packages/itil/hooks/itil-changeset-discipline.sh:78`, `packages/itil/hooks/p057-staging-trap-detect.sh:65`. Captured as 4 separate problem tickets per ADR-014 one-concern-per-ticket — the new shared helper `lib/command-detect.sh` is in the right shape for each sibling refactor to consume in its own commit.
+- [x] Update P165 hook comment block to document the narrowed surface — allow-paths docstring + sources block + References list amended at `packages/itil/hooks/itil-readme-refresh-discipline.sh`; case-statement substring match replaced with `command_invokes_git_commit "$COMMAND" || exit 0`.
 
 ## Dependencies
 

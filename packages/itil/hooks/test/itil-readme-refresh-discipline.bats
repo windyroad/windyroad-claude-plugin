@@ -419,3 +419,110 @@ EOF
   [[ "$output" == *".claude/settings.json"* ]]
   [[ "$output" == *"P173"* ]]
 }
+
+# --- P268: substring-vs-invocation regression coverage ---
+#
+# Prior to P268, the hook used `case "$COMMAND" in *"git commit"*) ;;`
+# which fired on ANY Bash command whose text contained the literal
+# phrase "git commit" — including grep patterns, sed substitutions,
+# cat heredoc bodies, echo strings, and `git log --grep` queries.
+# Workaround was stage-README-first, observed ≥3 times per session.
+# P268 replaces that match with a leading-executable-token check via
+# `lib/command-detect.sh::command_invokes_git_commit`. The tests
+# below stage a ticket file (which would trigger deny if the gate
+# fired) and run various non-commit Bash commands whose argument
+# vectors mention `git commit`. The hook MUST pass silently.
+
+@test "P268 allow: grep with 'git commit' pattern does NOT trigger gate" {
+  echo "# Problem 999" > docs/problems/open/999-x.md
+  git add docs/problems/open/999-x.md
+  run run_bash_hook "grep -n 'git commit' file.md"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
+  # Silent pass per ADR-045 Pattern 1.
+  [ "${#output}" -eq 0 ]
+}
+
+@test "P268 allow: grep -rn 'git commit' packages/ (the recurring orchestrator surface)" {
+  echo "# Problem 999" > docs/problems/open/999-x.md
+  git add docs/problems/open/999-x.md
+  run run_bash_hook "grep -rn 'git commit' packages/"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
+  [ "${#output}" -eq 0 ]
+}
+
+@test "P268 allow: sed -i 's/git commit/.../' substitution does NOT trigger gate" {
+  echo "# Problem 999" > docs/problems/open/999-x.md
+  git add docs/problems/open/999-x.md
+  run run_bash_hook "sed -i 's/git commit/git push/' file.md"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
+  [ "${#output}" -eq 0 ]
+}
+
+@test "P268 allow: echo with 'git commit' inside string does NOT trigger gate" {
+  echo "# Problem 999" > docs/problems/open/999-x.md
+  git add docs/problems/open/999-x.md
+  run run_bash_hook "echo 'the git commit gate fires here'"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
+  [ "${#output}" -eq 0 ]
+}
+
+@test "P268 allow: git log --grep 'git commit' does NOT trigger gate (git log is leading)" {
+  echo "# Problem 999" > docs/problems/open/999-x.md
+  git add docs/problems/open/999-x.md
+  run run_bash_hook "git log --grep 'git commit'"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
+  [ "${#output}" -eq 0 ]
+}
+
+@test "P268 allow: cat heredoc whose body contains 'git commit' does NOT trigger gate (iter-1 retro write surface)" {
+  echo "# Problem 999" > docs/problems/open/999-x.md
+  git add docs/problems/open/999-x.md
+  # Inline-build JSON with embedded newlines via printf to mimic the
+  # Bash tool's multi-line command payload (the canonical retro-write
+  # surface that misfired in P268).
+  local payload
+  payload=$(python3 -c "import json,sys; print(json.dumps({'tool_name':'Bash','tool_input':{'command':'cat >> docs/problems/README-history.md <<EOF\nFlow note: the git commit gate fires here.\nEOF'}}))")
+  run bash -c "echo '$payload' | bash $HOOK"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
+  [ "${#output}" -eq 0 ]
+}
+
+@test "P268 deny: actual git commit invocation with staged ticket still triggers gate (positive regression)" {
+  echo "# Problem 999" > docs/problems/open/999-x.md
+  git add docs/problems/open/999-x.md
+  run run_bash_hook "git commit -m 'feat'"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"\"permissionDecision\": \"deny\""* ]]
+  [[ "$output" == *"P165"* ]]
+}
+
+@test "P268 deny: cd <path> && git commit (prefix-strip path) still triggers gate" {
+  echo "# Problem 999" > docs/problems/open/999-x.md
+  git add docs/problems/open/999-x.md
+  run run_bash_hook "cd . && git commit -m 'feat'"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"\"permissionDecision\": \"deny\""* ]]
+}
+
+@test "P268 deny: GIT_AUTHOR_NAME=Test git commit (env-prefix path) still triggers gate" {
+  echo "# Problem 999" > docs/problems/open/999-x.md
+  git add docs/problems/open/999-x.md
+  run run_bash_hook "GIT_AUTHOR_NAME=Test git commit -m 'feat'"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"\"permissionDecision\": \"deny\""* ]]
+}
+
+@test "P268 allow: git commit-tree (boundary check — commit-tree is a different plumbing command)" {
+  echo "# Problem 999" > docs/problems/open/999-x.md
+  git add docs/problems/open/999-x.md
+  run run_bash_hook "git commit-tree HEAD^{tree}"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
+  [ "${#output}" -eq 0 ]
+}
