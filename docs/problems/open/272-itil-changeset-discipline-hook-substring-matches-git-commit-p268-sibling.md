@@ -2,8 +2,8 @@
 
 **Status**: Open
 **Reported**: 2026-05-18
-**Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
-**Effort**: S (deferred — re-rate at next /wr-itil:review-problems)
+**Priority**: 10 (High) — Impact: 2 × Likelihood: 5
+**Effort**: S (re-estimated 2026-05-18 — call shared helper landed by P268 + mirror P268 regression bats fixtures)
 **Type**: technical
 
 ## Description

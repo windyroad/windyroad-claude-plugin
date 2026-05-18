@@ -2,8 +2,8 @@
 
 **Status**: Open
 **Reported**: 2026-05-18
-**Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
-**Effort**: S (deferred — re-rate at next /wr-itil:review-problems)
+**Priority**: 5 (Medium) — Impact: 1 × Likelihood: 5
+**Effort**: S (re-estimated 2026-05-18 — call shared helper (Option A: ADR-017 sync or Option B: packages/shared/ promotion) + mirror P268 regression bats fixtures; cross-package, advisory-class)
 **Type**: technical
 
 ## Description

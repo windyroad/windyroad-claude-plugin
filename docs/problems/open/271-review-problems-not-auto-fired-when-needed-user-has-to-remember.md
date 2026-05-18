@@ -2,8 +2,8 @@
 
 **Status**: Open
 **Reported**: 2026-05-18
-**Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
-**Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
+**Priority**: 8 (Medium) — Impact: 2 × Likelihood: 4
+**Effort**: M (re-estimated 2026-05-18 — trigger condition + auto-dispatch wiring across work-problems/manage-problem/capture-problem surfaces + bats fixture)
 **Type**: technical
 
 ## Description
