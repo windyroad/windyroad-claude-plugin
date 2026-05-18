@@ -1,6 +1,6 @@
 {
   "name": "@windyroad/connect",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Connect Claude Code sessions across repos via Discord (experimental)",
   "bin": {
     "windyroad-connect": "./bin/install.mjs"
