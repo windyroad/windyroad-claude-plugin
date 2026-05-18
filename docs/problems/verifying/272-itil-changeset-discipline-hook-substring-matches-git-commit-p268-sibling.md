@@ -1,9 +1,12 @@
 # Problem 272: `itil-changeset-discipline.sh` hook substring-matches `git commit` anywhere in Bash command — P268 sibling
 
-**Status**: Open
+**Status**: Verifying
 **Reported**: 2026-05-18
+**Root cause confirmed**: 2026-05-18 (same root cause as P268 — substring-match anti-pattern; helper is the right shape; sibling-hook refactor)
+**Fix released**: 2026-05-18 (`@windyroad/itil@<pending release cycle>` — source commit (this iter) "fix(itil): P272 changeset-discipline leading-executable command-detect helper" replacing the case-statement `*"git commit"*` substring match at `packages/itil/hooks/itil-changeset-discipline.sh:78` with `command_invokes_git_commit "$COMMAND" || exit 0` + 10 P272-prefixed behavioural bats fixtures appended to `packages/itil/hooks/test/itil-changeset-discipline.bats`; transitions Open → Verifying per ADR-022 P143 fold-fix amendment — bats 31/31 changeset-discipline + 28/28 helper + 39/39 readme-refresh-discipline green; architect PASS + JTBD review marker green; orchestrator Step 6.5 owns the release-cycle drain; recovery path: `/wr-itil:transition-problem 272 known-error` after reverting this iter's commit)
 **Priority**: 10 (High) — Impact: 2 × Likelihood: 5
 **Effort**: S (re-estimated 2026-05-18 — call shared helper landed by P268 + mirror P268 regression bats fixtures)
+**WSJF**: 10/1 = **10.0** (raw Priority/Effort retained per README display convention; multiplier 0 in WSJF Rankings table per ADR-022 Verifying state)
 **Type**: technical
 
 ## Description
@@ -47,10 +50,10 @@ Same as P268: stage the changeset file alongside the offending Bash invocation s
 
 ### Investigation Tasks
 
-- [ ] Re-rate Priority and Effort at next /wr-itil:review-problems
-- [ ] Apply the shared `command_invokes_git_commit` helper to `itil-changeset-discipline.sh:77-80`; cite P268 in the hook comment block.
-- [ ] Add behavioural bats fixtures mirroring the P268 regression cases.
-- [ ] Verify no behavioural regression on the canonical `git commit` invocation surfaces (direct, `cd && git commit`, `VAR=value git commit`).
+- [x] Re-rate Priority and Effort at next /wr-itil:review-problems — re-rated 2026-05-18 to Priority 10 (Impact 2 × Likelihood 5) / Effort S, WSJF 10.0 per 8-ticket review-problems pass.
+- [x] Apply the shared `command_invokes_git_commit` helper to `itil-changeset-discipline.sh:77-80`; cite P268 in the hook comment block — source line 47 now sources `lib/command-detect.sh`; case-statement at the command-shape filter replaced with `command_invokes_git_commit "$COMMAND" || exit 0`; References block extended with P268 + P272 cites; Allow paths docstring updated to leading-executable-token semantics per architect advisory.
+- [x] Add behavioural bats fixtures mirroring the P268 regression cases — 10 P272-prefixed fixtures appended to `packages/itil/hooks/test/itil-changeset-discipline.bats` covering grep / grep-rn / sed / echo / git-log / cat-heredoc allow paths, `git commit-tree` boundary allow, plus three positive-regression deny cases (bare `git commit`, `cd && git commit`, `VAR=value git commit`).
+- [x] Verify no behavioural regression on the canonical `git commit` invocation surfaces (direct, `cd && git commit`, `VAR=value git commit`) — three positive-regression deny fixtures green; pre-existing 21 fixtures unchanged-green; sibling helper bats 28/28 + readme-refresh-discipline bats 39/39 also confirmed green (no cross-regression).
 
 ## Dependencies
 

@@ -245,3 +245,112 @@ run_bash_hook() {
   [ "$status" -eq 0 ]
   [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
 }
+
+# --- P272: substring-vs-invocation regression coverage ---
+#
+# Prior to P272, the hook used `case "$COMMAND" in *"git commit"*) ;;`
+# which fired on ANY Bash command whose text contained the literal
+# phrase "git commit" — including grep patterns, sed substitutions,
+# cat heredoc bodies, echo strings, and `git log --grep` queries.
+# Workaround was stage-changeset-first-or-different-shell, observed
+# ≥3 events per session in the P268 sibling-hook class.
+# P272 replaces that match with a leading-executable-token check via
+# `lib/command-detect.sh::command_invokes_git_commit` (the shared
+# helper landed by P268). The tests below stage `@windyroad/itil/`
+# source (which would trigger deny if the gate fired) and run various
+# non-commit Bash commands whose argument vectors mention `git commit`.
+# The hook MUST pass silently.
+
+@test "P272 allow: grep with 'git commit' pattern does NOT trigger gate" {
+  echo "skill body" > packages/itil/skills/foo/SKILL.md
+  git add packages/itil/skills/foo/SKILL.md
+  run run_bash_hook "grep -n 'git commit' file.md"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
+  # Silent pass per ADR-045 Pattern 1.
+  [ "${#output}" -eq 0 ]
+}
+
+@test "P272 allow: grep -rn 'git commit' packages/ (the recurring orchestrator surface)" {
+  echo "skill body" > packages/itil/skills/foo/SKILL.md
+  git add packages/itil/skills/foo/SKILL.md
+  run run_bash_hook "grep -rn 'git commit' packages/"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
+  [ "${#output}" -eq 0 ]
+}
+
+@test "P272 allow: sed -i 's/git commit/.../' substitution does NOT trigger gate" {
+  echo "skill body" > packages/itil/skills/foo/SKILL.md
+  git add packages/itil/skills/foo/SKILL.md
+  run run_bash_hook "sed -i 's/git commit/git push/' file.md"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
+  [ "${#output}" -eq 0 ]
+}
+
+@test "P272 allow: echo with 'git commit' inside string does NOT trigger gate" {
+  echo "skill body" > packages/itil/skills/foo/SKILL.md
+  git add packages/itil/skills/foo/SKILL.md
+  run run_bash_hook "echo 'the git commit gate fires here'"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
+  [ "${#output}" -eq 0 ]
+}
+
+@test "P272 allow: git log --grep 'git commit' does NOT trigger gate (git log is leading)" {
+  echo "skill body" > packages/itil/skills/foo/SKILL.md
+  git add packages/itil/skills/foo/SKILL.md
+  run run_bash_hook "git log --grep 'git commit'"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
+  [ "${#output}" -eq 0 ]
+}
+
+@test "P272 allow: cat heredoc whose body contains 'git commit' does NOT trigger gate (retro-write surface)" {
+  echo "skill body" > packages/itil/skills/foo/SKILL.md
+  git add packages/itil/skills/foo/SKILL.md
+  # Inline-build JSON with embedded newlines via python3 to mimic the
+  # Bash tool's multi-line command payload (the canonical retro-write
+  # surface that misfired in the P268 sibling).
+  local payload
+  payload=$(python3 -c "import json,sys; print(json.dumps({'tool_name':'Bash','tool_input':{'command':'cat >> docs/problems/README-history.md <<EOF\nFlow note: the git commit gate fires here.\nEOF'}}))")
+  run bash -c "echo '$payload' | bash $HOOK"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
+  [ "${#output}" -eq 0 ]
+}
+
+@test "P272 allow: git commit-tree (boundary check — commit-tree is a different plumbing command)" {
+  echo "skill body" > packages/itil/skills/foo/SKILL.md
+  git add packages/itil/skills/foo/SKILL.md
+  run run_bash_hook "git commit-tree HEAD^{tree}"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
+  [ "${#output}" -eq 0 ]
+}
+
+@test "P272 deny: actual git commit invocation with staged packages/<plugin>/ source still triggers gate (positive regression)" {
+  echo "skill body" > packages/itil/skills/foo/SKILL.md
+  git add packages/itil/skills/foo/SKILL.md
+  run run_bash_hook "git commit -m 'feat'"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"\"permissionDecision\": \"deny\""* ]]
+  [[ "$output" == *"P141"* ]]
+}
+
+@test "P272 deny: cd <path> && git commit (prefix-strip path) still triggers gate" {
+  echo "skill body" > packages/itil/skills/foo/SKILL.md
+  git add packages/itil/skills/foo/SKILL.md
+  run run_bash_hook "cd . && git commit -m 'feat'"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"\"permissionDecision\": \"deny\""* ]]
+}
+
+@test "P272 deny: GIT_AUTHOR_NAME=Test git commit (env-prefix path) still triggers gate" {
+  echo "skill body" > packages/itil/skills/foo/SKILL.md
+  git add packages/itil/skills/foo/SKILL.md
+  run run_bash_hook "GIT_AUTHOR_NAME=Test git commit -m 'feat'"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"\"permissionDecision\": \"deny\""* ]]
+}
