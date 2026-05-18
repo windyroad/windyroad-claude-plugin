@@ -156,11 +156,10 @@ make_plugin() {
 @test "per-skill column: adds Maturity column to existing Skills table" {
   make_plugin "stub" '{
 "name":"wr-stub","version":"0.1.0","description":"Stub",
-"maturity":{"schema_version":"1.0","band":"Alpha"},
-"skills":{
-"thing":{"maturity":{"schema_version":"1.0","band":"Alpha","computed_at":"2026-05-18T00:00:00Z","evidence":{"invocations_30d":50,"days_shipped":30,"closed_tickets_window":5,"breaking_change_age_days":null}}},
-"widget":{"maturity":{"schema_version":"1.0","band":"Experimental","computed_at":"2026-05-18T00:00:00Z","evidence":{"invocations_30d":2,"days_shipped":5,"closed_tickets_window":0,"breaking_change_age_days":null}}}
-}
+"maturity":{"schema_version":"2.0","band":"Alpha","skills":{
+"thing":{"schema_version":"2.0","band":"Alpha","computed_at":"2026-05-18T00:00:00Z","evidence":{"invocations_30d":50,"days_shipped":30,"closed_tickets_window":5,"breaking_change_age_days":null}},
+"widget":{"schema_version":"2.0","band":"Experimental","computed_at":"2026-05-18T00:00:00Z","evidence":{"invocations_30d":2,"days_shipped":5,"closed_tickets_window":0,"breaking_change_age_days":null}}
+}}
 }' \
 "# @windyroad/stub
 

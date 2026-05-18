@@ -1,54 +1,45 @@
 {
   "description": "Session retrospective reminders and plan review for Claude Code",
-  "hooks": {
-    "retrospective-readme-jtbd-currency": {
-      "maturity": {
-        "band": "Experimental",
-        "computed_at": "2026-05-18T01:29:14Z",
-        "evidence": {
-          "breaking_change_age_days": null,
-          "closed_tickets_window": 32,
-          "days_shipped": 39,
-          "invocations_30d": null
-        },
-        "schema_version": "1.0"
-      }
-    },
-    "retrospective-reminder": {
-      "maturity": {
-        "band": "Experimental",
-        "computed_at": "2026-05-18T01:29:14Z",
-        "evidence": {
-          "breaking_change_age_days": null,
-          "closed_tickets_window": 32,
-          "days_shipped": 39,
-          "invocations_30d": null
-        },
-        "schema_version": "1.0"
-      }
-    },
-    "session-start-briefing": {
-      "maturity": {
-        "band": "Experimental",
-        "computed_at": "2026-05-18T01:29:14Z",
-        "evidence": {
-          "breaking_change_age_days": null,
-          "closed_tickets_window": 32,
-          "days_shipped": 39,
-          "invocations_30d": null
-        },
-        "schema_version": "1.0"
-      }
-    }
-  },
   "maturity": {
     "band": "Experimental",
-    "schema_version": "1.0"
-  },
-  "name": "wr-retrospective",
-  "skills": {
-    "analyze-context": {
-      "maturity": {
+    "schema_version": "2.0",
+    "hooks": {
+      "retrospective-readme-jtbd-currency": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 32,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "2.0"
+      },
+      "retrospective-reminder": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 32,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "2.0"
+      },
+      "session-start-briefing": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 32,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "2.0"
+      }
+    },
+    "skills": {
+      "analyze-context": {
         "band": "Experimental",
         "computed_at": "2026-05-18T01:29:14Z",
         "evidence": {
@@ -57,11 +48,9 @@
           "days_shipped": 39,
           "invocations_30d": 0
         },
-        "schema_version": "1.0"
-      }
-    },
-    "run-retro": {
-      "maturity": {
+        "schema_version": "2.0"
+      },
+      "run-retro": {
         "band": "Alpha",
         "computed_at": "2026-05-18T01:29:14Z",
         "evidence": {
@@ -70,9 +59,10 @@
           "days_shipped": 39,
           "invocations_30d": 261
         },
-        "schema_version": "1.0"
+        "schema_version": "2.0"
       }
     }
   },
+  "name": "wr-retrospective",
   "version": "0.20.1"
 }

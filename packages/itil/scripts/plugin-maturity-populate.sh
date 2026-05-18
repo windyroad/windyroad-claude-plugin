@@ -363,14 +363,17 @@ def build_surface_record(existing, kind, plugin_bare, name, evidence):
     if existing band is Deprecated, return existing record VERBATIM —
     do NOT recompute, do NOT update computed_at, do NOT overwrite
     supersededBy. All other records get a fresh recompute.
+
+    Under ADR-063 Amendment 2026-05-18 (P0 hotfix), `existing` IS the
+    maturity record directly (no inner `.maturity` envelope) when read
+    from the new nested location `plugin_doc["maturity"][<kind>][<name>]`.
     """
-    existing_maturity = existing.get("maturity") if isinstance(existing, dict) else None
-    if isinstance(existing_maturity, dict) and existing_maturity.get("band") == "Deprecated":
-        return existing_maturity
+    if isinstance(existing, dict) and existing.get("band") == "Deprecated":
+        return existing
 
     band = compute_band(evidence)
     record = {
-        "schema_version": "1.0",
+        "schema_version": "2.0",
         "band": band,
         "computed_at": now_canonical_iso,
         "evidence": {
@@ -406,15 +409,29 @@ for pkg_dir in plugin_dirs:
     surfaces = discover_surfaces(pkg_dir)
     total_plugins += 1
 
-    # Per-kind surface maps.
+    # Per-kind surface maps. Records nest under `plugin_doc["maturity"][<key>]`
+    # (NOT top-level — Claude Code's plugin manifest validator rejects
+    # top-level `hooks:` / `skills:` / `agents:` / `commands:` keys with
+    # `Validation errors: hooks: Invalid input, skills: Invalid input` when
+    # they carry maturity-only records). Per ADR-063 Amendment 2026-05-18
+    # (P0 hotfix). Schema version bumps to "2.0" because the path move is
+    # NOT additive per ADR-058 §Confirmation #8.
     kind_to_key = {"skill": "skills", "agent": "agents", "hook": "hooks", "command": "commands"}
     surface_bands_for_rollup = []
+
+    # Pre-read existing nested maturity payload so re-runs preserve any
+    # forward-compat extras (architect issue 2: read-side line 417 fix).
+    existing_maturity = plugin_doc.get("maturity", {})
+    if not isinstance(existing_maturity, dict):
+        existing_maturity = {}
+
+    new_maturity_kinds = {}
 
     for kind, names in surfaces.items():
         if not names:
             continue
         key = kind_to_key[kind]
-        existing_map = plugin_doc.get(key, {})
+        existing_map = existing_maturity.get(key, {})
         if not isinstance(existing_map, dict):
             existing_map = {}
         new_map = {}
@@ -426,23 +443,43 @@ for pkg_dir in plugin_dirs:
                 "closed_tickets_window": exercise["closed_tickets_window"],
                 "breaking_change_age_days": exercise["breaking_change_age_days"],
             }
+            # build_surface_record returns the maturity record directly (no
+            # outer `.maturity` envelope under the new nested shape).
             maturity_record = build_surface_record(existing_entry, kind, plugin_bare, name, evidence)
-            # Preserve any extra keys on the existing entry (forward-compat).
-            merged_entry = dict(existing_entry)
-            merged_entry["maturity"] = maturity_record
-            new_map[name] = merged_entry
+            # Schema_version stamped on each per-surface record.
+            maturity_record["schema_version"] = "2.0"
+            new_map[name] = maturity_record
             surface_bands_for_rollup.append(maturity_record.get("band"))
-        plugin_doc[key] = new_map
+        new_maturity_kinds[key] = new_map
         wrote_records += len(new_map)
 
-    # Plugin root rollup (ADR-063 §rollup schema: schema_version + band only).
+    # Plugin root rollup. ADR-063 Amendment 2026-05-18: per-kind surface
+    # maps nest UNDER `maturity:` alongside `schema_version` + `band`, not
+    # at top level. Write-ordering fix (architect issue 2 line 441): build
+    # the entire `maturity:` dict in a single assignment so the rollup
+    # write does not clobber the per-kind nested maps.
     rollup = rollup_band(surface_bands_for_rollup)
     if rollup is not None:
-        plugin_doc["maturity"] = {"schema_version": "1.0", "band": rollup}
+        maturity_doc = {"schema_version": "2.0", "band": rollup}
+        maturity_doc.update(new_maturity_kinds)
+        plugin_doc["maturity"] = maturity_doc
     else:
         # Plugin with no shipped surfaces -> no plugin-level maturity field
         # (ADR-053 §granularity contract line 110).
         plugin_doc.pop("maturity", None)
+
+    # Defensive cleanup: strip any legacy top-level keys left over from the
+    # pre-Amendment 2026-05-18 broken shape so re-runs converge on the new
+    # layout. Only strip when the inner value is the maturity-only record
+    # map (pre-hotfix shape); preserve any other shape for safety.
+    for legacy_key in ("hooks", "skills", "agents", "commands"):
+        if legacy_key in plugin_doc:
+            inner = plugin_doc[legacy_key]
+            if isinstance(inner, dict) and all(
+                isinstance(v, dict) and set(v.keys()) <= {"maturity"}
+                for v in inner.values()
+            ):
+                del plugin_doc[legacy_key]
 
     # Serialise canonically: sorted keys + 2-space indent. Idempotency
     # depends on this stability (architect §H).

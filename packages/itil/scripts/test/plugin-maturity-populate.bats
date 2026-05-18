@@ -200,7 +200,7 @@ print(obj if not isinstance(obj, (dict, list)) else json.dumps(obj))
 
   local pj="$PROJECT_ROOT/packages/alphap/.claude-plugin/plugin.json"
   local band
-  band=$(get_json_field "$pj" "agents.agent.maturity.band")
+  band=$(get_json_field "$pj" "maturity.agents.agent.band")
   [ "$band" = "Alpha" ]
 }
 
@@ -220,7 +220,7 @@ print(obj if not isinstance(obj, (dict, list)) else json.dumps(obj))
 
   local pj="$PROJECT_ROOT/packages/expp/.claude-plugin/plugin.json"
   local band
-  band=$(get_json_field "$pj" "skills.list-incidents.maturity.band")
+  band=$(get_json_field "$pj" "maturity.skills.list-incidents.band")
   [ "$band" = "Experimental" ]
 }
 
@@ -245,7 +245,7 @@ print(obj if not isinstance(obj, (dict, list)) else json.dumps(obj))
 
   local pj="$PROJECT_ROOT/packages/betap/.claude-plugin/plugin.json"
   local band
-  band=$(get_json_field "$pj" "agents.agent.maturity.band")
+  band=$(get_json_field "$pj" "maturity.agents.agent.band")
   [ "$band" = "Beta" ]
 }
 
@@ -290,12 +290,12 @@ print(obj if not isinstance(obj, (dict, list)) else json.dumps(obj))
   [ "$status" -eq 0 ]
 
   local pj="$PROJECT_ROOT/packages/shapep/.claude-plugin/plugin.json"
-  [ "$(get_json_field "$pj" "skills.manage-problem.maturity.schema_version")" = "1.0" ]
-  [ "$(get_json_field "$pj" "skills.manage-problem.maturity.band")" != "MISSING" ]
-  [ "$(get_json_field "$pj" "skills.manage-problem.maturity.computed_at")" != "MISSING" ]
-  [ "$(get_json_field "$pj" "skills.manage-problem.maturity.evidence.invocations_30d")" = "100" ]
-  [ "$(get_json_field "$pj" "skills.manage-problem.maturity.evidence.days_shipped")" = "25" ]
-  [ "$(get_json_field "$pj" "skills.manage-problem.maturity.evidence.closed_tickets_window")" = "5" ]
+  [ "$(get_json_field "$pj" "maturity.skills.manage-problem.schema_version")" = "2.0" ]
+  [ "$(get_json_field "$pj" "maturity.skills.manage-problem.band")" != "MISSING" ]
+  [ "$(get_json_field "$pj" "maturity.skills.manage-problem.computed_at")" != "MISSING" ]
+  [ "$(get_json_field "$pj" "maturity.skills.manage-problem.evidence.invocations_30d")" = "100" ]
+  [ "$(get_json_field "$pj" "maturity.skills.manage-problem.evidence.days_shipped")" = "25" ]
+  [ "$(get_json_field "$pj" "maturity.skills.manage-problem.evidence.closed_tickets_window")" = "5" ]
 }
 
 @test "plugin-maturity-populate: plugin root rollup carries schema_version + band only, no evidence" {
@@ -315,7 +315,7 @@ print(obj if not isinstance(obj, (dict, list)) else json.dumps(obj))
   [ "$status" -eq 0 ]
 
   local pj="$PROJECT_ROOT/packages/rollupp/.claude-plugin/plugin.json"
-  [ "$(get_json_field "$pj" "maturity.schema_version")" = "1.0" ]
+  [ "$(get_json_field "$pj" "maturity.schema_version")" = "2.0" ]
   [ "$(get_json_field "$pj" "maturity.band")" != "MISSING" ]
   [ "$(get_json_field "$pj" "maturity.evidence")" = "MISSING" ]
 }
@@ -370,7 +370,7 @@ print(obj if not isinstance(obj, (dict, list)) else json.dumps(obj))
   raw=$(python3 -c "
 import json
 obj = json.load(open('$pj'))
-print(json.dumps(obj['hooks']['itil-fictional-defer-detect']['maturity']['evidence']['invocations_30d']))
+print(json.dumps(obj['maturity']['hooks']['itil-fictional-defer-detect']['evidence']['invocations_30d']))
 ")
   [ "$raw" = "null" ]
 }
@@ -387,19 +387,17 @@ print(json.dumps(obj['hooks']['itil-fictional-defer-detect']['maturity']['eviden
   python3 <<EOF
 import json
 obj = json.load(open("$pj"))
-obj.setdefault("skills", {})["oldskill"] = {
-    "maturity": {
-        "schema_version": "1.0",
-        "band": "Deprecated",
-        "computed_at": "2026-04-01T00:00:00Z",
-        "supersededBy": "wr-depp:newskill",
-        "evidence": {
-            "invocations_30d": 50,
-            "days_shipped": 100,
-            "closed_tickets_window": 3,
-            "breaking_change_age_days": None,
-        },
-    }
+obj.setdefault("maturity", {}).setdefault("skills", {})["oldskill"] = {
+    "schema_version": "2.0",
+    "band": "Deprecated",
+    "computed_at": "2026-04-01T00:00:00Z",
+    "supersededBy": "wr-depp:newskill",
+    "evidence": {
+        "invocations_30d": 50,
+        "days_shipped": 100,
+        "closed_tickets_window": 3,
+        "breaking_change_age_days": None,
+    },
 }
 with open("$pj","w") as fh:
     json.dump(obj, fh, indent=2, sort_keys=True)
@@ -416,8 +414,8 @@ EOF
     --now=2026-05-17T12:00:00Z
   [ "$status" -eq 0 ]
 
-  [ "$(get_json_field "$pj" "skills.oldskill.maturity.band")" = "Deprecated" ]
-  [ "$(get_json_field "$pj" "skills.oldskill.maturity.supersededBy")" = "wr-depp:newskill" ]
+  [ "$(get_json_field "$pj" "maturity.skills.oldskill.band")" = "Deprecated" ]
+  [ "$(get_json_field "$pj" "maturity.skills.oldskill.supersededBy")" = "wr-depp:newskill" ]
 }
 
 # ── Bootstrapping clause sunset auto-derivation (architect adjustment D) ────
@@ -453,7 +451,7 @@ EOF
   # p1 aged 200d → Beta. p2 aged 25d → Beta-floor unmet (days <60), demotes
   # to Alpha steady-state OR Experimental depending on the days_shipped cell;
   # only assert here that bootstrapping is inactive (the p1 outcome).
-  [ "$(get_json_field "$pj1" "agents.agent.maturity.band")" = "Beta" ]
+  [ "$(get_json_field "$pj1" "maturity.agents.agent.band")" = "Beta" ]
 }
 
 # ── ADR-013 Rule 6 fail-safe — missing NDJSON inputs ────────────────────────

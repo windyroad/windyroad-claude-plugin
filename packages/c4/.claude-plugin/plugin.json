@@ -2,12 +2,9 @@
   "description": "C4 architecture diagram generation and validation for Claude Code",
   "maturity": {
     "band": "Experimental",
-    "schema_version": "1.0"
-  },
-  "name": "wr-c4",
-  "skills": {
-    "check": {
-      "maturity": {
+    "schema_version": "2.0",
+    "skills": {
+      "check": {
         "band": "Experimental",
         "computed_at": "2026-05-18T01:29:14Z",
         "evidence": {
@@ -16,11 +13,9 @@
           "days_shipped": 39,
           "invocations_30d": 0
         },
-        "schema_version": "1.0"
-      }
-    },
-    "generate": {
-      "maturity": {
+        "schema_version": "2.0"
+      },
+      "generate": {
         "band": "Experimental",
         "computed_at": "2026-05-18T01:29:14Z",
         "evidence": {
@@ -29,9 +24,10 @@
           "days_shipped": 39,
           "invocations_30d": 0
         },
-        "schema_version": "1.0"
+        "schema_version": "2.0"
       }
     }
   },
+  "name": "wr-c4",
   "version": "0.1.5"
 }

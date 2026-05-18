@@ -78,6 +78,49 @@ Synthesis: the prior-art consensus favours **manifest-field-as-source-of-truth**
 
 Phase 3 sub-iters land as ordered follow-on tickets: **3a (population script, writes `plugin.json` `maturity:` field from Phase 2 NDJSON) MUST precede 3b (README badge renderer + advisory drift detector)** because 3b needs canonical field data to render and to detect drift against. **3c (bats doc-lint coverage per plugin) ships alongside 3b or as a follow-on**. Each sub-iter is a sibling problem ticket captured under P087 follow-ons.
 
+### Amendment 2026-05-18 (P0 hotfix)
+
+**Forcing function**: Phase 3 retroactive rollout (commit d33bb7d, shipped as @windyroad/itil@0.35.1 + 10 sibling plugins) wrote per-surface maturity records at top-level `plugin.json` keys (`skills:` / `agents:` / `hooks:` / `commands:`). Claude Code's plugin manifest validator rejects that shape: *"Validation errors: hooks: Invalid input, skills: Invalid input"*. The validator reserves those top-level keys for a specific event-keyed schema (NOT maturity records). All 11 affected plugins were unparseable by `claude plugin install` immediately after release. The bug was never live-validated by `claude plugin install` in CI; the Phase 3a bats fixtures asserted JSON shape but not installer acceptance.
+
+**Schema relocation**: per-surface maturity records nest UNDER the top-level `maturity:` key at `plugin_doc.maturity.<kind>.<name>` (where `<kind>` ∈ {`skills`, `agents`, `hooks`, `commands`}). The nested record IS the maturity record directly — no inner `.maturity` envelope. The top-level `maturity:` key carries both the rollup (`schema_version`, `band`) AND the per-kind nested maps.
+
+**Corrected schema** (replaces the §"`plugin.json` `maturity:` field schema" section that follows for canonical reference):
+
+```jsonc
+{
+  "name": "@windyroad/itil",
+  "version": "0.35.2",
+  "description": "...",
+  "maturity": {
+    "schema_version": "2.0",
+    "band": "Experimental",
+    "skills": {
+      "manage-problem": {
+        "schema_version": "2.0",
+        "band": "Beta",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "invocations_30d": 100,
+          "days_shipped": 32,
+          "closed_tickets_window": 92,
+          "breaking_change_age_days": null
+        }
+      }
+    },
+    "hooks": { "<name>": { ... } },
+    "agents": { "<name>": { ... } },
+    "commands": { "<name>": { ... } }
+  }
+}
+```
+
+**Schema version bump to "2.0"**: the path move is NOT additive per ADR-058 §Confirmation #8 (consumers reading the old path get nothing under the new shape; consumers reading the new path got nothing under the old). Major-version bump records the cut-over. The carve-out option (retain "1.0" on grounds that the old shape was never validator-accepted in production) was REJECTED because in-repo consumers (Phase 3b render + Phase 3c drift detector) DID parse it pre-hotfix; clean schema_version semantics matter more than the carve-out narrative.
+
+**Updated confirmation criteria**:
+- §Confirmation #10 (Phase 3a populate writes per-surface records): the writer MUST place per-surface records at `plugin_doc.maturity.<kind>.<name>` and never at top-level `<kind>:` keys. Bats fixture: `packages/itil/scripts/test/plugin-maturity-populate.bats` (17/17 green post-amendment).
+- New §Confirmation #11 (Manifest validator compatibility): a `claude plugin install <plugin>@windyroad --scope project` against a freshly-published plugin MUST succeed. The Phase 3a bats coverage was insufficient — bats fixtures asserted JSON shape but not installer acceptance. Follow-on iter SHOULD add CI gate that runs `claude plugin install --dry-run` against each plugin pre-publish (P246 sibling-class — gate-the-actual-load-bearing-surface, not a proxy).
+- New §Confirmation #12 (Schema version stamping): both rollup (`maturity.schema_version`) and per-surface (`maturity.<kind>.<name>.schema_version`) carry `"2.0"`. Re-runs of `wr-itil-plugin-maturity-populate` preserve any Deprecated-band overlays at the nested location (architect §I + ADR-053 #6 / #102 invariant).
+
 ### `plugin.json` `maturity:` field schema
 
 Per surface (skill / agent / hook / command / sub-skill entry):

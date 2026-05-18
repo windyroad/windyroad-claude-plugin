@@ -344,16 +344,17 @@ def render_plugin(pkg_dir):
     readme_text = readme_path.read_text(encoding="utf-8")
     new_text = weave_rollup_into_lead_prose(readme_text, badge)
 
-    # Build per-skill band map from the plugin.json `skills:` map.
+    # Build per-skill band map from the plugin.json `maturity.skills.<name>`
+    # nested location. Per ADR-063 Amendment 2026-05-18 (P0 hotfix), per-skill
+    # maturity records nest UNDER the top-level `maturity:` key as `band` /
+    # `schema_version` / `computed_at` / `evidence` (no outer `.maturity`
+    # envelope — the nested record IS the maturity record).
     skills_map = {}
-    skills_section = plugin_doc.get("skills", {})
+    skills_section = maturity.get("skills", {}) if isinstance(maturity, dict) else {}
     if isinstance(skills_section, dict):
         for name, entry in skills_section.items():
-            if not isinstance(entry, dict):
-                continue
-            entry_mat = entry.get("maturity")
-            if isinstance(entry_mat, dict) and "band" in entry_mat:
-                skills_map[name] = entry_mat["band"]
+            if isinstance(entry, dict) and "band" in entry:
+                skills_map[name] = entry["band"]
 
     new_text = populate_skills_column(new_text, skills_map)
 
