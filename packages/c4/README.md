@@ -1,6 +1,6 @@
 # @windyroad/c4
 
-**C4 architecture diagram generation and validation for Claude Code.** Generates C4 model diagrams from your source code and checks whether they're up to date.
+**C4 architecture diagram generation and validation for Claude Code.** Generates C4 model diagrams from your source code and checks whether they're up to date. *Maturity: Experimental.*
 
 Part of [Windy Road Agent Plugins](../../README.md).
 

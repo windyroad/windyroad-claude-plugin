@@ -1,6 +1,6 @@
 # @windyroad/wardley
 
-**Wardley Map generation for Claude Code.** Analyses your codebase and generates a value chain evolution map.
+**Wardley Map generation for Claude Code.** Analyses your codebase and generates a value chain evolution map. *Maturity: Experimental.*
 
 Part of [Windy Road Agent Plugins](../../README.md).
 

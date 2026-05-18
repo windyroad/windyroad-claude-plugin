@@ -1,5 +1,145 @@
 {
+  "agents": {
+    "agent": {
+      "maturity": {
+        "band": "Alpha",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 27,
+          "days_shipped": 39,
+          "invocations_30d": 778
+        },
+        "schema_version": "1.0"
+      }
+    }
+  },
+  "description": "Architecture decision enforcement for Claude Code",
+  "hooks": {
+    "architect-detect": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 27,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "architect-enforce-edit": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 27,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "architect-mark-reviewed": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 27,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "architect-plan-enforce": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 27,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "architect-refresh-hash": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 27,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "architect-slide-marker": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 27,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    }
+  },
+  "maturity": {
+    "band": "Experimental",
+    "schema_version": "1.0"
+  },
   "name": "wr-architect",
-  "version": "0.7.1",
-  "description": "Architecture decision enforcement for Claude Code"
+  "skills": {
+    "capture-adr": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 27,
+          "days_shipped": 39,
+          "invocations_30d": 4
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "create-adr": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 27,
+          "days_shipped": 39,
+          "invocations_30d": 5
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "review-design": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 27,
+          "days_shipped": 39,
+          "invocations_30d": 1
+        },
+        "schema_version": "1.0"
+      }
+    }
+  },
+  "version": "0.7.1"
 }

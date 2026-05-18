@@ -1,6 +1,6 @@
 # @windyroad/retrospective
 
-**Session retrospectives for Claude Code.** Captures learnings at the end of each session and creates problem tickets for failures and friction.
+**Session retrospectives for Claude Code.** Captures learnings at the end of each session and creates problem tickets for failures and friction. *Maturity: Experimental.*
 
 Part of [Windy Road Agent Plugins](../../README.md).
 
@@ -46,10 +46,10 @@ The plugin also triggers a reminder via a `Stop` hook when a session ends natura
 
 ## Skills
 
-| Skill | Purpose |
-|-------|---------|
-| `/wr-retrospective:run-retro` | Run a session retrospective; emits the briefing update, advisory detector outputs, and the Pipeline Instability section per Step 2b |
-| `/wr-retrospective:analyze-context` | Deep on-demand context-usage analyser per ADR-043; produces per-turn attribution and trim suggestions |
+| Skill | Purpose | Maturity |
+| ------- | --------- | --- |
+| `/wr-retrospective:run-retro` | Run a session retrospective; emits the briefing update, advisory detector outputs, and the Pipeline Instability section per Step 2b | Alpha |
+| `/wr-retrospective:analyze-context` | Deep on-demand context-usage analyser per ADR-043; produces per-turn attribution and trim suggestions | Experimental |
 
 ## Advisory scripts
 

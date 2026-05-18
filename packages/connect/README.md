@@ -22,7 +22,7 @@ communicate — with zero idle token cost. Sessions can hand off findings, ask q
 share context, or coordinate work. The receiving session wakes up only when a message
 arrives, using Discord as the collaboration channel.
 
-**Example:** Session A (repo-a) discovers a bug in a package from repo-b. It sends a
+**Example:** Session A (repo-a) discovers a bug in a package from repo-b. It sends a *Maturity: Experimental.*
 message via `/wr-connect:send`, and Session B (repo-b) receives it immediately through
 the Discord channel.
 

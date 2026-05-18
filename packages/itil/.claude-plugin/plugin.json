@@ -1,5 +1,572 @@
 {
+  "description": "ITIL-aligned IT service management for Claude Code",
+  "hooks": {
+    "itil-assistant-output-gate": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "itil-assistant-output-review": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "itil-bash-polling-antipattern-detect": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "itil-changeset-discipline": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "itil-claude-space-protection": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "itil-correction-detect": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "itil-fictional-defer-detect": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "itil-mid-loop-ask-detect": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "itil-pending-questions-surface": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "itil-readme-refresh-discipline": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "itil-rfc-trailer-advisory": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "itil-runtime-sid-marker": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "manage-problem-enforce-create": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "p057-staging-trap-detect": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "pre-publish-intake-gate": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    }
+  },
+  "maturity": {
+    "band": "Experimental",
+    "schema_version": "1.0"
+  },
   "name": "wr-itil",
-  "version": "0.35.0",
-  "description": "ITIL-aligned IT service management for Claude Code"
+  "skills": {
+    "capture-problem": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 57
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "capture-rfc": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 2
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "capture-story": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 0
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "capture-story-map": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 0
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "check-upstream-responses": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 0
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "close-incident": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 0
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "link-incident": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 0
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "list-incidents": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 0
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "list-problems": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 1
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "list-stories": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 0
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "list-story-maps": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 0
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "manage-incident": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 1
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "manage-problem": {
+      "maturity": {
+        "band": "Alpha",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 153
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "manage-rfc": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 2
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "manage-story": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 0
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "manage-story-map": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 0
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "mitigate-incident": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 3
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "reconcile-readme": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 36
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "reconcile-stories": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 0
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "reconcile-story-maps": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 0
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "report-upstream": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 15
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "restore-incident": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 4
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "review-problems": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 9
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "scaffold-intake": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 1
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "transition-problem": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 27
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "transition-problems": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 6
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "work-problem": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 2
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "work-problems": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 92,
+          "days_shipped": 32,
+          "invocations_30d": 6
+        },
+        "schema_version": "1.0"
+      }
+    }
+  },
+  "version": "0.35.0"
 }

@@ -1,5 +1,52 @@
 {
+  "description": "Connect Claude Code sessions across repos via Discord (experimental)",
+  "hooks": {
+    "session-start": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 1,
+          "days_shipped": 33,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    }
+  },
+  "maturity": {
+    "band": "Experimental",
+    "schema_version": "1.0"
+  },
   "name": "wr-connect",
-  "version": "0.3.5",
-  "description": "Connect Claude Code sessions across repos via Discord (experimental)"
+  "skills": {
+    "send": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 1,
+          "days_shipped": 33,
+          "invocations_30d": 0
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "setup": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 1,
+          "days_shipped": 33,
+          "invocations_30d": 0
+        },
+        "schema_version": "1.0"
+      }
+    }
+  },
+  "version": "0.3.5"
 }

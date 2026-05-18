@@ -1,5 +1,24 @@
 {
+  "description": "Wardley Map generation for Claude Code",
+  "maturity": {
+    "band": "Experimental",
+    "schema_version": "1.0"
+  },
   "name": "wr-wardley",
-  "version": "0.1.4",
-  "description": "Wardley Map generation for Claude Code"
+  "skills": {
+    "generate": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 0,
+          "days_shipped": 39,
+          "invocations_30d": 0
+        },
+        "schema_version": "1.0"
+      }
+    }
+  },
+  "version": "0.1.4"
 }

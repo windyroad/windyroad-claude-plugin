@@ -1,5 +1,366 @@
 {
+  "agents": {
+    "agent": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": 0
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "external-comms": {
+      "maturity": {
+        "band": "Alpha",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": 247
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "inbound-report": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": 15
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "pipeline": {
+      "maturity": {
+        "band": "Alpha",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": 1567
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "plan": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": 21
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "policy": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": 13
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "wip": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": 24
+        },
+        "schema_version": "1.0"
+      }
+    }
+  },
+  "description": "Pipeline risk scoring, commit/push/release gates for Claude Code",
+  "hooks": {
+    "external-comms-gate": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "git-push-gate": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "plan-risk-guidance": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "risk-hash-refresh": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "risk-policy-enforce-edit": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "risk-score": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "risk-score-commit-gate": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "risk-score-mark": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "risk-score-plan-enforce": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "risk-slide-marker": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "secret-leak-gate": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "wip-risk-gate": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "wip-risk-mark": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    }
+  },
+  "maturity": {
+    "band": "Experimental",
+    "schema_version": "1.0"
+  },
   "name": "wr-risk-scorer",
-  "version": "0.10.0",
-  "description": "Pipeline risk scoring, commit/push/release gates for Claude Code"
+  "skills": {
+    "assess-external-comms": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": 33
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "assess-inbound-report": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": 0
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "assess-release": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": 53
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "assess-wip": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": 2
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "bootstrap-catalog": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": 0
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "create-risk": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": 0
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "update-policy": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 25,
+          "days_shipped": 39,
+          "invocations_30d": 11
+        },
+        "schema_version": "1.0"
+      }
+    }
+  },
+  "version": "0.10.0"
 }

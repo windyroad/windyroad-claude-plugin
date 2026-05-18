@@ -1,5 +1,145 @@
 {
+  "agents": {
+    "agent": {
+      "maturity": {
+        "band": "Alpha",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 5,
+          "days_shipped": 39,
+          "invocations_30d": 118
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "external-comms": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 5,
+          "days_shipped": 39,
+          "invocations_30d": 40
+        },
+        "schema_version": "1.0"
+      }
+    }
+  },
+  "description": "Voice and tone enforcement for Claude Code",
+  "hooks": {
+    "external-comms-gate": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 5,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "external-comms-mark-reviewed": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 5,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "voice-tone-enforce-edit": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 5,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "voice-tone-eval": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 5,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "voice-tone-mark-reviewed": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 5,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "voice-tone-slide-marker": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 5,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    }
+  },
+  "maturity": {
+    "band": "Experimental",
+    "schema_version": "1.0"
+  },
   "name": "wr-voice-tone",
-  "version": "0.5.0",
-  "description": "Voice and tone enforcement for Claude Code"
+  "skills": {
+    "assess-external-comms": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 5,
+          "days_shipped": 39,
+          "invocations_30d": 5
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "update-guide": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 5,
+          "days_shipped": 39,
+          "invocations_30d": 1
+        },
+        "schema_version": "1.0"
+      }
+    }
+  },
+  "version": "0.5.0"
 }

@@ -1,6 +1,6 @@
 # @windyroad/tdd
 
-**TDD state machine enforcement for Claude Code.** Forces the Red-Green-Refactor cycle so your AI agent writes tests before implementation -- every time.
+**TDD state machine enforcement for Claude Code.** Forces the Red-Green-Refactor cycle so your AI agent writes tests before implementation -- every time. *Maturity: Experimental.*
 
 Part of [Windy Road Agent Plugins](../../README.md).
 

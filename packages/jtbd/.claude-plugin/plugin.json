@@ -1,5 +1,106 @@
 {
+  "agents": {
+    "agent": {
+      "maturity": {
+        "band": "Alpha",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 14,
+          "days_shipped": 39,
+          "invocations_30d": 704
+        },
+        "schema_version": "1.0"
+      }
+    }
+  },
+  "description": "Jobs-to-be-done enforcement for Claude Code",
+  "hooks": {
+    "jtbd-enforce-edit": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 14,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "jtbd-eval": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 14,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "jtbd-mark-reviewed": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 14,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "jtbd-slide-marker": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 14,
+          "days_shipped": 39,
+          "invocations_30d": null
+        },
+        "schema_version": "1.0"
+      }
+    }
+  },
+  "maturity": {
+    "band": "Experimental",
+    "schema_version": "1.0"
+  },
   "name": "wr-jtbd",
-  "version": "0.8.0",
-  "description": "Jobs-to-be-done enforcement for Claude Code"
+  "skills": {
+    "review-jobs": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 14,
+          "days_shipped": 39,
+          "invocations_30d": 1
+        },
+        "schema_version": "1.0"
+      }
+    },
+    "update-guide": {
+      "maturity": {
+        "band": "Experimental",
+        "computed_at": "2026-05-18T01:29:14Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": 14,
+          "days_shipped": 39,
+          "invocations_30d": 4
+        },
+        "schema_version": "1.0"
+      }
+    }
+  },
+  "version": "0.8.0"
 }

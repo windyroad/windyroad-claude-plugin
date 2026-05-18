@@ -1,6 +1,6 @@
 # @windyroad/itil
 
-**ITIL-aligned IT service management for Claude Code.** Track recurring incidents, perform root cause analysis, and prioritise fixes using WSJF -- all inside your coding sessions.
+**ITIL-aligned IT service management for Claude Code.** Track recurring incidents, perform root cause analysis, and prioritise fixes using WSJF -- all inside your coding sessions. *Maturity: Experimental.*
 
 Part of [Windy Road Agent Plugins](../../README.md).
 
@@ -75,32 +75,32 @@ See [ADR-011](../../docs/decisions/011-manage-incident-skill.proposed.md) for th
 
 ## Skills
 
-| Skill | Purpose |
-|-------|---------|
-| `/wr-itil:manage-problem` | Create, update, and close problem tickets through the Open → Known Error → Verifying → Closed lifecycle |
-| `/wr-itil:capture-problem` | Foreground-lightweight aside-invocation variant of `manage-problem` (per ADR-032 background-capture pattern + P078 capture-on-correction) — drafts a ticket scaffold without losing the operational thread when a problem signal surfaces mid-conversation |
-| `/wr-itil:work-problem` | Pick the highest-WSJF actionable ticket and work it to completion |
-| `/wr-itil:work-problems` | AFK orchestrator — batch-work the problem backlog by WSJF priority while the user is away |
-| `/wr-itil:list-problems` | Read-only display of the open and known-error backlog sorted by WSJF |
-| `/wr-itil:transition-problem` / `/wr-itil:transition-problems` | Advance one or many tickets through the lifecycle |
-| `/wr-itil:review-problems` | Re-rate every open and known-error ticket and refresh the WSJF ranking |
-| `/wr-itil:reconcile-readme` | Detect and correct drift between `docs/problems/README.md` and on-disk ticket inventory |
-| `/wr-itil:report-upstream` | Report a local problem as a structured issue against an upstream repository (ADR-024) |
-| `/wr-itil:check-upstream-responses` | Poll upstream issues we filed via `/wr-itil:report-upstream` and surface new comments / state changes / label changes since last check (P249 Phase 1; outbound symmetric counterpart to ADR-062 inbound discovery; serves [JTBD-004](../../docs/jtbd/solo-developer/JTBD-004-connect-agents.proposed.md)) |
-| `/wr-itil:capture-rfc` | Lightweight RFC-capture skill — mandatory problem-trace per ADR-060 I1 invariant; opens a coordinated multi-commit change traceable to ≥ 1 driving problem (Phase 1 of the Problem-RFC-Story framework, P170 / ADR-060) |
-| `/wr-itil:manage-rfc` | Heavyweight RFC intake + lifecycle management — proposed → accepted → in-progress → verifying → closed; sibling to `manage-problem` at the RFC tier (ADR-060) |
-| `/wr-itil:capture-story` | Lightweight story-capture skill — mandatory problem-trace AND JTBD-trace per ADR-060 I6 + I9 invariants; optional `--rfc` / `--story-map` flags (I7 + I8 enforce at `accepted` transition); drafts an INVEST-shaped sub-workstream entity under a parent RFC (Phase 2 of the Problem-RFC-Story framework, P170 / ADR-060) |
-| `/wr-itil:list-stories` | Read-only display of stories grouped by lifecycle state, with optional `--rfc RFC-<NNN>` filter rendering the RFC's ordered story list per ADR-060 line 259 (Phase 2 / P170) |
-| `/wr-itil:reconcile-stories` | Detect and correct drift between `docs/stories/README.md` and on-disk story inventory + reverse-trace `## Stories` sections on driving problems / RFCs / JTBDs (Phase 2 / P170) |
-| `/wr-itil:manage-story` | Heavyweight story lifecycle management — draft → accepted → in-progress → done → archived; I7+I8+I10 hard-block at accepted transition; INVEST 4-axis check; auto-transitions on `Refs: STORY-NNN` commit trailer + linked RFC closure (Phase 2 / P170) |
-| `/wr-itil:capture-story-map` | Lightweight story-map-capture skill — mandatory problem-trace AND JTBD-trace per ADR-060 I3 + I4 invariants; HTML skeleton at `docs/story-maps/draft/STORY-MAP-NNN-<slug>.html` per ADR-060 § Phase 2 encoding amendment 2026-05-12 (Phase 2 / P170) |
-| `/wr-itil:manage-story-map` | Heavyweight story-map lifecycle management — draft → accepted → in-progress → completed → archived; backbone/ribs/slices authoring guidance; reverse-trace `## Story Maps` refresh on driving problems + JTBDs (Phase 2 / P170) |
-| `/wr-itil:reconcile-story-maps` | Detect and correct drift between `docs/story-maps/README.md` and on-disk story-map HTML inventory (Phase 2 / P170) |
-| `/wr-itil:list-story-maps` | Read-only display of story-maps grouped by lifecycle state; no WSJF (I5 invariant — maps are planning artefacts, not work items) (Phase 2 / P170) |
-| `/wr-itil:manage-incident` | Declare, triage, mitigate, and close an incident with evidence-first discipline |
-| `/wr-itil:list-incidents` | Read-only display of active incidents by severity |
-| `/wr-itil:mitigate-incident` / `/wr-itil:restore-incident` / `/wr-itil:close-incident` / `/wr-itil:link-incident` | Incident lifecycle transitions (ADR-011) |
-| `/wr-itil:scaffold-intake` | Scaffold OSS intake surfaces (`.github/ISSUE_TEMPLATE/`, `SECURITY.md`, `SUPPORT.md`, `CONTRIBUTING.md`) for downstream adopters (ADR-036) |
+| Skill | Purpose | Maturity |
+| ------- | --------- | --- |
+| `/wr-itil:manage-problem` | Create, update, and close problem tickets through the Open → Known Error → Verifying → Closed lifecycle | Alpha |
+| `/wr-itil:capture-problem` | Foreground-lightweight aside-invocation variant of `manage-problem` (per ADR-032 background-capture pattern + P078 capture-on-correction) — drafts a ticket scaffold without losing the operational thread when a problem signal surfaces mid-conversation | Experimental |
+| `/wr-itil:work-problem` | Pick the highest-WSJF actionable ticket and work it to completion | Experimental |
+| `/wr-itil:work-problems` | AFK orchestrator — batch-work the problem backlog by WSJF priority while the user is away | Experimental |
+| `/wr-itil:list-problems` | Read-only display of the open and known-error backlog sorted by WSJF | Experimental |
+| `/wr-itil:transition-problem` / `/wr-itil:transition-problems` | Advance one or many tickets through the lifecycle | Experimental |
+| `/wr-itil:review-problems` | Re-rate every open and known-error ticket and refresh the WSJF ranking | Experimental |
+| `/wr-itil:reconcile-readme` | Detect and correct drift between `docs/problems/README.md` and on-disk ticket inventory | Experimental |
+| `/wr-itil:report-upstream` | Report a local problem as a structured issue against an upstream repository (ADR-024) | Experimental |
+| `/wr-itil:check-upstream-responses` | Poll upstream issues we filed via `/wr-itil:report-upstream` and surface new comments / state changes / label changes since last check (P249 Phase 1; outbound symmetric counterpart to ADR-062 inbound discovery; serves [JTBD-004](../../docs/jtbd/solo-developer/JTBD-004-connect-agents.proposed.md)) | Experimental |
+| `/wr-itil:capture-rfc` | Lightweight RFC-capture skill — mandatory problem-trace per ADR-060 I1 invariant; opens a coordinated multi-commit change traceable to ≥ 1 driving problem (Phase 1 of the Problem-RFC-Story framework, P170 / ADR-060) | Experimental |
+| `/wr-itil:manage-rfc` | Heavyweight RFC intake + lifecycle management — proposed → accepted → in-progress → verifying → closed; sibling to `manage-problem` at the RFC tier (ADR-060) | Experimental |
+| `/wr-itil:capture-story` | Lightweight story-capture skill — mandatory problem-trace AND JTBD-trace per ADR-060 I6 + I9 invariants; optional `--rfc` / `--story-map` flags (I7 + I8 enforce at `accepted` transition); drafts an INVEST-shaped sub-workstream entity under a parent RFC (Phase 2 of the Problem-RFC-Story framework, P170 / ADR-060) | Experimental |
+| `/wr-itil:list-stories` | Read-only display of stories grouped by lifecycle state, with optional `--rfc RFC-<NNN>` filter rendering the RFC's ordered story list per ADR-060 line 259 (Phase 2 / P170) | Experimental |
+| `/wr-itil:reconcile-stories` | Detect and correct drift between `docs/stories/README.md` and on-disk story inventory + reverse-trace `## Stories` sections on driving problems / RFCs / JTBDs (Phase 2 / P170) | Experimental |
+| `/wr-itil:manage-story` | Heavyweight story lifecycle management — draft → accepted → in-progress → done → archived; I7+I8+I10 hard-block at accepted transition; INVEST 4-axis check; auto-transitions on `Refs: STORY-NNN` commit trailer + linked RFC closure (Phase 2 / P170) | Experimental |
+| `/wr-itil:capture-story-map` | Lightweight story-map-capture skill — mandatory problem-trace AND JTBD-trace per ADR-060 I3 + I4 invariants; HTML skeleton at `docs/story-maps/draft/STORY-MAP-NNN-<slug>.html` per ADR-060 § Phase 2 encoding amendment 2026-05-12 (Phase 2 / P170) | Experimental |
+| `/wr-itil:manage-story-map` | Heavyweight story-map lifecycle management — draft → accepted → in-progress → completed → archived; backbone/ribs/slices authoring guidance; reverse-trace `## Story Maps` refresh on driving problems + JTBDs (Phase 2 / P170) | Experimental |
+| `/wr-itil:reconcile-story-maps` | Detect and correct drift between `docs/story-maps/README.md` and on-disk story-map HTML inventory (Phase 2 / P170) | Experimental |
+| `/wr-itil:list-story-maps` | Read-only display of story-maps grouped by lifecycle state; no WSJF (I5 invariant — maps are planning artefacts, not work items) (Phase 2 / P170) | Experimental |
+| `/wr-itil:manage-incident` | Declare, triage, mitigate, and close an incident with evidence-first discipline | Experimental |
+| `/wr-itil:list-incidents` | Read-only display of active incidents by severity | Experimental |
+| `/wr-itil:mitigate-incident` / `/wr-itil:restore-incident` / `/wr-itil:close-incident` / `/wr-itil:link-incident` | Incident lifecycle transitions (ADR-011) | Experimental |
+| `/wr-itil:scaffold-intake` | Scaffold OSS intake surfaces (`.github/ISSUE_TEMPLATE/`, `SECURITY.md`, `SUPPORT.md`, `CONTRIBUTING.md`) for downstream adopters (ADR-036) | Experimental |
 
 ## Jobs to be Done
 
