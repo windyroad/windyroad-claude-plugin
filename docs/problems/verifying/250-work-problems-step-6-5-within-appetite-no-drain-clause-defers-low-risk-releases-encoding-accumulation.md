@@ -1,11 +1,12 @@
 # Problem 250: work-problems Step 6.5 "≤3 within appetite — no drain" clause defers low-risk releases, encoding accumulation
 
-**Status**: Known Error
+**Status**: Verifying
 **Reported**: 2026-05-17
 **Root cause confirmed**: 2026-05-18
+**Fix released**: 2026-05-18 (`@windyroad/itil@0.32.3`, commit `e9fb7f0`; consumed in version-packages commit `4a0e1b7` 2026-05-17 21:29 UTC, merged via PR #141 / merge commit `4df08ec`; current ships at 0.35.2)
 **Priority**: 12 (High) — Impact: 3 (Moderate — encodes accumulation against the RISK-POLICY appetite invariant; defers low-risk releases against explicit user direction "If it's low risk, you should release") × Likelihood: 4 (Likely — fires on every Step 6.5 pass where there is something to release but the cohort isn't full AND risk is below 4/Low appetite; observed pattern, not hypothetical)
 **Effort**: M (Step 6.5 SKILL.md contract amendment — drop "at-appetite-only drain" semantics; drain whenever there is something to release; bats coverage for the new drain condition; potential ADR-018 amendment to align cadence framing with no-accumulation invariant)
-**WSJF**: 12/2 = **6.0** (raw Priority/Effort retained per README display convention; Known-Error-first tiebreak per `/wr-itil:work-problems` Step 3; fix landed in `/wr-itil:work-problems` iter 2026-05-18; transitions to Verifying on release per ADR-022)
+**WSJF**: 12/2 = **6.0** (raw Priority/Effort retained per README display convention; Known Error → Verifying on release per ADR-022; awaiting in-loop verification window — 5 AFK iterations across ≥2 sessions per § Verification (post-release))
 **Type**: technical
 
 ## Description
@@ -111,6 +112,13 @@ The residual band remains the safety check (above-appetite never releases); the 
 **Sibling-class bounding**: P246 (calendar trigger), P247 (Tier 3 Branch B leave-as-is), P234 (fictional defer parent), P145 (Tier 3 predecessor), P148 (Stage 1 ticketing fictional-defer) remain Open. The meta-class consistency principle (no accumulation-permitted-below-threshold) is the shared invariant; each sibling has its own SKILL surface. P250's fix is bounded to Step 6.5 only.
 
 **Transition**: Open → Known Error. Will transition Known Error → Verifying on release per ADR-022.
+
+### 2026-05-18 — Fix Released (Known Error → Verifying)
+
+- **Release vehicle**: `@windyroad/itil@0.32.3` (consumed in version-packages commit `4a0e1b7` 2026-05-17 21:29 UTC, merged via PR #141 / merge commit `4df08ec`). CHANGELOG line `packages/itil/CHANGELOG.md:114` carries the P250 entry verbatim — three-band classification + user-direction citation.
+- **Current shipping**: `@windyroad/itil@0.35.2` — fix has been live across 4 subsequent release cycles (0.33.0, 0.34.0, 0.35.0, 0.35.1, 0.35.2) without regression. Each iter's Step 6.5 has had access to the new three-band classification logic from the refreshed marketplace cache (per P233 verification chain).
+- **Empirical drain-on-releasable-material evidence**: session 6 iter 3 (2026-05-17 07:56:29 AEST) was the first cross-release iter to invoke the new Step 6.5 logic — drained via `push:watch` only (no `release:watch` on empty changeset) at a 1/1/1 within-appetite score with unpushed commits present. Pre-fix wording would have skipped drain at 1/1/1. P233 K → V transition documents this verification chain (`docs/problems/verifying/233-*.md`).
+- **Transition**: Known Error → Verifying. Verification window per § Verification (post-release) remains in-flight: need 5 AFK iterations across ≥2 sessions of low-risk iters (1/1/1 to 3/3/3 scores) draining on each within-appetite-with-releasable-material pass.
 
 ## Dependencies
 
