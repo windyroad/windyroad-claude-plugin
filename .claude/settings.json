@@ -11,7 +11,7 @@
     "wr-tdd@windyroad": true,
     "wr-architect@windyroad": true,
     "wr-risk-scorer@windyroad": true,
-    "wr-itil@windyroad": true,
-    "wr-retrospective@windyroad": true
+    "wr-retrospective@windyroad": true,
+    "wr-itil@windyroad": true
   }
 }
