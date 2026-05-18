@@ -1,10 +1,12 @@
 # Problem 246: Agent waits on calendar trigger for held-cohort graduation — violates ADR-061 symmetric balance principle
 
-**Status**: Known Error
+**Status**: Verifying
 **Reported**: 2026-05-17
+**Root cause confirmed**: 2026-05-18
+**Fix released**: 2026-05-18 (`@windyroad/itil@0.33.0`, source commit `229539c`; consumed in version-packages commit `a032ca9` 2026-05-17 22:29:58 UTC, merged via PR #142 / merge commit `e243fc3` 2026-05-18 08:36:11 AEST; current ships at 0.35.2)
 **Priority**: 9 (Med) — Impact: 3 (Moderate — held cohorts accumulate beyond their actual evidence-based release-readiness; delays compound; user has to manually intervene to trigger graduation when the framework's own principle says graduate now) × Likelihood: 3 (Likely — fired today on 3-entry P087 cohort; pattern matches I001 / I002 manual-graduation precedent earlier this month)
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
-**WSJF**: 9/2 = **4.5** (deferred — provisional; ties with P132)
+**WSJF**: 9/2 = **4.5** (raw Priority/Effort retained per README display convention; Known Error → Verifying on release per ADR-022; awaiting in-loop verification window — 5 AFK iterations across ≥2 sessions per § Verification (post-release))
 **Type**: technical (agent class-of-behaviour)
 
 ## Description
@@ -89,13 +91,30 @@ User issues direct graduation command. Currently manual.
 
 ### Fix Released
 
-The fix lands in this iter's commit (P246 session 6 iter 4) under `@windyroad/itil` minor bump. Pending release verification in the next AFK iter or orchestrator drain pass.
+Shipped 2026-05-18 in `@windyroad/itil@0.33.0`:
+
+- Source commit: `229539c` "fix(itil): P246 Step 6.5 cohort-graduation pre-check before Drain (evidence-based, not time-based)" (2026-05-18 08:25:08 AEST)
+- Changeset removed: `.changeset/wr-itil-p246-step-6-5-cohort-graduation-pre-check.md` (per ADR-022 P143 fold-fix — changeset removal IS the canonical fix-shipped signal)
+- Version-packages commit: `a032ca9` (2026-05-17 22:29:58 UTC) — `0.32.3` → `0.33.0`
+- Merge PR: #142, merge commit `e243fc3` (2026-05-18 08:36:11 AEST)
+- Current cache: `@windyroad/itil@0.35.2` — 4 subsequent release cycles (0.34.0 / 0.35.0 / 0.35.1 / 0.35.2) with zero regression on the Step 6.5 cohort-graduation pre-check surface
+
+**Empirical exercise evidence (in-session this monorepo, 2026-05-18)**: the Step 6.5 cohort-graduation pre-check fired and graduated an atomic-cohort end-to-end. `docs/changesets-holding/README.md` "Recently reinstated" section records both `wr-itil-p170-phase4-p4-1-related-problems-lookup-row.md` and `wr-itil-p170-phase3-p3-1-phase4-p4-2-step-1-5b-jtbd-trace.md` as "Reinstated 2026-05-18 by the orchestrator's new Step 6.5 cohort-graduation pre-check (`wr-risk-scorer-evaluate-graduation` emitted `status=resolved` for the `phase-3-phase-4-end-of-chain-user-verification` cohort)". This exercises:
+
+- Rule 1a deterministic join — evaluator resolved both held basenames to their P170 ticket
+- Rule 3b cohort propagation — both atomic-cohort members graduated together
+- Rule 5 policy-authorised silent proceed — no `AskUserQuestion` fired mid-iter
+- Rule 6 audit-trail append — README "Recently reinstated" section captured both reinstatements with cited evidence
+- The held cohort survived 4 subsequent release cycles (0.33.0 → 0.35.2) with no false-positive graduation of the `p166-p163-external-comms-hook-side-sha256.md` entry, which the evaluator correctly held back per the negative evidence floor (P198 sibling ticket records 5+ recurrences of the marker-key-derivation friction — `status=vp-blocked` or evidence-floor-not-met)
+
+Verification window remains in-flight per § Verification (post-release) — 5 AFK iterations across ≥2 sessions of low-risk iters. Recovery path: `/wr-itil:transition-problem 246 known-error` after reverting commit `229539c`.
 
 ## Change Log
 
 - 2026-05-17: Captured by /wr-itil:capture-problem at session 4 iter 9 wrap following user correction (P078 strong-signal: *"Why are we waiting? That seems to go against the principles if you ask me."*). Initial framing: agent over-waited on calendar trigger; should invoke risk-evaluator instead.
 - 2026-05-17: Refined framing applied post-session-4-wrap per user direction (*"Dogfooding makes sense, but it shouldn't be time based, it should be until we are happy that it's working as desired."*). Calendar trigger reframed as defective contract clause; evidence-of-working-as-desired is the actual criterion.
 - 2026-05-18 (session 6 iter 4): Worked via /wr-itil:work-problems AFK loop. Architect + JTBD pre-edit reviews completed (architect ISSUES adopted: drop `no-graduate-evidence-floor` branch, halt-no-resolution → terminal halt not outstanding_questions, no retroactive Currently held rewrite, ADR-061 status stays `proposed`). SKILL.md Step 6.5 amended with Cohort-graduation pre-check sub-step + new framework-prescribed halt point + 3 new Non-Interactive Decision Making table rows. `docs/changesets-holding/README.md` Process step 5 amended (evidence-based, not time-based, with user-direction citation). 39-fixture bats coverage created (all pass). P234, P236, P247 (sibling defer-class-of-behaviour tickets) stay Open — this fix is bounded to the cohort-graduation surface; the broader meta-class fix lives across multiple tickets per their distinct surfaces. Transitioned Open → Known Error (root cause confirmed, fix in source).
+- 2026-05-18 (session 7 iter 2): Known Error → Verifying via /wr-itil:work-problems AFK loop. Fold-fix per ADR-022 P143 amendment — changeset `wr-itil-p246-step-6-5-cohort-graduation-pre-check.md` removed in version-packages commit `a032ca9` (2026-05-17 22:29:58 UTC, shipped `@windyroad/itil@0.33.0`), merged via PR #142 / merge commit `e243fc3` (2026-05-18 08:36:11 AEST); current cache `@windyroad/itil@0.35.2` spans 4 subsequent release cycles (0.34.0 / 0.35.0 / 0.35.1 / 0.35.2) with zero regression. Empirical exercise evidence (in-session): Step 6.5 cohort-graduation pre-check fired and graduated `wr-itil-p170-phase4-p4-1-related-problems-lookup-row.md` + `wr-itil-p170-phase3-p3-1-phase4-p4-2-step-1-5b-jtbd-trace.md` atomic-cohort per `wr-risk-scorer-evaluate-graduation` `status=resolved` emission, exercising Rule 1a deterministic join + Rule 3b cohort propagation + Rule 5 silent proceed + Rule 6 audit-trail append end-to-end. Architect + JTBD pre-edit reviews PASS — no new ADR required (ADR-022 P143 fold-fix + ADR-014 single-commit grain + ADR-031 per-state subdir + P186 evidence-first cell shape all honoured). README WSJF Rankings row removed; Verification Queue row inserted at 2026-05-18 same-day-ID-ASC position (after P240, before P250); evidence cell carries `yes — observed: ...` cross-release proof per P186. Recovery path: `/wr-itil:transition-problem 246 known-error` after reverting commit `229539c`.
 
 ## Dependencies
 
