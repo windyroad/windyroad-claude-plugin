@@ -8,6 +8,10 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion
 
 Create a new ADR in `docs/decisions/` following MADR 4.0 format. The wr-architect:agent reviews these files to enforce architectural compliance.
 
+## Needs-Direction handoff + confirm-every-ADR (ADR-064)
+
+When a `wr-architect:agent` review returns a **NEEDS DIRECTION** verdict (a new decision with 2+ viable options and no pinned direction, per ADR-064), the option choice is the user's, not the agent's — this skill is the translation surface. The architect's named question + options become the Step 2 cat-1 `AskUserQuestion` calls (Considered Options / Decision Outcome), and the Step 5 confirm is the load-bearing **review-and-confirm-every-ADR** gate: an ADR must not stand as a human-oversighted decision (reach `accepted`) without that confirm pass. A `/wr-architect:capture-adr` skeleton — zero-ask precisely because its decision was pre-pinned in `$ARGUMENTS` — must be run through this skill's confirm before promotion to `accepted`. When direction IS already pinned (same-turn / same-session / accepted ADR / RISK-POLICY.md / CLAUDE.md mandatory rule), act on it — do not re-ask (P132 inverse-P078 guard).
+
 ## Steps
 
 ### 1. Discover existing decisions

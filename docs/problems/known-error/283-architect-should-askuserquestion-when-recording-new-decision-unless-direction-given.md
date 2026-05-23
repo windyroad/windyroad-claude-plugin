@@ -81,12 +81,12 @@ Confirmed (any one suffices until the permanent fix lands):
 - [x] Reconcile scope vs P085 — sibling, keep separate (architect-agent verdict-surface instance of the main-agent prose-ask class).
 - [x] Reconcile scope vs P135 / ADR-044 — new sibling ADR citing ADR-044 taxonomy (Reassessment clause pre-authorises).
 - [x] Define "explicit direction has been given" precisely — done (finding 6).
-- [ ] Implement Shape B + thin Shape C (see Fix Strategy) — permanent fix, not yet released.
-- [ ] Record the new sibling ADR via `/wr-architect:create-adr` (its own cat-1 direction-gathering is the P283 behaviour in action).
-- [ ] Fold in the outstanding ADR-026 reparenting on `agent.md` performance-review section (P022 → ADR-026; architect Q4 item 1).
-- [ ] Add the dual test surface (structural doc-lint for verdict shape per ADR-005/P011 permitted exception + behavioural test for skill translation).
-- [ ] **Prong 2**: define the retroactive-sweep batching/prioritisation approach for the 52 existing `.proposed.md` ADRs (topic clusters; load-bearing-first).
-- [ ] **Prong 2**: run the review-and-confirm sweep — `AskUserQuestion` per ADR (or cluster); confirm / amend / reject each auto-made decision; promote confirmed ones proposed→accepted via the item-5 gate.
+- [x] **Prong 1** Implement Shape B + thin Shape C — DONE 2026-05-23: ADR-064; `agent.md` NEEDS DIRECTION verdict + `[Needs Direction]` issue type + "When to emit" section; create-adr/capture-adr handoff + confirm-every-ADR notes.
+- [x] **Prong 1** Record the new sibling ADR — DONE: ADR-064 written via the asking flow (architect PASS, user-confirmed via AskUserQuestion "Record as drafted"). Demonstrates P283 in action.
+- [x] **Prong 1** Fold in the ADR-026 reparenting on `agent.md` — DONE: added "per ADR-026, specialised by ADR-023" parent citation to the Runtime-Path Performance Review section (discharges ADR-026 Confirmation item 1; the separate ADR-023-prose P022→ADR-026 update stays deferrable until ADR-026 acceptance).
+- [x] **Prong 1** Dual test surface — structural doc-lint DONE (`architect-needs-direction-verdict.bats`, 6 tests passing; framed as ADR-052 Surface 2 `structural-justified` citing P176, NOT the old ADR-005 Permitted Exception — per architect correction). Behavioural skill-translation test BLOCKED on P176 (no skill-invocation harness); tracked in ADR-064 Confirmation items 2-3.
+- [ ] **Prong 2** Build the cross-project decision-oversight mechanism (see Fix Strategy item 6) — marker schema + cheap detection + session-start nudge + `/wr-architect:review-decisions` drain skill. Likely its own ADR (recorded via the asking flow). NOT YET STARTED.
+- [ ] **Prong 2** Drain this repo's unconfirmed set — run the review-and-confirm sweep over the ~52 existing `.proposed.md` ADRs using the new mechanism; batch by topic cluster, load-bearing-first; promote confirmed ones proposed→accepted.
 
 ## Fix Strategy
 
@@ -104,7 +104,16 @@ Adopt **Shape B + a thin Shape C slice; reject Shape A** (architect verdict 2026
 
 ### Prong 2 — review the existing ADRs (retroactive sweep)
 
-6. **Retroactive review-and-confirm sweep of the 52 existing `.proposed.md` ADRs.** Root concern: poor *automatically-made* decisions already live in `docs/decisions/` as proposed ADRs that no human picked. Sweep them: for each, surface the chosen option + the alternatives via `AskUserQuestion` so the user confirms, amends, or rejects the auto-made call. Practical shaping (decide at implementation): batch by topic/cluster rather than 52 sequential prompts; prioritise ADRs that govern load-bearing contracts (ADR-013, ADR-044, ADR-022, ADR-014…) over low-stakes ones; the proposed→accepted promotion gate from item 5 is the durable mechanism that makes the sweep stick (an ADR only reaches `accepted` after a human confirm). Multi-day interactive work — best run as focused sittings, not one blocking pass. This is the prong that drives the XL effort rating.
+6. **Retroactive review-and-confirm sweep of the 52 existing `.proposed.md` ADRs.** Root concern: poor *automatically-made* decisions already live in `docs/decisions/` as proposed ADRs that no human picked. Sweep them: for each, surface the chosen option + the alternatives via `AskUserQuestion` so the user confirms, amends, or rejects the auto-made call. Multi-day interactive work — best run as focused sittings, not one blocking pass. This is the prong that drives the XL effort rating.
+
+7. **Cross-project decision-oversight mechanism (design settled 2026-05-23, user; built under this ticket per user direction "keep it all inside P283 prong 2").** Adopter projects that use the architect plugin have the same problem — decisions recorded without human oversight. Ship a reusable, token-cheap mechanism in the architect plugin:
+
+   - **Oversight marker (ADR-009 persistent-marker pattern).** An ADR frontmatter field — `human-oversight: confirmed` + `oversight-date: YYYY-MM-DD` — recording that a human reviewed and confirmed the decision. **Orthogonal to `status:`** — an ADR can be `accepted` (production-validated) yet never human-*oversighted* (auto-decided then shipped), so oversight needs its own axis. (Exact field name to confirm at build via the asking flow.)
+   - **Born-confirmed going forward.** ADR-064 (prong 1) makes `create-adr` ask + confirm; any ADR recorded through that flow is written `human-oversight: confirmed` automatically. The new-decision leak is closed, so the unconfirmed set only ever shrinks.
+   - **Cheap detection (the token-efficiency answer).** The "needs oversight" set = ADRs whose frontmatter lacks the marker. Detection is a **grep over frontmatter — no body reads, no per-ADR LLM call.** Steady-state cost ≈ one grep; only unconfirmed ADRs get read + presented. Once drained, ongoing cost is ~zero.
+   - **Trigger — DECISION 2026-05-23 (user): session-start nudge + drain skill** (AskUserQuestion options: nudge+skill / skill-only / confirm-on-touch → chose nudge+skill). A cheap grep at session start (like the briefing-currency nudge) reports `N decisions lack human oversight — run /wr-architect:review-decisions`; a new **`/wr-architect:review-decisions`** skill drains the unconfirmed set in batches via `AskUserQuestion` (cluster by topic, load-bearing ADRs first), writing the marker on each confirm. Never re-asked (ADR-009 marker persists).
+   - **Scope — DECISION 2026-05-23 (user): keep in P283 prong 2** (declined the "new ticket + ADR; P283 depends on it" split — the AskUserQuestion offered both). The mechanism is built here; prong-2 task 2 ("drain this repo's unconfirmed set") consumes it.
+   - **Recording:** the mechanism itself is an architecture decision (frontmatter-schema change + new skill + session-start hook) — record it as its own ADR (e.g. ADR-065) via the now-asking create-adr flow when built. This is the eat-our-own-dogfood loop: the oversight mechanism's own ADR goes through the oversight flow.
 
 ## Dependencies
 

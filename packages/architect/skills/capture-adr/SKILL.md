@@ -168,6 +168,8 @@ After the commit, report:
 
 The trailing pointer is **not optional** — it is the user-visible signal that the skeleton needs canonical expansion before acceptance review.
 
+**Confirm-every-ADR gate (ADR-064):** a capture-adr skeleton is recorded `proposed` with a pre-pinned decision but WITHOUT human review of the options. It must NOT be promoted to `accepted` until it has been through a `/wr-architect:create-adr` (or equivalent) `AskUserQuestion` review-and-confirm pass. Capture records the decision quickly; the confirm — not the capture — is what gives it human oversight. This is prong 1 of P283 (lift auto-/quick-recorded decisions to human-confirmed before they stand).
+
 ## Composition with create-adr
 
 | Concern | create-adr | capture-adr |

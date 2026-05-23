@@ -62,7 +62,9 @@ Flag when a proposed change represents an undocumented decision:
 - **New script**: Does this introduce a new workflow step?
 - **Structural change**: Does this reorganize code in a way that affects how the team works?
 
-### Runtime-Path Performance Review (per ADR-023)
+### Runtime-Path Performance Review (per ADR-026, specialised by ADR-023)
+
+This review is grounded in ADR-026 (Agent output grounding) — the parent no-ungrounded-claims principle — as specialised by ADR-023 (wr-architect performance review scope) for runtime-path changes. The qualitative-claim ban below is the ADR-026 grounding requirement applied to performance estimates.
 
 When a proposed change touches any of the following runtime-path surfaces, you MUST perform a per-request performance review in addition to the ADR-conformance review:
 
@@ -128,9 +130,34 @@ If there are issues:
 >
 > 2. ...
 
+If a new decision must be recorded but it has 2+ viable options and no pinned direction (per ADR-064 (Architect Needs-Direction verdict)):
+
+> **Architecture Review: NEEDS DIRECTION**
+>
+> A decision must be recorded but the option is not pinned — the user, not the agent, owns this choice.
+>
+> - **Decision question**: <the question to settle, in one line>
+> - **Option A** — <name + one-line, grounded in what you read>
+> - **Option B** — <name + one-line, grounded in what you read>
+> - (further options as applicable; include "do nothing / status quo" where relevant)
+> - **Advisory lean (optional)**: <your recommendation + why — but do NOT auto-pick, and do NOT prose-ask>
+>
+> The main agent (or calling skill) translates this into an `AskUserQuestion` before the decision is recorded — never a prose ask. Under an AFK orchestrator that cannot ask mid-loop, the verdict queues to the iteration's `outstanding_questions` for batched return-presentation (ADR-044 (Decision-delegation contract)), never blocking or guessing.
+
+### When to emit Needs Direction (per ADR-064)
+
+Emit **NEEDS DIRECTION** only when ALL of the following hold:
+
+1. The change requires recording a new decision (you would otherwise flag `[Undocumented Decision]`).
+2. There are **2+ viable options**.
+3. **No direction is pinned.** Direction counts as pinned — and you must NOT ask, instead reporting PASS / ISSUES FOUND and naming the pinned source — when the option is fixed by any of: a same-turn pin, a same-session pin, an accepted ADR, `RISK-POLICY.md` appetite, or a CLAUDE.md mandatory rule.
+
+Do NOT emit Needs Direction for the "obvious choice" / only-one-viable-option case (see "When NOT to flag" above) — over-firing on obvious choices is the over-ask trap CLAUDE.md P132 warns against. Needs Direction is the architect-surface instance of ADR-044 category 1 (direction-setting); `AskUserQuestion` remains a primary-agent affordance — you name the question + options, the main agent owns the ask.
+
 Issue types:
 - **[Decision Conflict]**: Change conflicts with an accepted/proposed decision
 - **[Undocumented Decision]**: Change represents an architectural choice not covered by any existing decision
+- **[Needs Direction]**: A new decision must be recorded but has 2+ viable options with no pinned direction — name the question + options for the main agent to translate into an `AskUserQuestion` (ADR-064)
 - **[Decision Format]**: A decision file doesn't follow MADR 4.0 format
 - **[Missing Supersession]**: A new decision should supersede an old one but doesn't
 - **[Confirmation Violation]**: New code violates a confirmation criterion of an existing decision
