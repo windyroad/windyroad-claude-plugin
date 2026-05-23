@@ -32,6 +32,8 @@ Worked example evident this session: 7 captures (P266, P267, P268, P269, P270, P
 
 (deferred to investigation)
 
+**Evidence (2026-05-24, work-problems session)**: the deferred-placeholder count reached **83** (`grep -rl 'deferred — re-rate at next' docs/problems/open/ docs/problems/known-error/`). At work-problems loop end the user was asked how to handle the accumulated bulk re-rate and directed: **apply the re-rate in small batches** (preserving the incremental git-visible cadence; auto-decisions have drifted poor) **AND capture a problem ticket for getting into this state** — that meta-ticket is THIS ticket (P271). The ~76→83 accumulation is the concrete witness of the exact gap P271 describes: review-problems never auto-fired, so 83 placeholders piled up across many sessions. The user's "small batches" cadence directive REFINES P271's recommended fix shape — the auto-fire trigger should re-rate incrementally (a bounded batch per fire), NOT bulk-re-rate all 83 at once. Add that constraint to the fix design.
+
 Initial observations:
 - 5 pre-existing entries in `.afk-run-state/outstanding-questions.jsonl` queued from session 7 + 3 from session 8 iter 2 = 8 total queued at this point in session 8.
 - 8 capture-problem tickets created in last 2 sessions (P252/P264/P266/P267/P268/P269/P270/P271) all carrying `(deferred — re-rate at next /wr-itil:review-problems)` placeholders.

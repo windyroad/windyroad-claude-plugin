@@ -2,7 +2,7 @@
 
 **Status**: Open
 **Reported**: 2026-05-18
-**Priority**: 12 (High) — Impact: 4 (Significant — broke 11 plugins on npm simultaneously; every adopter's `claude plugin install` failed with cryptic validation error) x Likelihood: 1 (Rare — only fires when a maintainer adds new top-level keys to plugin.json that conflict with Claude Code's validator schema; mitigated by ADR-063 Amendment 2026-05-18 + ADR-063 Confirmation #11 follow-on CI gate per P263)
+**Priority**: 15 (High) — Impact: 5 (Severe — total npm distribution outage: all 11 plugins simultaneously unparseable by `claude plugin install`, every adopter blocked with a cryptic validation error; the body frames this P0) x Likelihood: 3 (Possible — re-rated 1→3 2026-05-24 to match the P0 framing: the failure class already materialised once and structural prevention via P263's manifest-shape CI gate has NOT yet landed, so any future top-level plugin.json extension can re-trigger it — "Rare" understated a live structural gap; ADR-063 Amendment 2026-05-18 mitigates the specific maturity-records case but not the class) — re-rated to match the P0 body framing per user direction 2026-05-24; WSJF refreshes at next /wr-itil:review-problems
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems; documentation + ADR-058 amendment + plugin-distribution.md briefing entry)
 **Type**: technical
 
