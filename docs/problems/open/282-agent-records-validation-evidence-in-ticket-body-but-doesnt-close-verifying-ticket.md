@@ -2,8 +2,9 @@
 
 **Status**: Open
 **Reported**: 2026-05-19
-**Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
-**Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
+**Priority**: 12 (High) — Impact: 3 (Moderate — Verification Queue accumulates effectively-closed tickets; audit-trail decoupled from validation-work record; cross-ticket lifecycle reasoning degraded) x Likelihood: 4 (Almost Certain — affects every session where any agent edits a `.verifying.md` body to add Fix Direction / Validation Note / Confirmation Log content; pattern observable in this very session — 94 verifying tickets and growing)
+**Effort**: M — define evidence-keyword vocabulary + add body-content scan to `/wr-itil:transition-problem` SKILL + optional PostToolUse hook on `.verifying.md` Edit; architect verdict on trigger surface (SKILL vs hook vs hybrid)
+**WSJF**: 4.0 — (12 × 1.0) / 3 — High severity; high likelihood; moderate effort. Sibling of P068 (verifying — narrower run-retro surface) and P228 (open — K→V analogue)
 **Type**: technical
 
 ## Description

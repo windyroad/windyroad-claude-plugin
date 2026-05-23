@@ -2,8 +2,9 @@
 
 **Status**: Open
 **Reported**: 2026-05-23
-**Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
-**Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
+**Priority**: 9 (Med High) — Impact: 3 (Moderate — ADRs land with autocratically-chosen options that drift from user intent; user must re-direct in follow-up turns; degraded audit-trail of "why this option"; recurrent friction class) x Likelihood: 3 (Likely — affects every ADR-creation flow that lacks pre-pinned direction; sibling-class to P085 main-agent prose-ask pattern)
+**Effort**: M — three resolution shapes (Shape A extend architect subagent tool surface to include AskUserQuestion; Shape B structured needs-direction verdict for main-agent translation; Shape C SKILL-side AskUserQuestion before architect delegation in `/wr-architect:create-adr` and `/wr-architect:capture-adr`); architect verdict on shape; behavioural-test fixture
+**WSJF**: 3.0 — (9 × 1.0) / 3 — Mid-priority Med-High severity; pairs with P085 master class but narrower scope (architect-subagent specific)
 **Type**: technical
 
 ## Description

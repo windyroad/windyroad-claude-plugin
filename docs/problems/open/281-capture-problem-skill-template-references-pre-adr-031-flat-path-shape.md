@@ -2,8 +2,9 @@
 
 **Status**: Open
 **Reported**: 2026-05-19
-**Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
-**Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
+**Priority**: 9 (Med High) — Impact: 3 (Moderate — adopter projects accumulate flat-layout tickets; README cache mis-classify risk; cross-adopter inventory drift) x Likelihood: 3 (Likely — structural defect; every adopter following SKILL.md literally hits it; observed once concretely in voder-mcp-hub today)
+**Effort**: M — three plausible resolution shapes enumerated (adopter migration / SKILL template literal refresh / agent inference-vs-template precedence rule); template-refresh alone might be S but combined fix sits at M
+**WSJF**: 3.0 — (9 × 1.0) / 3 — Mid-priority Med-High severity; sibling cluster around capture-skill template drift
 **Type**: technical
 
 ## Description
