@@ -198,6 +198,15 @@ Present the written ADR and use AskUserQuestion to ask:
 
 Apply any feedback by editing the file.
 
+**Born-confirmed write (ADR-066).** Once the user confirms the ADR via this AskUserQuestion pass, write the human-oversight marker into the frontmatter — insert immediately after the `date:` line:
+
+```yaml
+human-oversight: confirmed
+oversight-date: YYYY-MM-DD   # today
+```
+
+This is the load-bearing born-confirmed gate: an ADR recorded through create-adr enters the world already human-oversighted (it does not appear in `/wr-architect:review-decisions`' unoversighted set). Do NOT write the marker if the user has not confirmed (rejected / still-iterating ADRs stay unmarked). The marker is orthogonal to `status:` — a `proposed` ADR can be `human-oversight: confirmed`.
+
 ### 6. Handle supersession (if applicable)
 
 If the user mentions this decision replaces an existing one:

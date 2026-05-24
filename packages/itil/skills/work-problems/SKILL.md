@@ -317,6 +317,14 @@ IDLE_TIMEOUT_S="${WORK_PROBLEMS_IDLE_TIMEOUT_S:-3600}"
 # into iter subprocesses' first turn.
 export WR_SUPPRESS_PENDING_QUESTIONS=1
 
+# AFK-iter oversight-nudge suppression (ADR-066): the architect plugin's
+# SessionStart oversight nudge ("N decisions lack human oversight — run
+# /wr-architect:review-decisions") is an interactive batch-confirm prompt. It
+# must NOT fire into an absent-user iter subprocess. architect-oversight-nudge.sh
+# self-suppresses when this env var is set — same discipline as the
+# pending-questions guard above (JTBD-006 friction guard).
+export WR_SUPPRESS_OVERSIGHT_NUDGE=1
+
 claude -p \
   --permission-mode bypassPermissions \
   --output-format json \

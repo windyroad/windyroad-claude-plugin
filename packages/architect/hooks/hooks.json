@@ -1,5 +1,8 @@
 {
   "hooks": {
+    "SessionStart": [
+      { "matcher": "startup", "hooks": [{ "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/architect-oversight-nudge.sh" }] }
+    ],
     "UserPromptSubmit": [
       { "hooks": [{ "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/architect-detect.sh" }] }
     ],

@@ -43,6 +43,14 @@ This walks you through creating an ADR in [MADR 4.0](https://adr.github.io/madr/
 
 The `capture-adr` skill is the foreground-lightweight aside-invocation variant of `create-adr` (per ADR-032 background-capture pattern). Use it when an architecture decision surfaces mid-conversation and you want the ADR scaffold drafted without losing the operational thread.
 
+**Review recorded decisions that lack human oversight:**
+
+```
+/wr-architect:review-decisions
+```
+
+The `review-decisions` skill drains the set of ADRs that were recorded without a human confirming the chosen option (per ADR-066). It surfaces each decision's chosen option and alternatives via AskUserQuestion so you confirm, amend, or reject the auto-made call, then writes a `human-oversight: confirmed` marker. Detection is a token-cheap grep over ADR frontmatter; a session-start nudge reports the unoversighted count. New ADRs created through `create-adr` are born oversighted, so the unconfirmed set only shrinks.
+
 ## How It Works
 
 | Hook | Trigger | What it does |
@@ -53,6 +61,7 @@ The `capture-adr` skill is the foreground-lightweight aside-invocation variant o
 | `architect-mark-reviewed.sh` | Agent completes | Marks the review as done (TTL: 3600s) |
 | `architect-refresh-hash.sh` | After edit | Refreshes the content hash so the next edit triggers a fresh review |
 | `architect-slide-marker.sh` | Agent or Bash | Slides the review marker forward across non-edit operations so an active review session is not invalidated by intervening Bash or sub-agent calls |
+| `architect-oversight-nudge.sh` | Session start | Reports how many recorded decisions lack human oversight and points to `/wr-architect:review-decisions`; silent when none, and self-suppressed inside AFK iterations |
 
 ## Agent
 
