@@ -1,6 +1,8 @@
 ---
 status: "accepted"
 date: 2026-04-20
+human-oversight: confirmed
+oversight-date: 2026-05-25
 accepted-date: 2026-05-12
 decision-makers: [Tom Howard]
 consulted: [wr-architect:agent (initial 2026-04-20 + T5b accept-flip review 2026-05-12), wr-jtbd:agent (initial 2026-04-20 + T5b accept-flip review 2026-05-12)]

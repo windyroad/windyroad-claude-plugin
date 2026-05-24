@@ -1,6 +1,8 @@
 ---
 status: accepted
 date: 2026-04-28
+human-oversight: confirmed
+oversight-date: 2026-05-25
 decision-makers: [Tom Howard]
 consulted: [wr-architect:agent, wr-jtbd:agent]
 informed: [Windy Road plugin users, downstream `@windyroad/itil` adopters]
