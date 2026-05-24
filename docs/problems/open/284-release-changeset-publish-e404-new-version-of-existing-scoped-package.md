@@ -71,6 +71,16 @@ User insight: "nothing about the token changed config-wise. Or… maybe it expir
 
 The revert path (Update-1 path 2) remains valid as a fallback to un-stick main without fixing the token, but is unnecessary if the token is simply refreshed.
 
+### Update 2026-05-24 (3) — ROOT CAUSE CONFIRMED: npm 2FA, token lacked "Bypass 2FA"
+
+Replacing the secret with a freshly-generated token (still whoami=`tompahoward`, valid) changed the CI publish error from the masked **E404** to an explicit **`EOTP This operation requires a one-time password from your authenticator`** (run `26362679413`, 2026-05-24T13:33Z). That is the real root cause: the `tompahoward` npm account has **2FA enabled for writes/publishes**, and the publish token did not bypass it. CI cannot supply an interactive OTP, so `changeset publish` failed. The original E404 was the same underlying auth-insufficiency, masked by npm (404 instead of 403/EOTP) for the first token.
+
+So BOTH earlier hypotheses were wrong: not architect-specific access (Update 1), not expiry (Update 2). The expiry timeline (last write May 18, first fail May 23) was a coincidence of "first write attempt in a while" — the token was simply never able to publish under 2FA. (Note: the May 18 publishes must have used a token that DID bypass 2FA; the Apr-08 secret evidently lost/never-had the bypass for the architect write path.)
+
+**Resolution**: user regenerated the npm token with **"Bypass 2FA" enabled** (npm Automation-class / granular token that skips the OTP gate in CI) and updated the "Npmjs" 1Password `api token` field. The agent re-pulled it via `op`, reset both `NPM_TOKEN` + `NPM_AUTH_TOKEN` GitHub secrets (2026-05-24T13:38Z), and re-triggered the Release. **Closes when architect@0.8.0 publishes.**
+
+**Standing follow-up (still valid regardless of this fix)**: add a CI pre-publish `npm whoami` / token-validity assertion so a future auth failure (expiry, missing-2FA-bypass, scope gap) fails loudly with a clear message instead of surfacing as a cryptic per-package E404. The E404→EOTP masking cost three diagnostic round-trips this session.
+
 ## Impact Assessment
 
 - **Who is affected**: (deferred to investigation) — maintainer release path; AFK orchestrator loop continuity (JTBD-006); adopters waiting on the architect plugin's published version.
