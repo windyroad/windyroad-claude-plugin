@@ -107,6 +107,18 @@ make_clean_project() {
   [ "${#output}" -lt 300 ]
 }
 
+# P173: the deny must NOT advertise the env bypass as an in-flight escape.
+# BYPASS_JTBD_CURRENCY only takes effect when set in Claude Code's process env
+# before the session started; a mid-session Bash export never reaches the hook.
+# The deny clarifies the bypass is pre-session.
+@test "P173 deny message clarifies the env bypass is pre-session (not a mid-session action)" {
+  make_drifted_project
+  run run_bash_hook "git commit -m 'feat'"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"\"permissionDecision\": \"deny\""* ]]
+  [[ "$output" == *"pre-session"* ]]
+}
+
 @test "deny: canonical release commit shape (chore: version packages) is subject to the gate" {
   make_drifted_project
   # Not a `git commit` invocation — the bare message must NOT deny.

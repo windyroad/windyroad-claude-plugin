@@ -102,9 +102,15 @@ TRAPPED_SLUG=$(detect_changeset_required 2>/dev/null) && exit 0
 
 # Trap detected — emit deny with terse recovery.
 # Voice-tone budget per ADR-045 deny-band ≤300 bytes total. Names the
-# plugin slug, the literal recovery command (`bun run changeset`), the
-# BYPASS env var escape, and the P141 cite.
-REASON="BLOCKED: P141 changeset discipline. packages/${TRAPPED_SLUG}/ source needs .changeset/*.md. Recovery: bun run changeset. Bypass: BYPASS_CHANGESET_GATE=1."
+# plugin slug, the literal in-flight recovery command (`bun run
+# changeset` — staging ANY changeset satisfies the gate), and the P141
+# cite. P173: the deny no longer advertises BYPASS_CHANGESET_GATE=1 as an
+# in-flight escape — that env var only takes effect when set in Claude
+# Code's process env BEFORE the session started; a mid-session Bash
+# export/inline assignment never reaches the hook process. The deny
+# states the bypass is pre-session-only so maintainers stop wasting a
+# turn trying it mid-session (the original P173 cost).
+REASON="BLOCKED: P141 changeset discipline. packages/${TRAPPED_SLUG}/ source needs .changeset/*.md. Recovery: bun run changeset. Env bypass is pre-session only."
 
 cat <<EOF
 {

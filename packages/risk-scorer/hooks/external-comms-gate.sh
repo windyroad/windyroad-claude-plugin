@@ -233,7 +233,7 @@ fi
 # EXTERNAL_COMMS_LEAK_PREFILTER=yes (risk) or =no (voice-tone).
 if [ "$EXTERNAL_COMMS_LEAK_PREFILTER" = "yes" ]; then
     if ! leak_detect_scan "$DRAFT"; then
-        REASON=$(printf 'BLOCKED (external-comms gate / %s evaluator): %s on %s. Remove the leak before retrying. Override only if intentional: BYPASS_RISK_GATE=1.' \
+        REASON=$(printf 'BLOCKED (external-comms gate / %s evaluator): %s on %s. Remove the leak before retrying. Override only if intentional (pre-session env): BYPASS_RISK_GATE=1.' \
             "$EXTERNAL_COMMS_EVALUATOR_ID" "$LEAK_DETECT_REASON" "$SURFACE")
         deny_with_reason "$REASON"
         exit 0
@@ -261,7 +261,7 @@ fi
 # PostToolUse mark hook can derive the canonical marker key locally
 # (sha256(DRAFT + '\n' + SURFACE)). Single fire per gate cycle.
 VERDICT_PREFIX="${EXTERNAL_COMMS_VERDICT_PREFIX:-EXTERNAL_COMMS_${EXTERNAL_COMMS_EVALUATOR_ID^^}}"
-REASON=$(printf 'BLOCKED (external-comms gate / %s evaluator): %s draft has not been reviewed by %s. Delegate to %s (subagent_type: '"'"'%s'"'"') with a prompt that starts with the line `SURFACE: %s` and wraps the draft body verbatim inside `<draft>...</draft>` markers (for the changeset-author surface the body is the changeset summary WITHOUT the leading `---` frontmatter block — the gate strips frontmatter before hashing the marker key). The PostToolUse hook derives the marker key from that structure and marks the draft reviewed when the subagent emits %s_VERDICT: PASS — single fire suffices. Use %s for an interactive walkthrough. Override only when intentional: BYPASS_RISK_GATE=1.' \
+REASON=$(printf 'BLOCKED (external-comms gate / %s evaluator): %s draft has not been reviewed by %s. Delegate to %s (subagent_type: '"'"'%s'"'"') with a prompt that starts with the line `SURFACE: %s` and wraps the draft body verbatim inside `<draft>...</draft>` markers (for the changeset-author surface the body is the changeset summary WITHOUT the leading `---` frontmatter block — the gate strips frontmatter before hashing the marker key). The PostToolUse hook derives the marker key from that structure and marks the draft reviewed when the subagent emits %s_VERDICT: PASS — single fire suffices. Use %s for an interactive walkthrough. Override only when intentional (pre-session env): BYPASS_RISK_GATE=1.' \
     "$EXTERNAL_COMMS_EVALUATOR_ID" "$SURFACE" "$EXTERNAL_COMMS_SUBAGENT_TYPE" "$EXTERNAL_COMMS_SUBAGENT_TYPE" "$EXTERNAL_COMMS_SUBAGENT_TYPE" "$SURFACE" "$VERDICT_PREFIX" "$EXTERNAL_COMMS_ASSESS_SKILL")
 deny_with_reason "$REASON"
 exit 0

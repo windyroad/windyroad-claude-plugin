@@ -101,6 +101,19 @@ run_bash_hook() {
   [ "${#output}" -lt 300 ]
 }
 
+# P173: the deny must NOT advertise the env bypass as an in-flight escape.
+# BYPASS_CHANGESET_GATE only takes effect when set in Claude Code's process
+# env before the session started; a mid-session Bash `export`/inline assignment
+# never reaches the hook. The deny clarifies the bypass is pre-session.
+@test "P173 deny message clarifies the env bypass is pre-session (not a mid-session action)" {
+  echo "skill body" > packages/itil/skills/foo/SKILL.md
+  git add packages/itil/skills/foo/SKILL.md
+  run run_bash_hook "git commit -m 'feat'"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"\"permissionDecision\": \"deny\""* ]]
+  [[ "$output" == *"pre-session"* ]]
+}
+
 # --- Allow paths: each non-trap shape must NOT deny ---
 
 @test "allow: staged packages/<plugin>/ source WITH a staged changeset allows the commit" {

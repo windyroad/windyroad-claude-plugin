@@ -195,9 +195,13 @@ PRIMARY_HINT="${OFFENDING_HINTS%%,*}"
 # Deny — voice/tone budget per ADR-045 deny-band ≤300 bytes total
 # (envelope ~137 bytes; REASON ~145 bytes for worst-case slug + the
 # single inventory hint). Names the offending plugin slug, the drift
-# hint, the mechanical recovery (name the skill in the README — NOT
-# a JTBD-ID citation per ADR-069), the BYPASS env, and the P294 cite.
-REASON="BLOCKED: P294 README inventory drift in ${OFFENDING_SLUG} (${PRIMARY_HINT}). Recovery: name the skill in the README. Bypass: BYPASS_JTBD_CURRENCY=1."
+# hint, the in-flight mechanical recovery (name the skill in the README
+# — NOT a JTBD-ID citation per ADR-069), and the P294 cite. P173: the
+# deny no longer advertises BYPASS_JTBD_CURRENCY=1 as an in-flight escape
+# — that env var only takes effect when set in Claude Code's process env
+# BEFORE the session started; a mid-session Bash export never reaches the
+# hook. The deny states the bypass is pre-session-only.
+REASON="BLOCKED: P294 README inventory drift in ${OFFENDING_SLUG} (${PRIMARY_HINT}). Recovery: name the skill in the README. Env bypass is pre-session only."
 
 cat <<EOF
 {

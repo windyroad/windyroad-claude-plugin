@@ -84,6 +84,18 @@ run_hook() {
   [[ "$output" == *"wr-voice-tone:external-comms"* ]]
 }
 
+# P173: the BYPASS_RISK_GATE override is clarified as pre-session — it only
+# takes effect when set in Claude Code's process env before the session
+# started, not via a mid-session Bash export. The in-flight escape-hatch is
+# delegation to the external-comms subagent (already named in the deny).
+@test "P173 marker-absent deny clarifies the env override is pre-session" {
+  INPUT=$(build_bash_input "gh issue create --title T --body 'we observed a build failure on Node 20'")
+  run_hook "$INPUT"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"deny"* ]]
+  [[ "$output" == *"pre-session"* ]]
+}
+
 @test "voice-tone evaluator skips leak pre-filter (EXTERNAL_COMMS_LEAK_PREFILTER=no)" {
   # A draft with leak-shaped content (revenue figure with business context) would
   # hard-fail in the risk evaluator. The voice-tone gate must NOT hard-fail; leak

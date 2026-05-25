@@ -89,6 +89,18 @@ run_hook() {
   [[ "$output" == *"wr-risk-scorer:external-comms"* ]]
 }
 
+# P173: the BYPASS_RISK_GATE override is clarified as pre-session — it only
+# takes effect when set in Claude Code's process env before the session
+# started, not via a mid-session Bash export. The in-flight escape-hatch is
+# delegation to the external-comms subagent (already named in the deny).
+@test "P173 marker-absent deny clarifies the env override is pre-session" {
+  INPUT=$(build_bash_input "gh issue create --title T --body 'we observed a build failure on Node 20'")
+  run_hook "$INPUT"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"deny"* ]]
+  [[ "$output" == *"pre-session"* ]]
+}
+
 @test "hard-fail credential pattern (GitHub token) denies immediately with leak reason" {
   INPUT=$(build_bash_input "gh issue comment 42 --body 'token=${GH_TOKEN_LIKE}'")
   run_hook "$INPUT"
