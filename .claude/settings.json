@@ -2,6 +2,7 @@
   "enabledPlugins": {
     "discord@claude-plugins-official": true,
     "fakechat@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
     "wr-architect@windyroad": true,
     "wr-c4@windyroad": true,
     "wr-connect@windyroad": true,
