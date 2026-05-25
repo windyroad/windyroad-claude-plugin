@@ -88,6 +88,10 @@ The SKILL.md substep 7 prose acknowledges the env var is unreliable but does not
 
 **Out of scope**: extending the helper to other plugins (architect/jtbd/risk-scorer) — they don't need it (their hooks read session_id directly from stdin payloads). Discovery via Anthropic-feature-gap remediation — out of scope until the feature ships.
 
+## Post-Phase-4 race (P260 — 2026-05-18)
+
+Phase 4 (ADR-050) moved the helper's primary discovery to a per-machine/per-user/per-project runtime-SID marker written by `itil-runtime-sid-marker.sh`. ADR-050 accepted a *same-project parallel-session race* as a documented limitation (last-writer-wins on the shared marker; failure mode is a visible, recoverable Write deny). **P260** records that this race fires in the standard `/wr-itil:work-problems` AFK shape: the orchestrator main turn and a **backgrounded** iter `claude -p` subprocess (work-problems Step 5 P121 idle-timeout poll loop) run in the SAME project ⇒ same `proj_hash` ⇒ both clobber `/tmp/itil-runtime-sid-${USER}-${proj_hash}.current`, so `get_current_session_id` can return the wrong session's SID ⇒ P119 create-gate marker-vs-Write mismatch. This also falsifies ADR-050 §Race-mitigation lines 116-117 ("orchestrator + its own subprocess: not a race"). Architect verdict on P260 (2026-05-26): the structurally-sound fix is the bounded multi-UUID marker-write (P260 Option C), codified as a Phase-5 amendment to ADR-050; escalated to the user as an ADR-044 category-2 deviation-approval (re-opens a human-oversight-confirmed posture). Tracked in P260, not re-opened here.
+
 ## Dependencies
 
 - **Blocks**: P119 (verifying — the create-gate hook contract; this ticket addresses the agent-side discovery gap that P119 surfaces but doesn't itself solve)
@@ -97,6 +101,7 @@ The SKILL.md substep 7 prose acknowledges the env var is unreliable but does not
 ## Related
 
 - **P119** (`docs/problems/119-agent-bypasses-manage-problem-step-2.verifying.md`) — created the create-gate hook this ticket's discovery gap surfaces. Composable, not duplicative.
+- **P260** (`docs/problems/known-error/260-p119-create-gate-marker-race-between-concurrent-claude-sessions-via-shared-runtime-sid-file.md`) — the post-Phase-4 same-project concurrency race on the runtime-SID marker (see "Post-Phase-4 race" section above). Composes; tracked separately.
 - **ADR-038** (`docs/decisions/038-progressive-disclosure-and-once-per-session-budget-for-userpromptsubmit.proposed.md`) — defines the session-marker pattern; the new helper inherits the shared-lib placement.
 - `packages/itil/skills/manage-problem/SKILL.md` Step 2 substep 7 — primary fix target.
 - `packages/itil/hooks/manage-problem-enforce-create.sh` lines 58-62 — hook side that reads session_id from stdin JSON.
