@@ -179,13 +179,60 @@ fi
 emit_bucket decisions "$decisions_bytes" "$decisions_present"
 
 # ── Bucket: problems ────────────────────────────────────────────────────────
+# Dual-tolerant enumeration per RFC-002 T4 (the proven reconcile-readme.sh
+# pattern). RFC-002 T5 / ADR-031 migrated tickets from the flat layout
+# (docs/problems/<NNN>-*.<state>.md) to per-state subdirs
+# (docs/problems/<state>/<NNN>-*.md). Walk BOTH layouts; a flat-only glob
+# misses the subdir tickets and under-counts the bucket ~99% post-migration
+# (P182). Dedup on ticket ID (the per-state layout drops the `.<state>`
+# suffix, so the same ticket has different basenames across layouts — key on
+# ID, not basename, mirroring reconcile-readme.sh). Non-ticket files (README)
+# live only at the top level and never collide with subdir content, so they
+# key on full basename. The per-state subdir loop runs AFTER the flat loop so
+# the per-state copy wins on collision (ADR-031 §"Authoritative state signal").
 
 problems_dir="$PROJECT_ROOT/docs/problems"
 problems_present=0
 problems_bytes=0
 if [ -d "$problems_dir" ]; then
   problems_present=1
-  problems_bytes=$( cd "$PROJECT_ROOT" && sum_globs "docs/problems/*.md" )
+  problems_bytes=$(
+    cd "$PROJECT_ROOT" 2>/dev/null && {
+      declare -A seen
+      shopt -s nullglob
+      # Flat layout: top-level *.md (READMEs + any pre-migration flat tickets).
+      for f in docs/problems/*.md; do
+        [ -f "$f" ] || continue
+        base="$(basename "$f")"
+        case "$base" in
+          [0-9][0-9][0-9]-*) key="${base%%-*}" ;;  # ticket: dedup on numeric ID
+          *)                 key="$base" ;;        # README etc: full basename
+        esac
+        seen["$key"]="$f"
+      done
+      # Per-state subdir layout (RFC-002 T5 / ADR-031) — wins on ID collision.
+      for state in open known-error verifying closed parked; do
+        for f in docs/problems/"$state"/*.md; do
+          [ -f "$f" ] || continue
+          base="$(basename "$f")"
+          case "$base" in
+            [0-9][0-9][0-9]-*) key="${base%%-*}" ;;
+            *)                 key="$base" ;;
+          esac
+          seen["$key"]="$f"
+        done
+      done
+      shopt -u nullglob
+      total=0
+      for f in "${seen[@]}"; do
+        if [ -r "$f" ]; then
+          b=$(wc -c < "$f" 2>/dev/null | tr -d ' ')
+          total=$(( total + ${b:-0} ))
+        fi
+      done
+      echo "$total"
+    }
+  )
 fi
 emit_bucket problems "$problems_bytes" "$problems_present"
 

@@ -169,6 +169,68 @@ teardown() {
   echo "$output" | grep -qE '^BUCKET problems bytes=[0-9]+$'
 }
 
+# ── Dual-tolerant per-state subdir enumeration (P182 / RFC-002 T4 / ADR-031) ─
+# RFC-002 T5 migrated problem tickets from the flat layout
+# (docs/problems/<NNN>-*.<state>.md) to per-state subdirs
+# (docs/problems/<state>/<NNN>-*.md). The flat-only glob misses the subdir
+# tickets and under-counts the bucket ~99% post-migration (P182). The fix
+# walks BOTH layouts and dedups on ticket ID — the per-state subdir copy
+# wins on collision per ADR-031 §"Authoritative state signal" — mirroring
+# the proven reconcile-readme.sh pattern.
+
+@test "measure-context-budget: per-state subdir problem tickets are counted" {
+  mkdir -p "$FIXTURE_DIR/docs/problems/open" "$FIXTURE_DIR/docs/problems/known-error"
+  printf '# Problem 100\nbody body body\n' > "$FIXTURE_DIR/docs/problems/open/100-foo.md"
+  printf '# Problem 101\nbody body\n' > "$FIXTURE_DIR/docs/problems/known-error/101-bar.md"
+  run bash "$SCRIPT" "$FIXTURE_DIR"
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -qE '^BUCKET problems bytes=[0-9]+$'
+  problems_line=$(echo "$output" | grep '^BUCKET problems ')
+  bytes_value="${problems_line##*bytes=}"
+  [ "$bytes_value" -gt 0 ]
+}
+
+@test "measure-context-budget: problems bucket sums flat + per-state subdir tickets" {
+  mkdir -p "$FIXTURE_DIR/docs/problems/open" "$FIXTURE_DIR/docs/problems/verifying"
+  # Flat top-level (README + a pre-migration flat ticket) and per-state
+  # subdir tickets must all contribute to the bucket total.
+  printf '# Problems index\nrow\n' > "$FIXTURE_DIR/docs/problems/README.md"
+  printf '# Problem 050 legacy flat\nbody\n' > "$FIXTURE_DIR/docs/problems/050-legacy.open.md"
+  printf '# Problem 100\nbody body\n' > "$FIXTURE_DIR/docs/problems/open/100-foo.md"
+  printf '# Problem 101\nbody body body body\n' > "$FIXTURE_DIR/docs/problems/verifying/101-bar.md"
+  expected=0
+  for f in "$FIXTURE_DIR/docs/problems/README.md" \
+           "$FIXTURE_DIR/docs/problems/050-legacy.open.md" \
+           "$FIXTURE_DIR/docs/problems/open/100-foo.md" \
+           "$FIXTURE_DIR/docs/problems/verifying/101-bar.md"; do
+    b=$(wc -c < "$f" | tr -d ' ')
+    expected=$(( expected + b ))
+  done
+  run bash "$SCRIPT" "$FIXTURE_DIR"
+  [ "$status" -eq 0 ]
+  problems_line=$(echo "$output" | grep '^BUCKET problems ')
+  bytes_value="${problems_line##*bytes=}"
+  [ "$bytes_value" -eq "$expected" ]
+}
+
+@test "measure-context-budget: same ticket in flat + per-state subdir counted once (per-state wins)" {
+  # Mid-migration race: the same ticket ID exists as a flat file
+  # (200-dup.open.md) AND a per-state subdir file (open/200-dup.md) with a
+  # DIFFERENT byte size. ID-keyed dedup must count it once; the per-state
+  # subdir copy wins (ADR-031). Asserting the total equals the subdir file's
+  # size alone proves both: counted-once (not flat+subdir) and per-state-wins
+  # (subdir size, not flat size).
+  mkdir -p "$FIXTURE_DIR/docs/problems/open"
+  printf 'flat\n' > "$FIXTURE_DIR/docs/problems/200-dup.open.md"
+  printf 'per-state subdir copy is longer\n' > "$FIXTURE_DIR/docs/problems/open/200-dup.md"
+  subdir_bytes=$(wc -c < "$FIXTURE_DIR/docs/problems/open/200-dup.md" | tr -d ' ')
+  run bash "$SCRIPT" "$FIXTURE_DIR"
+  [ "$status" -eq 0 ]
+  problems_line=$(echo "$output" | grep '^BUCKET problems ')
+  bytes_value="${problems_line##*bytes=}"
+  [ "$bytes_value" -eq "$subdir_bytes" ]
+}
+
 @test "measure-context-budget: populated briefing bucket reports byte count" {
   mkdir -p "$FIXTURE_DIR/docs/briefing"
   printf '# Topic\nentry\n' > "$FIXTURE_DIR/docs/briefing/foo.md"

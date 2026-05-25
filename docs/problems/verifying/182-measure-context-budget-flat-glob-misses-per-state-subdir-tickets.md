@@ -1,6 +1,6 @@
 # Problem 182: `measure-context-budget.sh` flat-glob misses per-state-subdir problem tickets — sibling fix to RFC-002 T4 dual-tolerant `reconcile-readme.sh`
 
-**Status**: Known Error
+**Status**: Verification Pending
 **Reported**: 2026-05-11
 **Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: S (deferred — re-rate at next /wr-itil:review-problems)
@@ -54,11 +54,15 @@ For the 2026-05-11 deep-layer report: explicit ADR-026 sentinel (`-85.6% problem
 
 ### Investigation Tasks
 
-- [ ] Re-rate Priority and Effort at next /wr-itil:review-problems
-- [ ] Investigate root cause — read current `measure-context-budget.sh` enumeration logic; identify the exact glob/find pattern that needs widening.
-- [ ] Apply RFC-002 T4 dual-tolerant pattern: extend enumeration to walk both flat (`docs/problems/*.md`) and per-state subdirs (`docs/problems/{open,known-error,verifying,closed,parked}/*.md`); deduplicate on filename collision (per-state wins per ADR-031).
-- [ ] Survey sibling scripts in `packages/retrospective/scripts/` and `packages/itil/scripts/` for the same flat-glob anti-pattern post-T5 — at minimum `check-briefing-budgets.sh` (operates on `docs/briefing/`, unrelated layout — likely OK) and `check-ask-hygiene.sh` (operates on `docs/retros/` — likely OK).
-- [ ] Create reproduction test — bats fixture with mixed flat + per-state-subdir layouts; assert measurement equals expected bytes when all subdirs recursed.
+- [x] Re-rate Priority and Effort at next /wr-itil:review-problems — confirmed S (single-file script fix + test); WSJF 6.0 unchanged.
+- [x] Investigate root cause — `measure-context-budget.sh:188` summed `sum_globs "docs/problems/*.md"` (flat top-level only); the RFC-002 T5 / ADR-031 per-state subdirs were never recursed, so the bucket counted only the 2 README files.
+- [x] Apply RFC-002 T4 dual-tolerant pattern: enumeration now walks flat (`docs/problems/*.md`) + per-state subdirs (`docs/problems/{open,known-error,verifying,closed,parked}/*.md`); dedup keyed on ticket ID (`${base%%-*}`) — NOT raw basename, because the per-state layout drops the `.<state>` suffix so the same ticket has different basenames across layouts (architect verdict on this fix); per-state subdir wins on collision (subdir loop runs after flat loop) per ADR-031. README files key on full basename so existing README-counting is preserved.
+- [x] Survey sibling scripts for the same flat-glob anti-pattern — `measure-context-budget.sh` was the SOLE remaining instance. `architect-enforce-edit.sh` / `jtbd-enforce-edit.sh` already dual-tolerant (`docs/problems/*.md|docs/problems/*/*.md`); `update-jtbd-references-section.sh` uses `docs/problems/*/[0-9]*-*.md` (per-state); `evaluate-graduation.sh` already dual-tolerant; `plugin-exercise-index.sh` uses `docs/problems/**/`; `migrate-problems-layout.sh` intentionally detects flat files for migration. No further fixes needed.
+- [x] Create reproduction test — `measure-context-budget.bats` gains 3 tests: (a) per-state subdir tickets counted; (b) flat README + flat ticket + 2 subdir tickets sum exactly; (c) same ticket ID in flat + per-state subdir counted once, per-state byte size wins. Red-green confirmed (3 fail pre-fix, all 34 pass post-fix).
+
+### Findings (fix landed 2026-05-26)
+
+Single copy of the script exists (no canonical+sync needed). Real-repo verification: the problems bucket corrected from a phantom 286,459 bytes (2 README files) to 3,797,225 bytes (305 ticket files) — post-migration ground truth restored. The architect flagged that the `decisions` bucket flat glob is CORRECT (no per-state subdirs) and must not be touched. Optional follow-up queued: amend ADR-043 line 78 (stale `docs/problems/*.md` wording) so a future reviewer doesn't "fix" the script back to the flat glob — deferred to avoid decision-file edit-gate churn in this AFK loop.
 
 ## Dependencies
 
@@ -76,6 +80,13 @@ For the 2026-05-11 deep-layer report: explicit ADR-026 sentinel (`-85.6% problem
 - **ADR-026** — Agent output grounding (the `not estimated — no prior data` sentinel discipline that surfaced this as artefact rather than real reduction).
 - **P181** (`docs/problems/open/181-architect-mark-reviewed-verdict-grep-fragile-on-issues-found-substring.md`) — sibling capture this session for a different script-fragility pattern; same Stage 2 shape (improvement stub on a script).
 - **P097** (`docs/problems/open/097-skill-md-files-mix-runtime-and-rationale.md`) — composes with the deep-layer report's other findings (3 SKILL.md > 50KB cluster).
+
+## Fix Released
+
+**Release marker**: `@windyroad/retrospective` patch — changeset `p182-measure-context-budget-per-state-subdir-walk.md` queued; commit pending this AFK iteration; npm release deferred to the orchestrator's Step 6.5 drain.
+**Fix summary**: `measure-context-budget.sh`'s problems bucket now walks both the flat and per-state-subdir layouts (dual-tolerant per RFC-002 T4 / ADR-031), deduplicating on ticket ID with the per-state subdir winning on collision — correcting the ~99% under-count and phantom delta in `/wr-retrospective:run-retro` Step 2c and `/wr-retrospective:analyze-context` reports.
+**Exercise evidence**: bats 34/34 green (3 new tests, red-green confirmed); real-repo problems bucket corrected 286,459 → 3,797,225 bytes.
+**Awaiting user verification**: run `/wr-retrospective:run-retro` Step 2c (or `/wr-retrospective:analyze-context`) after release and confirm the problems-bucket figure reflects the full ticket inventory rather than the 2 README files.
 
 ## Fix Strategy
 
