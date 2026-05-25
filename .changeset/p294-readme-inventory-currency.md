@@ -1,0 +1,5 @@
+---
+"@windyroad/retrospective": minor
+---
+
+README inventory-currency gate (P294, ADR-069 — supersedes ADR-051). The `retrospective-readme-jtbd-currency` commit-hook and its detector are narrowed to skill-inventory-drift only: they gate `git commit` on whether every directory under `packages/<plugin>/skills/` is named in that plugin's README. The former JTBD-ID-citation rule (the `JTBD-\d{3}` anchor, the stale/deprecated-citation hints, and the `docs/jtbd/` resolution plus its activation guard) is removed — ADR-069 establishes that plugin READMEs market the persona's problem derived from the JTBD but must not cite JTBD IDs. The deny message now points to "name the skill in the README" rather than a JTBD-ID citation. The run-retro Step 2b advisory is rewired to the inventory-only signal vocabulary (`README package=<name> skills=<N> in_readme=<M> drift_hints=<csv>` plus `TOTAL packages=<N> drift_instances=<K>`). The detector/hook filename is retained deliberately (a rename would ripple into other decision records and the bin-shim naming grammar for a filename adopters rarely see).

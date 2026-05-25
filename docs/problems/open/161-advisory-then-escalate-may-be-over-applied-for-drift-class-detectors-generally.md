@@ -67,12 +67,12 @@ Phase 3: retroactive review of advisory-only drift-class detectors (deferred —
 
 - **Blocks**: (none — observation-only ticket; no downstream work depends on its resolution)
 - **Blocked by**: (none — but Phase 2 codification is gated on the arrival of 2-3 more drift-class detectors following the load-bearing-from-the-start shape; counter accumulates with each future drift-class ADR that explicitly chooses load-bearing-from-the-start over advisory-then-escalate; originating instance is P159)
-- **Composes with**: P159, ADR-051, ADR-040, ADR-013 Rule 6
+- **Composes with**: P159, ADR-051 (superseded by ADR-069, which carries the load-bearing-from-the-start-for-drift-class principle forward), ADR-040, ADR-013 Rule 6
 
 ## Related
 
 - [P159](159-jtbd-currency-detector-should-be-load-bearing-commit-hook-with-auto-fix-not-retro-advisory.open.md) — originating observation; ADR-051 amendment that introduced the load-bearing-from-the-start direction for one drift-class detector.
-- [ADR-051](../decisions/051-jtbd-anchored-readme-with-drift-advisory.proposed.md) — amended 2026-05-04 by P159 to ship load-bearing-from-the-start; new Decision Driver "Load-bearing-from-the-start for drift class" names this ticket as the meta-question surface.
+- [ADR-051](../decisions/051-jtbd-anchored-readme-with-drift-advisory.superseded.md) — superseded 2026-05-25 by ADR-069, which carries the load-bearing-from-the-start-for-drift-class principle forward; amended 2026-05-04 by P159 to ship load-bearing-from-the-start; new Decision Driver "Load-bearing-from-the-start for drift class" names this ticket as the meta-question surface.
 - [ADR-040](../decisions/040-session-start-briefing-surface.proposed.md) — declarative-first / advisory-then-escalate pattern. ADR-040 is the pattern ADR; the question this ticket queues is whether the pattern's universality should be revisited for drift class.
 - [ADR-013 Rule 6](../decisions/013-structured-user-interaction-for-governance-decisions.proposed.md) — non-interactive fail-safe / advisory-then-escalate. Sibling pattern surface.
 - [P099](099-no-context-budget-or-budget-tracking-mechanism.verifying.md) — advisory-only briefing-budget detector. Drift-class candidate for retroactive load-bearing-from-the-start review if M1 or M2 lands.

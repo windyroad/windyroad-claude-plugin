@@ -15,7 +15,7 @@ The voice-tone plugin:
 3. **Reviews** the proposed copy against your `docs/VOICE-AND-TONE.md` guide
 4. **Reports** violations with suggested fixes that match your brand's voice principles, banned patterns, and word list
 
-Beyond in-repo edits, the plugin also gates **external communications** — `gh issue create`, `gh pr create`, `gh issue/pr comment`, `gh api security-advisories`, `npm publish`, and `.changeset/*.md` author-time — via the [`wr-voice-tone:external-comms`](agents/external-comms.md) subagent and the on-demand [`/wr-voice-tone:assess-external-comms`](skills/assess-external-comms/SKILL.md) skill. This composes with `@windyroad/risk-scorer`'s sibling external-comms gate (see [ADR-028 amended 2026-05-14](../../docs/decisions/028-voice-tone-gate-external-comms.proposed.md)) — when both plugins are installed, voice/tone and risk/leak review fire independently on the same outbound prose call. Serves [JTBD-001 Enforce Governance Without Slowing Down](../../docs/jtbd/solo-developer/JTBD-001-enforce-governance.proposed.md) and [JTBD-202 Run Pre-Flight Governance Checks Before Release or Handover](../../docs/jtbd/tech-lead/JTBD-202-pre-flight-governance-check.proposed.md).
+Beyond in-repo edits, the plugin also gates **external communications** — `gh issue create`, `gh pr create`, `gh issue/pr comment`, `gh api security-advisories`, `npm publish`, and `.changeset/*.md` author-time — via the [`wr-voice-tone:external-comms`](agents/external-comms.md) subagent and the on-demand [`/wr-voice-tone:assess-external-comms`](skills/assess-external-comms/SKILL.md) skill. This composes with `@windyroad/risk-scorer`'s sibling external-comms gate (see [ADR-028 amended 2026-05-14](../../docs/decisions/028-voice-tone-gate-external-comms.proposed.md)) — when both plugins are installed, voice/tone and risk/leak review fire independently on the same outbound prose call. This serves automatic governance enforcement on every copy edit and on-demand pre-flight governance checks before a release or handover.
 
 ## Install
 
@@ -51,22 +51,6 @@ The `wr-voice-tone:agent` reads your `docs/VOICE-AND-TONE.md` and reviews propos
 - Tone guidance for different contexts
 - Banned words and patterns
 - Preferred terminology
-
-## Jobs to be Done
-
-This plugin serves the [Jobs to be Done](../../docs/jtbd/) below. Per [ADR-051](../../docs/decisions/051-jtbd-anchored-readme-with-drift-advisory.proposed.md), the persona-grouped JTBD anchor is the canonical source of truth for the README's value framing.
-
-### Solo developer
-
-- **[JTBD-001 Enforce Governance Without Slowing Down](../../docs/jtbd/solo-developer/JTBD-001-enforce-governance.proposed.md)** — voice-and-tone review fires automatically on every user-facing copy edit; the project's own voice guide is the policy source rather than the agent's defaults.
-
-### Tech lead / consultant
-
-- **[JTBD-202 Run Pre-Flight Governance Checks Before Release or Handover](../../docs/jtbd/tech-lead/JTBD-202-pre-flight-governance-check.proposed.md)** — voice-and-tone alignment is reviewable on demand before a release or client handover.
-
-### Plugin user
-
-- **[JTBD-302 Trust That the README Describes the Plugin I Just Installed](../../docs/jtbd/plugin-user/JTBD-302-trust-readme-describes-installed-behaviour.proposed.md)** — this README is anchored on current JTBD job IDs; drift between prose and shipped behaviour is detectable at retro time per ADR-051.
 
 ## Updating and Uninstalling
 

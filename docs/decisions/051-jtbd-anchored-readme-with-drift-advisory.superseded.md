@@ -1,5 +1,5 @@
 ---
-status: "proposed"
+status: "superseded"
 date: 2026-05-04
 decision-makers: [tomhoward]
 consulted: [wr-architect:agent, wr-jtbd:agent]
@@ -7,9 +7,16 @@ informed: []
 reassessment-date: 2026-08-04
 amended: 2026-05-04
 amendment-driver: P159
+superseded-date: 2026-05-25
+superseded-by: [069-readme-markets-persona-problem-not-jtbd-id]
 ---
 
 # `@windyroad/*` plugin READMEs anchor on JTBD job IDs with load-bearing commit-hook + prose-woven framing
+
+> **Superseded by [ADR-069: Plugin READMEs market to their primary persona's problem](069-readme-markets-persona-problem-not-jtbd-id.proposed.md)** (2026-05-25, driver P294).
+> The user rejected this ADR's core mechanism during the P283/ADR-066 oversight drain: *"The intention was not for the README to cite the JTBDs. The idea is that based on the JTBD, the README could market the plugin to the persona and the problem it solves for them. The current approach fails that miserably."*
+> **Superseded:** Option D2 (README MUST cite a JTBD ID) + the bolt-on `## Jobs to be Done` section + the JTBD-ID commit-gate. ADR-069 narrows that gate to skill-inventory-drift only.
+> **Carried forward to ADR-069 as live precedent** (citations to these resolve to ADR-069): **(a)** the prose-weaving anti-pattern (bolt-on tail-section rejected; framing woven into lead prose), and **(b)** the load-bearing-from-the-start-for-drift-class driver (gate mechanical/structurally-bounded drift at commit time). ADR-069 remains an exemplar of (b) — it keeps a load-bearing commit gate, now scoped to skill-inventory-drift. References elsewhere (e.g. ADR-060, P161) to (b) as originating here remain valid via this note.
 
 > **Amendment 2026-05-04 (P159)**: Phase 1's advisory-only consumption surface (retro-time signal, exit-0 always) was identified as too late for the most common drift class — contributor adds a skill/hook/agent and forgets the README; the offending commit doesn't touch README.md so a retro-time consumer sees the drift only after it has shipped. The amended Phase 1 ships the load-bearing-from-the-start variant: a PreToolUse:Bash hook on `git commit` that runs the existing detector against the post-commit working tree and denies the commit when `drift_instances > 0`. The advisory script remains; retro Step 2b wiring (P158) survives as a backup advisory. Concurrently, the **Recommended Section Structure** clause is rewritten: the bolt-on `## Jobs to be Done` section is rejected as an anti-pattern (the section becomes compliance theatre that absolves the lead prose of doing the job-framing); JTBD framing should instead be **woven into the existing What It Does / Skills / How It Works prose** where adopters are already reading. See the amended Recommended Section Structure clause below for prose-weaving target guidance + persona-primacy preservation + anti-pattern citation.
 

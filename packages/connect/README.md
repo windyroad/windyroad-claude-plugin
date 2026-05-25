@@ -13,7 +13,7 @@
 > research preview as of April 2026. The API surface may change. See
 > [ADR-006](../../docs/decisions/006-connect-plugin.proposed.md) for details.
 
-Connect Claude Code sessions across repos via Discord so they can collaborate.
+Connect Claude Code sessions across repos via Discord so they can collaborate. *Maturity: Experimental.*
 
 ## What It Does
 
@@ -22,7 +22,7 @@ communicate — with zero idle token cost. Sessions can hand off findings, ask q
 share context, or coordinate work. The receiving session wakes up only when a message
 arrives, using Discord as the collaboration channel.
 
-**Example:** Session A (repo-a) discovers a bug in a package from repo-b. It sends a *Maturity: Experimental.*
+**Example:** Session A (repo-a) discovers a bug in a package from repo-b. It sends a
 message via `/wr-connect:send`, and Session B (repo-b) receives it immediately through
 the Discord channel.
 
@@ -101,22 +101,6 @@ in `.gitignore`.
   messages from your own Discord user ID.
 - **Private channel** — use a private Discord server or channel.
 - **Dedicated bot** — use one bot per developer, not a shared team bot.
-
-## Jobs to be Done
-
-This plugin serves the [Jobs to be Done](../../docs/jtbd/) below. Per [ADR-051](../../docs/decisions/051-jtbd-anchored-readme-with-drift-advisory.proposed.md), the persona-grouped JTBD anchor is the canonical source of truth for the README's value framing.
-
-### Solo developer
-
-- **[JTBD-004 Connect Agents Across Repos to Collaborate](../../docs/jtbd/solo-developer/JTBD-004-connect-agents.proposed.md)** — Claude Code sessions in different repos communicate via Discord with zero idle token cost, so a finding in repo-a can hand off to repo-b without manual relay.
-
-### Plugin developer
-
-- **[JTBD-101 Extend the Suite with New Plugins](../../docs/jtbd/plugin-developer/JTBD-101-extend-suite.proposed.md)** — the cross-repo channel is a composition primitive other plugins can build on (e.g. cross-repo governance handoffs, distributed retrospectives).
-
-### Plugin user
-
-- **[JTBD-302 Trust That the README Describes the Plugin I Just Installed](../../docs/jtbd/plugin-user/JTBD-302-trust-readme-describes-installed-behaviour.proposed.md)** — this README is anchored on current JTBD job IDs; drift between prose and shipped behaviour is detectable at retro time per ADR-051.
 
 ## Update
 

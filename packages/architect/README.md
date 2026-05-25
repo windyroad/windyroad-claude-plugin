@@ -51,6 +51,14 @@ The `capture-adr` skill is the foreground-lightweight aside-invocation variant o
 
 The `review-decisions` skill drains the set of ADRs that were recorded without a human confirming the chosen option (per ADR-066). It surfaces each decision's chosen option and alternatives via AskUserQuestion so you confirm, amend, or reject the auto-made call, then writes a `human-oversight: confirmed` marker. Detection is a token-cheap grep over ADR frontmatter; a session-start nudge reports the unoversighted count. New ADRs created through `create-adr` are born oversighted, so the unconfirmed set only shrinks.
 
+**Run an on-demand architecture compliance review:**
+
+```
+/wr-architect:review-design
+```
+
+The `review-design` skill checks staged changes and recent commits against the existing ADRs in `docs/decisions/` — a pre-flight you can run before editing architecture-bearing files or cutting a release, without waiting for the per-edit gate.
+
 ## How It Works
 
 | Hook | Trigger | What it does |
@@ -70,26 +78,6 @@ The `wr-architect:agent` reviews proposed changes against existing decisions in 
 - Whether changes comply with or violate existing decisions
 - Whether a new ADR should be created
 - Whether existing decisions are stale and need reassessment
-
-## Jobs to be Done
-
-This plugin serves the [Jobs to be Done](../../docs/jtbd/) below. Per [ADR-051](../../docs/decisions/051-jtbd-anchored-readme-with-drift-advisory.proposed.md), the persona-grouped JTBD anchor is the canonical source of truth for the README's value framing.
-
-### Tech lead / consultant
-
-- **[JTBD-202 Run Pre-Flight Governance Checks Before Release or Handover](../../docs/jtbd/tech-lead/JTBD-202-pre-flight-governance-check.proposed.md)** — architect review is available via `/wr-architect:review-design` for on-demand pre-flight, and via `wr-architect:agent` for automatic review on every edit.
-
-### Solo developer
-
-- **[JTBD-001 Enforce Governance Without Slowing Down](../../docs/jtbd/solo-developer/JTBD-001-enforce-governance.proposed.md)** — architecture decisions are reviewed automatically; the agent reads the project's existing ADRs without needing to be told what to look for.
-
-### Plugin developer
-
-- **[JTBD-101 Extend the Suite with New Plugins](../../docs/jtbd/plugin-developer/JTBD-101-extend-suite.proposed.md)** — `/wr-architect:create-adr` is the canonical surface for documenting structural decisions in MADR 4.0 format so contributors learn the "why" behind existing patterns.
-
-### Plugin user
-
-- **[JTBD-302 Trust That the README Describes the Plugin I Just Installed](../../docs/jtbd/plugin-user/JTBD-302-trust-readme-describes-installed-behaviour.proposed.md)** — this README is anchored on current JTBD job IDs; drift between prose and shipped behaviour is detectable at retro time per ADR-051.
 
 ## Updating and Uninstalling
 

@@ -51,7 +51,7 @@ User direction also names a future direction: **unify JTBD job statements with t
 - **ADR-038 (Progressive disclosure)** — RFC SKILL files ship SKILL.md (runtime) + REFERENCE.md (deep context).
 - **ADR-042 (Held-changeset auto-apply)** — RFCs are exactly the surface that should ride held-changeset dogfood windows; the framework integrates with held-area graduation criteria (P162).
 - **ADR-044 (Decision delegation contract)** — RFC creation is a direction-setting authority; capture-rfc must use AskUserQuestion for genuine design choices and silent-proceed for mechanical stages (per inverse-P078 / P132).
-- **ADR-051 (Load-bearing-from-the-start for drift class)** — the trace-to-problem invariant is a drift class; gate enforcement should be load-bearing at capture-rfc time, not advisory-then-escalate.
+- **ADR-069 (Load-bearing-from-the-start for drift class; carried forward from superseded ADR-051)** — the trace-to-problem invariant is a drift class; gate enforcement should be load-bearing at capture-rfc time, not advisory-then-escalate.
 - **ADR-052 (Behavioural-tests default)** — capture-rfc + manage-rfc skills land with behavioural bats coverage.
 - **ADR-053 (Plugin maturity taxonomy)** — RFC framework ships with maturity tag; initial maturity matches this ADR's `proposed` status.
 - **ADR-059 (Pipeline consume-catalog and bootstrap-from-reports)** — the most recent ADR to ship under the strain pattern (3-commit decomposition, Commit 3' deferred); first candidate for retroactive migration to RFC shape during Phase 1 dogfood.
@@ -638,7 +638,7 @@ Re-evaluate this decision when any of:
 - **ADR-042** — auto-apply / held-changeset graduation (RFCs ride held windows).
 - **ADR-044** — decision delegation (capture-rfc AskUserQuestion shape).
 - **ADR-049** — `$PATH` bin shims (`wr-itil-reconcile-rfcs`).
-- **ADR-051** — load-bearing-from-the-start (I1 gate enforcement).
+- **ADR-069** — load-bearing-from-the-start (I1 gate enforcement; carried forward from superseded ADR-051).
 - **ADR-052** — behavioural-tests default.
 - **ADR-053** — plugin maturity taxonomy.
 - **ADR-059** — most recent ADR shipped under the strain pattern; first retrospective RFC candidate.

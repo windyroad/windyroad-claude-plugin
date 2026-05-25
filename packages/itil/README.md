@@ -56,7 +56,7 @@ Supports creating new problems, updating root cause analysis, transitioning stat
 
 Supports declaring new incidents, recording evidence-first observations and hypotheses, logging mitigation attempts, transitioning lifecycle (Investigating → Mitigating → Restored → Closed), and automatically handing off to `manage-problem` when service is restored.
 
-See [ADR-011](../../docs/decisions/011-manage-incident-skill.proposed.md) for the incident-vs-problem split and [JTBD-201](../../docs/jtbd/tech-lead/JTBD-201-restore-service-fast.proposed.md) for the job this serves.
+See [ADR-011](../../docs/decisions/011-manage-incident-skill.proposed.md) for the incident-vs-problem split.
 
 ## How It Works
 
@@ -86,7 +86,7 @@ See [ADR-011](../../docs/decisions/011-manage-incident-skill.proposed.md) for th
 | `/wr-itil:review-problems` | Re-rate every open and known-error ticket and refresh the WSJF ranking | Experimental |
 | `/wr-itil:reconcile-readme` | Detect and correct drift between `docs/problems/README.md` and on-disk ticket inventory | Experimental |
 | `/wr-itil:report-upstream` | Report a local problem as a structured issue against an upstream repository (ADR-024) | Experimental |
-| `/wr-itil:check-upstream-responses` | Poll upstream issues we filed via `/wr-itil:report-upstream` and surface new comments / state changes / label changes since last check (P249 Phase 1; outbound symmetric counterpart to ADR-062 inbound discovery; serves [JTBD-004](../../docs/jtbd/solo-developer/JTBD-004-connect-agents.proposed.md)) | Experimental |
+| `/wr-itil:check-upstream-responses` | Poll upstream issues we filed via `/wr-itil:report-upstream` and surface new comments / state changes / label changes since last check (P249 Phase 1; outbound symmetric counterpart to ADR-062 inbound discovery) | Experimental |
 | `/wr-itil:capture-rfc` | Lightweight RFC-capture skill — mandatory problem-trace per ADR-060 I1 invariant; opens a coordinated multi-commit change traceable to ≥ 1 driving problem (Phase 1 of the Problem-RFC-Story framework, P170 / ADR-060) | Experimental |
 | `/wr-itil:manage-rfc` | Heavyweight RFC intake + lifecycle management — proposed → accepted → in-progress → verifying → closed; sibling to `manage-problem` at the RFC tier (ADR-060) | Experimental |
 | `/wr-itil:capture-story` | Lightweight story-capture skill — mandatory problem-trace AND JTBD-trace per ADR-060 I6 + I9 invariants; optional `--rfc` / `--story-map` flags (I7 + I8 enforce at `accepted` transition); drafts an INVEST-shaped sub-workstream entity under a parent RFC (Phase 2 of the Problem-RFC-Story framework, P170 / ADR-060) | Experimental |
@@ -101,27 +101,6 @@ See [ADR-011](../../docs/decisions/011-manage-incident-skill.proposed.md) for th
 | `/wr-itil:list-incidents` | Read-only display of active incidents by severity | Experimental |
 | `/wr-itil:mitigate-incident` / `/wr-itil:restore-incident` / `/wr-itil:close-incident` / `/wr-itil:link-incident` | Incident lifecycle transitions (ADR-011) | Experimental |
 | `/wr-itil:scaffold-intake` | Scaffold OSS intake surfaces (`.github/ISSUE_TEMPLATE/`, `SECURITY.md`, `SUPPORT.md`, `CONTRIBUTING.md`) for downstream adopters (ADR-036) | Experimental |
-
-## Jobs to be Done
-
-This plugin serves the [Jobs to be Done](../../docs/jtbd/) below. Per [ADR-051](../../docs/decisions/051-jtbd-anchored-readme-with-drift-advisory.proposed.md), the persona-grouped JTBD anchor is the canonical source of truth for the README's value framing.
-
-### Plugin user
-
-- **[JTBD-301 Report a Problem Without Pre-Classifying It](../../docs/jtbd/plugin-user/JTBD-301-report-problem-without-pre-classifying.proposed.md)** — adopters who hit a problem with an installed `@windyroad/*` plugin describe what they observed; `/wr-itil:scaffold-intake` provisions the intake template downstream so triage decides the category, not the reporter.
-
-### Tech lead / consultant
-
-- **[JTBD-201 Restore Service Fast with an Audit Trail](../../docs/jtbd/tech-lead/JTBD-201-restore-service-fast.proposed.md)** — the manage-incident skill carries an evidence-first lifecycle (investigating → mitigating → restored → closed), with handoff to manage-problem for the root-cause work.
-
-### Solo developer
-
-- **[JTBD-006 Progress the Backlog While I'm Away](../../docs/jtbd/solo-developer/JTBD-006-work-backlog-afk.proposed.md)** — `/wr-itil:work-problems` is the AFK orchestrator that loops through the WSJF-ranked backlog, working tickets without interactive input until quota or a stop condition fires.
-- **[JTBD-008 Decompose a Fix Into Coordinated Changes](../../docs/jtbd/solo-developer/JTBD-008-decompose-fix-into-coordinated-changes.proposed.md)** — `/wr-itil:capture-rfc` + `/wr-itil:manage-rfc` are the capture-time decomposition surface for multi-commit coordinated changes traced to a driving problem (Phase 1); `/wr-itil:capture-story` is the INVEST-shaped sub-workstream surface for individual slices under those coordinated changes (Phase 2 — story tier). The I1 trace-to-problem invariant is gate-enforced at capture-rfc time; I6 + I9 problem-and-JTBD-trace invariants are gate-enforced at capture-story time (P170 / ADR-060).
-
-### Plugin user (currency anchor)
-
-- **[JTBD-302 Trust That the README Describes the Plugin I Just Installed](../../docs/jtbd/plugin-user/JTBD-302-trust-readme-describes-installed-behaviour.proposed.md)** — this README is anchored on current JTBD job IDs; drift between prose and shipped behaviour is detectable at retro time per ADR-051.
 
 ## Updating and Uninstalling
 

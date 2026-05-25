@@ -1,32 +1,31 @@
 #!/usr/bin/env bats
 
-# P159: retrospective-readme-jtbd-currency.sh PreToolUse:Bash hook must
-# deny `git commit` invocations whose post-commit working tree exhibits
-# JTBD-currency drift (no JTBD-NNN anchor in a plugin README, stale or
-# deprecated-only citations, or skills/<dir>/ missing from the README).
-# Hook-level enforcement at commit time replaces ADR-051 Phase 1's
-# retro-time advisory surface, which the user correction (P159) and the
-# architect verdict identify as too late: the most-common drift class
-# (contributor adds skill/hook/agent and forgets the README) ships in a
-# commit that doesn't touch README.md, so a retro-time consumer sees the
-# drift only after the contributor has already committed.
+# ADR-069 (P294): retrospective-readme-jtbd-currency.sh PreToolUse:Bash hook
+# must deny `git commit` invocations whose post-commit working tree exhibits
+# skill-inventory drift (a directory under packages/<plugin>/skills/ is not
+# named in that plugin's README). Hook-level enforcement at commit time is
+# retained per the carried-forward load-bearing-from-the-start-for-drift-class
+# driver: the most-common drift class (contributor adds a skill and forgets
+# the README) ships in a commit that doesn't touch README.md.
 #
-# Detection delegates to the existing
-# `packages/retrospective/scripts/check-readme-jtbd-currency.sh`
-# detector, which the hook invokes against the project's working tree
-# (`./packages/` + `./docs/jtbd/`). The hook reads the detector's
-# `TOTAL packages=<N> with_jtbd=<M> drift_instances=<K>` summary line
-# and denies when `drift_instances > 0`.
+# HISTORY: under superseded ADR-051 (P159) this hook also gated on
+# JTBD-ID-citation drift. ADR-069 superseded that rule — READMEs market the
+# persona's problem derived FROM the JTBD but MUST NOT cite JTBD IDs. The
+# JTBD-ID anchor + its docs/jtbd/ resolution (and the docs/jtbd/ activation
+# guard) are removed; only skill-inventory-drift remains.
 #
-# Per ADR-005 (plugin testing strategy) — hook bats live under
-# packages/<plugin>/hooks/test/ and assert on emitted JSON, not source
-# content. Per ADR-052 / P081 — behavioural; no source greps. Per
-# ADR-045 Pattern 1 — allow paths emit 0 bytes; deny-band ≤300 bytes.
-# Per ADR-013 Rule 1 — deny redirects to mechanical recovery (here: the
-# wr-jtbd:agent for prose-weaving guidance, with hand-edit fallback).
-# Per ADR-013 Rule 6 — fail-open outside a git work tree, on parse
-# errors, or in projects without ADR-051's structural anchors
-# (./packages/ or ./docs/jtbd/) so adopter projects are not blocked.
+# Detection delegates to
+# `packages/retrospective/scripts/check-readme-jtbd-currency.sh`, invoked
+# against the project's working tree (`./packages/`). The hook reads the
+# detector's `TOTAL packages=<N> drift_instances=<K>` summary and denies
+# when `drift_instances > 0`.
+#
+# Per ADR-005 / ADR-052 / P081 — behavioural; assert on emitted JSON, no
+# source greps. Per ADR-045 Pattern 1 — allow paths emit 0 bytes; deny-band
+# ≤300 bytes. Per ADR-013 Rule 1 — deny redirects to mechanical recovery
+# (here: "name the skill in the README"). Per ADR-013 Rule 6 — fail-open
+# outside a git work tree, on parse errors, or in projects without
+# `./packages/`.
 
 setup() {
   SCRIPT_DIR="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
@@ -56,72 +55,27 @@ run_bash_hook() {
   echo "$json" | bash "$HOOK"
 }
 
-# Helper: build a stub project layout with a drifted plugin README.
-# README has no JTBD-NNN citation; jtbd dir has one resolving job.
+# Helper: stub project with skill-inventory drift —
+# packages/stub/skills/orphan/ exists but the README doesn't name "orphan".
 make_drifted_project() {
-  mkdir -p packages/stub docs/jtbd/plugin-user
-  printf '%s\n' "# @windyroad/stub" "no jtbd anchor here" > packages/stub/README.md
-  cat > docs/jtbd/plugin-user/JTBD-302-trust-readme.proposed.md <<'EOF'
----
-status: proposed
-job-id: trust-readme
-persona: plugin-user
-date-created: 2026-05-04
----
-
-# JTBD-302
-EOF
+  mkdir -p packages/stub/skills/orphan
+  printf '%s\n' "# @windyroad/stub" "Markets a problem in prose; names no skills." > packages/stub/README.md
 }
 
-# Helper: build a stub project layout with a clean plugin README.
-# README cites a resolving JTBD-NNN; no skill drift.
+# Helper: clean stub project — every skill directory is named in the README.
 make_clean_project() {
-  mkdir -p packages/stub docs/jtbd/plugin-user
-  printf '%s\n' "# @windyroad/stub" "Serves JTBD-302." > packages/stub/README.md
-  cat > docs/jtbd/plugin-user/JTBD-302-trust-readme.proposed.md <<'EOF'
----
-status: proposed
-job-id: trust-readme
-persona: plugin-user
-date-created: 2026-05-04
----
-
-# JTBD-302
-EOF
-}
-
-# Helper: build a stub project with skill-inventory-drift —
-# packages/stub/skills/orphan/ exists but README doesn't name "orphan".
-make_skill_drift_project() {
-  mkdir -p packages/stub/skills/orphan docs/jtbd/plugin-user
-  printf '%s\n' "# @windyroad/stub" "Serves JTBD-302." > packages/stub/README.md
-  cat > docs/jtbd/plugin-user/JTBD-302-trust-readme.proposed.md <<'EOF'
----
-status: proposed
-job-id: trust-readme
-persona: plugin-user
-date-created: 2026-05-04
----
-
-# JTBD-302
-EOF
+  mkdir -p packages/stub/skills/do-thing
+  printf '%s\n' "# @windyroad/stub" "Run /wr-stub:do-thing to solve the problem." > packages/stub/README.md
 }
 
 # ── Trap detection: deny when drift detected ───────────────────────────────
 
-@test "deny: drifted README (no JTBD-NNN cite) on git commit triggers deny" {
+@test "deny: skill-inventory drift on git commit triggers deny" {
   make_drifted_project
   run run_bash_hook "git commit -m 'feat'"
   [ "$status" -eq 0 ]
   [[ "$output" == *"\"permissionDecision\": \"deny\""* ]]
-  [[ "$output" == *"P159"* ]]
-}
-
-@test "deny: skill-inventory-drift on git commit triggers deny" {
-  make_skill_drift_project
-  run run_bash_hook "git commit -m 'feat'"
-  [ "$status" -eq 0 ]
-  [[ "$output" == *"\"permissionDecision\": \"deny\""* ]]
+  [[ "$output" == *"P294"* ]]
 }
 
 @test "deny message names the offending plugin slug" {
@@ -131,11 +85,19 @@ EOF
   [[ "$output" == *"stub"* ]]
 }
 
-@test "deny message names the wr-jtbd:agent recovery path" {
+@test "deny message names the mechanical recovery (name the skill in the README)" {
   make_drifted_project
   run run_bash_hook "git commit -m 'feat'"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"wr-jtbd"* ]]
+  [[ "$output" == *"name the skill in the README"* ]]
+}
+
+@test "deny message does NOT instruct citing a JTBD ID (ADR-069 regression guard)" {
+  make_drifted_project
+  run run_bash_hook "git commit -m 'feat'"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"JTBD-NNN"* ]]
+  [[ "$output" != *"wr-jtbd"* ]]
 }
 
 @test "deny message stays under ADR-045 deny-band (<300 bytes)" {
@@ -145,16 +107,13 @@ EOF
   [ "${#output}" -lt 300 ]
 }
 
-@test "deny: chore release commit (chore: version packages) is subject to the gate" {
+@test "deny: canonical release commit shape (chore: version packages) is subject to the gate" {
   make_drifted_project
+  # Not a `git commit` invocation — the bare message must NOT deny.
   run run_bash_hook "chore: version packages"
-  # Not a `git commit` invocation — should NOT trigger deny because the
-  # command field is the message, not the invocation. The actual release
-  # path runs `git commit` which IS gated; verify that shape:
   [ "$status" -eq 0 ]
   [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
-
-  # Now the canonical release commit shape:
+  # The canonical release commit shape IS gated:
   run run_bash_hook "git commit -m 'chore: version packages'"
   [ "$status" -eq 0 ]
   [[ "$output" == *"\"permissionDecision\": \"deny\""* ]]
@@ -167,9 +126,18 @@ EOF
   [[ "$output" == *"\"permissionDecision\": \"deny\""* ]]
 }
 
+@test "deny: skill drift with NO docs/jtbd present still denies (ADR-069 guard removed)" {
+  make_drifted_project
+  # deliberately no docs/jtbd/ — under ADR-051 the hook was a no-op here;
+  # ADR-069 removed that guard, so inventory drift is now evaluated.
+  run run_bash_hook "git commit -m 'feat'"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"\"permissionDecision\": \"deny\""* ]]
+}
+
 # ── Allow paths: each non-trap shape must NOT deny ─────────────────────────
 
-@test "allow: clean README (cites resolving JTBD-NNN) on git commit allows the commit" {
+@test "allow: clean README (all skills named) on git commit allows the commit" {
   make_clean_project
   run run_bash_hook "git commit -m 'feat'"
   [ "$status" -eq 0 ]
@@ -211,15 +179,14 @@ EOF
 }
 
 @test "allow: project without packages/ dir exits 0 without deny (fail-open)" {
-  # No packages/, no docs/jtbd/ — adopter project shape.
+  # No packages/ — adopter project shape.
   run run_bash_hook "git commit -m 'feat'"
   [ "$status" -eq 0 ]
   [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
 }
 
-@test "allow: project with packages/ but no docs/jtbd/ exits 0 without deny (fail-open)" {
-  mkdir -p packages/stub
-  echo "# stub" > packages/stub/README.md
+@test "allow: project with packages/ and no docs/jtbd/, clean README, allows (docs/jtbd no longer required)" {
+  make_clean_project
   run run_bash_hook "git commit -m 'feat'"
   [ "$status" -eq 0 ]
   [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
@@ -266,8 +233,7 @@ EOF
 #
 # The hook must fire on ACTUAL `git commit` invocations, NOT on Bash that
 # merely MENTIONS the phrase "git commit" in argument vectors or heredoc
-# bodies. Mirrors P268 regression fixtures in command-detect.bats and
-# P272 sibling fixtures in itil-changeset-discipline.bats.
+# bodies. Mirrors P268 regression fixtures in command-detect.bats.
 
 @test "P275 allow: grep with literal 'git commit' pattern on drifted project does NOT deny" {
   make_drifted_project
@@ -316,7 +282,7 @@ EOF
   run run_bash_hook "GIT_AUTHOR_NAME=foo git commit -m 'feat'"
   [ "$status" -eq 0 ]
   [[ "$output" == *"\"permissionDecision\": \"deny\""* ]]
-  [[ "$output" == *"P159"* ]]
+  [[ "$output" == *"P294"* ]]
 }
 
 @test "P275 deny: cd-prefixed git commit on drifted project still triggers deny" {

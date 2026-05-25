@@ -65,7 +65,7 @@ The plugin includes six specialised agents:
 | `wr-risk-scorer:plan` | Reviews implementation plans for risk |
 | `wr-risk-scorer:policy` | Validates `RISK-POLICY.md` for ISO 31000 compliance |
 | `wr-risk-scorer:external-comms` | Reviews drafts of outbound prose (gh issues/PRs, advisories, npm publish, changeset bodies) for confidential-information leaks per `RISK-POLICY.md` |
-| `wr-risk-scorer:inbound-report` | Reviews inbound third-party reports (problem-report issues, Q&A discussions, security-advisory submissions) for Request-risk + Fix-risk per `RISK-POLICY.md` § Inbound Report Risk Classes — sibling of `:external-comms` (NOT extension). Consumed by the assessment-pipeline (P079 / ADR-062). Serves JTBD-301 (verdict-on-close acknowledgement) + JTBD-001 (mechanical-stage carve-out). |
+| `wr-risk-scorer:inbound-report` | Reviews inbound third-party reports (problem-report issues, Q&A discussions, security-advisory submissions) for Request-risk + Fix-risk per `RISK-POLICY.md` § Inbound Report Risk Classes — sibling of `:external-comms` (NOT extension). Consumed by the assessment-pipeline (P079 / ADR-062). Serves the report-without-pre-classifying acknowledgement (verdict-on-close) and the mechanical-stage carve-out. |
 
 ## On-demand assessment skills
 
@@ -74,7 +74,7 @@ The plugin includes six specialised agents:
 | `/wr-risk-scorer:assess-wip` | WIP risk nudge for the current uncommitted diff |
 | `/wr-risk-scorer:assess-release` | Pipeline risk assessment for the unpushed queue (pre-satisfies the commit gate) |
 | `/wr-risk-scorer:assess-external-comms` | External-comms leak review for a draft outbound body (pre-satisfies the external-comms gate) |
-| `/wr-risk-scorer:assess-inbound-report` | Inbound-report risk review for a third-party submission — two-axis (Request-risk + Fix-risk) classification per `RISK-POLICY.md` (P079 / ADR-062). Serves JTBD-005 (on-demand assessment) + JTBD-202 (pre-flight governance check). |
+| `/wr-risk-scorer:assess-inbound-report` | Inbound-report risk review for a third-party submission — two-axis (Request-risk + Fix-risk) classification per `RISK-POLICY.md` (P079 / ADR-062). Serves on-demand assessment and pre-flight governance checks. |
 | `/wr-risk-scorer:create-risk` | Create a standing-risk register entry (interactive authoring; orchestrator-driven prefilled invocation via `--slug` / `--prefill` flags per ADR-059) |
 | `/wr-risk-scorer:bootstrap-catalog` | Bootstrap `docs/risks/` register from existing `.risk-reports/` corpus per ADR-059 — walks reports, dedupes by ADR-056 slug, emits one `R<NNN>-<slug>.active.md` per unique slug. Idempotent. Auto-triggers from `/install-updates` Step 6.5.1 when register is empty + `RISK-POLICY.md` present + `.risk-reports/` non-empty |
 | `/wr-risk-scorer:update-policy` | Generate or update `RISK-POLICY.md` |
@@ -109,24 +109,6 @@ Override: `BYPASS_RISK_GATE=1` short-circuits the gate (consistent with
 The canonical hook lives at `packages/shared/hooks/external-comms-gate.sh` and
 is synced into each consumer plugin via `scripts/sync-external-comms-gate.sh`
 per ADR-017 (CI runs `npm run check:external-comms-gate` to detect drift).
-
-## Jobs to be Done
-
-This plugin serves the [Jobs to be Done](../../docs/jtbd/) below. Per [ADR-051](../../docs/decisions/051-jtbd-anchored-readme-with-drift-advisory.proposed.md), the persona-grouped JTBD anchor is the canonical source of truth for the README's value framing.
-
-### Tech lead / consultant
-
-- **[JTBD-202 Run Pre-Flight Governance Checks Before Release or Handover](../../docs/jtbd/tech-lead/JTBD-202-pre-flight-governance-check.proposed.md)** — `/wr-risk-scorer:assess-release` produces a structured release-readiness score (commit, push, release layers) that is attachable to a release note or handover doc.
-
-### Solo developer
-
-- **[JTBD-001 Enforce Governance Without Slowing Down](../../docs/jtbd/solo-developer/JTBD-001-enforce-governance.proposed.md)** — pipeline risk is scored on every edit, commit, and push without manual invocation; secret-leak detection runs in the same gate.
-- **[JTBD-002 Ship AI-Assisted Code with Confidence](../../docs/jtbd/solo-developer/JTBD-002-ship-with-confidence.proposed.md)** — every release passes through ISO 31000-aligned criteria defined in the project's own `RISK-POLICY.md` so the safety bar is the team's, not the agent's.
-- **[JTBD-005 Invoke Governance Assessments On Demand](../../docs/jtbd/solo-developer/JTBD-005-assess-on-demand.proposed.md)** — `/wr-risk-scorer:assess-wip`, `assess-release`, and `assess-external-comms` give an on-demand assessment surface outside the hook gate cycle.
-
-### Plugin user
-
-- **[JTBD-302 Trust That the README Describes the Plugin I Just Installed](../../docs/jtbd/plugin-user/JTBD-302-trust-readme-describes-installed-behaviour.proposed.md)** — this README is anchored on current JTBD job IDs; drift between prose and shipped behaviour is detectable at retro time per ADR-051.
 
 ## Updating and Uninstalling
 

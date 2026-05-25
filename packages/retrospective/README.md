@@ -32,7 +32,7 @@ Restart Claude Code after installing.
 /wr-retrospective:run-retro
 ```
 
-This walks through the session's work, identifies what went well and what didn't, updates `docs/BRIEFING.md`, and creates problem tickets for any failures. The retro also runs every shipped advisory script (briefing budgets, ask-hygiene, README JTBD currency per ADR-051, SKILL.md runtime budgets per ADR-054) so doc-content drift surfaces in the retro summary alongside session-level reflections.
+This walks through the session's work, identifies what went well and what didn't, updates `docs/BRIEFING.md`, and creates problem tickets for any failures. The retro also runs every shipped advisory script (briefing budgets, ask-hygiene, README skill-inventory currency per ADR-069, SKILL.md runtime budgets per ADR-054) so doc-content drift surfaces in the retro summary alongside session-level reflections.
 
 **Analyse session context usage:**
 
@@ -57,7 +57,7 @@ Each script ships as a `bin/`-resolvable shim per ADR-049. They emit signal-as-d
 
 | Shim | Purpose |
 |------|---------|
-| `wr-retrospective-check-readme-jtbd-currency` | ADR-051 Phase 1 detector — surfaces drift between plugin READMEs and the JTBD jobs they cite |
+| `wr-retrospective-check-readme-jtbd-currency` | ADR-069 detector — surfaces skill-inventory drift (a shipped skill not named in the plugin's README) |
 | `wr-retrospective-check-skill-md-budgets` | ADR-054 detector — flags SKILL.md files over the WARN / MUST_SPLIT byte budget |
 | `wr-retrospective-check-internal-id-leaks` | ADR-055 detector — flags internal IDs leaking into published artefacts |
 | `wr-retrospective-list-plugin-attribution` | Per-plugin context attribution support for `analyze-context` |
@@ -70,19 +70,6 @@ Each script ships as a `bin/`-resolvable shim per ADR-049. They emit signal-as-d
 | `bin/check-deps.sh` | Session start | Verifies that `wr-itil` and `wr-risk-scorer` are installed |
 | `session-start-briefing.sh` | Session start | Surfaces the latest `docs/BRIEFING.md` and any pending retrospective items so the new session begins with prior-session context (per [ADR-040](../../docs/decisions/040-session-start-briefing-surface.proposed.md)) |
 | `retrospective-reminder.sh` | Session end | Reminds you to run a retrospective |
-
-## Jobs to be Done
-
-This plugin serves the [Jobs to be Done](../../docs/jtbd/) below. Per [ADR-051](../../docs/decisions/051-jtbd-anchored-readme-with-drift-advisory.proposed.md), the persona-grouped JTBD anchor is the canonical source of truth for the README's value framing.
-
-### Solo developer
-
-- **[JTBD-006 Progress the Backlog While I'm Away](../../docs/jtbd/solo-developer/JTBD-006-work-backlog-afk.proposed.md)** — every AFK iteration runs a retrospective before exiting so per-iter friction is captured as problem tickets and surfaced on return; learnings flow back into `docs/BRIEFING.md` so the next session starts with context.
-- **[JTBD-002 Ship AI-Assisted Code with Confidence](../../docs/jtbd/solo-developer/JTBD-002-ship-with-confidence.proposed.md)** — release-readiness signals (pipeline-instability scan, ask-hygiene check, doc-currency advisory) accumulate at retro time so unresolved friction is visible before the next release.
-
-### Plugin user
-
-- **[JTBD-302 Trust That the README Describes the Plugin I Just Installed](../../docs/jtbd/plugin-user/JTBD-302-trust-readme-describes-installed-behaviour.proposed.md)** — this README is anchored on current JTBD job IDs; drift between prose and shipped behaviour is detectable at retro time per ADR-051.
 
 ## Updating and Uninstalling
 

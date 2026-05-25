@@ -1,23 +1,28 @@
 #!/bin/bash
-# P159: PreToolUse:Bash hook — denies `git commit` invocations whose
-# post-commit working tree exhibits JTBD-currency drift in any
-# packages/<plugin>/README.md (no JTBD-NNN anchor, stale or
-# deprecated-only citation, or skill directory missing from README).
+# ADR-069 (P294): PreToolUse:Bash hook — denies `git commit` invocations
+# whose post-commit working tree exhibits skill-inventory drift in any
+# packages/<plugin>/README.md (a directory under packages/<plugin>/skills/
+# is not named in the README).
 #
-# Hook-level enforcement at commit time replaces ADR-051 Phase 1's
-# retro-time advisory surface (shipped under P158, df47ad1). The user
-# correction (P159) and the architect verdict identified the retro
-# surface as too late: the most-common drift class (contributor adds
-# skill/hook/agent and forgets the README) ships in a commit that
-# does not touch README.md, so a retro-time consumer sees the drift
-# only after the contributor has already committed.
+# HISTORY: this hook formerly (P159, under superseded ADR-051) also gated on
+# JTBD-ID-citation drift (no JTBD-NNN anchor, stale/deprecated citation).
+# ADR-069 superseded ADR-051: plugin READMEs market the persona's problem
+# derived FROM the JTBD but MUST NOT cite JTBD IDs. The JTBD-ID anchor + its
+# docs/jtbd/ resolution are removed; the mechanical skill-inventory-drift
+# signal (ADR-051's original P152 empirical core) survives as the load-
+# bearing currency gate. Filename retained deliberately per ADR-069.
 #
-# Detection delegates to the existing detector script
+# Hook-level enforcement at commit time (vs retro-time advisory) is retained
+# per the carried-forward load-bearing-from-the-start-for-drift-class driver:
+# the most-common drift class (contributor adds a skill and forgets the
+# README) ships in a commit that does not touch README.md, so a retro-time
+# consumer sees the drift only after the contributor has already committed.
+#
+# Detection delegates to the detector script
 # (`packages/retrospective/scripts/check-readme-jtbd-currency.sh`),
-# invoked against the project's working tree (`./packages/` +
-# `./docs/jtbd/`). The hook reads the detector's
-# `TOTAL packages=<N> with_jtbd=<M> drift_instances=<K>` summary and
-# denies when `drift_instances > 0`.
+# invoked against the project's working tree (`./packages/`). The hook reads
+# the detector's `TOTAL packages=<N> drift_instances=<K>` summary and denies
+# when `drift_instances > 0`.
 #
 # Allow paths (exit 0 silently per ADR-045 Pattern 1):
 #   - tool_name != "Bash"            (only Bash invocations are gated)
@@ -139,11 +144,11 @@ fi
 # Fail-open if not inside a git working tree.
 git rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 0
 
-# Fail-open if the project lacks ADR-051's structural anchors.
-# Adopter projects without `./packages/` or `./docs/jtbd/` are not
-# subject to the rule; the hook is a no-op for them.
+# Fail-open if the project lacks the structural anchor (`./packages/`).
+# Adopter projects without `./packages/` are not subject to the rule; the
+# hook is a no-op for them. (ADR-069: the `./docs/jtbd/` guard is removed —
+# skill-inventory drift does not consult docs/jtbd/.)
 [ -d "./packages" ] || exit 0
-[ -d "./docs/jtbd" ] || exit 0
 
 # Fail-open if the detector script itself is missing (defensive —
 # hook + detector ship together, but install-time corruption or
@@ -152,7 +157,7 @@ git rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 0
 
 # Run the detector. Capture exit code + output. Fail-open on detector
 # error (exit != 0).
-DETECTOR_OUTPUT=$(bash "$DETECTOR" "./packages" "./docs/jtbd" 2>/dev/null) || exit 0
+DETECTOR_OUTPUT=$(bash "$DETECTOR" "./packages" 2>/dev/null) || exit 0
 
 # Parse the TOTAL summary line. If absent, no packages were
 # enumerated — fail-open (no drift to report).
@@ -188,12 +193,11 @@ OFFENDING_HINTS=$(echo "$OFFENDING_LINE" | grep -oE 'drift_hints=[A-Za-z0-9,_-]+
 PRIMARY_HINT="${OFFENDING_HINTS%%,*}"
 
 # Deny — voice/tone budget per ADR-045 deny-band ≤300 bytes total
-# (envelope ~137 bytes; REASON ~163 bytes for worst-case slug +
-# hint). Names the offending plugin slug, the primary drift hint,
-# the wr-jtbd:agent recovery path with hand-edit fallback (graceful
-# degradation per architect F advisory), the BYPASS env, and the
-# P159 cite.
-REASON="BLOCKED: P159 JTBD drift in ${OFFENDING_SLUG} (${PRIMARY_HINT}). Recovery: wr-jtbd:agent OR cite a JTBD-NNN in README. Bypass: BYPASS_JTBD_CURRENCY=1."
+# (envelope ~137 bytes; REASON ~145 bytes for worst-case slug + the
+# single inventory hint). Names the offending plugin slug, the drift
+# hint, the mechanical recovery (name the skill in the README — NOT
+# a JTBD-ID citation per ADR-069), the BYPASS env, and the P294 cite.
+REASON="BLOCKED: P294 README inventory drift in ${OFFENDING_SLUG} (${PRIMARY_HINT}). Recovery: name the skill in the README. Bypass: BYPASS_JTBD_CURRENCY=1."
 
 cat <<EOF
 {

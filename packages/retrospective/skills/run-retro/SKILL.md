@@ -159,22 +159,22 @@ The shape mirrors P068's Step 4a Verification-close housekeeping: glob / evidenc
 
 6. **Non-interactive / AFK fallback (ADR-013 Rule 6)**: when `AskUserQuestion` is unavailable (autonomous retro, batch session-wrap), do NOT auto-create tickets — record each detection in the retro summary's new **Pipeline Instability** section with its category, citations, and dedup status (`new` or `matches P<NNN>`). The user reviews on return and runs `/wr-itil:manage-problem` per accepted detection. Same trust-boundary shape as Step 4a's AFK deferral: surface the evidence, defer the decision. This matches the user's documented preference (feedback_verify_from_own_observation.md memory): surface observations from the agent's own in-session activity, but ticket-creation decisions remain user-confirmed.
 
-**JTBD currency advisory (ADR-051 Phase 1, P158).** Beyond the categorical pipeline-instability detection above, Step 2b also runs the ADR-051 Phase 1 advisory detector on every retro to surface README-content drift between the suite's plugin READMEs and the documented JTBD jobs they cite. Drift here is not pipeline-instability in the conventional sense — it is content-currency — but the surfacing channel is the same: the retro summary's Pipeline Instability section. Wiring deferred from the original ADR-051 landing per Confirmation criterion 5 ("wiring into `/wr-retrospective:run-retro` Step 2b is deferred to a follow-on iter once the detector is empirically validated against current READMEs"); the empirical-validation precondition was met by commit `8df1692` (the retroactive refresh of 12 plugin READMEs to JTBD-anchored shape; detector now reports `drift_instances=1`).
+**README inventory currency advisory (ADR-069, P294).** Beyond the categorical pipeline-instability detection above, Step 2b also runs the README inventory-currency detector on every retro to surface drift between each plugin's shipped skills and the skills its README names. (Under superseded ADR-051 this detector also flagged JTBD-ID-citation drift; ADR-069 superseded that — READMEs market the persona's problem derived FROM the JTBD but MUST NOT cite IDs — so the detector is now skill-inventory-only.) The surfacing channel is the retro summary's Pipeline Instability section.
 
-**Mechanism**: invoke `wr-retrospective-check-readme-jtbd-currency` (resolves on `$PATH` to `packages/retrospective/scripts/check-readme-jtbd-currency.sh` per ADR-049 naming grammar). The script walks `packages/*/README.md`, greps each for `JTBD-\d{3}` citations, resolves cited IDs against `docs/jtbd/<persona>/JTBD-NNN-*.md` (any status suffix), and emits:
+**Mechanism**: invoke `wr-retrospective-check-readme-jtbd-currency` (resolves on `$PATH` to `packages/retrospective/scripts/check-readme-jtbd-currency.sh` per ADR-049 naming grammar; filename retained per ADR-069). The script walks `packages/*/README.md` and, for each, checks that every directory under `packages/<plugin>/skills/` is named in the README, emitting:
 
-- Per-package: `README package=<name> has_jtbd_anchor=<yes|no> cited_jobs=<N> known_jobs=<M> drift_hints=<csv>`
-- Trailing summary: `TOTAL packages=<N> with_jtbd=<M> drift_instances=<K>`
+- Per-package: `README package=<name> skills=<N> in_readme=<M> drift_hints=<csv>`
+- Trailing summary: `TOTAL packages=<N> drift_instances=<K>`
 
-Drift-hint vocabulary: `missing-jtbd-section`, `stale-jtbd-citation`, `deprecated-jtbd-citation`, `skill-inventory-drift`. Always exits 0 — the script is advisory per ADR-013 Rule 6 / ADR-040 declarative-first / ADR-051 Phase 1.
+Drift-hint vocabulary: `skill-inventory-drift` (inventory-only per ADR-069). Always exits 0 — the script is advisory per ADR-013 Rule 6 / ADR-040 declarative-first; the commit-hook `retrospective-readme-jtbd-currency.sh` is the load-bearing surface.
 
 **Interpretation**:
 
-1. **`drift_instances == 0`** — emit a one-line `JTBD currency advisory: clean (<N> packages)` to the retro summary's Pipeline Instability section.
+1. **`drift_instances == 0`** — emit a one-line `README inventory currency: clean (<N> packages)` to the retro summary's Pipeline Instability section.
 2. **`drift_instances ≥ 1`** — emit the detector's full per-package output as a fenced code block in the Pipeline Instability section. Each affected package's `drift_hints` enumerate the specific findings. Per ADR-013 Rule 6, the user reviews on return and tickets via `/wr-itil:manage-problem` per accepted finding (same trust-boundary shape as the categorical detection above — surface the evidence; defer the ticket-creation decision).
 3. **Detector failure** — if the detector exits non-zero (parse error, missing `packages/` or `docs/jtbd/` directories, runtime exception), log the failure inline as `JTBD currency advisory failed: <stderr>` but do NOT halt the retro. Same fail-open contract as Step 3's `check-briefing-budgets.sh` defensive trip — the cheap layer trips silently and degrades to a one-line pointer rather than blocking the retro.
 
-**Phase 2 escalation criterion (per ADR-051)**: if the detector emits `drift_instances ≥ 2` across 3 consecutive `chore: version packages` releases without correction, escalate to a load-bearing hook per ADR-013 Rule 6 escalation pattern. Phase 2 is out of scope for this wiring; the criterion is captured here so future contributors know the bar.
+**Already load-bearing (ADR-069)**: the commit-hook `retrospective-readme-jtbd-currency.sh` denies `git commit` when `drift_instances ≥ 1` (skill-inventory-drift), per the carried-forward load-bearing-from-the-start-for-drift-class driver. This Step 2b advisory is the backup / cross-cutting surface — it catches drift in sessions that bypass the commit-hook (`BYPASS_JTBD_CURRENCY=1`) and summarises across packages; it is not the gate.
 
 **Interaction with other surfaces:**
 

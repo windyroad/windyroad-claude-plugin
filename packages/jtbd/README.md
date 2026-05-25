@@ -59,22 +59,6 @@ The `wr-jtbd:agent` reads your `docs/jtbd/` directory and reviews proposed UI ch
 - Persona definitions and constraints
 - Screen-to-job mappings
 
-## Jobs to be Done
-
-This plugin serves the [Jobs to be Done](../../docs/jtbd/) below. Per [ADR-051](../../docs/decisions/051-jtbd-anchored-readme-with-drift-advisory.proposed.md), the persona-grouped JTBD anchor is the canonical source of truth for the README's value framing.
-
-### Solo developer
-
-- **[JTBD-001 Enforce Governance Without Slowing Down](../../docs/jtbd/solo-developer/JTBD-001-enforce-governance.proposed.md)** — JTBD review fires automatically on every UI edit; manual review is replaced by an agent reading the persona files the project already maintains.
-
-### Tech lead / consultant
-
-- **[JTBD-202 Run Pre-Flight Governance Checks Before Release or Handover](../../docs/jtbd/tech-lead/JTBD-202-pre-flight-governance-check.proposed.md)** — `/wr-jtbd:review-jobs` produces an on-demand alignment report against documented jobs, attachable to a release note or handover doc.
-
-### Plugin user
-
-- **[JTBD-302 Trust That the README Describes the Plugin I Just Installed](../../docs/jtbd/plugin-user/JTBD-302-trust-readme-describes-installed-behaviour.proposed.md)** — this README is anchored on current JTBD job IDs; drift between prose and shipped behaviour is detectable at retro time per ADR-051.
-
 ## Updating and Uninstalling
 
 ```bash

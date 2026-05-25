@@ -1,57 +1,64 @@
 #!/usr/bin/env bash
 # packages/retrospective/scripts/check-readme-jtbd-currency.sh
 #
-# Diagnose-only advisory script for ADR-051 (JTBD-anchored README rule).
-# Walks packages/*/README.md and emits a drift signal per package:
+# Diagnose-only advisory script for ADR-069 (README markets the persona's
+# problem; skill-inventory currency gate). Walks packages/*/README.md and
+# emits a skill-inventory-drift signal per package:
 #
-#   - has_jtbd_anchor=<yes|no>     — at least one JTBD-\d{3} match in the README
-#   - cited_jobs=<count>           — count of distinct JTBD IDs cited
-#   - known_jobs=<count>           — count of cited IDs that resolve to a current
-#                                    docs/jtbd/<persona>/JTBD-NNN-*.md (any status)
-#   - drift_hints=<comma-list>     — signal vocabulary:
-#         missing-jtbd-section     (no JTBD-\d{3} at all)
-#         stale-jtbd-citation      (cited ID has no resolving file)
-#         deprecated-jtbd-citation (cited ID resolves only to .deprecated.md / .superseded.md)
-#         skill-inventory-drift    (a directory under packages/<plugin>/skills/ is not named in README)
+#   - skills=<count>        — directories under packages/<plugin>/skills/
+#   - in_readme=<count>     — those skill directories named in the README
+#   - drift_hints=<csv>     — signal vocabulary (inventory-only):
+#         skill-inventory-drift  (a directory under packages/<plugin>/skills/
+#                                 is not named in the README)
 #
 # Plus a trailing TOTAL line summarising the window:
-#   TOTAL packages=<N> with_jtbd=<M> drift_instances=<K>
+#   TOTAL packages=<N> drift_instances=<K>
 #
-# Exit code is always 0 — the script is advisory per ADR-013 Rule 6
-# fail-safe / ADR-040 declarative-first / ADR-051 Phase 1.
-# Drift count is emitted as data on stdout; downstream consumers
-# (run-retro Step 2b future wiring, release-pre-flight habit, Phase 2
-# escalation per ADR-051 Phase 2 criterion) decide whether to act.
+# Exit code is always 0 — the script is advisory; the commit-hook
+# (retrospective-readme-jtbd-currency.sh) reads drift_instances and decides
+# whether to deny. drift_instances counts packages with a non-empty
+# drift_hints set.
+#
+# HISTORY / NAME-RETENTION: this script formerly enforced ADR-051's
+# JTBD-ID-citation rule (grep for JTBD-\d{3}, resolve against docs/jtbd/).
+# ADR-069 (P294) superseded ADR-051: plugin READMEs market to the persona's
+# problem derived FROM the JTBD, but MUST NOT cite JTBD IDs. The JTBD-ID
+# anchor + its docs/jtbd/ resolution are removed; the mechanical
+# skill-inventory-drift signal (ADR-051's original P152 empirical core)
+# survives as the load-bearing currency gate. The `jtbd-currency` filename
+# is retained deliberately per ADR-069 — a rename would ripple into mutable
+# ADRs 054/055/057 + the ADR-049 bin-grammar three-touch tax for a filename
+# adopters rarely see. A clean rename is deferred to a future
+# check-*-currency.sh family consolidation (ADR-069 Reassessment Criteria).
 #
 # Usage:
-#   check-readme-jtbd-currency.sh [<packages-dir>] [<jtbd-dir>]
+#   check-readme-jtbd-currency.sh [<packages-dir>]
 #
 # Defaults:
 #   <packages-dir> = ./packages
-#   <jtbd-dir>     = ./docs/jtbd
+#
+# A second argument (formerly <jtbd-dir>) is accepted and ignored for
+# backward compatibility with pre-ADR-069 callers.
 #
 # Exit codes:
 #   0 = always (advisory only — count is signal, not failure)
-#   2 = parse error (packages-dir or jtbd-dir missing or unreadable)
+#   2 = parse error (packages-dir missing or unreadable)
 #
 # Output format (one line per package, alphabetical):
-#   README package=<name> has_jtbd_anchor=<yes|no> cited_jobs=<N> known_jobs=<M> drift_hints=<csv>
+#   README package=<name> skills=<N> in_readme=<M> drift_hints=<csv>
 #
-# @problem P152 (No pressure or nudge for documentation currency — the driver problem)
-# @adr ADR-051 (JTBD-anchored README with declarative drift advisory — this script's normative source)
-# @adr ADR-008 (JTBD directory structure — the resolution target layout)
+# @problem P152 (No pressure or nudge for documentation currency — the original driver)
+# @problem P294 (ADR-051 superseded — README markets the persona's problem, no JTBD-ID citation)
+# @adr ADR-069 (README markets persona problem; skill-inventory currency gate — this script's normative source)
+# @adr ADR-051 (superseded — original JTBD-anchored README rule this script no longer enforces)
 # @adr ADR-013 Rule 6 (non-interactive fail-safe — advisory script never blocks AFK)
 # @adr ADR-040 (declarative-first / advisory-then-escalate precedent)
 # @adr ADR-049 (bin/-on-PATH script resolution — paired wr-retrospective-check-readme-jtbd-currency shim)
-# @adr ADR-005 / ADR-037 (Plugin testing strategy — behavioural tests via bats)
-# @jtbd JTBD-302 (Trust That the README Describes the Plugin I Just Installed — primary served job)
-# @jtbd JTBD-007 (Keep Plugins Current Across Projects — currency expansion)
-# @jtbd JTBD-101 (Extend the Suite with New Plugins — clear patterns the detector documents)
+# @adr ADR-052 / P081 (behavioural tests via bats; no structural-grep on this source)
 
 set -uo pipefail
 
 PACKAGES_DIR="${1:-packages}"
-JTBD_DIR="${2:-docs/jtbd}"
 
 # ── Pre-checks ──────────────────────────────────────────────────────────────
 
@@ -59,34 +66,6 @@ if [ ! -d "$PACKAGES_DIR" ]; then
   echo "check-readme-jtbd-currency: packages dir not found: $PACKAGES_DIR" >&2
   exit 2
 fi
-
-if [ ! -d "$JTBD_DIR" ]; then
-  echo "check-readme-jtbd-currency: jtbd dir not found: $JTBD_DIR" >&2
-  exit 2
-fi
-
-# ── Build the JTBD index ────────────────────────────────────────────────────
-# Map JTBD-NNN -> comma-separated status suffixes (proposed|validated|deprecated|superseded)
-# A JTBD ID may resolve to multiple files (e.g. during a status transition);
-# we record ALL status suffixes per ID for downstream use.
-
-declare -A JTBD_STATUS_BY_ID
-declare -A JTBD_RESOLVED
-
-for jpath in "$JTBD_DIR"/*/JTBD-*.md; do
-  [ -e "$jpath" ] || continue
-  base="$(basename "$jpath")"
-  if [[ "$base" =~ ^(JTBD-[0-9]{3})-.*\.([a-z]+)\.md$ ]]; then
-    id="${BASH_REMATCH[1]}"
-    status="${BASH_REMATCH[2]}"
-    JTBD_RESOLVED["$id"]=1
-    if [ -z "${JTBD_STATUS_BY_ID[$id]:-}" ]; then
-      JTBD_STATUS_BY_ID["$id"]="$status"
-    else
-      JTBD_STATUS_BY_ID["$id"]="${JTBD_STATUS_BY_ID[$id]},$status"
-    fi
-  fi
-done
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -102,22 +81,9 @@ append_hint() {
   fi
 }
 
-is_deprecated_only() {
-  local statuses="$1"
-  IFS=',' read -ra arr <<< "$statuses"
-  for s in "${arr[@]}"; do
-    case "$s" in
-      deprecated|superseded) ;;
-      *) return 1 ;;
-    esac
-  done
-  return 0
-}
-
 # ── Scan packages ───────────────────────────────────────────────────────────
 
 total_packages=0
-total_with_jtbd=0
 total_drift_instances=0
 
 package_dirs=()
@@ -142,52 +108,21 @@ for pdir in "${sorted_dirs[@]}"; do
 
   total_packages=$(( total_packages + 1 ))
 
-  # Extract distinct JTBD-NNN matches from the README
-  cited_ids=()
-  while IFS= read -r id; do
-    [ -z "$id" ] && continue
-    cited_ids+=("$id")
-  done < <(grep -oE 'JTBD-[0-9]{3}' "$readme" 2>/dev/null | sort -u)
-
-  cited_count="${#cited_ids[@]}"
-
-  has_anchor="no"
-  if [ "$cited_count" -gt 0 ]; then
-    has_anchor="yes"
-    total_with_jtbd=$(( total_with_jtbd + 1 ))
-  fi
-
   hints=""
-  known_count=0
+  skills_count=0
+  in_readme_count=0
 
-  if [ "$cited_count" -eq 0 ]; then
-    hints=$(append_hint "$hints" "missing-jtbd-section")
-  else
-    has_stale=0
-    has_deprecated_only=0
-    for id in "${cited_ids[@]}"; do
-      if [ -n "${JTBD_RESOLVED[$id]:-}" ]; then
-        known_count=$(( known_count + 1 ))
-        if is_deprecated_only "${JTBD_STATUS_BY_ID[$id]}"; then
-          has_deprecated_only=1
-        fi
-      else
-        has_stale=1
-      fi
-    done
-    [ "$has_stale" -eq 1 ] && hints=$(append_hint "$hints" "stale-jtbd-citation")
-    [ "$has_deprecated_only" -eq 1 ] && hints=$(append_hint "$hints" "deprecated-jtbd-citation")
-  fi
-
-  # Soft heuristic: skill inventory drift — every directory under
-  # packages/<plugin>/skills/ should be named in the README.
+  # Skill inventory drift: every directory under packages/<plugin>/skills/
+  # should be named in the README so the inventory stays current.
   if [ -d "$pdir/skills" ]; then
     for sdir in "$pdir/skills"/*/; do
       [ -d "$sdir" ] || continue
       skill="$(basename "$sdir")"
-      if ! grep -q -F "$skill" "$readme" 2>/dev/null; then
+      skills_count=$(( skills_count + 1 ))
+      if grep -q -F "$skill" "$readme" 2>/dev/null; then
+        in_readme_count=$(( in_readme_count + 1 ))
+      else
         hints=$(append_hint "$hints" "skill-inventory-drift")
-        break
       fi
     done
   fi
@@ -197,11 +132,11 @@ for pdir in "${sorted_dirs[@]}"; do
     total_drift_instances=$(( total_drift_instances + 1 ))
   fi
 
-  echo "README package=$package has_jtbd_anchor=$has_anchor cited_jobs=$cited_count known_jobs=$known_count drift_hints=$hints"
+  echo "README package=$package skills=$skills_count in_readme=$in_readme_count drift_hints=$hints"
 done
 
 if [ "$total_packages" -gt 0 ]; then
-  echo "TOTAL packages=$total_packages with_jtbd=$total_with_jtbd drift_instances=$total_drift_instances"
+  echo "TOTAL packages=$total_packages drift_instances=$total_drift_instances"
 fi
 
 exit 0
