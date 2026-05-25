@@ -4,6 +4,11 @@ Cross-session learnings about ADRs, architect and JTBD reviews, risk scoring, vo
 
 ## What You Need to Know
 
+### Dual-tolerant flat + per-state-subdir enumeration must dedup on ticket ID, NOT basename (2026-05-26)
+
+When widening a script to walk both the flat problem-ticket layout (`docs/problems/<NNN>-*.<state>.md`) and the per-state subdir layout (`docs/problems/<state>/<NNN>-*.md`) per the RFC-002 T4 / ADR-031 pattern, dedup the collision on **ticket ID** (`${base%%-*}`), not raw basename. The per-state layout *drops the `.<state>` suffix*, so the same ticket has DIFFERENT basenames across layouts (`182-foo.open.md` flat vs `182-foo.md` subdir) — a basename key silently fails to dedup the mid-migration collision and double-counts. `reconcile-readme.sh` is the canonical reference; it keys on ID for exactly this reason. The architect caught this on the first P182 design pass (measure-context-budget.sh). Non-ticket files (READMEs) live only at the top level and never collide with subdir content, so they can key on full basename. Per-state subdir wins on collision (run the subdir loop after the flat loop). The other dual-tolerant consumers (`evaluate-graduation.sh`, `update-jtbd-references-section.sh`, the architect/jtbd edit-gates) are already correct — verify any NEW dual-tolerant consumer keys on ID.
+<!-- signal-score: 0 | last-classified: 2026-05-26 | first-written: 2026-05-26 -->
+
 ### The human-oversight drain is a high-yield systematic-review pattern (2026-05-25)
 
 The ADR-066 + ADR-068 oversight mechanism (`human-oversight: confirmed` marker + grep detector + session-start nudge + `/wr-architect:review-decisions` / `/wr-jtbd:confirm-jobs-and-personas` drains) surfaces systematic decision drift, not just bookkeeping. The 2026-05-25 drain confirmed ~37 ADRs and surfaced 13 reworks (1-in-3 hit rate) — auto-made governance artifacts drift from intent, and confirming them one-by-one is how you catch it. Two recurring drift themes, now user-stated principles: (1) automatic cadence over deferral/on-demand ("if there's no automatic cadence, it doesn't happen"); (2) adopter-facing content must be self-contained (no internal IDs / governance plumbing in published artifacts). Held ADRs awaiting rework stay unoversighted on purpose — don't write the marker until the rework lands and re-confirms.
