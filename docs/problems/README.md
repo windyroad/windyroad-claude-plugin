@@ -87,6 +87,7 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 1.875 | P069 | docs/problems/ flat layout is unskimmable — migrate to per-state subdirs + auto-migrate adopter repos (re-rated L → XL 2026-04-20 after auto-migration scope add) | 15 High | Open | XL | 2026-04-20 |
 | 1.875 | P091 | Session-wide context budget — Claude Code consumes substantial context before and during every session across all contributor surfaces (meta) | 15 High | Open | XL | 2026-04-22 |
 | 1.5 | P169 | Build recogniser-shape catalogue into @windyroad/risk-scorer plugin (automatic bootstrap + ongoing maintenance) — Phase 1 scorer-side, Phase 2 bootstrap-side | 3 Low | Open | M | 2026-05-04 |
+| 1.5 | P289 | Broaden + rename the solo-developer persona → developer (surfaced during the P288 JTBD-oversight drain; jobs apply to any-size-team developers, not just solo). 275 occurrences/164 files; needs live-only-vs-all-historical migration strategy. Blocks the persona's oversight confirmation | 6 Med | Open | L | 2026-05-25 |
 | 1.5 | P172 | Skill contract "interactive vs AFK" commit-gating anti-pattern contradicts ADR-014 | 3 Med | Open | M | 2026-05-05 |
 | 1.5 | P173 | BYPASS_*_GATE env vars do not propagate from Bash subshell to PreToolUse hook context | 3 Med | Open | M | 2026-05-06 |
 | 1.5 | P174 | Topic-file rotation contract requires `first-written` HTML metadata that doesn't exist on most briefing entries — Step 3 Branch A unenforceable in practice | 3 Med | Open | M | 2026-05-06 |

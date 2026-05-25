@@ -1,6 +1,8 @@
 ---
 name: plugin-developer
 description: Developer building new plugins or contributing to the suite
+human-oversight: confirmed
+oversight-date: 2026-05-25
 ---
 
 # Plugin Developer / Contributor

@@ -1,6 +1,8 @@
 ---
 name: tech-lead
 description: Tech lead or consultant responsible for code quality and governance across teams
+human-oversight: confirmed
+oversight-date: 2026-05-25
 ---
 
 # Tech Lead / Consultant

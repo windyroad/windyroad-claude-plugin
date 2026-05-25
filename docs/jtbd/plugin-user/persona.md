@@ -1,6 +1,8 @@
 ---
 name: plugin-user
 description: Developer using an installed windyroad plugin who encountered a problem and wants to report it
+human-oversight: confirmed
+oversight-date: 2026-05-25
 ---
 
 # Plugin User
