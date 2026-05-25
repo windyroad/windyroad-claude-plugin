@@ -1,5 +1,11 @@
 # @windyroad/problem
 
+## 0.35.11
+
+### Patch Changes
+
+- b1a007c: capture-problem / readme-refresh-discipline: resolve the P165 README-refresh gate conflict with `/wr-itil:capture-problem`'s deferred-README-refresh contract (P262). The P165 gate treated any newly-staged ticket file as ranking-bearing and denied every `docs(problems): capture` commit, even though ADR-032 deliberately defers the README refresh for the lightweight-capture path. Register a reason-named `capture-deferred-readme` token into the existing `RISK_BYPASS`-trailer allow-list (`packages/itil/hooks/lib/readme-refresh-detect.sh`); `/wr-itil:capture-problem` Step 6 now emits the trailer while keeping its "do NOT stage README" instruction (preserving the capture-time-speed contract). The token clears the README-refresh gate ONLY — it is intentionally NOT recognised by `risk-score-commit-gate.sh`, so capture commits are still risk-scored normally (an explicit asymmetry vs `adr-031-migration`, documented in the ADR-014 bypass-token table). Rejected the alternative of staging a README placeholder row (a Decision Conflict with ADR-032) and a hard-coded commit-subject-prefix match (fragile + registry-invisible). 5 new behavioural bats fixtures assert the bypass is token-scoped, not subject-scoped (a `docs(problems): capture` subject without the trailer still denies).
+
 ## 0.35.10
 
 ### Patch Changes
