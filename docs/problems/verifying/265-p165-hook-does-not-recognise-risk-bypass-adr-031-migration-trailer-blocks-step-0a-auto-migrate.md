@@ -1,10 +1,22 @@
 # Problem 265: P165 hook does not recognise `RISK_BYPASS: adr-031-migration` trailer — blocks Step 0a auto-migrate
 
-**Status**: Known Error
+**Status**: Verification Pending
 **Reported**: 2026-05-18
 **Priority**: 8 (Medium) — Impact: 2 × Likelihood: 4
 **Effort**: S (re-estimated 2026-05-18 — single hook file extension, reuse P268 helper pattern + 1 bats fixture)
 **Type**: technical
+
+## Fix Released
+
+**Released**: 2026-05-26 — fix folded into the closing commit and shipped in `@windyroad/itil` via the accompanying changeset (`fix(itil): P165 README-refresh gate recognises RISK_BYPASS: adr-031-migration trailer (closes P265)`).
+
+`packages/itil/hooks/lib/readme-refresh-detect.sh::detect_readme_refresh_required` now accepts the `git commit` command string and, via the new `_readme_refresh_command_has_bypass_trailer` helper + `_README_REFRESH_BYPASS_TRAILERS=("adr-031-migration")` allow-list, returns allow when the command carries a registered RISK_BYPASS trailer. The recognition grep is byte-identical to `packages/risk-scorer/hooks/risk-score-commit-gate.sh` (P170 T11), so the rename-only ADR-031 layout-migration commit now clears both commit gates. `itil-readme-refresh-discipline.sh` threads `$COMMAND` into the helper. ADR-014's bypass-token registry was updated to name both recognising gates.
+
+**Exercised in-session**: 43/43 bats green in `itil-readme-refresh-discipline.bats` — red-green confirmed (the 2 allow-with-trailer fixtures failed before the helper landed, pass after). The 4 new P265 fixtures cover: registered-trailer rename → allow silently; same rename without trailer → deny (negative control); unregistered RISK_BYPASS token → deny (allow-list scope); registered trailer is staged-shape-agnostic.
+
+**Live verification pending**: PreToolUse hooks run from the installed plugin cache, so end-to-end proof requires this release to be published + installed. This repo currently carries two flat-layout straggler tickets (P285, P286 at `docs/problems/NNN-*.open.md`) — once installed, the next `/wr-itil:manage-problem` or `/wr-itil:work-problems` Step 0a run will auto-migrate them via the now-fixed hook (the real migration-commit path). Successful migration of P285/P286 is the live end-to-end verification.
+
+Awaiting user verification.
 
 ## Description
 
@@ -47,11 +59,12 @@ The migration commit fails silently — orchestrator detects the partial-staged 
 
 ### Investigation Tasks
 
-- [ ] Re-rate Priority and Effort at next /wr-itil:review-problems
-- [ ] Extend `detect_readme_refresh_required` to read `tool_input.command` and bypass on registered RISK_BYPASS trailers
-- [ ] Sweep sibling PreToolUse:Bash gate hooks (P125, P141) for the same gap
-- [ ] Update `packages/itil/lib/migrate-problems-layout.sh` to either (a) include README.md in the migration commit (no-op content edit) or (b) document the env-var prerequisite explicitly for adopters
-- [ ] Add behavioural bats fixture: migration commit with RISK_BYPASS trailer should pass the hook
+- [x] Extend `detect_readme_refresh_required` to inspect the `git commit` command string and bypass on registered RISK_BYPASS trailers (allow-list: `adr-031-migration`). Done via a new `_readme_refresh_command_has_bypass_trailer` helper + `_README_REFRESH_BYPASS_TRAILERS` allow-list; the hook now threads `$COMMAND` into the helper. Grep pattern kept byte-identical to `risk-score-commit-gate.sh` (P170 T11) so both commit gates recognise the token the same way.
+- [x] Sweep sibling PreToolUse:Bash gate hooks (P125, P141) for the same gap — **no gap**. P125 (staging-detect) fires only on a staged rename whose `<new>` path also has an *unstaged* working-tree edit; the migration is a pure `git mv` then immediate commit (no post-rename edit), so no trap. P141 (changeset-detect) fires only on `packages/<slug>/` publishable source; the migration stages `docs/problems/` only (the `*)` always-allow branch). Only P165 gates the `docs/problems/` ticket-rename surface the migration trips.
+- [x] `packages/itil/lib/migrate-problems-layout.sh` — **no change needed**. The helper already writes a clean `RISK_BYPASS: adr-031-migration` line via sequential `-m` paragraphs (the T10 fix). The hook now recognising that trailer resolves the deadlock directly, so neither the README-no-op-edit nor the env-var-prerequisite workaround is required.
+- [x] Add behavioural bats fixture: 4 fixtures added to `itil-readme-refresh-discipline.bats` — registered-trailer rename → allow silently; same rename without trailer → deny (negative control); unregistered RISK_BYPASS token → deny (allow-list scope); registered trailer is staged-shape-agnostic.
+- [x] Documentation: ADR-014 commit-message bypass-token registry updated to name both recognising gates (was singular).
+- [ ] Re-rate Priority and Effort at next /wr-itil:review-problems (moot — fix released; ticket → Verification Pending).
 
 ## Dependencies
 

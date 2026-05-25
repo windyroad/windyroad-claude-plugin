@@ -92,8 +92,10 @@ command_invokes_git_commit "$COMMAND" || exit 0
 
 # Run detection. Helper echoes offending ticket path on stdout when
 # detected; returns 1 in that case. Returns 0 (allow) on no-trap,
-# bypass env, or fail-open (non-git tree, parse error).
-TRAPPED_TICKET=$(detect_readme_refresh_required 2>/dev/null) && exit 0
+# bypass env, a registered RISK_BYPASS commit-message trailer (P265 —
+# `$COMMAND` is threaded in so the helper can inspect the trailer), or
+# fail-open (non-git tree, parse error).
+TRAPPED_TICKET=$(detect_readme_refresh_required "$COMMAND" 2>/dev/null) && exit 0
 
 # Extract the leading ticket-ID digits from the basename so the deny
 # names the ticket as `P<NNN>` rather than the full descriptive path

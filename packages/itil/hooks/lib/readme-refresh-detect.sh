@@ -42,6 +42,16 @@
 #     `.claude/settings.json` env field or shell `export` before
 #     launching `claude` — inline-prefix syntax (`VAR=1 git commit ...`)
 #     does NOT propagate from a Bash subshell to PreToolUse hooks (P173).
+#   - Registered `RISK_BYPASS: <token>` commit-message trailer (P265) →
+#     return 0 (allow). Narrow allow-list (currently only
+#     `adr-031-migration`, the standalone ADR-031 layout-migration
+#     commit, which is a rename-only change that legitimately stages no
+#     README refresh). The trailer is read from the live `git commit`
+#     command string at PreToolUse time (the commit message is not yet
+#     written), matching the sibling `risk-score-commit-gate.sh`
+#     recognition (P170 T11) so one logical migration commit clears both
+#     gates. Registry of record: ADR-014 commit-message bypass-token
+#     table.
 #
 # Narrative-only short-circuit (P230):
 #   - When all staged ticket edits are purely narrative — no
@@ -101,18 +111,71 @@
 #              shape — per-invocation deterministic, no markers).
 #   P141     — sibling changeset-discipline helper (same shape).
 #   P165     — this helper.
+#   P265     — RISK_BYPASS trailer allow-list bypass (this addition).
+
+# Allow-list of registered RISK_BYPASS commit-message trailer tokens
+# (P265). A policy-authorised commit may carry `RISK_BYPASS: <token>` in
+# its message body; when <token> is registered here, the README-refresh
+# gate allows the commit even though no README refresh is staged. The
+# allow-list keeps the bypass narrow and auditable — a generic
+# `RISK_BYPASS:` match would let any commit self-exempt.
+#
+# Registered tokens:
+#   adr-031-migration — the standalone per-state-subdir layout-migration
+#     commit written by lib/migrate-problems-layout.sh. It is a pure
+#     rename (no README content change — the table references tickets by
+#     ID, not path), so requiring a README refresh would deadlock the
+#     migration (P265). The same token clears the sibling
+#     risk-score-commit-gate.sh (P170 T11); both gates recognise it via
+#     the identical grep below so one logical migration commit clears
+#     both. Registry of record: ADR-014 commit-message bypass-token table.
+_README_REFRESH_BYPASS_TRAILERS=("adr-031-migration")
+
+# Returns 0 if the given `git commit` command string carries a
+# registered RISK_BYPASS trailer from the allow-list above. The grep
+# pattern is kept byte-identical to risk-score-commit-gate.sh so both
+# commit gates recognise the token the same way (P265 architect verdict).
+_readme_refresh_command_has_bypass_trailer() {
+  local command="${1:-}"
+  [ -n "$command" ] || return 1
+  local token
+  for token in "${_README_REFRESH_BYPASS_TRAILERS[@]}"; do
+    if printf '%s' "$command" \
+        | grep -qE "RISK_BYPASS:[[:space:]]*${token}([^A-Za-z0-9_-]|\$)"; then
+      return 0
+    fi
+  done
+  return 1
+}
 
 # Detect whether the current staged set requires a README refresh that
 # is not staged.
 #
+# $1 (optional) — the `git commit` command string. Inspected for a
+#   registered RISK_BYPASS trailer (P265). Empty/absent → no trailer
+#   bypass (fail-safe; preserves pre-P265 behaviour for any caller that
+#   does not thread the command through).
+#
 # Echoes the offending ticket path on stdout when detected.
 #
 # Returns:
-#   0 — no change required, or BYPASS env set, or fail-open (allow)
+#   0 — no change required, BYPASS env set, a registered RISK_BYPASS
+#       trailer is present, or fail-open (allow)
 #   1 — ticket change staged + README not staged (caller should deny)
 detect_readme_refresh_required() {
+  local command="${1:-}"
+
   # Bypass via env var — single most-common legitimate escape.
   if [ "${BYPASS_README_REFRESH_GATE:-}" = "1" ]; then
+    return 0
+  fi
+
+  # Bypass via registered RISK_BYPASS commit-message trailer (P265).
+  # The ADR-031 layout-migration commit is a rename-only change that
+  # legitimately stages no README refresh; its `RISK_BYPASS:
+  # adr-031-migration` trailer carries the policy authorisation
+  # (ADR-031 § Backward Compatibility + ADR-013 Rule 6).
+  if _readme_refresh_command_has_bypass_trailer "$command"; then
     return 0
   fi
 

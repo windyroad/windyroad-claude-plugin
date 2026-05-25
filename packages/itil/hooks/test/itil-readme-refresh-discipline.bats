@@ -526,3 +526,58 @@ EOF
   [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
   [ "${#output}" -eq 0 ]
 }
+
+# --- P265: RISK_BYPASS commit-message trailer allow-list bypass ---
+#
+# The ADR-031 layout-migration commit (lib/migrate-problems-layout.sh)
+# is a pure rename (flat docs/problems/NNN-*.<state>.md → per-state
+# subdir docs/problems/<state>/NNN-*.md) that legitimately stages NO
+# README refresh — the rename does not change README content (the table
+# references tickets by ID, not path). Its `RISK_BYPASS: adr-031-migration`
+# trailer (written via sequential `-m` paragraphs, so the literal token
+# appears in the `git commit` command argv) carries the policy
+# authorisation (ADR-031 § Backward Compatibility + ADR-013 Rule 6).
+# The hook must allow such commits silently. The bypass is an allow-list:
+# only the registered token bypasses; an unregistered RISK_BYPASS token
+# still denies. The recognition grep is kept identical to the sibling
+# risk-score-commit-gate.sh (P170 T11 precedent) so both commit gates
+# recognise the token the same way.
+
+@test "P265 allow: migration rename + RISK_BYPASS: adr-031-migration trailer → allow silently" {
+  echo "# Problem 999 flat" > docs/problems/999-mig.open.md
+  git add docs/problems/999-mig.open.md
+  git -c commit.gpgsign=false commit --quiet -m "seed flat ticket"
+  git mv docs/problems/999-mig.open.md docs/problems/open/999-mig.md
+  run run_bash_hook "git commit -m 'docs(problems): auto-migrate to per-state subdirectory layout (ADR-031)' -m 'RISK_BYPASS: adr-031-migration'"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
+  # Bypass is an allow path — silent per ADR-045 Pattern 1.
+  [ "${#output}" -eq 0 ]
+}
+
+@test "P265 deny: same migration rename WITHOUT the trailer still denies (negative control)" {
+  echo "# Problem 999 flat" > docs/problems/999-mig.open.md
+  git add docs/problems/999-mig.open.md
+  git -c commit.gpgsign=false commit --quiet -m "seed flat ticket"
+  git mv docs/problems/999-mig.open.md docs/problems/open/999-mig.md
+  run run_bash_hook "git commit -m 'docs(problems): auto-migrate'"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"\"permissionDecision\": \"deny\""* ]]
+}
+
+@test "P265 deny: unregistered RISK_BYPASS token does NOT bypass (allow-list scope)" {
+  echo "# Problem 999" > docs/problems/open/999-x.md
+  git add docs/problems/open/999-x.md
+  run run_bash_hook "git commit -m 'feat' -m 'RISK_BYPASS: some-other-thing'"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"\"permissionDecision\": \"deny\""* ]]
+}
+
+@test "P265 allow: registered trailer bypasses a newly-staged ticket too (bypass is staged-shape-agnostic)" {
+  echo "# Problem 999" > docs/problems/open/999-x.md
+  git add docs/problems/open/999-x.md
+  run run_bash_hook "git commit -m 'docs(problems): auto-migrate' -m 'RISK_BYPASS: adr-031-migration'"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
+  [ "${#output}" -eq 0 ]
+}
