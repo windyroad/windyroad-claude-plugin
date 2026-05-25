@@ -33,6 +33,14 @@ The plugin works automatically. On first use in a project without a JTBD directo
 
 This examines your existing features and asks about your user jobs, personas, and desired outcomes to generate `docs/jtbd/<persona>/persona.md` plus per-job files at `docs/jtbd/<persona>/JTBD-NNN-<title>.<status>.md`. If a legacy `docs/JOBS_TO_BE_DONE.md` exists, it is migrated into the directory structure on first run (per [ADR-008](../../docs/decisions/008-jtbd-directory-structure.proposed.md)).
 
+**Confirm jobs and personas that lack human oversight:**
+
+```
+/wr-jtbd:confirm-jobs-and-personas
+```
+
+The `confirm-jobs-and-personas` skill drains the set of jobs/personas that were recorded without a human confirming they reflect real user/business need (per [ADR-068](../../docs/decisions/068-jtbd-persona-human-oversight-marker-and-confirm-drain.proposed.md)). It surfaces each via AskUserQuestion so you confirm, amend, or reject it, then writes a `human-oversight: confirmed` marker. Detection is a token-cheap grep over `docs/jtbd/` frontmatter; a session-start nudge reports the unoversighted count. Jobs/personas created through `update-guide` are born oversighted, so the unconfirmed set only shrinks. This is the read-write oversight drain — distinct from the read-only `/wr-jtbd:review-jobs` alignment reviewer.
+
 ## How It Works
 
 | Hook | Trigger | What it does |
@@ -41,6 +49,7 @@ This examines your existing features and asks about your user jobs, personas, an
 | `jtbd-enforce-edit.sh` | Edit or Write | Blocks edits until the JTBD agent has reviewed |
 | `jtbd-mark-reviewed.sh` | Agent completes | Marks the review as done (TTL: 3600s) |
 | `jtbd-slide-marker.sh` | Agent or Bash | Slides the review marker forward across non-edit operations so an active review session is not invalidated by intervening Bash or sub-agent calls |
+| `jtbd-oversight-nudge.sh` | Session start | Reports how many jobs/personas lack human oversight and points to `/wr-jtbd:confirm-jobs-and-personas`; silent when none, and self-suppressed inside AFK iterations |
 
 ## Agent
 

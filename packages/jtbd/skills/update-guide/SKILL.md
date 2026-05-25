@@ -89,6 +89,15 @@ Use AskUserQuestion to present the drafted personas and ask:
 - Any missing user segments?
 - Any constraints or pain points to add?
 
+**Born-confirmed write (ADR-068).** Once the user confirms a persona via this AskUserQuestion pass, write the human-oversight marker into that persona's frontmatter — insert after the `description:` line:
+
+```yaml
+human-oversight: confirmed
+oversight-date: YYYY-MM-DD   # today
+```
+
+This is the born-confirmed gate: a persona authored through update-guide enters the world already human-oversighted (it does not appear in `/wr-jtbd:confirm-jobs-and-personas`' unoversighted set). Do NOT write the marker for a persona the user has not confirmed. The marker is orthogonal to status.
+
 ### 5. Draft jobs
 
 For each job (3-8 per persona), create a file at
@@ -134,6 +143,15 @@ Use AskUserQuestion to present the drafted jobs and ask:
 - Do these jobs cover the core value proposition?
 - Do the job statements ring true?
 - Any missing jobs or user flows?
+
+**Born-confirmed write (ADR-068).** Once the user confirms a job via this AskUserQuestion pass, write the human-oversight marker into that job's frontmatter — insert after the `date-created:` line:
+
+```yaml
+human-oversight: confirmed
+oversight-date: YYYY-MM-DD   # today
+```
+
+A job authored through update-guide is born human-oversighted, so the `/wr-jtbd:confirm-jobs-and-personas` unoversighted set only ever shrinks. Do NOT write the marker for a job the user has not confirmed (drafted-but-unconfirmed jobs stay unmarked). The marker is orthogonal to `status:` — a `proposed` job can be `human-oversight: confirmed`.
 
 ### 7. Generate README.md index
 

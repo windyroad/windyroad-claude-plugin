@@ -1,0 +1,74 @@
+---
+name: wr-jtbd:confirm-jobs-and-personas
+description: Drain the set of Jobs To Be Done and personas that lack human oversight. Surfaces each auto-derived job/persona via AskUserQuestion so a human confirms, amends, or rejects it, then writes the human-oversight marker. Use when the session-start nudge reports jobs/personas lack oversight, or any time you want to review the documented JTBD corpus. This is the read-write oversight drain — distinct from /wr-jtbd:review-jobs (the read-only alignment reviewer).
+allowed-tools: Read, Glob, Grep, Bash, Edit, AskUserQuestion
+---
+
+# Confirm Jobs and Personas — human-oversight drain
+
+Lift auto-derived Jobs To Be Done and personas to human decisions. Documented jobs/personas are load-bearing: the JTBD edit gate reviews every project change against `docs/jtbd/`, so a job or persona that was agent-derived without a human confirming it reflects real need propagates wrong alignment verdicts. This skill drains the **unoversighted set** (jobs/personas lacking `human-oversight: confirmed`, per ADR-068): it surfaces each via `AskUserQuestion`, and writes the oversight marker only when a human confirms.
+
+This is the P288 / ADR-068 drain surface — the JTBD sibling of `/wr-architect:review-decisions`. It is **read-write** (writes the marker on confirm). It is NOT the same as `/wr-jtbd:review-jobs`, which is a read-only alignment review ("do my changes trace to documented jobs?"); this skill confirms the jobs/personas themselves.
+
+## When to use
+
+- The session-start nudge reported `N jobs/personas lack human oversight`.
+- Pre-handover / pre-release: confirm the JTBD corpus reflects real user/business need.
+- After an `update-guide` run or agent-derived job/persona authoring landed files without confirmation.
+- Any focused sitting — designed for **batches over multiple sittings**, not one blocking pass.
+
+## How it works
+
+The marker persists (ADR-009 never-re-ask principle), so a partially-drained set resumes cleanly on the next run.
+
+### Step 1: Enumerate the unoversighted set
+
+```bash
+wr-jtbd-detect-unoversighted docs/jtbd
+```
+
+The `wr-jtbd-detect-unoversighted` command is a `$PATH`-resolved shim (ADR-049) dispatching `packages/jtbd/scripts/detect-unoversighted.sh`. It prints one unoversighted job/persona path per line (README excluded; token-cheap grep over frontmatter — no body reads). Empty output → the corpus is fully confirmed; report and stop.
+
+### Step 2: Cluster + order
+
+Read **only the frontmatter + title + Job Statement / persona "Who" section** of each unoversighted file (not full bodies — keep it cheap). Group by persona directory and order **load-bearing first**: personas before their jobs (a persona frames its jobs), and jobs that other artifacts (problems, RFCs, READMEs) cite most heavily before narrow ones.
+
+### Step 3: Present each via AskUserQuestion (batched)
+
+For each job/persona in the ordered queue, surface it as an `AskUserQuestion` (cap **4 per call** per ADR-013 Rule 1; issue further calls sequentially):
+
+- **Question**: the job statement (for a JTBD) or the persona definition (who they are + key constraints), in one line.
+- **Context**: grounded in what the file actually says (per ADR-026) — the persona served, the desired outcomes, any cited problems/RFCs.
+- **Options** per artifact:
+  - **Confirm** — the job/persona accurately reflects real need; write the marker.
+  - **Amend** — mostly right but needs a change; capture it, apply it to the file, then write the marker.
+  - **Reject** — the auto-derived job/persona does not reflect real need; do NOT write the marker. Note the rework (a `wr-jtbd:update-guide` rewrite, or retirement).
+  - **Defer** — skip this sitting; leave unoversighted for later.
+
+This is a genuine human-decision surface (the point of P288/ADR-068) — `AskUserQuestion` is correct here, not over-asking. Do not auto-confirm; do not prose-ask.
+
+### Step 4: Apply the outcome
+
+- **Confirm / Amend**: write `human-oversight: confirmed` + `oversight-date: <today, YYYY-MM-DD>` into the file's frontmatter (insert after the `status:`/`date-created:` line if absent; never duplicate). For Amend, apply the directed change first. Edits go through the standard JTBD / architect edit gate per ADR-014.
+- **Reject**: leave the marker absent; record the rework.
+- **Defer**: no write.
+
+**Unoversighted ≠ unusable** (ADR-068): an unconfirmed job/persona stays fully readable and review-anchorable. The marker records provenance; it never quarantines the doc or blocks reviews from reading it.
+
+### Step 5: Commit + report
+
+Commit the confirmed/amended files per ADR-014 (one commit per drain sitting is acceptable). Report: confirmed / amended / rejected / deferred counts, and the remaining unoversighted count (re-run the detector). The session-start nudge count drops by the number confirmed.
+
+## Notes
+
+- **Never re-ask** — a confirmed job/persona carries the marker permanently and is excluded from future runs (ADR-009). Write-once **except** when the job statement / persona definition is materially rewritten — a material amend clears the marker for re-confirmation (ADR-068 Reassessment).
+- **AFK** — interactive by construction (the confirm IS the human decision); not dispatched in AFK iteration subprocesses. The session-start nudge self-suppresses there (`WR_SUPPRESS_OVERSIGHT_NUDGE=1`).
+- **Born-confirmed going forward** — `/wr-jtbd:update-guide` writes the marker when the user confirms a new/edited job or persona, so new artifacts enter the set already oversighted and the unoversighted count only shrinks.
+
+## Related
+
+- **ADR-068** — this drain + the marker + detector + nudge. **ADR-066 / P283** — the architect precedent this mirrors.
+- **ADR-008** — JTBD directory structure (the marker is additive to its frontmatter contract).
+- **ADR-009** — never-re-ask persistent-marker principle. **ADR-013 / ADR-044** — structured user interaction + decision-delegation taxonomy.
+- `packages/jtbd/skills/review-jobs/SKILL.md` — the read-only alignment reviewer (distinct from this drain).
+- `packages/jtbd/skills/update-guide/SKILL.md` — born-confirmed write site.
