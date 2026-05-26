@@ -114,6 +114,21 @@ detect_changeset_required() {
       .changeset/*.md)
         has_changeset=1
         ;;
+      docs/changesets-holding/README.md)
+        # README in the holding dir is meta-doc, not a real changeset
+        # (mirrors the .changeset/README.md exclusion above).
+        ;;
+      docs/changesets-holding/*.md)
+        # P177: a held-window changeset entry IS a changeset — authored
+        # and audit-trailed, just intentionally held outside `.changeset/`
+        # per ADR-042 Rule 7 (held-window blessing). Recognising it here
+        # gives the gate a held-window-awareness branch so held-window-
+        # bound work commits no longer need a separate move-to-holding
+        # chore commit. Release/drain semantics are unchanged — the
+        # Release workflow reads `.changeset/` only; a held entry is never
+        # drained without a graduation `git mv` back into `.changeset/`.
+        has_changeset=1
+        ;;
       packages/*)
         rest="${path#packages/}"
         slug="${rest%%/*}"

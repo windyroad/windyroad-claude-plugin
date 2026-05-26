@@ -229,6 +229,60 @@ run_bash_hook() {
   [[ "$output" == *"\"permissionDecision\": \"deny\""* ]]
 }
 
+# --- P177: held-window directory recognition (ADR-042 Rule 7) ---
+#
+# P141's gate purpose is "every publishable iter has a changeset to drain".
+# A `docs/changesets-holding/<name>.md` entry IS a changeset — authored and
+# audit-trailed, just intentionally held outside `.changeset/` per ADR-042
+# Rule 7 (held-window blessing). Before P177 the gate ignored the holding
+# directory (held entries fell through the `*)` catch-all), forcing held-
+# window-bound work through a 2-commit workaround (work commit + a separate
+# `chore(changeset): move ... to holding`). The gate now recognises a staged
+# held entry as satisfying the discipline, mirroring the `.changeset/*.md`
+# branch (and its README.md meta-doc exclusion). Release/drain semantics are
+# unchanged — the Release workflow reads `.changeset/` only; a held entry is
+# recognised at the commit-gate layer, never drained without a graduation
+# `git mv` back into `.changeset/`.
+
+@test "P177 allow: staged packages/<plugin>/ source WITH a staged docs/changesets-holding/ entry allows the commit" {
+  echo "skill body" > packages/itil/skills/foo/SKILL.md
+  mkdir -p docs/changesets-holding
+  printf -- '---\n"@windyroad/itil": patch\n---\nheld fix\n' > docs/changesets-holding/wr-itil-p177.md
+  git add packages/itil/skills/foo/SKILL.md docs/changesets-holding/wr-itil-p177.md
+  run run_bash_hook "git commit -m 'feat'"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
+}
+
+@test "P177 allow path with held-window entry emits 0 bytes (ADR-045 Pattern 1 silent-on-pass)" {
+  echo "skill body" > packages/itil/skills/foo/SKILL.md
+  mkdir -p docs/changesets-holding
+  printf -- '---\n"@windyroad/itil": patch\n---\nheld fix\n' > docs/changesets-holding/wr-itil-p177.md
+  git add packages/itil/skills/foo/SKILL.md docs/changesets-holding/wr-itil-p177.md
+  run run_bash_hook "git commit -m 'feat'"
+  [ "$status" -eq 0 ]
+  [ "${#output}" -eq 0 ]
+}
+
+@test "P177 deny: staged docs/changesets-holding/README.md alone does NOT count as a valid held changeset" {
+  echo "skill body" > packages/itil/skills/foo/SKILL.md
+  mkdir -p docs/changesets-holding
+  echo "# Changesets Holding Area" > docs/changesets-holding/README.md
+  git add packages/itil/skills/foo/SKILL.md docs/changesets-holding/README.md
+  run run_bash_hook "git commit -m 'feat'"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"\"permissionDecision\": \"deny\""* ]]
+}
+
+@test "P177 deny: staged source with NEITHER .changeset/*.md NOR a holding entry still denies (regression guard)" {
+  echo "skill body" > packages/itil/skills/foo/SKILL.md
+  git add packages/itil/skills/foo/SKILL.md
+  run run_bash_hook "git commit -m 'feat'"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"\"permissionDecision\": \"deny\""* ]]
+  [[ "$output" == *"P141"* ]]
+}
+
 # --- Mixed staged sets ---
 
 @test "deny: staged source + test in same commit still requires changeset (mixed set)" {
