@@ -38,7 +38,7 @@ The highest-value entries across the briefing — the handful of rules that save
 > - `governance-workflow-archive.md` (2026-05-04/05/12) + `governance-workflow-archive-mid.md` (2026-04-23/24/25) + `governance-workflow-archive-pre-2026-04-23.md` (2026-04-19 through 04-22)
 > - `governance-workflow-surprises.md` (sibling brief — ADR mechanics, JTBD reviewer behaviour, README-refresh reconciliation)
 > - `releases-and-ci-archive.md` (older release-pipeline entries)
-> - `afk-subprocess-mechanics.md` + `afk-subprocess-recovery.md` (sibling briefs split out 2026-05-03)
+> - `afk-subprocess-mechanics.md` + `afk-subprocess-recovery.md` (sibling briefs split out 2026-05-03) + `afk-subprocess-recovery-archive.md` (oldest recovery entries, 2026-05-26)
 > - `agent-hook-gate-quirks.md` (sibling brief — hook-gate quirks)
 
 ## How to Use
