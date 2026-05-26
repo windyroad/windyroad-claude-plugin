@@ -91,7 +91,9 @@ This decision establishes a pattern: future shared code whose consumers must rem
 
 ## Reassessment Criteria
 
+> **Reassessment FIRED 2026-05-26 (P283 prong-2 oversight drain).** The ">5 shared modules" trigger below is objectively met — ~8 canonical helpers now live under `packages/shared/` (install-utils, derive-first-dispatch, session-marker, leak-detect, command-detect, external-comms-key, external-comms-gate, migrate-problems-layout). **User-directed outcome: move to a bundler-based shared-code approach.** Design + implementation tracked at **P304**; this ADR will be amended or superseded once the bundler design lands. The duplicate-and-sync convention below remains the operative decision until then (so `human-oversight`/`status` are unchanged — this is a forward-pointer note, not a decision reversal).
+
 Revisit this decision when:
-- Shared-code volume grows significantly (e.g., >5 shared modules), at which point the storage and cognitive overhead of the duplicate-and-sync pattern may outweigh its benefits and a bundler-based approach should be considered.
+- Shared-code volume grows significantly (e.g., >5 shared modules), at which point the storage and cognitive overhead of the duplicate-and-sync pattern may outweigh its benefits and a bundler-based approach should be considered. **[FIRED 2026-05-26 — see note above; outcome tracked at P304.]**
 - The project adopts a packaging system (esbuild, rollup, etc.) that can bundle `packages/shared/` into each published plugin transparently — then Option A becomes viable without breaking self-containment.
 - Contributors repeatedly land drift in `main` because CI was bypassed, indicating that the CI-only enforcement is insufficient and a pre-commit hook may be warranted.

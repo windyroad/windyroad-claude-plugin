@@ -2,7 +2,9 @@
 status: "proposed"
 date: 2026-05-03
 human-oversight: confirmed
-oversight-date: 2026-05-25
+oversight-date: 2026-05-26
+amended: 2026-05-26
+amendment-driver: P260 — corrected the falsified "orchestrator + own subprocess: not a race" claim (the backgrounded work-problems dispatch fires orchestrator hooks concurrently with the subprocess); recorded Option C mitigation (bounded multi-UUID create-gate marker-write); line-191 reassessment trigger met. Human-oversight re-confirmed on the changed posture (user direction 2026-05-26, P283 prong-2 drain). See "Amendment 2026-05-26" in Race-mitigation. Option C implementation tracked at P260.
 decision-makers: [Tom Howard]
 consulted: [wr-architect:agent, wr-jtbd:agent]
 informed: [Windy Road plugin users, manage-problem SKILL.md authors, plugin developers extending the suite]
@@ -114,7 +116,13 @@ Two Claude Code sessions in DIFFERENT projects on the same machine: different `p
 
 Two sessions in the SAME project on the same machine (rare developer pattern): race possible. Last-writer-wins on the marker; agent-A's helper may read agent-B's SID. The failure mode is a hook-denied Write (visible, recoverable via re-running Step 2 or pulling fresh from `git`), not silent corruption. Accepted as a documented limitation.
 
-Orchestrator + its own subprocess: not a race. The orchestrator blocks in the `claude -p` wait while the subprocess runs; orchestrator-side tool calls do not fire during subprocess execution. The subprocess's PreToolUse hooks write the subprocess's SID; on subprocess exit, the orchestrator's next PreToolUse hook write restores the orchestrator's SID.
+~~Orchestrator + its own subprocess: not a race. The orchestrator blocks in the `claude -p` wait while the subprocess runs; orchestrator-side tool calls do not fire during subprocess execution. The subprocess's PreToolUse hooks write the subprocess's SID; on subprocess exit, the orchestrator's next PreToolUse hook write restores the orchestrator's SID.~~ **[SUPERSEDED-IN-PLACE 2026-05-26 — see Amendment below. This claim is FALSE.]**
+
+#### Amendment 2026-05-26 — orchestrator + own backgrounded subprocess IS a race (P260)
+
+The struck-through claim above is **falsified**. `/wr-itil:work-problems` Step 5 (per P121) does NOT block in a foreground `claude -p` wait — it **backgrounds** the subprocess (`claude -p ... &`) and runs an idle-timeout poll loop (`while kill -0 …; do … git log …; done`) in the orchestrator's main turn. Those orchestrator-side Bash tool calls fire `PreToolUse:Bash` hooks **concurrently** with the running subprocess, so the orchestrator and its own subprocess DO write the per-machine runtime-SID marker concurrently — a same-project last-writer-wins race. This materialised as **P260** (the 2026-05-18 P254/P255 foreground captures hit the race; the create-gate marker mismatch denied the Write). The line-191 reassessment trigger ("a pattern of same-project parallel-session races emerges") is therefore **met**.
+
+**Mitigation — Option C (architect-resolved 2026-05-26):** bounded multi-UUID create-gate marker-write — when setting the create-gate marker, write it under EACH recent `/tmp/<system>-announced-*` UUID plus the current runtime-sid value, so whichever SID the subsequent Write's stdin carries, the marker exists. Option A (per-PID runtime-sid file) was rejected — the agent-side helper runs in a Bash-tool subshell whose PID ancestry does not reliably map to the hook process's PID. Option B (drop runtime-sid, rely on announce-marker mtime) was rejected — it regresses to the P142 mismatch. Implementation (session-id.sh + work-problems SKILL Step 2 substep + concurrent-session behavioural bats + `@windyroad/itil` changeset) is tracked at **P260**. Human-oversight re-confirmed on this corrected posture (user direction 2026-05-26, P283 prong-2 oversight drain).
 
 ### Mechanical, not user-decision (ADR-044 binding)
 

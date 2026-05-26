@@ -77,6 +77,7 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 3.0 | P079 | No inbound sync of upstream-reported problems — reports filed via the intake templates never surface in the local backlog (re-rated 6.0 → 1.5 transitive 2026-04-26 — assessment-pipeline scope blocked by P038/P064) | 12 High | Open | L | 2026-04-21 |
 | 3.0 | P080 | No bidirectional update of upstream-reported problems — local lifecycle transitions never propagate back to the reporter (re-rated 6.0 → 1.5 transitive 2026-04-26 — blocked by P079/P038/P064) | 12 High | Open | L | 2026-04-21 |
 | 3.0 | P129 | P079 inbound assessment pipeline lacks version-aware classification — already-fixed-in-newer / recurred / still-active branches | 12 High | Open | L | 2026-04-26 |
+| 3.0 | P304 | Move `packages/shared/` from duplicate-and-sync to a bundler-based shared-code approach (ADR-017 reassessment outcome, user-directed 2026-05-26; >5-module trigger met at ~8 helpers) | 3 Med | Open | M | 2026-05-26 |
 | 2.25 | P033 | No persistent risk register for ISO 31000 / ISO 27001 compliance — sibling-project survey shows 99% miss rate; re-rated L → XL 2026-04-28 (Phase 1a ADR-047 design landed) | 9 Med | Known Error | XL | 2026-04-17 |
 | 2.25 | P015 | TDD enforcement does not flag vague Gherkin outcome steps | 9 Med | Open | L | 2026-04-16 |
 | 2.25 | P136 | ADR-044 alignment audit — sweep all unaudited skills/hooks/agents/ADRs/JTBDs/READMEs against the framework-resolution boundary (master ticket) | 9 Med | Open | L | 2026-04-27 |

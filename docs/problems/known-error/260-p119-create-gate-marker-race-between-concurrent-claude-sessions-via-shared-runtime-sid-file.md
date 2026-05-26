@@ -48,7 +48,9 @@ Spam-write `/tmp/manage-problem-grep-<sid>` under EVERY recent announce-marker U
   - **Option B**: Stop using runtime-sid at all in `get_current_session_id`; rely on announce-marker most-recent-mtime fallback exclusively (the existing fallback path).
   - **Option C**: Make the spam-write workaround the documented contract — agent always marks under all recent UUIDs.
 - [x] Update P124 (agent-side SID discovery helper) Change Log to document this race — **done 2026-05-26** (P124 `## Related` + post-Phase-4 note cross-reference P260).
-- [ ] Behavioural bats coverage for concurrent-session scenario — deferred to implementation (blocked on the escalated ADR-050-posture direction below).
+- [x] **ADR-050-posture direction RESOLVED 2026-05-26 (user, P283 prong-2 drain): amend ADR-050 in place** (not supersede). DONE: ADR-050 frontmatter `amended: 2026-05-26` + oversight re-confirmed (`oversight-date: 2026-05-26`); Race-mitigation section's "orchestrator + own subprocess: not a race" claim struck-through + corrected via an "Amendment 2026-05-26" subsection recording the falsification + Option C as the chosen mitigation + the line-191 reassessment-trigger-met note. Architect + JTBD PASS. The deviation-approval is now discharged — Option C may be implemented.
+- [ ] **Implement Option C** (the remaining work): bounded multi-UUID create-gate marker-write in `packages/itil/hooks/lib/session-id.sh` / `create-gate.sh` (mark under recent `/tmp/<system>-announced-*` UUIDs within an mtime window + the runtime-sid value) + work-problems SKILL Step 2 substep + concurrent-session behavioural bats + `@windyroad/itil` changeset; then transition this ticket to Verifying on release.
+- [ ] Behavioural bats coverage for concurrent-session scenario — part of the Option C implementation above.
 
 ### Architect verdict (2026-05-26)
 
