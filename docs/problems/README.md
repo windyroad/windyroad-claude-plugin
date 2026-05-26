@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-05-26 **README reconciled** — 4 drift entries corrected: P312 / P313 / P314 / P315 (open on disk, missing from WSJF Rankings — committed deferred-refresh drift from this session's review-decisions-drain + P314-rework captures). Reconciliation contract per P118. Prior P260 K→V fragment rotated to README-history.md per P134.
+> Last reviewed: 2026-05-27 **README reconciled** — 1 drift entry corrected: P316 (open on disk, missing from WSJF Rankings — committed deferred-refresh drift from this session's run-retro Step 2b P316 capture). Reconciliation contract per P118 + ADR-014 amended ("Reconciliation as preflight robustness layer"). Prior P312/P313/P314/P315-reconcile fragment rotated to README-history.md per P134.
 
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
@@ -13,6 +13,7 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 6.0 | P267 | Codify `derive-release-vehicle.sh` helper for K→V release-cycle citation — K→V transitions risk wrong release-cycle cite when refs are hand-typed from git log (1-of-6 incidence rate this session); ADR-049 shim shape | 6 Med | Known Error | M | 2026-05-18 |
 | 6.0 | P087 | No maturity / battle-hardening signal on plugins, skills, agents, or hooks — READMEs don't tell users which features are stable vs experimental | 12 High | Known Error | L | 2026-04-21 |
 | 6.0 | P097 | SKILL.md files mix runtime-necessary steps with maintainer-facing rationale, bloating every skill invocation | 12 High | Known Error | L | 2026-04-22 |
+| 6.0 | P316 | Rejected-pending-supersede ADRs re-surface in every review-decisions drain — no "rejected" state to suppress them | 6 Med | Open | S | 2026-05-26 |
 | 6.0 | P082 | No voice-and-tone or content-risk-scoring gate on commit messages (transitive XL via P038 per P076; marginal M) | 12 High | Open | M | 2026-04-21 |
 | 6.0 | P263 | CI gate `claude plugin install --dry-run` per plugin pre-publish — ADR-063 Confirmation #11 implementation; structural prevention for P258 class (gate-the-actual-load-bearing-surface, sibling to P246) | 12 High | Open | M | 2026-05-18 |
 | 6.0 | P282 | Agent records validation evidence in `.verifying.md` ticket body but doesn't close — V→Closed transition skipped when validation lands inline (concrete instance: voder-mcp-hub P027 body contains "End-to-end validation of P018" + "Fix direction (per user, ...)" yet ticket remains verifying; sibling of P068 narrower run-retro surface and P228 K→V analogue) | 12 High | Open | M | 2026-05-19 |

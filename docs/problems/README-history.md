@@ -574,3 +574,7 @@ Last reviewed: 2026-04-28 **AFK iter 7 — P139 transitioned Open → Verificati
 ## 2026-05-26 (P260 K→V fragment rotated for P312/P313/P314/P315 README reconciliation)
 
 > Last reviewed: 2026-05-26 **P260 Known Error → Verifying** — the ADR-050 Option-C concurrent-session create-gate fix released in `@windyroad/itil@0.35.14` (release commit `bf1ebdd`); brought under the RFC framework as RFC-007 (retro-fit per ADR-071 — every fix goes through an RFC) so the held changeset could release under the new unconditional gate. Moved from WSJF Rankings to the Verification Queue per ADR-022. Prior P311-reconcile fragment rotated to README-history.md per P134.
+
+## 2026-05-27 (P312/P313/P314/P315-reconcile fragment rotated for P316 README reconciliation)
+
+> Last reviewed: 2026-05-26 **README reconciled** — 4 drift entries corrected: P312 / P313 / P314 / P315 (open on disk, missing from WSJF Rankings — committed deferred-refresh drift from this session's review-decisions-drain + P314-rework captures). Reconciliation contract per P118. Prior P260 K→V fragment rotated to README-history.md per P134.
