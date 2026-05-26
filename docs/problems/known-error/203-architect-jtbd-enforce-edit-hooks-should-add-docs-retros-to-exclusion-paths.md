@@ -37,3 +37,4 @@ Tolerate the gate delegations on retro append writes (adds friction to ask-hygie
 - **Reported Upstream**: https://github.com/windyroad/agent-plugins/issues/120
 - **Pipeline classification**: JTBD-aligned (JTBD-001); safe-low-fix-risk; route=safe-and-valid.
 - **Affected plugin**: @windyroad/architect + @windyroad/jtbd.
+- **Recurrence 2026-05-26** (verifying-queue-review retro): both gates fired on the FIRST `docs/retros/2026-05-26-verifying-queue-review-ask-hygiene.md` write of a fresh session — architect `BLOCKED` then JTBD `BLOCKED`, forcing two subagent round-trips (architect PASS + jtbd PASS) for a Step 2d-mandated trail artifact before the write succeeded. Likelihood data point: this fires on EVERY retro's trail write, not the "Likelihood 1" the deferred rating assumes — consider re-rating likelihood upward at next review.
