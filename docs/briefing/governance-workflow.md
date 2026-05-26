@@ -1,12 +1,12 @@
 # Governance Workflow
 
-Cross-session learnings about ADRs, architect and JTBD reviews, risk scoring, voice-tone, and the session-wide unifying patterns (progressive disclosure, canonical+sync, SKILL+REFERENCE).
+Cross-session learnings about ADRs, architect/JTBD reviews, risk scoring, and voice-tone.
 
 ## What You Need to Know
 
 ### Dual-tolerant flat + per-state-subdir enumeration must dedup on ticket ID, NOT basename (2026-05-26)
 
-When widening a script to walk both the flat problem-ticket layout (`docs/problems/<NNN>-*.<state>.md`) and the per-state subdir layout (`docs/problems/<state>/<NNN>-*.md`) per the RFC-002 T4 / ADR-031 pattern, dedup the collision on **ticket ID** (`${base%%-*}`), not raw basename. The per-state layout *drops the `.<state>` suffix*, so the same ticket has DIFFERENT basenames across layouts (`182-foo.open.md` flat vs `182-foo.md` subdir) — a basename key silently fails to dedup the mid-migration collision and double-counts. `reconcile-readme.sh` is the canonical reference; it keys on ID for exactly this reason. The architect caught this on the first P182 design pass (measure-context-budget.sh). Non-ticket files (READMEs) live only at the top level and never collide with subdir content, so they can key on full basename. Per-state subdir wins on collision (run the subdir loop after the flat loop). The other dual-tolerant consumers (`evaluate-graduation.sh`, `update-jtbd-references-section.sh`, the architect/jtbd edit-gates) are already correct — verify any NEW dual-tolerant consumer keys on ID.
+When widening a script to walk both the flat (`docs/problems/<NNN>-*.<state>.md`) and per-state-subdir (`docs/problems/<state>/<NNN>-*.md`) layouts per RFC-002 T4 / ADR-031, dedup on **ticket ID** (`${base%%-*}`), not basename — the subdir layout drops the `.<state>` suffix, so the same ticket has different basenames across layouts (`182-foo.open.md` vs `182-foo.md`) and a basename key double-counts. Per-state subdir wins (run its loop second). `reconcile-readme.sh` keys on ID for this reason; architect caught it on the P182 design pass. Verify any NEW dual-tolerant consumer keys on ID (existing ones — evaluate-graduation, update-jtbd-references, edit-gates — are correct).
 <!-- signal-score: 0 | last-classified: 2026-05-26 | first-written: 2026-05-26 -->
 
 ### The human-oversight drain is a high-yield systematic-review pattern (2026-05-25)
