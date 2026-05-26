@@ -562,3 +562,7 @@ Last reviewed: 2026-04-28 **AFK iter 7 — P139 transitioned Open → Verificati
 ## 2026-05-26 (P177 K→V fragment rotated for README reconciliation — P310 added)
 
 > Last reviewed: 2026-05-26 **P177 Known Error → Verification Pending** — the P141 changeset-discipline gate now recognises `docs/changesets-holding/<name>.md` held-window entries (option a, fix commit `a8823be`) released in `@windyroad/itil@0.35.13`; held-window-bound `packages/<plugin>/` source now lands in a single commit (no more 2-commit work-then-move workaround). The K→V transition was deferred at release time per ADR-018 and never executed, leaving the ticket stale in `known-error/` (the prior salvage+release session ended after retro without it) — this transition reconciles the lifecycle to the released reality. Awaiting user verification. Excluded from WSJF (multiplier 0) per ADR-022. Prior README-reconciliation fragment (P307/P308/P309) rotated to README-history.md per P134.
+
+## 2026-05-26 (P310-reconcile fragment rotated for P311 README reconciliation)
+
+> Last reviewed: 2026-05-26 **README reconciled** — 1 drift entry corrected: P310 (open on disk, missing from WSJF Rankings — committed cross-session deferred-refresh drift from capture-problem). Reconciliation contract per P118 + ADR-014 amended ("Reconciliation as preflight robustness layer"). Prior P177 K→V fragment rotated to README-history.md per P134.

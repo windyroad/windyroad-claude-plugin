@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-05-26 **README reconciled** — 1 drift entry corrected: P310 (open on disk, missing from WSJF Rankings — committed cross-session deferred-refresh drift from capture-problem). Reconciliation contract per P118 + ADR-014 amended ("Reconciliation as preflight robustness layer"). Prior P177 K→V fragment rotated to README-history.md per P134.
+> Last reviewed: 2026-05-26 **README reconciled** — 1 drift entry corrected: P311 (open on disk, missing from WSJF Rankings — committed cross-session deferred-refresh drift from the capture-problem P311 correction capture). Reconciliation contract per P118 + ADR-014 amended ("Reconciliation as preflight robustness layer"). Prior P310-reconcile fragment rotated to README-history.md per P134.
 
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
@@ -116,6 +116,7 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 1.5 | P276 | external-comms gate marker over-fires on PASS-class content edits (P073 surface) (captured 2026-05-19 via /wr-itil:capture-problem; deferred re-rate) | 3 Med | Open | M | 2026-05-19 |
 | 1.5 | P285 | install-updates global-cache-refresh simplification left stale references to the retired consent gate + Step 6.5 bootstrap across downstream surfaces (deferred re-rate) | 3 Med | Open | M | 2026-05-25 |
 | 1.5 | P310 | RFCs carry independent decisions invisible to the ADR-066 human-oversight net | 3 Med | Open | M | 2026-05-26 |
+| 1.5 | P311 | Agent re-introduces unauthorized ceremony-softening shortcuts (same class as the disavowed carve-out) | 3 Med | Open | M | 2026-05-26 |
 | 1.5 | P045 | Auto plugin install after governance release (deferred install on next session start per 2026-04-20 direction) | 6 Med | Open | L | 2026-04-19 |
 | 1.5 | P194 | ADRs accumulate forward-chronology evidence inline (Phase 2 dogfood evidence, amendment history, cross-iter cross-references) — `decisions` bucket dominates context at 41% / 1.3 MiB | 6 Med | Open | L | 2026-05-15 |
 | 1.5 | P235 | Briefing Signal-vs-Noise pass backlog — 146 entries across 17 topic files never scored per ADR-026 citation (P234 remediation: scheduled future surface for the deferred Signal-vs-Noise pass) | 6 Med | Open | L | 2026-05-17 |
