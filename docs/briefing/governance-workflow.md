@@ -4,6 +4,10 @@ Cross-session learnings about ADRs, architect/JTBD reviews, risk scoring, and vo
 
 ## What You Need to Know
 
+### Known Error semantics: root cause + workaround, NOT "fix ready" — the RFC/fix comes AFTER (2026-05-26)
+
+A problem reaches **Known Error** when its **root cause is identified AND a workaround is documented** — there is no fix and no RFC yet (ADR-022 is the authority; it says Known Error = "root cause confirmed, fix not yet shipped"). Only *after* Known Error do you **propose a fix**, which is what **produces the RFC**. And `Fix Released` is **not** a separate state — releasing the fix **is** the `Known Error → Verifying` transition. So the lifecycle is `Open → Known Error → Verifying → Closed`. Consequence for any fix-time gate: the RFC is required at the **propose-fix step on a Known Error**, NOT at `Open → Known Error` (a problem gets to Known Error with no fix). I (and RFC-005 F1 → ADR-072) got this wrong — placed the gate at `Open → Known Error` on a "Known Error = fix is real" misreading; the oversight drain caught it, rework = P314. **Cite ADR-022 when reasoning about Known Error / fix-time placement** — the wrong-model placement landed precisely because ADR-022 wasn't referenced. <!-- signal-score: 0 | last-classified: 2026-05-26 | first-written: 2026-05-26 -->
+
 ### Implementing an unconditional decision: do NOT invent a softer path (2026-05-26)
 
 When implementing a ratified **unconditional / no-carve-out / no-exemption** decision, do not invent or reframe a softer variant — no "thin", "minimal", "scaled-down", or "preserved friction-guard" path. That is the **same disavowed class as the original carve-out**, just relocated. Worked failure: implementing ADR-070/071 ("every fix goes through an RFC, unconditionally"), the agent reframed the disavowed atomic-fix carve-out into a "thin RFC with empty `stories: []` / scale-down value preserved" path and propagated it into ADR-071/072, RFC-005/006, and the JTBD amendments — even citing ADR-071's own softening wording as licence. User: *"No. Same RFC. Not scaled down. No short cuts."* Captured as **P311**; corrective sweep struck the framing everywhere AND amended ADR-071's own text (a ratified ADR's wording is NOT immune — if it carries softening the user later disavows, amend it too). A structural fact (e.g. `stories: []` = an RFC not decomposed into stories) is NOT a reduced-ceremony path; never frame it as one. Memory: `feedback_no_shortcuts_no_softening`. <!-- signal-score: 0 | last-classified: 2026-05-26 | first-written: 2026-05-26 -->
@@ -16,26 +20,6 @@ When implementing a ratified **unconditional / no-carve-out / no-exemption** dec
 
 When widening a script to walk both the flat (`docs/problems/<NNN>-*.<state>.md`) and per-state-subdir (`docs/problems/<state>/<NNN>-*.md`) layouts per RFC-002 T4 / ADR-031, dedup on **ticket ID** (`${base%%-*}`), not basename — the subdir layout drops the `.<state>` suffix, so the same ticket has different basenames across layouts (`182-foo.open.md` vs `182-foo.md`) and a basename key double-counts. Per-state subdir wins (run its loop second). `reconcile-readme.sh` keys on ID for this reason; architect caught it on the P182 design pass. Verify any NEW dual-tolerant consumer keys on ID (existing ones — evaluate-graduation, update-jtbd-references, edit-gates — are correct).
 <!-- signal-score: 0 | last-classified: 2026-05-26 | first-written: 2026-05-26 -->
-
-### The human-oversight drain is a high-yield systematic-review pattern (2026-05-25)
-
-The ADR-066 + ADR-068 oversight mechanism (`human-oversight: confirmed` marker + grep detector + session-start nudge + `/wr-architect:review-decisions` / `/wr-jtbd:confirm-jobs-and-personas` drains) surfaces systematic decision drift, not just bookkeeping. The 2026-05-25 drain confirmed ~37 ADRs and surfaced 13 reworks (1-in-3 hit rate) — auto-made governance artifacts drift from intent, and confirming them one-by-one is how you catch it. Two recurring drift themes, now user-stated principles: (1) automatic cadence over deferral/on-demand ("if there's no automatic cadence, it doesn't happen"); (2) adopter-facing content must be self-contained (no internal IDs / governance plumbing in published artifacts). Held ADRs awaiting rework stay unoversighted on purpose — don't write the marker until the rework lands and re-confirms.
-<!-- signal-score: 2 | last-classified: 2026-05-25 | first-written: 2026-05-25 -->
-
-### Slice-handoff stub markers preserve refactor seams across an RFC's lifecycle (2026-05-15)
-
-When a slice ships a temporary stub a later slice replaces, mark it inline with an HTML comment naming the stub + the slice that owns the replacement (e.g. `<!-- SLICE-C-FLAG-STUB: ... Slice F owns proper parsing; remove when Slice F lands -->`). The marker makes the seam discoverable, lets the test surface assert stub-present (early slice) and stub-absent (later slice), and survives RFC-document edits because it lives in the runtime artefact. Architect-approved; reusable across any multi-slice RFC.
-<!-- signal-score: 2 | last-classified: 2026-05-25 | first-written: 2026-05-15 -->
-
-### ADR-against-SKILL numbering reconciliation via substring anchors (2026-05-15)
-
-When an ADR is authored against a stale view of a SKILL's step numbering, do NOT mid-stream-amend the ADR for naming pedantry (violates ADR-006). Instead insert the new step at the current numbering's natural position AND preserve the ADR's substring anchors verbatim via an HTML comment marker, so `ADR-XXX § Confirmation criterion N` stays grep-anchorable without rewriting either document.
-<!-- signal-score: 2 | last-classified: 2026-05-25 | first-written: 2026-05-15 -->
-
-### R009 SKILL-prose-class above-appetite is the standing catalog baseline, not a per-action regression (2026-05-15)
-
-The pipeline scorer flags R009 (functional defects in shipped behaviour) at 8/25 Medium on every SKILL/agent-prose ship — above the 4/Low appetite. This is the documented catalog baseline per RISK-POLICY.md § Risk Catalog clause 3. Per-action controls (architect + JTBD + external-comms PASS + bats coverage) suffice to proceed via acknowledged-residual + `BYPASS_RISK_GATE=1` citing clause 3. The R009 floor stays Medium until P012 master harness lands behavioural synthetic-channel coverage.
-<!-- signal-score: 2 | last-classified: 2026-05-25 | first-written: 2026-05-15 -->
 
 - **Risk appetite is Low (4)**. Changes scoring Medium (5+) need explicit acknowledgement. See `RISK-POLICY.md`.
 - **All ADRs in `docs/decisions/` are still `.proposed.md`** — none ratified. Amendments are cheap: prefer amending over superseding. When a P-problem intersects a proposed ADR, revise the ADR rather than adding a compatibility clause.

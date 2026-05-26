@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-05-26 **P260 Known Error → Verifying** — the ADR-050 Option-C concurrent-session create-gate fix released in `@windyroad/itil@0.35.14` (release commit `bf1ebdd`); brought under the RFC framework as RFC-007 (retro-fit per ADR-071 — every fix goes through an RFC) so the held changeset could release under the new unconditional gate. Moved from WSJF Rankings to the Verification Queue per ADR-022. Prior P311-reconcile fragment rotated to README-history.md per P134.
+> Last reviewed: 2026-05-26 **README reconciled** — 4 drift entries corrected: P312 / P313 / P314 / P315 (open on disk, missing from WSJF Rankings — committed deferred-refresh drift from this session's review-decisions-drain + P314-rework captures). Reconciliation contract per P118. Prior P260 K→V fragment rotated to README-history.md per P134.
 
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
@@ -25,6 +25,7 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 4.0 | P302 | ADR-confirmation summaries should lead with the Decision Outcome, not the meta-framing (sibling/supersede/separate-vs-amend) — caused 2 user re-asks this session (ADR-045, ADR-020). Presentation rule for review-decisions/confirm-jobs-and-personas + agent-interaction briefing note. Retro 2026-05-25 | 4 Low-Med | Open | S | 2026-05-25 |
 | 4.0 | P270 | Agent waits for human to initiate upstream report instead of filing on detect — feedback delay class | 8 Med | Open | M | 2026-05-18 |
 | 4.0 | P271 | `/wr-itil:review-problems` not auto-fired when needed — user has to remember to run it; framework should trigger on accumulated-placeholder threshold | 8 Med | Open | M | 2026-05-18 |
+| 4.0 | P315 | Agent implements dependent work on genuine new decisions before human-confirming their SUBSTANCE — surfaces only meta-questions (e.g. ADR grain), so load-bearing content rides unconfirmed until a post-hoc drain | 8 Med | Open | M | 2026-05-26 |
 | 3.0 | P171 | drain-register-queue.sh and tests reference obsolete pre-wipe R-file shape | 3 Med | Known Error | M | 2026-05-05 |
 | 3.0 | P181 | PostToolUse `architect-mark-reviewed.sh` verdict-grep is fragile — `"ISSUES FOUND"` substring anywhere blocks marker even when proposed-change verdict is PASS | 3 Med | Known Error | M | 2026-05-11 |
 | 3.0 | P199 | capture-problem → manage-problem same-session halts at Step 0 reconcile (HALT_ROUTE_RECONCILE on deferred-refresh seam; upstream-mirror of #126 from bbstats P221) | 3 Med | Known Error | M | 2026-05-15 |
@@ -81,11 +82,14 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 3.0 | P307 | work-problems Step 5 idle-timeout SIGTERM uses wall-clock not active/monotonic time — machine-sleep falsely kills a completing iter and loses its commit + metadata | 3 Med | Open | M | 2026-05-26 |
 | 3.0 | P308 | work-problems Step 6.5 cohort-graduation treats evaluator `status=resolved` as graduate-now, skipping the Rule 4 evidence-floor judgment the holding-README Process requires — AFK false-graduation hazard | 3 Med | Open | M | 2026-05-26 |
 | 3.0 | P309 | `wr-risk-scorer-drain-register-queue` no-ops on queued slugs that have no register file — creates 0, appends 0, and does NOT truncate the queue | 3 Med | Open | M | 2026-05-26 |
+| 3.0 | P312 | reconcile-rfcs reports spurious MISSING_REVERSE_TRACE — doesn't traverse docs/problems/ per-state subdirs (RFC-002-class glob gap) | 3 Med | Open | S | 2026-05-26 |
 | 2.25 | P033 | No persistent risk register for ISO 31000 / ISO 27001 compliance — sibling-project survey shows 99% miss rate; re-rated L → XL 2026-04-28 (Phase 1a ADR-047 design landed) | 9 Med | Known Error | XL | 2026-04-17 |
 | 2.25 | P015 | TDD enforcement does not flag vague Gherkin outcome steps | 9 Med | Open | L | 2026-04-16 |
 | 2.25 | P136 | ADR-044 alignment audit — sweep all unaudited skills/hooks/agents/ADRs/JTBDs/READMEs against the framework-resolution boundary (master ticket) | 9 Med | Open | L | 2026-04-27 |
 | 2.25 | P290 | Harden ADR-052 to behavioural-only — remove the structural-test escape hatch entirely (user direction during the P283 oversight drain: "structural tests not permitted at all"); supersedes ADR-005 Permitted Exception + P011, converts ~14 structural test files, resolves the Layer-B-primitive tension. Blocks ADR-052 oversight confirmation | 9 Med High | Open | L | 2026-05-25 |
 | 2.0 | P170 | Problem tickets strain as fixes decompose into multiple coordinated changes — need RFC framework that ties all changes back to problems and unifies technical with user/business problems (Phase 1 + Phase 2 shipped 2026-05-12; ticket re-opened from 2026-05-12 premature Verifying transition per user direction 2026-05-13 — Phase 3 + Phase 4 in-scope; sibling [[P189]] captures the "deferred without user direction" class-of-behaviour) | 8 Med | Known Error | XL | 2026-05-04 |
+| 2.0 | P313 | Pre-edit governance-gate catch-22 — review agent withholds PASS because edits "aren't applied yet", but the gate blocks the edits | 4 Low-Med | Open | M | 2026-05-26 |
+| 2.0 | P314 | Rework the fix-time RFC-trace gate — wrong lifecycle placement (ADR-072) + hard-block should be auto-create (ADR-073), per corrected Known Error semantics | 8 Med | Open | L | 2026-05-26 |
 | 2.0 | P018 | TDD enforce BDD + Example Mapping principles | 16 High | Open | XL | 2026-04-16 |
 | 2.0 | P022 | Agents must not fabricate time estimates | 16 High | Open | XL | 2026-04-16 |
 | 2.0 | P039 | Autonomous loops conflate diagnose with implement | 16 High | Open | XL | 2026-04-17 |
