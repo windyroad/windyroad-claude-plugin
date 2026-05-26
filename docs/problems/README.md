@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-05-26 **P138 Verification Pending → Closed** (verification close-on-evidence per run-retro Step 4a / ADR-044) — during a `/wr-itil:work-problems` + run-retro session, Step 3 selection read this README's WSJF Rankings table top-to-bottom and took row 1 (P177) as the pick with NO in-memory re-sort; the rendered order matched the tie-break ladder 1:1 (WSJF-6.0 group: P177 → P260/P267 → P087/P097 → P082/P263/P282 — KE-first, effort asc, date asc), which is precisely P138's fix. Reversible via `/wr-itil:transition-problem 138 known-error`. Excluded from WSJF (multiplier 0) per ADR-022. Prior batch-verification-close fragment (P132/P233/P234) rotated to README-history.md per P134.
+> Last reviewed: 2026-05-26 **README reconciled** — 3 drift entries corrected: P307, P308, P309 (open on disk, missing from WSJF Rankings — committed cross-session drift from the prior session's capture commits; classifier returned HALT_ROUTE_RECONCILE uncovered=3, no staged renames). Added at WSJF 3.0 (Priority 3 / Effort M, deferred — re-rate at next `/wr-itil:review-problems`). Reconciliation contract per P118 + ADR-014 amended ("Reconciliation as preflight robustness layer"). Prior P138 verification-close fragment rotated to README-history.md per P134.
 
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
@@ -80,6 +80,9 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 3.0 | P304 | Move `packages/shared/` from duplicate-and-sync to a bundler-based shared-code approach (ADR-017 reassessment outcome, user-directed 2026-05-26; >5-module trigger met at ~8 helpers) | 3 Med | Open | M | 2026-05-26 |
 | 3.0 | P305 | Post-Edit silent revert of working-tree files before commit — potential silent-work-loss hazard (P258 iter; re-apply + immediate git-add persisted) | 3 Med | Open | M | 2026-05-26 |
 | 3.0 | P306 | `classify-readme-drift.sh` only covers staged-rename (R) entries — same-ID delete+add (D+A) pair uncovered, false-HALTs (extends closed P149) | 3 Med | Open | M | 2026-05-26 |
+| 3.0 | P307 | work-problems Step 5 idle-timeout SIGTERM uses wall-clock not active/monotonic time — machine-sleep falsely kills a completing iter and loses its commit + metadata | 3 Med | Open | M | 2026-05-26 |
+| 3.0 | P308 | work-problems Step 6.5 cohort-graduation treats evaluator `status=resolved` as graduate-now, skipping the Rule 4 evidence-floor judgment the holding-README Process requires — AFK false-graduation hazard | 3 Med | Open | M | 2026-05-26 |
+| 3.0 | P309 | `wr-risk-scorer-drain-register-queue` no-ops on queued slugs that have no register file — creates 0, appends 0, and does NOT truncate the queue | 3 Med | Open | M | 2026-05-26 |
 | 2.25 | P033 | No persistent risk register for ISO 31000 / ISO 27001 compliance — sibling-project survey shows 99% miss rate; re-rated L → XL 2026-04-28 (Phase 1a ADR-047 design landed) | 9 Med | Known Error | XL | 2026-04-17 |
 | 2.25 | P015 | TDD enforcement does not flag vague Gherkin outcome steps | 9 Med | Open | L | 2026-04-16 |
 | 2.25 | P136 | ADR-044 alignment audit — sweep all unaudited skills/hooks/agents/ADRs/JTBDs/READMEs against the framework-resolution boundary (master ticket) | 9 Med | Open | L | 2026-04-27 |
