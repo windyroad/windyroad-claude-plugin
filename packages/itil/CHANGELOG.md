@@ -1,5 +1,27 @@
 # @windyroad/problem
 
+## 0.35.14
+
+### Patch Changes
+
+- 0c8976f: Align the RFC skills (`/wr-itil:capture-rfc`, `/wr-itil:manage-rfc`) with the ratified ADR-070 (RFCs hold no independent decisions) + ADR-071 (every fix goes through an RFC, unconditionally).
+
+  Strike the residual atomic-fix carve-out framing — the "JTBD-101 atomic-fix-adopter friction guard / capture-rfc never auto-fires on atomic captures / RFC ceremony only fires on opt-in invocations" language. Under ADR-071 every fix goes through an RFC; an empty `stories: []` array is a structural state (an RFC not decomposed into stories), not a reduced-ceremony or "thin" path. The RFC skills are invoked deliberately rather than auto-fired because RFC scope is direction-setting (ADR-073), not because atomic fixes skip ceremony.
+
+  Add explicit guidance to `/wr-itil:manage-rfc` that an RFC body carries no "Considered Options / Alternatives Rejected" section — per ADR-070 every contested choice among ≥2 viable options is recorded as an ADR and referenced in the RFC's `adrs:` frontmatter, never re-argued in the RFC body.
+
+- a9c1233: Fix the P119 create-gate marker race between concurrent Claude Code sessions (P260, ADR-050 Option C). During a `/wr-itil:work-problems` AFK loop the orchestrator main turn fires PreToolUse hooks concurrently with its backgrounded iter subprocess; both sessions write the same per-machine runtime-sid marker (last-writer-wins), so the single-SID create-gate marker-write could land the marker under the subprocess's session ID while the orchestrator's Write carried the orchestrator's session ID — a marker mismatch that denied legitimate problem-ticket creation and forced a manual multi-UUID spam-write workaround.
+
+  The fix stops trying to predict which single session ID the Write's stdin will carry (impossible from agent-side state under concurrency) and instead writes the create-gate marker under every recent candidate session ID. Two new helpers: `get_candidate_session_ids` (in `lib/session-id.sh`) enumerates the `get_current_session_id` pick plus every recent `/tmp/<system>-announced-<UUID>` announce-marker UUID within a 24-hour mtime window, deduplicated; `mark_step2_complete_candidates` (in `lib/create-gate.sh`) writes the marker under each. Whichever session ID the hook reads, a matching marker provably exists. Both `/wr-itil:manage-problem` Step 2 and `/wr-itil:capture-problem` Step 2 now use the candidate-set marker-write.
+
+  The candidate set is bounded to recent same-machine markers (not a global fail-open): the P119 audit invariant holds because every marker is only written when this session's duplicate-check grep provably ran. The existing single-SID `mark_step2_complete` and `get_current_session_id` are unchanged. Behavioural bats cover the concurrent orchestrator+subprocess scenario, including a negative control that reproduces the pre-fix deny.
+
+- 8aa3176: Add the ADR-052 behavioural lint enforcing ADR-070 (RFCs hold no independent decisions): `packages/itil/scripts/check-rfc-rejected-alternatives.sh`.
+
+  Given an RFC corpus directory (default `docs/rfcs`), the checker scans each `RFC-*.md` body and flags any that carries a "Considered Options / Alternatives Rejected" heading block without a matching `adrs:` frontmatter reference — the machine-detectable tell (ADR-070) of a decision masquerading as RFC scope. Contested choices belong in an ADR (referenced via `adrs:`), never re-argued in the RFC body. Detection targets a markdown heading, so a prose mention (e.g. a retrofit note explaining the section was removed) does not trip it; the lint scopes to `docs/rfcs/` only and never inspects `docs/decisions/`, where "Considered Options" headings are correct.
+
+  Ships with behavioural bats coverage (`packages/itil/scripts/test/check-rfc-rejected-alternatives.bats`) exercising the checker against synthetic fixture corpora (violation, ADR-referenced-allowed, clean, prose-mention-not-flagged, variant heading, mixed corpus, usage error) and a dogfood assertion that the real `docs/rfcs/` corpus is clean.
+
 ## 0.35.13
 
 ### Patch Changes

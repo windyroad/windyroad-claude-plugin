@@ -1,9 +1,0 @@
----
-"@windyroad/itil": patch
----
-
-Fix the P119 create-gate marker race between concurrent Claude Code sessions (P260, ADR-050 Option C). During a `/wr-itil:work-problems` AFK loop the orchestrator main turn fires PreToolUse hooks concurrently with its backgrounded iter subprocess; both sessions write the same per-machine runtime-sid marker (last-writer-wins), so the single-SID create-gate marker-write could land the marker under the subprocess's session ID while the orchestrator's Write carried the orchestrator's session ID — a marker mismatch that denied legitimate problem-ticket creation and forced a manual multi-UUID spam-write workaround.
-
-The fix stops trying to predict which single session ID the Write's stdin will carry (impossible from agent-side state under concurrency) and instead writes the create-gate marker under every recent candidate session ID. Two new helpers: `get_candidate_session_ids` (in `lib/session-id.sh`) enumerates the `get_current_session_id` pick plus every recent `/tmp/<system>-announced-<UUID>` announce-marker UUID within a 24-hour mtime window, deduplicated; `mark_step2_complete_candidates` (in `lib/create-gate.sh`) writes the marker under each. Whichever session ID the hook reads, a matching marker provably exists. Both `/wr-itil:manage-problem` Step 2 and `/wr-itil:capture-problem` Step 2 now use the candidate-set marker-write.
-
-The candidate set is bounded to recent same-machine markers (not a global fail-open): the P119 audit invariant holds because every marker is only written when this session's duplicate-check grep provably ran. The existing single-SID `mark_step2_complete` and `get_current_session_id` are unchanged. Behavioural bats cover the concurrent orchestrator+subprocess scenario, including a negative control that reproduces the pre-fix deny.
