@@ -75,4 +75,4 @@ Possible interim workarounds (to validate):
 | RFC | Status | Title |
 |-----|--------|-------|
 | RFC-005 | accepted | RFC-first trace invariant not enforced at fix-time |
-| RFC-006 | proposed | Implement ADR-070 + ADR-071 — re-home RFC decisions to ADRs and make RFC-first unconditional |
+| RFC-006 | accepted | Implement ADR-070 + ADR-071 — re-home RFC decisions to ADRs and make RFC-first unconditional |

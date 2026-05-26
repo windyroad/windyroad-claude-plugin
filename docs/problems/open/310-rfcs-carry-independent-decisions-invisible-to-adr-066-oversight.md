@@ -68,4 +68,4 @@ ADR-060 line 97 (permissive clause) + ADR-066 detector scope (`docs/decisions/` 
 
 | RFC | Status | Title |
 |-----|--------|-------|
-| RFC-006 | proposed | Implement ADR-070 + ADR-071 — re-home RFC decisions to ADRs and make RFC-first unconditional |
+| RFC-006 | accepted | Implement ADR-070 + ADR-071 — re-home RFC decisions to ADRs and make RFC-first unconditional |
