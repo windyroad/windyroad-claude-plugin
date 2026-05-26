@@ -1,6 +1,6 @@
 {
   "name": "@windyroad/itil",
-  "version": "0.35.11",
+  "version": "0.35.12",
   "description": "ITIL-aligned IT service management for Claude Code (problem, and future incident/change skills)",
   "bin": {
     "windyroad-itil": "./bin/install.mjs"
