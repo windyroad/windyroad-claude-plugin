@@ -256,3 +256,96 @@ mark_announced() {
   [[ "$output" != *"$marker_uuid"* ]]
   [[ "$output" == *"EXIT:0"* ]]
 }
+
+# --- Behavioural contract: candidate enumeration (Option C, P260) ---
+#
+# Under concurrent orchestrator+subprocess sessions in the SAME project,
+# the per-machine runtime-sid marker is last-writer-wins, so the single-SID
+# get_current_session_id cannot reliably predict which SID the create-gate
+# hook will read from the Write's stdin (the orchestrator's Write carries
+# the orchestrator SID; the subprocess may have just clobbered the runtime
+# marker with its own SID). No agent-side algorithm can PREDICT the right
+# single SID from filesystem state alone (ADR-050 §Context). Option C stops
+# predicting: get_candidate_session_ids returns EVERY recent candidate SID
+# — the get_current_session_id pick PLUS every recent announce-marker UUID
+# across all systems within the mtime window, deduplicated — so the marker
+# can be written under all of them and a match provably exists whichever
+# SID the hook reads. Bounded by SESSION_CANDIDATE_WINDOW_MINS (24h default)
+# to avoid the P124 stale-marker pathology (103 accumulated UUIDs); NOT a
+# global fail-open (the P119 audit invariant holds: every marker still
+# records that THIS session ran the duplicate-check grep).
+#
+# Per feedback_behavioural_tests.md (P081): tests assert the emitted
+# candidate set, not the source content of the helper.
+
+# Helper: source the helper and emit the candidate SID set (one per line).
+candidates() {
+  bash -c "source '$HELPER'; get_candidate_session_ids"
+}
+
+@test "candidates: returns BOTH the orchestrator and subprocess announce-marker UUIDs" {
+  orch_uuid="aaaaaaaa-0000-1111-2222-orchestrator0"
+  sub_uuid="bbbbbbbb-0000-1111-2222-subprocess00"
+  # Orchestrator announced first (loop start); subprocess announced later
+  # (dispatched mid-loop) — the subprocess marker has the NEWER mtime,
+  # exactly the condition that made the single-SID helper pick the wrong
+  # SID and deny the orchestrator's Write (the P260 race). Candidate
+  # enumeration must surface BOTH so neither is left out of the marker set.
+  mark_announced "architect" "$orch_uuid"
+  sleep 1
+  mark_announced "jtbd" "$sub_uuid"
+  output=$(candidates)
+  [[ "$output" == *"$orch_uuid"* ]]
+  [[ "$output" == *"$sub_uuid"* ]]
+}
+
+@test "candidates: includes the runtime-sid value even when no announce marker carries it" {
+  rt_uuid="cccccccc-0000-1111-2222-runtimeonly0"
+  printf '%s' "$rt_uuid" > "$SANDBOX_TMP/itil-runtime-sid.current"
+  output=$(candidates)
+  [[ "$output" == *"$rt_uuid"* ]]
+}
+
+@test "candidates: deduplicates a SID present in both the runtime-sid marker and an announce marker" {
+  dup_uuid="dddddddd-0000-1111-2222-duplicated00"
+  printf '%s' "$dup_uuid" > "$SANDBOX_TMP/itil-runtime-sid.current"
+  mark_announced "architect" "$dup_uuid"
+  output=$(candidates)
+  # The SID must appear exactly once — not once per source.
+  count=$(printf '%s\n' "$output" | grep -c "$dup_uuid")
+  [ "$count" -eq 1 ]
+}
+
+@test "candidates: announce-marker enumeration excludes markers older than the mtime window" {
+  rt_uuid="eeeeeeee-0000-1111-2222-runtimepick0"
+  fresh_uuid="ffffffff-0000-1111-2222-freshmarker0"
+  stale_uuid="99999999-0000-1111-2222-stalemarker0"
+  # runtime-sid wins get_current_session_id (so its single pick is the
+  # runtime value, not an announce marker) — this isolates the window
+  # behaviour to the announce-marker ENUMERATION step.
+  printf '%s' "$rt_uuid" > "$SANDBOX_TMP/itil-runtime-sid.current"
+  mark_announced "jtbd" "$fresh_uuid"
+  mark_announced "voice-tone" "$stale_uuid"
+  # Backdate the stale marker well beyond the window. touch -t is POSIX
+  # and portable across BSD (macOS) and GNU find/touch.
+  touch -t 202001010000 "$SANDBOX_TMP/voice-tone-announced-${stale_uuid}"
+  output=$(SESSION_CANDIDATE_WINDOW_MINS=60 bash -c "source '$HELPER'; get_candidate_session_ids")
+  [[ "$output" == *"$rt_uuid"* ]]
+  [[ "$output" == *"$fresh_uuid"* ]]
+  [[ "$output" != *"$stale_uuid"* ]]
+}
+
+@test "candidates: empty output when no markers, no runtime-sid, and no env var" {
+  output=$(candidates)
+  [ -z "$output" ]
+}
+
+@test "candidates: env-var SID is included as a candidate" {
+  env_uuid="12121212-0000-1111-2222-envvarsid000"
+  other_uuid="34343434-0000-1111-2222-announced000"
+  mark_announced "architect" "$other_uuid"
+  output=$(CLAUDE_SESSION_ID="$env_uuid" SESSION_MARKER_DIR="$SANDBOX_TMP" bash -c "source '$HELPER'; get_candidate_session_ids")
+  [[ "$output" == *"$env_uuid"* ]]
+  # The concurrent announce marker is still enumerated alongside the env SID.
+  [[ "$output" == *"$other_uuid"* ]]
+}

@@ -153,3 +153,76 @@ get_current_session_id() {
 
   return 1
 }
+
+# P260 / ADR-050 Option C: bounded multi-UUID candidate enumeration.
+#
+# Echoes EVERY candidate session UUID — one per line, deduplicated — that
+# the create-gate hook (manage-problem-enforce-create.sh) might read from
+# the Write's stdin `session_id`. The create-gate marker-write
+# (`mark_step2_complete_candidates`, lib/create-gate.sh) writes the marker
+# under each, so whichever SID the hook reads, a matching marker provably
+# exists.
+#
+# Why enumerate instead of picking one (get_current_session_id):
+#   `/wr-itil:work-problems` Step 5 BACKGROUNDS the iter subprocess and runs
+#   the orchestrator's poll loop in the main turn, so the orchestrator's
+#   PreToolUse hooks fire CONCURRENTLY with the subprocess. Both sessions
+#   write the same per-machine runtime-sid marker (same project => same
+#   proj_hash), last-writer-wins. When the orchestrator captures a ticket
+#   while the subprocess holds the runtime-sid, `get_current_session_id`
+#   returns the SUBPROCESS SID, but the orchestrator's Write carries the
+#   ORCHESTRATOR SID on its stdin — marker mismatch, create-gate deny (P260).
+#   ADR-050 §Context establishes that no agent-side algorithm can PREDICT
+#   the right single SID from filesystem state alone. Option C stops
+#   predicting and writes under every recent candidate instead.
+#
+# Candidate set (each line is one UUID):
+#   1. `get_current_session_id`'s pick (env-var > runtime-sid > announce-
+#      marker priority). Emitting this FIRST guarantees the candidate set is
+#      never a strict subset of the prior single-SID behaviour — Option C
+#      only ADDS the concurrent-session SIDs.
+#   2. Every announce-marker UUID across ALL systems whose marker mtime is
+#      within the window (the concurrently-active sessions: orchestrator +
+#      its running subprocess(es)). Announce markers are write-once-per-
+#      session (ADR-038, no touch-refresh), so mtime is the announcing
+#      session's first-prompt timestamp — a stable bound.
+#
+# Bounding (NOT a global fail-open):
+#   The mtime window (SESSION_CANDIDATE_WINDOW_MINS, default 1440 = 24h)
+#   bounds the enumeration against the P124 stale-marker pathology (103
+#   accumulated UUIDs selecting the wrong SID). 24h comfortably covers any
+#   realistic single AFK loop while excluding multi-day marker accumulation.
+#   Extra markers under recently-stale UUIDs are HARMLESS — empty files; the
+#   hook only matches the marker equal to the Write's stdin SID. The P119
+#   audit invariant holds: every marker still records that THIS session ran
+#   the duplicate-check grep (the marker is only written because Step 2's
+#   grep provably ran this turn; widening WHICH SID files receive that proof
+#   does not weaken the proof). A loop running >24h degrades gracefully to
+#   the recoverable create-gate deny (status quo), not silent corruption.
+#
+# Test overrides: SESSION_MARKER_DIR (marker dir, default /tmp) +
+# SESSION_CANDIDATE_WINDOW_MINS (window minutes, default 1440).
+#
+# Usage:
+#   source packages/itil/hooks/lib/session-id.sh
+#   source packages/itil/hooks/lib/create-gate.sh
+#   get_candidate_session_ids | mark_step2_complete_candidates
+get_candidate_session_ids() {
+  local marker_dir="${SESSION_MARKER_DIR:-/tmp}"
+  local window_mins="${SESSION_CANDIDATE_WINDOW_MINS:-1440}"
+  {
+    # Guaranteed member: the single-SID discovery's pick. Suppress its
+    # non-zero exit (no-SID cold path) so the pipeline still emits the
+    # enumerated candidates.
+    get_current_session_id 2>/dev/null || true
+
+    # Concurrent-session SIDs: every recent announce marker across all
+    # systems, within the mtime window. `*-announced-*` is system-agnostic
+    # (picks up any present or future announcing plugin). `-maxdepth 1` and
+    # `-mmin -N` are portable across BSD (macOS) and GNU find. The sed strips
+    # the leading path then the `<system>-announced-` prefix, leaving the
+    # trailing UUID (UUIDs never contain the literal "-announced-").
+    find "$marker_dir" -maxdepth 1 -name '*-announced-*' -mmin "-${window_mins}" 2>/dev/null \
+      | sed 's|.*/||; s/.*-announced-//'
+  } | awk 'NF && !seen[$0]++'
+}

@@ -345,3 +345,80 @@ teardown_other_sid_marker() {
   [ "$status" -eq 0 ]
   [[ "$output" != *"BLOCKED"* ]]
 }
+
+# --- P260: concurrent orchestrator+subprocess create-gate marker race ---
+#
+# /wr-itil:work-problems Step 5 BACKGROUNDS the iter subprocess
+# (`claude -p ... &`) and runs an idle-timeout poll loop in the
+# orchestrator's main turn, so the orchestrator fires PreToolUse hooks
+# CONCURRENTLY with the running subprocess. Both sessions write the same
+# per-machine runtime-sid marker (same project ⇒ same proj_hash),
+# last-writer-wins. When the orchestrator captures a ticket while the
+# subprocess holds the runtime-sid, the single-SID Step-2 marker-write
+# (`sid=$(get_current_session_id) && mark_step2_complete "$sid"`) lands the
+# marker under the SUBPROCESS SID, but the orchestrator's Write fires the
+# PreToolUse:Write hook whose stdin session_id is the ORCHESTRATOR SID ⇒
+# marker mismatch ⇒ deny. This was P260 (the 2026-05-18 P254/P255 foreground
+# captures). ADR-050 Option C (architect-resolved + human-confirmed
+# 2026-05-26) is the fix: the candidate-set marker-write
+# (`get_candidate_session_ids | mark_step2_complete_candidates`) writes the
+# marker under EVERY recent candidate SID, so whichever SID the hook reads,
+# a matching marker exists.
+#
+# These tests are end-to-end: they run the real agent-side marker-write
+# helpers under the concurrent fixture, then fire the real hook with the
+# orchestrator's stdin SID and assert the observable permit/deny outcome.
+
+# Build the concurrent fixture in a sandbox marker dir: orchestrator
+# announced first (older mtime), subprocess announced later (newer mtime),
+# and the subprocess clobbered the runtime-sid marker last.
+p260_setup_concurrent_fixture() {
+  P260_SANDBOX=$(mktemp -d)
+  P260_ORCH_SID="p260-orch-$$-$RANDOM"
+  P260_SUB_SID="p260-sub-$$-$RANDOM"
+  : > "$P260_SANDBOX/architect-announced-${P260_ORCH_SID}"
+  sleep 1
+  : > "$P260_SANDBOX/jtbd-announced-${P260_SUB_SID}"
+  printf '%s' "$P260_SUB_SID" > "$P260_SANDBOX/itil-runtime-sid.current"
+}
+
+p260_teardown_concurrent_fixture() {
+  rm -f "/tmp/manage-problem-grep-${P260_ORCH_SID}" \
+        "/tmp/manage-problem-grep-${P260_SUB_SID}"
+  rm -rf "$P260_SANDBOX"
+}
+
+@test "P260: candidate-set marker-write PERMITS the orchestrator Write despite runtime-sid clobbered to the subprocess SID" {
+  p260_setup_concurrent_fixture
+  # Agent-side Step 2 marker write under the FULL candidate set (Option C).
+  SESSION_MARKER_DIR="$P260_SANDBOX" bash -c "
+    source '$SCRIPT_DIR/lib/session-id.sh'
+    source '$SCRIPT_DIR/lib/create-gate.sh'
+    get_candidate_session_ids | mark_step2_complete_candidates
+  "
+  # The orchestrator's Write carries the orchestrator SID on its stdin.
+  run run_write_hook "$PWD/docs/problems/997-concurrent-capture.open.md" "$P260_ORCH_SID"
+  p260_teardown_concurrent_fixture
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"BLOCKED"* ]]
+  [[ "$output" != *"\"permissionDecision\": \"deny\""* ]]
+}
+
+@test "P260 negative control: single-SID marker-write (pre-Option-C behaviour) DENIES the orchestrator Write under the same race" {
+  # Pins WHY Option C is needed: the old single-SID write lands the marker
+  # under the subprocess SID (the clobbered runtime value), so the
+  # orchestrator's Write — stdin = orchestrator SID — is denied. This is
+  # the reproduced P260 failure; the candidate-set write above is what
+  # fixes it.
+  p260_setup_concurrent_fixture
+  SESSION_MARKER_DIR="$P260_SANDBOX" bash -c "
+    source '$SCRIPT_DIR/lib/session-id.sh'
+    source '$SCRIPT_DIR/lib/create-gate.sh'
+    sid=\$(get_current_session_id) && mark_step2_complete \"\$sid\"
+  "
+  run run_write_hook "$PWD/docs/problems/996-concurrent-capture.open.md" "$P260_ORCH_SID"
+  p260_teardown_concurrent_fixture
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"\"permissionDecision\": \"deny\""* ]]
+  [[ "$output" == *"BLOCKED"* ]]
+}

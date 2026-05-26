@@ -52,6 +52,39 @@ mark_step2_complete() {
   : > "/tmp/manage-problem-grep-${SESSION_ID}"
 }
 
+# P260 / ADR-050 Option C: write the Step 2 grep marker under EVERY
+# candidate SID read from stdin (one UUID per line, as emitted by
+# `get_candidate_session_ids` in lib/session-id.sh).
+#
+# Under concurrent orchestrator+subprocess sessions in the same project,
+# the per-machine runtime-sid marker is last-writer-wins, so agent-side
+# code cannot reliably PREDICT which single SID the create-gate hook will
+# read from the Write's stdin (ADR-050 §Context). Marking under every recent
+# candidate guarantees a matching marker exists whichever SID the hook reads,
+# eliminating the P260 marker-mismatch deny without a process-topology
+# assumption. The candidate set is bounded to recent announce markers + the
+# runtime-sid value by `get_candidate_session_ids` (NOT a global fail-open —
+# the P119 audit invariant holds: each marker still records that THIS session
+# ran the duplicate-check grep).
+#
+# Reuses the unchanged single-SID `mark_step2_complete` per candidate (same
+# idempotent `/tmp/manage-problem-grep-${SID}` marker class — no new
+# convention). Blank/whitespace lines are skipped. Returns 0 if at least one
+# marker was written, 1 if no candidate SIDs were supplied (fail-closed
+# parity with the empty-SID single-write no-op — the subsequent Write would
+# be denied and the agent recovers by re-running Step 2).
+#
+# Usage: get_candidate_session_ids | mark_step2_complete_candidates
+mark_step2_complete_candidates() {
+  local sid count=0
+  while IFS= read -r sid; do
+    [ -n "$sid" ] || continue
+    mark_step2_complete "$sid"
+    count=$((count + 1))
+  done
+  [ "$count" -gt 0 ]
+}
+
 # Returns 0 if the RFC capture-step marker exists for SESSION_ID; 1 otherwise.
 # Empty SESSION_ID => returns 1 (no marker).
 #
