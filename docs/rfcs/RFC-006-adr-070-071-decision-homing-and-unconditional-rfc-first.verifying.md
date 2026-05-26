@@ -14,8 +14,10 @@ stories: []
 **Status**: verifying
 **Reported**: 2026-05-26
 **Problems**: P310, P251
-**ADRs**: ADR-070 (RFCs hold no independent decisions), ADR-071 (every fix goes through an RFC), ADR-072 (fix-time gate placement), ADR-073 (orchestrator dispatch hard-block), ADR-060 (parent framework — amended), ADR-068 (JTBD oversight re-confirm flow), ADR-052 (behavioural-test enforcement surface)
+**ADRs**: ADR-070 (RFCs hold no independent decisions), ADR-071 (every fix goes through an RFC), ADR-072 (RFC required at fix-proposal on a Known Error — rewritten per P314), ADR-073 (fix-time gate auto-creates a missing RFC, everywhere — rewritten per P314), ADR-060 (parent framework — amended), ADR-068 (JTBD oversight re-confirm flow), ADR-052 (behavioural-test enforcement surface)
 **JTBD**: JTBD-008 (decompose-fix-into-coordinated-changes — carve-out struck), JTBD-101 (extend-suite — atomic-fix-adopter carve-out struck)
+
+> **Follow-up correction (P314, 2026-05-26).** After RFC-006 shipped, the `/wr-architect:review-decisions` oversight drain **rejected** ADR-072 + ADR-073 as recorded here: the original gate placement (`Open → Known Error`) was built on a wrong Known Error model, and the hard-block stance should be auto-create. Both ADRs were **rewritten** (RFC required at the propose-fix step on a Known Error; a missing RFC is auto-created everywhere) and ADR-060's I13 was corrected to match. The records below reflect RFC-006's **as-shipped** state; see **P314** + the rewritten ADR-072/073 for the current design. (The decision-homing + de-carve-out work — RFC-006's actual deliverable — stands; only the gate's placement/behaviour was corrected.)
 
 ## Summary
 
