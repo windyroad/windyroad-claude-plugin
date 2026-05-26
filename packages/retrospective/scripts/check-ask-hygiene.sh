@@ -44,10 +44,20 @@
 # The lazy-count line is the only required field; without it the file
 # is skipped silently.
 #
+# ADR-074 exclusion: a substance-confirm-before-build ask (confirming the
+# SUBSTANTIVE chosen option of a genuine >=2-option decision before dependent
+# work is built on it) is classified `Direction` (cat-1) by run-retro Step 2d,
+# NOT `Lazy`. The framework deliberately does not resolve such a decision, so
+# the ask is legitimate. This script is category-agnostic — it tallies whatever
+# the trail file records — so the exclusion is realised by the Step 2d rubric
+# tagging the ask as Direction; this script then keeps it out of the lazy count
+# by construction.
+#
 # Read-only — does NOT mutate any retro file.
 #
 # @problem P135 (Phase 5 measurement)
 # @adr ADR-044 (Decision-Delegation Contract — framework-resolution boundary; lazy-count metric is the regression signal)
+# @adr ADR-074 (Confirm-substance-before-build — substance-confirm asks are Direction/cat-1, excluded from the lazy count)
 # @adr ADR-040 (Tier 3 advisory-not-fail-closed — declarative-first precedent)
 # @adr ADR-038 (Progressive disclosure — per-row byte budget)
 # @adr ADR-026 (Cost-source grounding — trail entries cite specific tool invocations per retro)

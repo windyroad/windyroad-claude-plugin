@@ -80,6 +80,20 @@ TRAIL
   [ -z "$output" ]
 }
 
+@test "ADR-074 substance-confirm ask counts as direction, never inflates lazy" {
+  # A retro where the only AskUserQuestion was a substance-confirm-before-build
+  # ask: run-retro Step 2d tags it `direction` (cat-1, ADR-074), so the trail
+  # records direction=1 lazy=0. The script must report it under direction and
+  # leave lazy at 0 — the exclusion holds by construction (category-agnostic tally).
+  cat > "$TEST_DIR/2026-05-27-ask-hygiene.md" <<'TRAIL'
+**Lazy count: 0**
+**Direction count: 1**
+TRAIL
+  run bash "$SCRIPT" "$TEST_DIR"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"RETRO 2026-05-27 lazy=0 direction=1"* ]]
+}
+
 # ── Multi-entry behaviour ───────────────────────────────────────────────────
 
 @test "multiple trail entries emit RETRO lines sorted oldest-first by date" {

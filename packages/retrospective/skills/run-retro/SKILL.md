@@ -242,7 +242,7 @@ Per **ADR-044** (Decision-Delegation Contract — framework-resolution boundary)
 
    | Classification | Definition | Lazy? |
    |---|---|---|
-   | **direction** | New tickets / new ADRs / new SKILLs / additions to suite that were not derivable from existing framework | NO |
+   | **direction** | New tickets / new ADRs / new SKILLs / additions to suite that were not derivable from existing framework — **including confirming the SUBSTANCE of a genuine ≥2-option decision before dependent work is built on it (ADR-074 (Confirm a decision's substance before building dependent work))** | NO |
    | **deviation-approval** | Existing decision found wrong under current evidence; user approves amend / supersede | NO |
    | **override** | One-time exception to a still-valid rule (not a rule-change) | NO |
    | **silent-framework** | No ADR / JTBD / policy / WSJF / risk-score / SKILL applies; genuine new territory | NO |
@@ -251,6 +251,8 @@ Per **ADR-044** (Decision-Delegation Contract — framework-resolution boundary)
    | **lazy** | Framework resolves the decision; ask is sub-contracting agent work back to user | **YES (regression metric)** |
 
    Classification ownership is silent agent judgement (per ADR-044 mechanical-stage discipline — no AskUserQuestion-about-AskUserQuestion meta-loop). The agent applies the framework-resolution heuristic: for each call, can the framework (ADR / JTBD / policy / WSJF / SKILL contract) resolve the decision? If yes → lazy. If no AND the call falls into one of the 5 non-lazy categories → that category. Borderline cases default to lazy (conservative — prefer false-positive lazy classification over silently underreporting friction).
+
+   **ADR-074 exclusion (substance-confirm-before-build).** A `substance-confirm-before-build` ask — surfacing the SUBSTANTIVE chosen option of a genuine ≥2-option decision the framework cannot resolve, before any dependent work is built on it — classifies as **direction** (cat-1), NOT lazy. The framework deliberately does NOT resolve such a decision (it is the user's to own); the ask is the correct behaviour ADR-074 mandates, not sub-contracting. Grounding: `Gap: genuine ≥2-option decision, framework cannot resolve, about to be built on (ADR-074)`. Do not let the conservative "borderline → lazy" default mis-score it — the trigger is narrow (a decision about to be BUILT ON), so it is unambiguously direction, never lazy. Counting it as lazy would pressure the agent back toward the P315 under-ask failure.
 
 3. **Per-call grounding (ADR-026)**: each classification MUST cite the framework artefact that resolves the decision (for lazy) OR the framework gap (for non-lazy). Bare classifications are forbidden. Citation format: `Framework: <ADR / SKILL.md path / policy reference>` for lazy; `Gap: <one-line rationale>` for non-lazy.
 

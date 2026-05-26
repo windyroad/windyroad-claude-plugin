@@ -136,13 +136,15 @@ If a new decision must be recorded but it has 2+ viable options and no pinned di
 >
 > A decision must be recorded but the option is not pinned — the user, not the agent, owns this choice.
 >
-> - **Decision question**: <the question to settle, in one line>
+> - **Decision question**: <the substantive question to settle, in one line>
 > - **Option A** — <name + one-line, grounded in what you read>
 > - **Option B** — <name + one-line, grounded in what you read>
 > - (further options as applicable; include "do nothing / status quo" where relevant)
 > - **Advisory lean (optional)**: <your recommendation + why — but do NOT auto-pick, and do NOT prose-ask>
 >
 > The main agent (or calling skill) translates this into an `AskUserQuestion` before the decision is recorded — never a prose ask. Under an AFK orchestrator that cannot ask mid-loop, the verdict queues to the iteration's `outstanding_questions` for batched return-presentation (ADR-044 (Decision-delegation contract)), never blocking or guessing.
+
+**Name the SUBSTANCE, not the grain (ADR-074 (Confirm a decision's substance before building dependent work)).** The decision question + options MUST be the **substantive choice** — the load-bearing options the decision actually records. Do NOT substitute a meta/grain framing question (e.g. "one ADR or two?", file split, naming, ID series) for the substance. A grain question is not a decision the user needs to own; the substantive option is. If both a grain question AND a substantive choice exist, surface the substance — the grain is mechanical (decide it yourself per P132). Confirming only the grain leaves the load-bearing content unconfirmed, which is exactly the P315 failure ADR-074 closes: dependent work then gets built on an unconfirmed substantive choice and a later rejection forces rework.
 
 ### When to emit Needs Direction (per ADR-064)
 

@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# ADR-049 $PATH shim — dispatches to the canonical is-decision-unconfirmed script.
+exec "$(dirname "$0")/../scripts/is-decision-unconfirmed.sh" "$@"

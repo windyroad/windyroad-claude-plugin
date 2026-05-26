@@ -49,6 +49,15 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
+@test "agent.md requires Needs-Direction to name the SUBSTANCE not the grain (ADR-074)" {
+  # ADR-074 surface 1: the verdict must name the substantive choice, not a
+  # meta/grain framing question (e.g. "one ADR or two?"). Closes the P315 vector.
+  run grep -niE "Name the SUBSTANCE, not the grain" "$AGENT_FILE"
+  [ "$status" -eq 0 ]
+  run grep -n "ADR-074" "$AGENT_FILE"
+  [ "$status" -eq 0 ]
+}
+
 @test "agent.md performance-review section cites ADR-026 as parent (ADR-026 Confirmation item 1)" {
   run grep -nE "Runtime-Path Performance Review \(per ADR-026" "$AGENT_FILE"
   [ "$status" -eq 0 ]

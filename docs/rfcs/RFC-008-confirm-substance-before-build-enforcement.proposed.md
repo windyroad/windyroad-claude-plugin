@@ -39,11 +39,13 @@ Out of scope: re-litigating the ADR-074 contract (decided); the P316 `rejected` 
 
 ## Tasks
 
-- [ ] T1 — `packages/architect/agents/agent.md`: Needs-Direction verdict must name the substantive choice (add the grain-vs-substance constraint + a "NOT a meta/grain framing question" negative bound). Behavioural bats in `packages/architect/agents/test/`.
-- [ ] T2 — `packages/retrospective/scripts/check-ask-hygiene.sh`: classify/exclude substance-confirm-before-build asks from the lazy count (cat-1 direction). Behavioural bats in `packages/retrospective/scripts/test/check-ask-hygiene.bats`.
-- [ ] T3 — `packages/itil/skills/manage-problem/SKILL.md`: propose-fix guard at the I13 surface (detect build-on-unconfirmed-born-`proposed`-decision → AskUserQuestion / `outstanding_questions`). Skill-flow behavioural test deferred (P176); structural-permitted note per ADR-052 Surface 2.
-- [ ] T4 — `packages/itil/skills/work-problems/SKILL.md`: orchestrator path honours the same guard, queuing to `outstanding_questions` under AFK rather than blocking the loop.
-- [ ] T5 — detection helper (if a shared bash predicate is warranted): "given a decision reference, is it born-`proposed` and lacking `human-oversight: confirmed`?" — behavioural bats. (Confirm during T3 whether a shared helper or inline skill logic is the right grain.)
+- [x] **T5** — `packages/architect/scripts/is-decision-unconfirmed.sh` + bin shim `wr-architect-is-decision-unconfirmed` (ADR-049 PATH pattern — adopter-safe per P317; NOT repo-relative sourcing). Single-ADR predicate: exit 0 = unconfirmed (lacks `human-oversight: confirmed`, not superseded), 1 = confirmed/superseded, 2 = not found. Mirrors `detect-unoversighted.sh` frontmatter logic with an in-sync cross-check. **10 behavioural bats GREEN** (`test/is-decision-unconfirmed.bats`, incl. the detect-unoversighted sync guard). Sibling-script grain confirmed by architect (keeps the detector's always-exit-0 contract intact).
+- [x] **T1** — `packages/architect/agents/agent.md` Needs-Direction verdict now requires naming the **substantive** choice, not a meta/grain framing question (ADR-064 amendment behaviour / ADR-074 surface 1). Structural-permitted bats added (`architect-needs-direction-verdict.bats`, P176 harness gap per ADR-052 Surface 2) — GREEN.
+- [x] **T3** — `packages/itil/skills/manage-problem/SKILL.md` propose-fix guard at the ADR-060 I13 surface: collect decisions the fix builds on (Fix Strategy `ADR-NNN` + referenced RFC `adrs:`), run `wr-architect-is-decision-unconfirmed`, and on any unconfirmed decision surface its substance via `AskUserQuestion` (interactive) / queue to `outstanding_questions` (AFK) before building. Skill-flow behavioural test deferred (P176).
+- [x] **T4** — `packages/itil/skills/work-problems/SKILL.md` orchestrator iter constraints: the inherited guard queues a `category: "direction"` entry + routes to `action: skipped` (`skip_reason_category: user-answerable`) rather than blocking/guessing; excluded from the lazy count. Skill-flow behavioural test deferred (P176).
+- [x] **T2** — run-retro Step 2d rubric + `check-ask-hygiene.sh` header: substance-confirm-before-build asks are ADR-044 cat-1 (`direction`), excluded from the lazy count. Behavioural regression guard added to `check-ask-hygiene.bats` — GREEN.
+
+**Implementation status (2026-05-27):** all five tasks landed; testable surfaces (T1/T2/T5) GREEN; T3/T4 skill-flow behavioural assertions deferred to the P176 skill-invocation harness (structural-permitted per ADR-052 Surface 2). Remaining: formal RFC lifecycle transition (proposed → in-progress → verifying) + release of the held changeset via `/wr-itil:manage-rfc`.
 
 ## Commits
 

@@ -167,6 +167,19 @@ What "work" means depends on the problem's status:
 
 **Known Error (root cause confirmed, fix path clear):**
 
+**Substance-confirm-before-build guard (ADR-074 — propose-fix surface, ADR-060 I13).** BEFORE implementing any fix step below, check whether the fix builds on a genuine decision whose **substance is unconfirmed**. This closes P315 (dependent work built on a born-`proposed` decision the user later rejects):
+
+1. Collect the decisions this fix builds on: the `ADR-NNN` references in the problem's `## Fix Strategy` section PLUS the `adrs:` frontmatter array (and body `ADR-NNN` mentions) of each referenced RFC.
+2. For each, run the predicate (PATH shim per ADR-049 — adopter-safe, never source repo-relative lib files):
+   ```bash
+   wr-architect-is-decision-unconfirmed ADR-<NNN> docs/decisions
+   ```
+   Exit 0 = unconfirmed (born without `human-oversight: confirmed`, not superseded) → the guard fires for that ADR. Exit 1 = confirmed or superseded → OK to build. Exit 2 = not found → treat as not-a-blocker (surface in the report).
+3. **If any referenced decision is unconfirmed**: do NOT implement yet. Surface its **substance** (the chosen option the ADR records — not a grain/meta question) for human confirmation:
+   - **Interactive**: `AskUserQuestion` presenting the ADR's Decision Outcome + Considered Options so the user confirms / amends / rejects the substantive choice. On confirm, the recording skill writes the `human-oversight: confirmed` marker (ADR-066) before the build proceeds.
+   - **AFK** (`/wr-itil:work-problems` orchestrator): NEVER ask mid-loop — queue the substance to the iteration's `outstanding_questions` (ADR-044 AFK carve-out) and skip the build; do not guess.
+4. This ask is **ADR-044 category-1 direction-setting** and is EXCLUDED from the lazy-AskUserQuestion regression metric (it is legitimate, not lazy). The trigger is narrow — detection is mechanical (the predicate); only genuine unconfirmed decisions about to be built on fire it. Do NOT over-fire on confirmed/superseded/obvious decisions (inverse-P078 / P132 guard). A born-`proposed` marker is fine for *recording*; it is not a licence to *build* (ADR-066 carve-out).
+
 The Phase 2 working-the-problem traversal makes "implement the fix" concretely traceable via stories (per ADR-060 lines 300-320). Replaces the prior vague "implement the fix following the project's development workflow" with a deterministic problem → RFC → story dispatch:
 
 1. **Read the problem's `## Fix Strategy` section** — extract referenced RFC IDs (anchor links / inline references like `RFC-NNN`). If no RFCs are referenced, the problem is non-decomposed Phase 1 work: fall through to the legacy direct-implementation path (step 6 below).
