@@ -1,6 +1,6 @@
 # Problem 132: Agents over-ask in interactive sessions — conflating mechanical-stages with user-interactive-stages of multi-stage skill contracts (inverse-P078)
 
-**Status**: Verification Pending
+**Status**: Closed
 **Reported**: 2026-04-27
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Likely (3)
 **Effort**: M — likely combination of (a) new UserPromptSubmit / Stop hook that detects AskUserQuestion calls firing in SKILL-explicit no-ask zones, (b) project CLAUDE.md rule reinforcing "when SKILL contract says mechanical, do not ask", (c) targeted in-skill reminders in run-retro Step 1.5 / Step 4b Stage 1 / Step 4a / wherever a skill explicitly carves out a no-ask zone. The detection hook is the load-bearing piece; CLAUDE.md + per-skill reinforcement are supporting layers.

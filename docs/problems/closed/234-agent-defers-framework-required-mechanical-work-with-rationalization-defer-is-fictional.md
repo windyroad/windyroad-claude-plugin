@@ -1,6 +1,6 @@
 # Problem 234: Agent defers framework-required mechanical work to "next retro" / "next session" with rationalization — defer is fictional, work never scheduled
 
-**Status**: Verification Pending
+**Status**: Closed
 **Reported**: 2026-05-17
 **Priority**: 12 (High) — Impact: 4 (Significant — defers accumulate silently; framework-required work falls off the ledger; user must catch + manually correct each occurrence; pattern recurs across every retro / session-wrap surface where mechanical work meets perceived friction) × Likelihood: 3 (Likely — recurred today within minutes of the "Don't defer" correction in a different way; sibling P148 captures same class at the Tickets Deferred surface)
 **Effort**: M (deferred — re-rate at next `/wr-itil:review-problems`)

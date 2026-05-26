@@ -1,6 +1,6 @@
 # Problem 233: AFK iter subprocess plugin cache stale after release — just-shipped hook does not protect the next iter
 
-**Status**: Verification Pending
+**Status**: Closed
 **Reported**: 2026-05-17
 **Known Error since**: 2026-05-17
 **Verification Pending since**: 2026-05-18
