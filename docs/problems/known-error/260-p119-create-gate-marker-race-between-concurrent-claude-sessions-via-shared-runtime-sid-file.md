@@ -99,3 +99,9 @@ Implemented via `/wr-itil:manage-problem` AFK iteration. Architect + JTBD gates 
 - P142 / ADR-050 — runtime-SID introduction.
 
 (captured via /wr-retrospective:run-retro Step 4b Stage 1; expand at next investigation)
+
+## RFCs
+
+| RFC | Status | Title |
+|-----|--------|-------|
+| RFC-007 | in-progress | P260 — concurrent-session create-gate marker race fix (ADR-050 Option C) |
