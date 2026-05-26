@@ -1,5 +1,5 @@
 ---
-status: in-progress
+status: verifying
 rfc-id: p260-option-c-concurrent-session-create-gate-marker-race-fix
 reported: 2026-05-26
 decision-makers: [Tom Howard]
@@ -11,7 +11,7 @@ stories: []
 
 # RFC-007: P260 — concurrent-session create-gate marker race fix (ADR-050 Option C)
 
-**Status**: in-progress
+**Status**: verifying
 **Reported**: 2026-05-26
 **Problems**: P260
 **ADRs**: ADR-071 (every fix goes through an RFC — why this retro-fit exists), ADR-050 (runtime-SID marker; amended in place for Option C)
@@ -50,7 +50,7 @@ All complete (retro — the commits landed before this RFC was captured):
 - [x] Behavioural bats (concurrent-session scenario + negative control); all green (bash + zsh).
 - [x] ADR-050 amended in place (Option C recorded; falsified claim corrected; oversight re-confirmed).
 - [x] `@windyroad/itil` patch changeset queued (`wr-itil-p260-option-c-multi-uuid-create-gate.md`).
-- [ ] Release the held changeset → then P260 `Known Error → Verifying` + this RFC `in-progress → verifying`.
+- [x] Release the held changeset → P260 `Known Error → Verifying` + this RFC `in-progress → verifying`. **Released in `@windyroad/itil@0.35.14`** (release commit `bf1ebdd`, 2026-05-26).
 
 ## Commits
 

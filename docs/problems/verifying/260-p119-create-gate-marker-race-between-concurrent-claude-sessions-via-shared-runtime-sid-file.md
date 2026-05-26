@@ -1,10 +1,22 @@
 # Problem 260: P119 create-gate marker race between concurrent Claude sessions via shared runtime-sid file
 
-**Status**: Known Error
+**Status**: Verifying
 **Reported**: 2026-05-18
 **Priority**: 6 (Medium) — Impact: 2 (Minor — capture-problem Write is blocked until workaround applies; not destructive) x Likelihood: 3 (Likely — fires whenever orchestrator main turn captures a ticket while an iter subprocess is also active, which is the standard /wr-itil:work-problems shape)
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems; per-PID/per-session runtime-sid file naming)
 **Type**: technical
+
+## RFCs
+
+| RFC | Status | Title |
+|-----|--------|-------|
+| RFC-007 | verifying | P260 — concurrent-session create-gate marker race fix (ADR-050 Option C) |
+
+## Fix Released
+
+Released in **`@windyroad/itil@0.35.14`** (release commit `bf1ebdd`, 2026-05-26) — the Option-C bounded multi-UUID create-gate marker-write shipped to adopters. Brought under the RFC framework as **RFC-007** (retro-fit per ADR-071 — every fix goes through an RFC) so the held changeset could release under the new unconditional gate. Transitioned `Known Error → Verifying` on release per ADR-022.
+
+**User verification gate**: the concurrent-session create-gate deny no longer fires during `/wr-itil:work-problems` AFK loops (the behavioural bats negative control already reproduces the pre-fix deny vs the fixed candidate-set path). Verifying → Closed on user confirmation.
 
 ## Description
 
@@ -99,9 +111,3 @@ Implemented via `/wr-itil:manage-problem` AFK iteration. Architect + JTBD gates 
 - P142 / ADR-050 — runtime-SID introduction.
 
 (captured via /wr-retrospective:run-retro Step 4b Stage 1; expand at next investigation)
-
-## RFCs
-
-| RFC | Status | Title |
-|-----|--------|-------|
-| RFC-007 | in-progress | P260 — concurrent-session create-gate marker race fix (ADR-050 Option C) |
