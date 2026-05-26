@@ -63,3 +63,9 @@ ADR-060 line 97 (permissive clause) + ADR-066 detector scope (`docs/decisions/` 
 - **RFC-005** (`docs/rfcs/RFC-005-...accepted.md`) — carries the disavowed carve-out (F2/F7/I13); to be retrofitted.
 - **JTBD-008 / JTBD-101** — anchor the carve-out; to be amended.
 - Captured via /wr-itil:capture-problem 2026-05-26 (P078 capture-on-correction); driver for a new ADR amending ADR-060.
+
+## RFCs
+
+| RFC | Status | Title |
+|-----|--------|-------|
+| RFC-006 | proposed | Implement ADR-070 + ADR-071 — re-home RFC decisions to ADRs and make RFC-first unconditional |
