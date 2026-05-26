@@ -40,6 +40,7 @@ The highest-value entries across the briefing — the handful of rules that save
 > - `releases-and-ci-archive.md` (older release-pipeline entries)
 > - `afk-subprocess-mechanics.md` + `afk-subprocess-recovery.md` (sibling briefs split out 2026-05-03) + `afk-subprocess-recovery-archive.md` (oldest recovery entries, 2026-05-26)
 > - `agent-hook-gate-quirks.md` (sibling brief — hook-gate quirks)
+> - `agent-interaction-patterns-archive.md` (settled/codified entries split out 2026-05-26 — P057 re-stage, P014 framing, P121 Fix-Strategy-premise)
 
 ## How to Use
 
