@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-05-27 **README reconciled** — 6 drift entries corrected: P317 / P318 / P319 / P320 / P321 / P322 (open on disk, missing from WSJF Rankings — committed deferred-refresh drift from the 2026-05-27 run-retro P319-P322 captures + P317/P318 fix-session captures). Reconciliation contract per P118 + ADR-014 amended ("Reconciliation as preflight robustness layer"). Prior P316-reconcile fragment rotated to README-history.md per P134.
+> Last reviewed: 2026-05-27 **README reconciled** — 7 drift entries corrected: P317 / P318 / P319 / P320 / P321 / P322 / P323 (open on disk, missing from WSJF Rankings — committed deferred-refresh drift from the 2026-05-27 run-retro P319-P322 captures + P317/P318/P323 fix-session captures). All deferred-rated (Priority/Effort placeholders) — re-rate at next /wr-itil:review-problems. Reconciliation contract per P118 + ADR-014 amended ("Reconciliation as preflight robustness layer"). Prior P316-reconcile fragment rotated to README-history.md per P134.
 
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
@@ -134,6 +134,7 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 1.5 | P318 | Architect review (file edits + plans) does not flag changes built on an UNRATIFIED ADR — the build-upon guard only fires at the ITIL propose-fix surface | 3 Med | Open | M | 2026-05-27 |
 | 1.5 | P319 | Full `bats --recursive` suite hangs locally on architect-detect-scope.bats — no timeout, wedges the whole run | 3 Med | Open | M | 2026-05-27 |
 | 1.5 | P321 | Structural contract tests pin the invocation FORM (`update-*-section.sh`) — rewriting it to a shim breaks them with no heads-up, costing CI round-trips | 3 Med | Open | M | 2026-05-27 |
+| 1.5 | P323 | JTBD review (file edits + plans) does not flag changes built on an UNRATIFIED persona or job — no build-upon guard exists on the JTBD surface at all (twin of P318 on the ADR surface) | 3 Med | Open | M | 2026-05-27 |
 | 1.25 | P160 | Ship quota-pacing surface to prevent weekly-quota exhaustion — advisory/blocking nudge when burn rate exceeds sustainable pace, so users retain Claude tokens for non-Claude-Code surfaces (chat, cowork) for the full week | 10 High | Open | XL | 2026-05-03 |
 | 1.13 | P241 | ADR-054 sibling-REFERENCE.md extraction — MUST_SPLIT cohort umbrella (10 skills; blocked by P081 Layer B) | 9 MedH | Open | XL | 2026-05-17 |
 | 1.13 | P298 | Published artifacts should NOT reference internal IDs at all — ADR-055 chose prefixing; user wants them stripped (meaningless to adopters, ~2,880 refs/81 files). Express substance inline. Sibling of P294; composes with P296. Surfaced during the P283 drain. Blocks ADR-055 oversight confirmation | 9 Med High | Open | XL | 2026-05-25 |
