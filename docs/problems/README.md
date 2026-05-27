@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-05-27 **README reconciled** — 1 drift entry corrected: P316 (open on disk, missing from WSJF Rankings — committed deferred-refresh drift from this session's run-retro Step 2b P316 capture). Reconciliation contract per P118 + ADR-014 amended ("Reconciliation as preflight robustness layer"). Prior P312/P313/P314/P315-reconcile fragment rotated to README-history.md per P134.
+> Last reviewed: 2026-05-27 **README reconciled** — 6 drift entries corrected: P317 / P318 / P319 / P320 / P321 / P322 (open on disk, missing from WSJF Rankings — committed deferred-refresh drift from the 2026-05-27 run-retro P319-P322 captures + P317/P318 fix-session captures). Reconciliation contract per P118 + ADR-014 amended ("Reconciliation as preflight robustness layer"). Prior P316-reconcile fragment rotated to README-history.md per P134.
 
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
@@ -84,6 +84,8 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 3.0 | P308 | work-problems Step 6.5 cohort-graduation treats evaluator `status=resolved` as graduate-now, skipping the Rule 4 evidence-floor judgment the holding-README Process requires — AFK false-graduation hazard | 3 Med | Open | M | 2026-05-26 |
 | 3.0 | P309 | `wr-risk-scorer-drain-register-queue` no-ops on queued slugs that have no register file — creates 0, appends 0, and does NOT truncate the queue | 3 Med | Open | M | 2026-05-26 |
 | 3.0 | P312 | reconcile-rfcs reports spurious MISSING_REVERSE_TRACE — doesn't traverse docs/problems/ per-state subdirs (RFC-002-class glob gap) | 3 Med | Open | S | 2026-05-26 |
+| 3.0 | P320 | /install-updates Step 2/3 discovery loop is zsh-unsafe — `for X in $VAR` word-split (P133) + `status` is a read-only zsh var | 3 Med | Open | S | 2026-05-27 |
+| 3.0 | P322 | Tier-3 briefing-budget pass flags `*-archive*.md` sink files — re-rotating a rotation SINK proliferates siblings for ~zero reader value | 3 Med | Open | S | 2026-05-27 |
 | 2.25 | P033 | No persistent risk register for ISO 31000 / ISO 27001 compliance — sibling-project survey shows 99% miss rate; re-rated L → XL 2026-04-28 (Phase 1a ADR-047 design landed) | 9 Med | Known Error | XL | 2026-04-17 |
 | 2.25 | P015 | TDD enforcement does not flag vague Gherkin outcome steps | 9 Med | Open | L | 2026-04-16 |
 | 2.25 | P136 | ADR-044 alignment audit — sweep all unaudited skills/hooks/agents/ADRs/JTBDs/READMEs against the framework-resolution boundary (master ticket) | 9 Med | Open | L | 2026-04-27 |
@@ -128,6 +130,10 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 1.5 | P291 | ADRs accumulate in proposed status despite heavy production use — the acceptance transition never fires (only 3 of ~57 accepted). Status axis (production-validation) is orthogonal to ADR-066 oversight; define an acceptance criterion + automate, then reconcile. Surfaced during the P283 drain | 6 Med | Open | L | 2026-05-25 |
 | 1.5 | P296 | ADR-054 retroactive SKILL.md extraction should not be deferred behind P081 Layer B — "deferred work never happens; do it or decide against it" (user). Do the extraction across the SKILL.md corpus. Surfaced during the P283 drain. Blocks ADR-054 oversight confirmation | 6 Med | Open | L | 2026-05-25 |
 | 1.5 | P014 | No lightweight aside invocation for governance skills (master tracker for ADR-032 — capture-* sibling skills + pending-questions hook + supersession cleanup) | 12 High | Open | XL | 2026-04-16 |
+| 1.5 | P317 | capture-problem / capture-rfc / manage-problem Step 2 create-gate marker step sources repo-relative `packages/itil/hooks/lib/*.sh` — fails in adopter installs (recurring published-path class: P151/P153/P219) | 3 Med | Open | M | 2026-05-27 |
+| 1.5 | P318 | Architect review (file edits + plans) does not flag changes built on an UNRATIFIED ADR — the build-upon guard only fires at the ITIL propose-fix surface | 3 Med | Open | M | 2026-05-27 |
+| 1.5 | P319 | Full `bats --recursive` suite hangs locally on architect-detect-scope.bats — no timeout, wedges the whole run | 3 Med | Open | M | 2026-05-27 |
+| 1.5 | P321 | Structural contract tests pin the invocation FORM (`update-*-section.sh`) — rewriting it to a shim breaks them with no heads-up, costing CI round-trips | 3 Med | Open | M | 2026-05-27 |
 | 1.25 | P160 | Ship quota-pacing surface to prevent weekly-quota exhaustion — advisory/blocking nudge when burn rate exceeds sustainable pace, so users retain Claude tokens for non-Claude-Code surfaces (chat, cowork) for the full week | 10 High | Open | XL | 2026-05-03 |
 | 1.13 | P241 | ADR-054 sibling-REFERENCE.md extraction — MUST_SPLIT cohort umbrella (10 skills; blocked by P081 Layer B) | 9 MedH | Open | XL | 2026-05-17 |
 | 1.13 | P298 | Published artifacts should NOT reference internal IDs at all — ADR-055 chose prefixing; user wants them stripped (meaningless to adopters, ~2,880 refs/81 files). Express substance inline. Sibling of P294; composes with P296. Surfaced during the P283 drain. Blocks ADR-055 oversight confirmation | 9 Med High | Open | XL | 2026-05-25 |
