@@ -67,6 +67,8 @@ Build a self-contained prompt for the architect subagent that includes:
 - Any explicit scope from the user
 - The request: "Review these proposed changes against the project's ADRs. Flag any violations, gaps that need a new ADR, or compliance questions."
 
+The architect's verdict taxonomy includes **[Unratified Dependency]** (ADR-074 surface 3): if the plan/change explicitly cites or implements an ADR that lacks `human-oversight: confirmed` (unratified, non-superseded), the architect flags ISSUES FOUND with a "ratify via /wr-architect:review-decisions first" action. This applies to plan review exactly as to edit review — a plan built on an unratified decision should not proceed until that decision's substance is ratified. No extra prompt wiring is needed (the agent owns the check); this note records that the surface-3 check is in-scope for plan review.
+
 ### 5. Delegate to wr-architect:agent
 
 Invoke the architect subagent via the `Skill` tool:

@@ -156,6 +156,17 @@ Emit **NEEDS DIRECTION** only when ALL of the following hold:
 
 Do NOT emit Needs Direction for the "obvious choice" / only-one-viable-option case (see "When NOT to flag" above) — over-firing on obvious choices is the over-ask trap CLAUDE.md P132 warns against. Needs Direction is the architect-surface instance of ADR-044 category 1 (direction-setting); `AskUserQuestion` remains a primary-agent affordance — you name the question + options, the main agent owns the ask.
 
+### When to flag [Unratified Dependency] (ADR-074 (Confirm a decision's substance before building dependent work) surface 3)
+
+When the change or plan under review **explicitly cites or implements** a specific ADR (e.g. the diff/prose says "per ADR-072", a `Refs: ADR-NNN`, or it is authoring the work the ADR governs), check whether that ADR has been **ratified** before letting the change stand. You have Read/Glob/Grep (no Bash), so perform the **read-only equivalent** of `packages/architect/scripts/is-decision-unconfirmed.sh` — mirror BOTH halves of its "unconfirmed" definition:
+
+1. **Frontmatter-scoped marker check.** Read the cited ADR file and inspect ONLY its YAML frontmatter (the block between the leading `---` and the next `---`). The ADR is **ratified** iff that frontmatter contains a line matching `human-oversight: confirmed` — case-insensitive, tolerating trailing whitespace (the canonical predicate greps `-iE '^human-oversight:[[:space:]]*confirmed[[:space:]]*$'`). A body mention of that string does NOT count — it must be in frontmatter.
+2. **Superseded skip.** A `*.superseded.md` ADR is retired — treat it as ratified-equivalent (do NOT flag); a newer ADR replaced it.
+
+Emit **ISSUES FOUND / [Unratified Dependency]** only when the cited ADR's frontmatter lacks the marker AND it is not superseded — action: "ratify ADR-NNN via `/wr-architect:review-decisions` before this lands." 
+
+**Key the flag on the oversight marker, NEVER on `status:`.** `status: proposed`/`accepted` and `human-oversight:` are orthogonal axes (ADR-066). Building on a **ratified** ADR is fine even when its `status` is still `proposed` — do NOT flag it. Only the *unratified* (marker-absent, non-superseded) case flags. In steady state almost every ADR is ratified (born-confirmed via `create-adr` + the review-decisions drain), so this fires on essentially nothing — do not over-scan or flag transitive/ambient dependence on governed code, only an explicit cite/implement of a specific unratified ADR (the inverse-P078 / P132 over-fire guard).
+
 Issue types:
 - **[Decision Conflict]**: Change conflicts with an accepted/proposed decision
 - **[Undocumented Decision]**: Change represents an architectural choice not covered by any existing decision
@@ -163,6 +174,7 @@ Issue types:
 - **[Decision Format]**: A decision file doesn't follow MADR 4.0 format
 - **[Missing Supersession]**: A new decision should supersede an old one but doesn't
 - **[Confirmation Violation]**: New code violates a confirmation criterion of an existing decision
+- **[Unratified Dependency]**: The change/plan explicitly cites or implements an ADR that is **unratified** (its frontmatter lacks `human-oversight: confirmed`, and it is not `*.superseded.md`) — building on it before a human ratifies its substance is the P315 failure mode (ADR-074 (Confirm a decision's substance before building dependent work) enforcement surface 3)
 
 ## Constraints
 

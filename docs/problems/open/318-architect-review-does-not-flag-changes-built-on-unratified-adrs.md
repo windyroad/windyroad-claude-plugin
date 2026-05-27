@@ -37,9 +37,13 @@ Route decision-dependent work through `/wr-itil:manage-problem` (the propose-fix
 ### Investigation Tasks
 
 - [ ] Re-rate Priority and Effort at next /wr-itil:review-problems.
-- [ ] Wire `wr-architect-is-decision-unconfirmed` into the architect agent's review + `/wr-architect:review-design`: identify the ADR(s) a change/plan **builds on** (explicit `ADR-NNN` citations in the diff/plan + the ADR being implemented), run the predicate, and emit **ISSUES FOUND** (action: "ratify ADR-NNN via /wr-architect:review-decisions before this lands") for any that are unratified. Status-agnostic — key on the marker, never on `proposed`.
-- [ ] Bound detection to "explicitly cites / directly implements" the ADR (not transitive dependence) — though the near-zero unratified set means noise is low regardless.
-- [ ] Decide verdict shape (ISSUES FOUND vs a Needs-Direction variant) — likely framework-resolved (ISSUES FOUND + ratify-first action fits the existing taxonomy).
+- [x] **DONE 2026-05-27 (RFC-010)** — added the `[Unratified Dependency]` verdict to `agent.md` (the agent Greps the cited ADR's frontmatter — its Read/Glob/Grep read-only equivalent of `wr-architect-is-decision-unconfirmed`, since the agent has no Bash); emits ISSUES FOUND + "ratify via /wr-architect:review-decisions first" for marker-less, non-superseded ADRs. Status-agnostic. Recorded as ADR-074 enforcement **surface 3** (thin amendment).
+- [x] **DONE** — bounded to explicit cite/implement (over-fire guard in the instruction); near-zero unratified set (4/65).
+- [x] **DONE** — verdict shape = ISSUES FOUND + ratify-first (architect confirmed framework-resolved, single obvious option — not Needs-Direction).
+
+## Resolution (2026-05-27 — RFC-010)
+
+Fix-complete. The architect now flags build-on-unratified at the broadest surface (every edit + plans via review-design), closing the residual P315 foreground gap. ADR-074 gained enforcement surface 3; `agent.md` gained the `[Unratified Dependency]` verdict (frontmatter-scoped, superseded-skipping, marker-keyed-not-status grep); review-design notes it; 5 structural bats + the existing 7 GREEN. Architect PASS (after resolving 3 review items: record surface 3, grep fidelity, structural-permitted test header); JTBD PASS. **Close to Verifying when RFC-010 releases** (this session's changeset).
 
 ## Dependencies
 
@@ -52,3 +56,9 @@ Route decision-dependent work through `/wr-itil:manage-problem` (the propose-fix
 - **RFC-008** — built the predicate + the propose-fix guard; this generalises the guard to the architect-review surface.
 - **P316** — the 4 unratified ADRs (rejected-pending-supersede) are the only current would-fire set; once superseded the unratified set is born-confirmed-only.
 - captured via /wr-itil:capture-problem + P078 capture-on-correction (the proposed-vs-unratified clarification), 2026-05-27.
+
+## RFCs
+
+| RFC | Status | Title |
+|-----|--------|-------|
+| RFC-010 | proposed | Architect flags changes built on an unratified ADR |
