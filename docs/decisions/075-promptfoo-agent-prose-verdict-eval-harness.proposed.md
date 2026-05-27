@@ -30,7 +30,7 @@ This has a compounding cost (P324): (1) it perpetuates exactly the structural te
 ## Considered Options
 
 - **(A) `@windyroad`/Anthropic skill-creator eval** — its turnkey path scores only "did the skill *trigger*", not verdict correctness. Its output-quality path (grader subagent + variance aggregation) is the right *shape* but is an interactive human-in-the-loop create/improve loop, not a headless CI gate. **Reuse the pattern, reject as the tool.**
-- **(B) promptfoo — CHOSEN.** OSS, CI-native; one YAML expresses both deterministic assertions (`contains`/`regex`/`is-json`) and model-graded `llm-rubric` with pass-rate thresholds; Anthropic provider can load `agent.md` as the `system` prompt and feed a fixture change as the user message — testing the actual agent prompt. Lowest-friction off-the-shelf; closest to the existing per-surface test model.
+- **(B) promptfoo — CHOSEN.** OSS, CI-native; one YAML expresses both deterministic assertions (`contains`/`regex`/`is-json`) and model-graded `llm-rubric` with pass-rate thresholds; its **exec provider** drives `claude -p --system-prompt "$(cat agent.md)"` (subscription auth — see §2/Amendment) so the eval tests the actual agent prompt. Lowest-friction off-the-shelf; closest to the existing per-surface test model.
 - **(C) Golden-transcript / snapshot** — deterministic, cheap, but weak on semantic correctness ("right reason"); becomes Tier A's spirit, not a full solution.
 - **(D) Live-agent-in-CI (`claude -p`)** — most faithful but network + cost + flake on every run; rejected as the default cadence (kept as the conceptual driver behind Tier B).
 - **(E) Status quo (structural escape hatch)** — rejected; it is the problem P324 captures (perpetuates P081/P290-rejected tests; keeps the class above appetite).
@@ -40,13 +40,13 @@ This has a compounding cost (P324): (1) it perpetuates exactly the structural te
 Chosen: **adopt promptfoo as the agent-prose eval harness, alongside (not replacing) bats.**
 
 1. **Lane boundary.** `bats` = deterministic shell hooks/scripts (ADR-005 authority unchanged). **promptfoo = prompt-driven agent-prose verdicts** — the orthogonal lane bats cannot reach.
-2. **Provider.** promptfoo's Anthropic provider, with each agent's `packages/<plugin>/agents/agent.md` as the `system` prompt and a fixture "proposed change" as the user message; assert on the agent's response. (No `claude -p` exec; this exercises the real agent prompt.)
+2. **Provider — `claude` CLI exec, subscription auth (amended 2026-05-28; see Amendment below).** promptfoo's **exec provider** wrapping `claude -p --system-prompt "$(cat packages/<plugin>/agents/agent.md)" "{{change}}"` — each agent's `agent.md` is the system prompt, the fixture "proposed change" is the user message, assert on stdout. This uses the **Claude Code subscription/session auth — NOT `ANTHROPIC_API_KEY`** (proven in-session 2026-05-28: `claude -p` ran headless with no API key and no OAuth env var, using stored session credentials, and the jtbd agent correctly fired `[Unratified Dependency]` on an unratified-job cite + stayed silent on a ratified one). The rejected alternative was promptfoo's *Anthropic API provider*, which requires `ANTHROPIC_API_KEY` + per-token API billing.
 3. **Per-package location** (user-confirmed via AskUserQuestion 2026-05-28; ADR-002 independence): eval configs + fixtures live at `packages/<plugin>/agents/eval/` (config + fixtures), root script fans out. Eval artefacts are **excluded from the published tarball** (`files`-field discipline, per-package).
 4. **Two-tier cadence** (user-confirmed via AskUserQuestion 2026-05-28):
    - **Tier A — deterministic** (`contains`/`regex`/`is-json` on the output: verdict token present, correct artifact named, PASS/FAIL correct). No API secret needed beyond the provider call's determinism-safe assertions. **Blocks the CI pipeline AND a pre-commit/pre-push hook** (local + CI hard gate).
    - **Tier B — LLM-judge** (`llm-rubric`: flags the right artifact for the right reason; no over-fire on transitive/ambient mentions). N samples, gated on **pass^k** (must fire every sample — governance gate). **Blocks the release pipeline** (runs at release, where the R009 adopter-facing risk materialises). Does not gate every PR — bounding token cost and sidestepping fork-PR secret exposure.
 5. **Non-determinism.** N samples + pass^k threshold; pin model version; treat temperature=0 as best-effort-not-guaranteed (rate tolerance required regardless).
-6. **CI secret.** `ANTHROPIC_API_KEY` is provisioned for the **release pipeline** (Tier B). Fork PRs cannot read secrets — acceptable, because Tier B is release-gated, not PR-gated; Tier A (no model-grading secret dependency) covers every PR.
+6. **Auth (amended 2026-05-28 — subscription, not API key).** **Local** Tier A (pre-commit/pre-push hook) uses the developer's own logged-in `claude` session — **zero secret, zero API key**. **CI/release** uses `CLAUDE_CODE_OAUTH_TOKEN` (subscription OAuth, minted via `claude setup-token`) as the secret — **subscription-billed via the Max/Pro plan, NOT per-token API billing**, and never `ANTHROPIC_API_KEY`. Fork PRs cannot read secrets — acceptable, because the secret-requiring lanes (CI/release) are not fork-PR-gated; the local pre-push hook needs no secret at all.
 
 ### Amendments
 
@@ -59,7 +59,11 @@ Chosen: **adopt promptfoo as the agent-prose eval harness, alongside (not replac
 
 **Neutral:** a second test runner (promptfoo) alongside bats, in an orthogonal lane; one new root devDependency; per-package eval config duplication.
 
-**Bad / costs:** Tier B token cost at release (bounded by sampled pass^k, release-only cadence); a CI secret to provision + manage; a pre-commit/pre-push hook to install for Tier A; promptfoo's own version/maintenance surface.
+**Bad / costs:** Tier B usage at release (bounded by sampled pass^k, release-only cadence; **subscription-billed via the Max/Pro plan through `claude -p`, not per-token API billing**); a `CLAUDE_CODE_OAUTH_TOKEN` CI secret to provision (the local pre-push hook needs none — it uses the dev's own session); a pre-commit/pre-push hook to install for Tier A; promptfoo's own version/maintenance surface.
+
+### Amendment 2026-05-28 — provider is `claude -p` exec (subscription auth), not the Anthropic API provider
+
+As originally drafted, this ADR named promptfoo's **Anthropic API provider** (Decision Outcome §2/§6), which requires `ANTHROPIC_API_KEY` + per-token API billing. The user challenged that assumption ("Promptfoo needs an API key? It can't use the subscription auth??"). Verified in-session 2026-05-28: `claude -p` runs headless using the **Claude Code subscription/session credentials** with no `ANTHROPIC_API_KEY` and no OAuth env var, and faithfully reproduces agent behaviour — driving the jtbd agent (`--system-prompt "$(cat agent.md)"`) on a change citing the **unratified** JTBD-001 emitted `[Unratified Dependency]` (FAIL; the agent ran the predicate itself → exit 0), and on a change citing the **ratified-but-`proposed`** JTBD-008 emitted PASS with no flag (explicitly keying on the marker, not status). So the harness drives through **promptfoo's exec provider wrapping `claude -p`** — subscription-billed, no API key. This also matches how Anthropic's own skill-creator harness drives agents (`claude -p --output-format stream-json`). The two in-session proofs additionally satisfy RFC-011's ADR-061 Rule 4 evidence floor (verdict fires correctly + stays silent on a ratified cite), so RFC-011 graduates on demonstrated behavioural evidence rather than user-override.
 
 ## Confirmation
 
@@ -74,7 +78,7 @@ Chosen: **adopt promptfoo as the agent-prose eval harness, alongside (not replac
 
 - **Tier B promotion**: if a per-PR (not just release) semantic gate becomes affordable + non-flaky (pass-rate variance characterised), consider promoting Tier B to block PRs.
 - **Cost trip**: if Tier B release-eval token cost exceeds budget, revisit sample count N / rubric scope.
-- **Tool fit**: if promptfoo's Anthropic-provider + system-prompt-injection proves unable to faithfully reproduce agent behaviour, reassess vs live-`claude -p` (Option D).
+- **Tool fit**: if promptfoo's exec provider wrapping `claude -p --system-prompt` proves unable to faithfully reproduce agent behaviour (vs a real subagent invocation), reassess the provider mechanism (e.g. `--output-format stream-json` parsing, or promptfoo's dedicated claude-code provider if it matures).
 - Reassess at 2026-08-28.
 
 ## Related
