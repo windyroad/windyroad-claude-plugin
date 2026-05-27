@@ -168,6 +168,6 @@ EOF
   # in the SKILL body. Behavioural assertion on the presence of the
   # load-bearing call path; without it, manage-rfc transitions would
   # silently leave the body section stale.
-  run grep -E 'update-rfc-references-section\.sh.*Stories' "$MANAGE_RFC"
+  run grep -E 'wr-itil-update-rfc-references-section.*Stories' "$MANAGE_RFC"
   [ "$status" -eq 0 ]
 }

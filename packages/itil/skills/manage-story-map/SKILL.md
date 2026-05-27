@@ -108,7 +108,7 @@ for pid_token in $(grep -oE '<meta name="problems" content="[^"]*"' "$map_file" 
   git add "$problem_file"
 done
 
-# Same for JTBDs via update-jtbd-references-section.sh "Story Maps"
+# Same for JTBDs via wr-itil-update-jtbd-references-section "Story Maps"
 ```
 
 Per architect amend finding 2 on Slice 7: story-map HTML files do NOT carry an auto-maintained markdown reverse-trace section themselves (the `<a class="slice">` data-attribute traces are authored manually during backbone design). No reverse-trace refresh on the map itself; reverse-trace only flows OUT to problem + JTBD parents.

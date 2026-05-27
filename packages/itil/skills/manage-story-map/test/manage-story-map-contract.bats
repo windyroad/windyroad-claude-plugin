@@ -43,12 +43,12 @@ setup() {
 }
 
 @test "manage-story-map: SKILL.md names reverse-trace refresh on problem parents via Story Maps section" {
-  run grep -E 'update-problem-references-section\.sh.*Story Maps' "$SKILL_FILE"
+  run grep -E 'wr-itil-update-problem-references-section.*Story Maps' "$SKILL_FILE"
   [ "$status" -eq 0 ]
 }
 
 @test "manage-story-map: SKILL.md names reverse-trace refresh on JTBD parents via Story Maps section" {
-  run grep -E 'update-jtbd-references-section\.sh.*Story Maps' "$SKILL_FILE"
+  run grep -E 'wr-itil-update-jtbd-references-section.*Story Maps' "$SKILL_FILE"
   [ "$status" -eq 0 ]
 }
 
