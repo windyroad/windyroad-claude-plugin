@@ -15,6 +15,10 @@ Running `/install-updates` this session, the Step 2/3 plugin-discovery + version
 
 Both forced rewrites mid-skill (to a `while IFS= read -r` loop + a non-reserved var name) before the version comparison worked.
 
+3. **Version-compare `sort -V | tail -1` false-positives on SHA-named git-source residual dirs** (2026-05-28 recurrence). The cache dir for each plugin contains BOTH semver dirs (`0.8.3`, `0.8.4`) AND an old git-source residual dir named by SHA (`2287c49f7b4b`). A "newest cached" compare of `ls … | grep -E '^[0-9]' | sort -V | tail -1` picks the **SHA** dir — `sort -V` treats `2287c49f7b4b` as version `2287` (> any `0.8.x`), so it sorts last and `tail -1` returns it. Result: EVERY plugin's "newest cached" reads as the SHA, `!= npm latest`, and all 11 plugins false-report `<-- UPDATE` / stale. This is exactly the trap the `feedback_verify_cache_refresh_by_version_dir` memory warns about. The correct compare filters to strict semver dirs: `grep -E '^[0-9]+\.[0-9]+\.[0-9]+$'` before `sort -V | tail -1`. The skill's Step 3 text ("compare against the cache directory … npm latest > highest cached version") does not specify the semver filter, so the naive compare false-positives.
+
+**Recurrence 2026-05-28 (2nd install-updates run this session, post-release):** defect 1 (the `for key in $CURRENT_PLUGINS` word-split) fired AGAIN — confirming it's not a one-off. Defect 3 (SHA-sort) surfaced on the same run. Both caught + worked around mid-skill (while-read loop + semver-filter grep), but the skill's prescribed Step 2/3 snippets still carry both bugs.
+
 ## Symptoms
 
 - `/install-updates` Step 3 prints all enabled plugins concatenated on one line, `npm view` empty, all plugins show `cached=none` → false "nothing to update" conclusion (the P092 hazard the skill warns about, reached via the P133 word-split).
@@ -31,6 +35,7 @@ Use `while IFS= read -r key; do ...; done < <(printf '%s\n' "$CURRENT_PLUGINS")`
 - [ ] Re-rate Priority and Effort at next /wr-itil:review-problems.
 - [ ] Fix the install-updates SKILL.md Step 2/3 example: replace `for key in $CURRENT_PLUGINS` with a `while IFS= read` loop (or bash array + `"${ARR[@]}"`) per P133; the skill already cites P133 for its Step 4 array — extend the discipline to Step 2/3.
 - [ ] Audit the skill's shell snippets for zsh-reserved variable names (`status`, `path`, `argv`, `pipestatus`).
+- [ ] Fix Step 3 version-compare to filter to strict semver dirs (`grep -E '^[0-9]+\.[0-9]+\.[0-9]+$'`) before `sort -V | tail -1`, so SHA-named git-source residual dirs (`2287c49f7b4b`) cannot win the sort and false-flag every plugin stale (defect 3; the `feedback_verify_cache_refresh_by_version_dir` memory's exact trap).
 
 ## Dependencies
 
