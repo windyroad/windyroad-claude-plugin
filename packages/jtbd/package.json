@@ -1,6 +1,6 @@
 {
   "name": "@windyroad/jtbd",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "description": "Jobs-to-be-done enforcement for UI changes",
   "bin": {
     "windyroad-jtbd": "./bin/install.mjs"
