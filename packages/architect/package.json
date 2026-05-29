@@ -1,6 +1,6 @@
 {
   "name": "@windyroad/architect",
-  "version": "0.9.2",
+  "version": "0.10.0",
   "description": "Architecture decision enforcement for AI coding agents",
   "bin": {
     "windyroad-architect": "./bin/install.mjs"
