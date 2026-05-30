@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-05-30 **README reconciled (run-retro)** — 1 drift entry corrected: P327 (open on disk, missing from WSJF Rankings — deferred-refresh drift from this session's P327 capture; WSJF 1.5). Reconciliation contract per P118 + ADR-014 amended ("Reconciliation as preflight robustness layer"). Prior P325/P326-reconcile fragment rotated to README-history.md per P134.
+> Last reviewed: 2026-05-30 **README reconciled (work-problems Step 0)** — 1 drift entry corrected: P328 (open on disk, missing from WSJF Rankings — deferred-refresh drift from this session's P328 capture; WSJF 1.5). Reconciliation contract per P118 + ADR-014 amended ("Reconciliation as preflight robustness layer"). Prior P327-reconcile fragment rotated to README-history.md per P134.
 
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
@@ -139,6 +139,7 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 1.5 | P321 | Structural contract tests pin the invocation FORM (`update-*-section.sh`) — rewriting it to a shim breaks them with no heads-up, costing CI round-trips | 3 Med | Open | M | 2026-05-27 |
 | 1.5 | P323 | JTBD review (file edits + plans) does not flag changes built on an UNRATIFIED persona or job — no build-upon guard exists on the JTBD surface at all (twin of P318 on the ADR surface) | 3 Med | Open | M | 2026-05-27 |
 | 1.5 | P327 | ADR bodies dominate session token usage — design a summary surface for routine compliance loading (inbound-reported; user signaled "highest priority because of token burn"; ADR-077 Slice 1+2 shipped — `@windyroad/architect@0.11.0`) | 3 Med | Open | M | 2026-05-30 |
+| 1.5 | P328 | BSD `grep` / `sed` / `awk` on macOS silently fail or error on UTF-8 without `LC_ALL=en_US.UTF-8` (captured 2026-05-30; deferred re-rate) | 3 Med | Open | M | 2026-05-30 |
 | 1.25 | P160 | Ship quota-pacing surface to prevent weekly-quota exhaustion — advisory/blocking nudge when burn rate exceeds sustainable pace, so users retain Claude tokens for non-Claude-Code surfaces (chat, cowork) for the full week | 10 High | Open | XL | 2026-05-03 |
 | 1.13 | P241 | ADR-054 sibling-REFERENCE.md extraction — MUST_SPLIT cohort umbrella (10 skills; blocked by P081 Layer B) | 9 MedH | Open | XL | 2026-05-17 |
 | 1.13 | P298 | Published artifacts should NOT reference internal IDs at all — ADR-055 chose prefixing; user wants them stripped (meaningless to adopters, ~2,880 refs/81 files). Express substance inline. Sibling of P294; composes with P296. Surfaced during the P283 drain. Blocks ADR-055 oversight confirmation | 9 Med High | Open | XL | 2026-05-25 |
