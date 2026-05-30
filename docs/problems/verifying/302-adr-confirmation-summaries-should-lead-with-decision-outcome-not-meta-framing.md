@@ -1,6 +1,6 @@
 # Problem 302: ADR-confirmation summaries should lead with the Decision Outcome, not the meta-framing (caused 2 user re-asks this session)
 
-**Status**: Known Error
+**Status**: Verification Pending
 **Reported**: 2026-05-25
 **Priority**: 4 (Low-Med) — Impact: 2 (Minor — a confusing summary costs a clarifying re-ask round-trip + erodes trust in the drain's presentation; recoverable) × Likelihood: 2 (Unlikely-Possible — recurs when presenting meta-heavy ADRs, i.e. sibling/supersede/separate-vs-amend decisions, for oversight-confirm)
 **Effort**: S — presentation-guidance edit to the `/wr-architect:review-decisions` skill (held) + a one-line agent-interaction briefing note
@@ -47,6 +47,8 @@ Bounded prose-only edit to three files — no new code, no schema changes, no ne
 2. `packages/jtbd/skills/confirm-jobs-and-personas/SKILL.md` Step 3 — mirror the rule adapted for jobs/personas (lead with job statement / persona definition; persona-cluster meta relegated or omitted).
 3. `docs/briefing/agent-interaction-patterns.md` — append a "What Will Surprise You" bullet noting the rule generalises to any decision-presentation surface, cross-referencing both SKILL.md sites + the create-adr Step 5 confirm.
 
+**Release vehicle**: `.changeset/p302-decision-confirmation-presentation-rule.md` (patch bump for `@windyroad/architect`; @windyroad/jtbd mirror rides the held `docs/changesets-holding/p288-jtbd-persona-oversight.md` changeset's graduation).
+
 JTBD review (PASS): serves JTBD-005 (Invoke Governance Assessments On Demand), JTBD-006 (Progress the Backlog While I'm Away), JTBD-101 (Extend the Suite with New Plugins). Persona fit confirmed for both `developer` (speed-without-sacrificing-quality) and `plugin-developer` (clear-patterns-not-reverse-engineering).
 
 ## Dependencies
@@ -55,10 +57,16 @@ JTBD review (PASS): serves JTBD-005 (Invoke Governance Assessments On Demand), J
 - **Blocked by**: best landed alongside the `/wr-architect:review-decisions` skill graduation (it is currently held per ADR-066's changeset).
 - **Composes with**: ADR-066/068 (the drain skills whose presentation this improves), the create-adr Step 5 confirm (same presentation risk), agent-interaction-patterns briefing.
 
+## Fix Released
+
+Released in `@windyroad/architect@0.12.1` via `.changeset/p302-decision-confirmation-presentation-rule.md` (version-packages commit `5244b5f`, merge commit `d929acd`, PR #178, released 2026-05-30). The architect surface (`/wr-architect:review-decisions` Step 3) and the briefing note (`docs/briefing/agent-interaction-patterns.md`) shipped at commit `d1de917`. The JTBD mirror (`packages/jtbd/skills/confirm-jobs-and-personas/SKILL.md` Step 3) is intentionally held — it rides the `docs/changesets-holding/p288-jtbd-persona-oversight.md` changeset's graduation per the architect verdict on this ticket.
+
+Awaiting user verification — exercise either drain skill on a meta-heavy ADR (sibling / supersession / separate-vs-amend) and confirm the AskUserQuestion `question` field leads with the one-line Decision Outcome (`"This ADR decides: X"`) rather than the meta-framing.
+
 ## Related
 
 (captured 2026-05-25 during the P283/ADR-066 oversight drain retro)
 
 - **P283** / **ADR-066** + **P288** / **ADR-068** — the drains whose presentation guidance this improves.
-- `packages/architect/skills/review-decisions/SKILL.md` + `packages/jtbd/skills/confirm-jobs-and-personas/SKILL.md` — the edit targets (currently held).
-- `docs/briefing/agent-interaction-patterns.md` — the briefing note target.
+- `packages/architect/skills/review-decisions/SKILL.md` + `packages/jtbd/skills/confirm-jobs-and-personas/SKILL.md` — the edit targets (architect side released in 0.12.1; jtbd side held with p288).
+- `docs/briefing/agent-interaction-patterns.md` — the briefing note target (shipped at commit `d1de917`).

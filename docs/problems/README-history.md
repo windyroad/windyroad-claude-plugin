@@ -628,3 +628,8 @@ Last reviewed: 2026-04-28 **AFK iter 7 — P139 transitioned Open → Verificati
 ## 2026-05-30 (work-problems wrap retro fragment rotated for P332 README reconciliation)
 
 > Last reviewed: 2026-05-30 **work-problems wrap retro** — captured 2 codification tickets: P330 (derive-release-vehicle helper UX gap — 3-touch K→V cycle; 2-of-3 dogfood evidence) + P331 (transition-problem Step 7 P134 Last-reviewed rotation silently skipped iter-7+iter-8 evidence chain). Both Open/S deferred-rate WSJF 3.0. Prior P302 O→KE fragment rotated to README-history.md per P134.
+
+
+## 2026-05-30 (README reconciliation fragment rotated for P302 K→V)
+
+> Last reviewed: 2026-05-30 **README reconciled** — 3 drift entries corrected: P333, P334, P335. Reconciliation contract per P118 + ADR-014 amended ("Reconciliation as preflight robustness layer").
