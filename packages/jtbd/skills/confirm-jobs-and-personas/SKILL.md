@@ -45,6 +45,10 @@ For each job/persona in the ordered queue, surface it as an `AskUserQuestion` (c
   - **Reject** — the auto-derived job/persona does not reflect real need; capture the supersede ticket (see Step 4) and write the **rejected-pending-supersede** marker so the drain stops re-asking.
   - **Defer** — skip this sitting; leave unoversighted for later.
 
+**Presentation rule — lead with the job statement / persona definition, never with the meta (P302).** The AskUserQuestion `question` field MUST open with the one-line job statement (for a JTBD) or persona definition (for a persona) — *what the job/persona asserts about real user/business need* — phrased as `"This job statement: <statement>"` / `"This persona: <who they are + key constraint>"`. Persona-cluster relationships, source-citations (which problem/RFC triggered the auto-derivation), and any internal-housekeeping recording-shape are **meta** about *how the artifact was authored*, not what it asserts — relegate them to a trailing clause or omit. Mirrors the `/wr-architect:review-decisions` presentation rule (P302) — ADR-074's *name the substance, not the grain* principle applied to the JTBD-confirm surface, and ADR-026 grounding extended from the file body to the AskUserQuestion `question` text. Burying the substance behind meta forces a clarifying re-ask: the user cannot tell what they are confirming reflects real need.
+
+The trailing clause exists for cross-reference value — it is optional, NOT a re-entry point for meta-leading. When the meta does not add load-bearing context for the confirm decision, omit it entirely.
+
 This is a genuine human-decision surface (the point of P288/ADR-068) — `AskUserQuestion` is correct here, not over-asking. Do not auto-confirm; do not prose-ask.
 
 ### Step 4: Apply the outcome

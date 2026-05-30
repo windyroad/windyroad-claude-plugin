@@ -47,6 +47,18 @@ For each ADR in the ordered queue, surface the decision as an `AskUserQuestion` 
   - **Reject / supersede** — the auto-made pick is wrong; capture the supersede ticket (see Step 4) and write the **rejected-pending-supersede** marker so the drain stops re-asking.
   - **Defer** — skip this sitting; leave unoversighted for a later run.
 
+**Presentation rule — lead with the Decision Outcome, never with the meta (P302).** The AskUserQuestion `question` field MUST open with the one-line Decision Outcome — *what the ADR decides* — phrased as `"This ADR decides: <outcome>"`. Sibling-ADR relationships, supersession lineage, and Considered-Options recording-shape (e.g. "separate ADR vs amend ADR-014") are **meta** about *how the decision was recorded*, not what it decides — relegate them to a trailing clause or omit. This is ADR-074's *name the substance, not the grain* principle applied to the confirm surface itself, and ADR-026 grounding extended from the ADR body to the AskUserQuestion `question` text. Burying the substance behind meta forces a clarifying re-ask: the user cannot tell what they are confirming.
+
+  *Bad — buries the decision behind meta:*
+  - *"a sibling ADR codifying five patterns; ADR-038 governs UserPromptSubmit, ADR-040 governs SessionStart."* (ADR-045 surfaced this way during the 2026-05-25 drain; user replied *"if this decision defers to a sibling decision, what does this decision decide??"*.)
+  - *"a separate ADR citing ADR-014 + ADR-018 as lineage, keeping single-purpose ADRs."* (ADR-020 surfaced this way the same session; user replied *"A decision to create a new decision??? What isn't this just the new decision?"*.)
+
+  *Good — substance-first:*
+  - *"This ADR decides: 5 per-tool-call hook patterns + their budget bands. (Sibling to ADR-038 / ADR-040 which govern the other hook surfaces.)"*
+  - *"This ADR decides: non-AFK governance skills auto-drain the release queue after commit. (Recorded as a separate ADR rather than amending ADR-014.)"*
+
+The trailing clause exists for cross-reference value — it is optional, NOT a re-entry point for meta-leading. When the meta does not add load-bearing context for the confirm decision, omit it entirely.
+
 This is a genuine human-decision surface (the whole point of P283) — `AskUserQuestion` is correct here and is NOT over-asking. Do not auto-confirm; do not prose-ask.
 
 ### Step 4: Apply the outcome
