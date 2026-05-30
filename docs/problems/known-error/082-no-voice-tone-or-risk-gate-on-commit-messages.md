@@ -1,6 +1,6 @@
 # Problem 082: No voice-and-tone or content-risk-scoring gate on commit messages
 
-**Status**: Open
+**Status**: Known Error
 **Reported**: 2026-04-21
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: M <!-- transitive: P038+P064 CLOSED → 0 2026-05-23; effort = marginal M (was transitive XL) -->
@@ -35,6 +35,39 @@ Blocked on P038 (voice-tone gate on external comms) + P064 (risk-scoring gate on
 The evaluator triple composes at the same `PreToolUse:Bash` matcher and shares the same fail-soft / fail-loud verdict shape per ADR-028. Architectural choice (single hook with three evaluators / three chained hooks / three subagent calls) is a design-question to resolve at implementation; the SCOPE is now three evaluators, not two.
 
 Symmetric scope expansion targets — P038 (voice-tone gate on external comms), P064 (risk-gate on external comms), and P073 (voice-tone/risk-gate on changeset authoring) — should also acquire the cognitive-accessibility evaluator at the same external-comms surface (every reader-facing prose surface deserves the same clarity bar). Flag for at-touch review in those tickets when next worked.
+
+## Investigation update (2026-05-30 — `/wr-itil:work-problems` iter 4, KE transition)
+
+**Blockers cleared.** P038 (voice-tone external-comms gate), P064 (content-risk external-comms gate), and P073 (changeset-authoring gate) are all CLOSED. P082 is unblocked at marginal-M effort. The composition cluster Direction-decision-2026-04-21 anticipated has shipped — `packages/voice-tone/hooks/external-comms-gate.sh` and `packages/risk-scorer/hooks/external-comms-gate.sh` exist as a byte-identical canonical hook synced across consumer plugins (ADR-017 duplicate-script pattern) with per-package `external-comms-evaluator.conf` providing evaluator identity.
+
+**Extension target confirmed: Option A** (extend existing canonical hook surface inventory; P038/P064 closure made A direct and obviates Option B stand-alone). The existing hook already composes for additional surfaces by adding a case branch to its Bash surface-detection block. Per-evaluator marker scheme (`compute_external_comms_key(draft, surface)` → `external-comms-<evaluator-id>-reviewed-<sha256>` in session tmpdir) already supports N-way evaluator composition at the gate-firing level (each plugin's gate fires independently, each marker keyed separately).
+
+**Phase split per P130 mid-loop scope discipline:**
+
+- **Phase 1 (this ticket — marginal M, fix-direction confirmed):** voice-tone + content-risk evaluators on the `git commit*` Bash surface. Mechanical extension of the existing canonical hook.
+  - Add `git commit*` branch to the `case "$TOOL_NAME" in Bash` block in `packages/{voice-tone,risk-scorer}/hooks/external-comms-gate.sh`. Surface name: `git-commit-message`.
+  - Body extraction: parse `-m TEXT` / `--message TEXT` from `COMMAND`, including the HEREDOC `$(cat <<'EOF'…EOF)` shape (the AI-dominant form — already captured by the existing `--body '...'` regex idiom).
+  - Marker scheme: unchanged — reuse `compute_external_comms_key($DRAFT, $SURFACE)`.
+  - Behavioural bats tests per P081: simulate `git commit -m "AI-tell draft"` → voice-tone deny + delegate; simulate content-leak commit → risk deny via `leak_detect_scan`; simulate `--amend` → intercepted (matches `git commit*`); confirm `BYPASS_RISK_GATE=1` short-circuits.
+  - Symmetric edit in both canonical hooks (ADR-017 byte-identical sync) — implementation iter must verify checksum parity post-edit.
+- **Phase 2 (sibling ticket — Phase 2 capture for cognitive-accessibility evaluator):** cognitive-accessibility evaluator across all four external-comms surfaces (gh / npm / changeset / git-commit). Requires:
+  - architectural decision: new `@windyroad/cognitive-a11y` plugin OR third-evaluator extension of voice-tone (per 2026-05-17 scope expansion above).
+  - amendment to ADR-028 declaring cognitive-a11y as a third evaluator class alongside voice-tone + content-risk.
+  - applies symmetrically at all four surfaces per the 2026-05-17 "symmetric scope expansion" note (gh issue/pr, npm publish, .changeset/*.md, git commit message).
+  - Out-of-scope for P082 marginal-M; should be captured as a separate ticket on iter exit (queued in `outstanding_questions`).
+
+**Sub-concern resolutions (against original RCA sub-concerns 1–6):**
+
+- **SC1 (editor flow):** skip Phase 1. `git commit` without `-m` opens an editor; the message is written to `.git/COMMIT_EDITMSG` which doesn't exist at `PreToolUse:Bash` time (git writes it as part of its own pre-commit flow, after PreToolUse). Editor flow is rare in AI-driven commits (HEREDOC `-m` dominates) and has user-eyeballs in the manual flow. Phase 1 skip is pragmatic.
+- **SC2 (`--amend`):** `git commit --amend -m "..."` matches the `git commit*` pattern → intercepted by the same case branch with no extra logic.
+- **SC3 (merge auto):** `git merge` / `git rebase` auto-commits don't match `git commit*` (the command is `git merge`/`git rebase`, not `git commit`) → naturally excluded, no extra logic.
+- **SC4 (`--no-verify`):** not relevant. `--no-verify` bypasses git's own pre-commit/commit-msg hooks; it does NOT bypass Claude Code `PreToolUse:Bash` hooks (different hook layer). The repo's bypass is `BYPASS_RISK_GATE=1` (pre-session env), consistent with sibling external-comms gates.
+- **SC5 (AFK subagent commits):** handled by `PreToolUse:Bash` firing at the tool layer regardless of which agent issued the command. Iteration-worker subprocesses (P077 / `claude -p` dispatch) are caught.
+- **SC6 (evaluator domain):** Phase 1 reuses the existing risk evaluator (content-leak via `lib/leak-detect.sh` + risk-pipeline subagent) + voice-tone evaluator (AI-tells, hedging, em-dashes via `wr-voice-tone:external-comms` subagent). No new evaluator domain needed at Phase 1. The cognitive-accessibility evaluator IS a new domain — deferred to Phase 2.
+
+**Architect deferral.** This iter is work-investigation (RCA-confirm + KE-transition), not implementation. Architectural decisions embedded here (Option A confirmation, Phase 1/2 split) follow established patterns: ADR-028 amended already covers the architecture; ADR-017 already covers byte-identical sync; the surface-inventory extension is a known shape. The implementation iter must delegate to `wr-architect:agent` when modifying the actual `.sh` files (gate fires on `packages/**/*.sh` edits per architect-gate scope).
+
+**Phase 1 ready for implementation iter.** Effort confirmed M. Carry `outstanding_questions` cognitive-a11y-evaluator-Phase-2-capture out of this iter.
 
 ## Description
 
