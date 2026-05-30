@@ -1,6 +1,6 @@
 # Problem 327: ADR bodies dominate session token usage — design a summary surface for routine compliance loading
 
-**Status**: Open
+**Status**: Known Error
 **Reported**: 2026-05-30
 **Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems; user signaled "highest priority because of token burn" at capture)
 **Origin**: inbound-reported (relayed from other projects)
@@ -43,11 +43,21 @@ In adopting projects using @windyroad/architect, `docs/decisions/` ADR content d
 ### Investigation Tasks
 
 - [ ] Re-rate Priority and Effort at next /wr-itil:review-problems (user signaled "highest priority" at capture — likely re-rates to Impact 4 × Likelihood 5 = Severity 20 / Very High → ADR-076 Tier 0)
-- [ ] Design the summary surface — three candidate shapes: (a) per-ADR `summary:` frontmatter field; (b) `docs/decisions/README.md` compendium loaded in lieu of full bodies for routine reads; (c) separate short-form file per ADR (e.g. `<NNN>-<slug>.summary.md`). Architect decision needed.
-- [ ] Decide which agents load the summary vs the full body — default-to-summary, fall back to full on explicit deep-dive surfaces (review-decisions drain, create-adr, capture-adr).
-- [ ] Migration path for existing 76 ADRs — auto-generate first-cut summaries from existing `## Decision Outcome` sections; human-confirm + refine opportunistically.
-- [ ] Update create-adr / capture-adr to author the summary at decision time so new ADRs are born compact.
-- [ ] Confirm with adopters whether the proposed summary shape preserves the deep-context-on-demand value they actually use.
+- [x] Design the summary surface — three candidate shapes: (a) per-ADR `summary:` frontmatter field; (b) `docs/decisions/README.md` compendium loaded in lieu of full bodies for routine reads; (c) separate short-form file per ADR (e.g. `<NNN>-<slug>.summary.md`). **Resolved by ADR-077: option (b) generated `docs/decisions/README.md` compendium.**
+- [x] Decide which agents load the summary vs the full body — default-to-summary, fall back to full on explicit deep-dive surfaces (review-decisions drain, create-adr, capture-adr). **Resolved by ADR-077 scope correction: only `wr-architect:agent` body-reads ADRs; designed for it specifically.**
+- [x] Migration path for existing 76 ADRs — auto-generate first-cut summaries from existing `## Decision Outcome` sections; human-confirm + refine opportunistically. **Resolved by Slice 1 `generate-decisions-compendium.sh` — first-cut auto-generated for all 75 ADRs (commit 846b5f2); hand-confirm folds into the existing `/wr-architect:review-decisions` drain.**
+- [x] Update create-adr / capture-adr to author the summary at decision time so new ADRs are born compact. **Resolved by Slice 2 — `/wr-architect:create-adr` Step 5 + `/wr-architect:capture-adr` Step 4.5 regenerate the compendium and stage with the new ADR file (commit 9832593). Slice 3 extends to `/wr-architect:review-decisions` Step 4.5.**
+- [ ] Confirm with adopters whether the proposed summary shape preserves the deep-context-on-demand value they actually use. **Deferred — post-release adopter feedback loop; tracked here for ADR-076 Tier 1 reporter follow-up.**
+
+## Fix Strategy
+
+ADR-077 (Generated `docs/decisions/README.md` compendium as token-cheap load surface) — shipped across three slices:
+
+- **Slice 1** (commit 846b5f2, `@windyroad/architect@0.11.0`): agent prompt amendment loading compendium by default; `generate-decisions-compendium.sh` + `wr-architect-generate-decisions-compendium` PATH shim per ADR-049; initial generated compendium (75 ADRs, 41 KB — ~40× reduction vs full bodies). Closed Confirmation items (a) (b) (c).
+- **Slice 2** (commit 9832593, `@windyroad/architect@0.12.x`): two-section format (in-force vs historical); `/wr-architect:create-adr` Step 5 + `/wr-architect:capture-adr` Step 4.5 regen-and-stage; `architect-compendium-refresh-discipline.sh` PreToolUse hook (P165 mirror) as safety net; `--check` flag on the generator. Closed Confirmation items (d) (e) (h).
+- **Slice 3** (this commit): `/wr-architect:review-decisions` Step 4.5 + Step 5 stage list regen-and-stage; CI drift-detection bats (13 behavioural tests) at `packages/architect/scripts/test/generate-decisions-compendium.bats`. Closes Confirmation items (f) (g). ADR-077 prose explicitly names the per-ADR body as authoritative and the compendium as derived (item (i) holds throughout); sibling test sweep clean (item (j) holds).
+
+All ADR-077 Confirmation items (a)–(j) green at source. Awaiting release verification — transitions to Verifying when `@windyroad/architect` ships, and to Closed when the next adopter session confirms the token-load drop.
 
 ## Dependencies
 

@@ -70,9 +70,32 @@ This is a genuine human-decision surface (the whole point of P283) — `AskUserQ
   3. If the user defers ticket capture, leave the marker absent — the ADR re-surfaces next drain (the un-tracked case is intentionally re-asked so it doesn't silently rot).
 - **Defer**: no write.
 
+### Step 4.5: Refresh the decisions compendium (ADR-077)
+
+After the batch's Confirm/Amend/Reject writes land in the working tree, regenerate `docs/decisions/README.md` so the architect-agent routine load surface reflects the new substance and badges:
+
+```bash
+wr-architect-generate-decisions-compendium
+```
+
+The compendium is the architect agent's primary load surface per ADR-077; review-decisions owns keeping it fresh through this drain (skills + agent are PRIMARY; the `architect-compendium-refresh-discipline.sh` hook is the safety-net backstop). Why this matters per disposition:
+
+- **Confirm** — adds the `human-oversight: confirmed` badge to the entry. Single-line projection; small but load-bearing for the at-a-glance review surface.
+- **Amend** — the Decision Outcome / Confirmation / Related substance changed in the per-ADR body. The compendium entry MUST be refreshed or routine compliance reads the stale prior call. This is the primary drift surface the refresh closes.
+- **Reject / supersede** — adds the `rejected-pending-supersede (P<NNN>)` badge (P316 amendment); surfaces the disposition + tracking ticket without requiring a per-ADR body read.
+- **Defer** — no write, no refresh needed.
+
+If the drain's batch contains only Defers, skip the refresh (no diff to stage). Step 5's stage list includes the compendium otherwise.
+
 ### Step 5: Commit + report
 
-Commit the confirmed/amended ADRs per ADR-014 (one commit for the sitting's drained batch is acceptable — the unit of work is "this drain sitting"). Report: how many confirmed / amended / rejected / deferred, and the remaining unoversighted count (re-run the detector). The session-start nudge count drops by the number confirmed.
+**Stage list**: the confirmed/amended/rejected ADR files AND the refreshed compendium (ADR-077 — both move in the same commit so the architect-compendium-refresh-discipline hook passes).
+
+```bash
+git add docs/decisions/<NNN>-*.md docs/decisions/README.md
+```
+
+Commit the drained batch per ADR-014 (one commit for the sitting's drained batch is acceptable — the unit of work is "this drain sitting"). Report: how many confirmed / amended / rejected / deferred, and the remaining unoversighted count (re-run the detector). The session-start nudge count drops by the number confirmed.
 
 ## Notes
 
@@ -86,4 +109,6 @@ Commit the confirmed/amended ADRs per ADR-014 (one commit for the sitting's drai
 - **ADR-064** — the architect Needs-Direction verdict; the main agent owns `AskUserQuestion` (this skill is that ownership applied to the existing set).
 - **ADR-009** — never-re-ask persistent-marker principle (the marker, not its TTL/drift lifecycle).
 - **ADR-013 / ADR-044** — structured user interaction + decision-delegation taxonomy.
+- **ADR-077** — generated decisions compendium as the architect agent's routine load surface; Step 4.5 + Step 5 keep it fresh through this drain (Confirmation item (f)). Mirrors the same regen + stage-with-commit pattern used by `/wr-architect:create-adr` Step 5 and `/wr-architect:capture-adr` Step 4.5.
 - **P283** — driving problem ticket (prong 2).
+- **P327** — driving problem ticket for the compendium-refresh integration (Confirmation item (f) closure under ADR-077 Slice 3).
