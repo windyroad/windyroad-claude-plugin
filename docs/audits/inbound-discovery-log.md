@@ -107,3 +107,26 @@ Triggered by interactive `/wr-itil:review-problems`. Cache age (2026-05-23 → n
 - Fail-soft contract held: the 2 skipped channels did not block the review (discussions-disabled + the security-advisories gate false-positive skipped with advisory notes; the github-issues poll ran in a command that omitted the gate-tripping substring).
 - No new third-party concerns surfaced — the discovery surface is currently a maintainer-dogfood mirror loop; semantic-matching + local-ticket creation remain part of the deferred pipeline.
 - `AskUserQuestion` not called for the discovery step (mechanical-stage carve-out per P132 / ADR-062 § 4.5 AFK behaviour).
+
+## 2026-05-30T01:20:15Z — Discovery pass
+
+Triggered by `/wr-itil:work-problems` Step 0b preflight dispatch (subprocess) running `/wr-itil:review-problems`. Cache age (2026-05-25T15:15:41Z → now) was ~381,814s — exceeded `ttl_seconds: 86400` → TTL-expiry auto-recheck branch (no explicit `--force-upstream-recheck` needed).
+
+| Channel | Status | Reports |
+|---------|--------|---------|
+| `github-issues:windyroad/agent-plugins` (title_prefix=`[problem]`) | OK | 34 active (open upstream) + 1 retained closed-upstream historical entry |
+| `github-discussions:windyroad/agent-plugins` (category=`Q&A`) | skipped | 0 — Discussions disabled for repo (HTTP 410); status carried forward |
+| `github-security-advisories:windyroad/agent-plugins` | skipped | 0 — read-only LIST call still blocked by the external-comms gate (P276/P198/#125 live; fresh poll not attempted this pass to preserve fail-soft semantics — channel-skip status preserved from prior pass evidence) |
+
+**Set delta vs prior cache (2026-05-25T15:15:41Z)**: **0 new reports, 0 newly-closed**. Fresh strict `[problem]`-prefixed open set (34: 42, 56–63, 76–87, 97, 98, 110, 117, 120, 121, 123–126, 137–139) equals the prior open set; #149 remains closed upstream (status unchanged since 2026-05-24T20:57:49Z close). All polled reports are maintainer-authored (`tompahoward`) and already mirrored locally (P198–P229 series + P282-class + earlier mirrors).
+
+**Pipeline outcomes**: 0 new pipeline classifications. All reports remain `pending-pipeline-processing` (or `closed-upstream` for #149). The JTBD-alignment + dual-axis-risk classifiers, semantic-comparator matching, branch routing, and per-report acknowledgement comments remain **deferred** per the standing 2026-05-15 user direction (external-comms-gate sha bug P198/#125 blocks ack-comment posting). No clear-malicious closures, no above-threshold pushbacks, no new local tickets created.
+
+**Cache refresh confirmation**: `docs/problems/.upstream-cache.json` rewritten with `last_checked: 2026-05-30T01:20:15Z`; per-channel `fetched_at` refreshed on all three channels; reports array unchanged at the (number, body_hash) layer; `$last_pass_note` updated.
+
+**Audit notes**:
+
+- Fail-soft contract held: the 2 skipped channels did not block the pass (discussions HTTP 410 + security-advisories gate-block both preserve their prior skip status).
+- Step 4.5 invoked as part of `/wr-itil:work-problems` Step 0b preflight robustness layer — orchestrator dispatched a subprocess to refresh the inbound-discovery cache before entering the work-loop, so that the work-loop sees fresh discovery state (rather than 4.4-day-stale cache). This is the documented self-healing TTL-expiry pattern (a maintainer who runs `work-problems` once a week without `--force-upstream-recheck` still gets a fresh inbound-discovery pass at Step 0b).
+- No new third-party concerns surfaced — the discovery surface remains the maintainer-dogfood mirror loop; semantic-matching + local-ticket creation remain part of the deferred pipeline.
+- `AskUserQuestion` not called for the discovery step (subprocess context per orchestrator instruction — user presumed absent; mechanical-stage carve-out per P132 / ADR-062 § 4.5 AFK behaviour).

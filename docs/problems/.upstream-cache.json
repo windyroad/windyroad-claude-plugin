@@ -1,11 +1,11 @@
 {
   "$schema": "https://windyroad.github.io/agent-plugins/schemas/upstream-cache.json",
   "$comment": "Cache file for inbound report discovery (P079 / ADR-062). Written by /wr-itil:review-problems Step 8.5 after each discovery pass.",
-  "last_checked": "2026-05-25T15:15:41Z",
-  "$last_pass_note": "2026-05-26 review-problems discovery pass (TTL-expiry auto-recheck). github-issues: 33 [problem] reports, all maintainer-authored, all already mirrored locally (P200-P229 series); #149 now CLOSED upstream. discussions disabled (HTTP 410); security-advisories poll skipped (external-comms gate false-positive P276/P198). No new unmatched third-party reports. Pipeline classification remains deferred per 2026-05-15 user direction.",
+  "last_checked": "2026-05-30T01:20:15Z",
+  "$last_pass_note": "2026-05-30 review-problems discovery pass (work-problems Step 0b preflight, TTL-expiry auto-recheck; cache age ~4.4 days exceeded ttl_seconds 86400). github-issues: 34 active [problem] reports, all maintainer-authored, all already mirrored locally (P198-P229 series + P228/P282-class); #149 remains CLOSED upstream. discussions skipped (HTTP 410 \u2014 disabled for repo); security-advisories poll skipped (P276/P198/#125 external-comms gate misclassification \u2014 preserved per prior-pass evidence). No new unmatched third-party reports. Pipeline classification remains deferred per 2026-05-15 user direction.",
   "channels": {
     "github-issues:windyroad/agent-plugins": {
-      "fetched_at": "2026-05-25T15:15:41Z",
+      "fetched_at": "2026-05-30T01:20:15Z",
       "filter": "title_prefix=[problem] (label filter removed; see channels-config $filter-note)",
       "status": "ok",
       "reports": [
@@ -16,11 +16,11 @@
           "createdAt": "2026-05-18T11:55:37Z",
           "body_hash": "bfda21a42bc40001",
           "classification": "closed-upstream",
-          "cache_audit_note": "CLOSED upstream as of 2026-05-26 poll — P010 fixed by 56bae5f (released risk-scorer 0.11.0, mirrored locally as P198) and P007 fixed by 3c732ba (released risk-scorer 0.11.0, mirrored as P286). No pipeline action needed."
+          "cache_audit_note": "CLOSED upstream as of 2026-05-26 poll \u2014 P010 fixed by 56bae5f (released risk-scorer 0.11.0, mirrored locally as P198) and P007 fixed by 3c732ba (released risk-scorer 0.11.0, mirrored as P286). No pipeline action needed."
         },
         {
           "number": 139,
-          "title": "[problem] migrate-problems-layout.sh helper uses bashisms but /wr-itil:work-problems Step 0a SKILL.md does not specify bash — sourcing fails under zsh",
+          "title": "[problem] migrate-problems-layout.sh helper uses bashisms but /wr-itil:work-problems Step 0a SKILL.md does not specify bash \u2014 sourcing fails under zsh",
           "author": "tompahoward",
           "createdAt": "2026-05-17T20:51:10Z",
           "body_hash": "4718c55fe9f0c267",
@@ -47,7 +47,7 @@
         },
         {
           "number": 126,
-          "title": "[problem] capture-problem → manage-problem same-session halts at Step 0 reconcile (HALT_ROUTE_RECONCILE on deferred-refresh seam)",
+          "title": "[problem] capture-problem \u2192 manage-problem same-session halts at Step 0 reconcile (HALT_ROUTE_RECONCILE on deferred-refresh seam)",
           "author": "tompahoward",
           "createdAt": "2026-05-13T20:13:45Z",
           "body_hash": "43eeab2af47e1acb",
@@ -56,7 +56,7 @@
         },
         {
           "number": 125,
-          "title": "[problem] external-comms gate marker key cannot be computed by the reviewer agent (Read/Glob/Grep tool surface — no shasum); hash-scope ambiguity adds three recurrences",
+          "title": "[problem] external-comms gate marker key cannot be computed by the reviewer agent (Read/Glob/Grep tool surface \u2014 no shasum); hash-scope ambiguity adds three recurrences",
           "author": "tompahoward",
           "createdAt": "2026-05-13T20:12:24Z",
           "body_hash": "8e2fa16bdf660e46",
@@ -101,7 +101,7 @@
         },
         {
           "number": 117,
-          "title": "[problem] No /wr-retrospective:migrate-briefing skill — legacy docs/BRIEFING.md → docs/briefing/ topic-tree migration is manual per-adopter",
+          "title": "[problem] No /wr-retrospective:migrate-briefing skill \u2014 legacy docs/BRIEFING.md \u2192 docs/briefing/ topic-tree migration is manual per-adopter",
           "author": "tompahoward",
           "createdAt": "2026-05-10T20:10:01Z",
           "body_hash": "1761465715adefe1",
@@ -119,7 +119,7 @@
         },
         {
           "number": 98,
-          "title": "[problem] work-problems iter workers don't add changesets — fix commits accumulate without release path",
+          "title": "[problem] work-problems iter workers don't add changesets \u2014 fix commits accumulate without release path",
           "author": "tompahoward",
           "createdAt": "2026-04-28T02:31:57Z",
           "body_hash": "b2c16163511e0421",
@@ -317,7 +317,7 @@
         },
         {
           "number": 42,
-          "title": "[problem] ADR-022 .known-error.md → .verifying.md transition not happening consistently at release time",
+          "title": "[problem] ADR-022 .known-error.md \u2192 .verifying.md transition not happening consistently at release time",
           "author": "tompahoward",
           "createdAt": "2026-04-21T00:20:36Z",
           "body_hash": "b66ba6368d1d0dae",
@@ -327,16 +327,16 @@
       ]
     },
     "github-discussions:windyroad/agent-plugins": {
-      "fetched_at": "2026-05-25T15:15:41Z",
+      "fetched_at": "2026-05-30T01:20:15Z",
       "reports": [],
       "status": "skipped",
-      "skip_reason": "discussions-disabled-for-repo (HTTP 410) — reconfirmed 2026-05-26"
+      "skip_reason": "discussions-disabled-for-repo (HTTP 410) \u2014 reconfirmed 2026-05-30 (preserved status from prior 2026-05-26 poll; channel-skip status carried forward per fail-soft contract)"
     },
     "github-security-advisories:windyroad/agent-plugins": {
-      "fetched_at": "2026-05-25T15:15:41Z",
+      "fetched_at": "2026-05-30T01:20:15Z",
       "reports": [],
       "status": "skipped",
-      "skip_reason": "external-comms-gate-misclassifies-read-only-list-as-outbound (gate bug P276/P198/#125; reconfirmed 2026-05-26 — gate blocked the poll command verbatim again)"
+      "skip_reason": "external-comms-gate-misclassifies-read-only-list-as-outbound (gate bug P276/P198/#125; preserved per fail-soft contract \u2014 no fresh poll attempted this pass to avoid retriggering the gate-denial cycle; the gate-bug landing in @windyroad/risk-scorer is the unblock path)"
     }
   }
 }
