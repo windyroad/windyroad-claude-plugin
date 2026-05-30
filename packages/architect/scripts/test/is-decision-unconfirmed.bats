@@ -106,3 +106,38 @@ mk() {
   [[ "$detect_out" != *"111-confirmed.proposed.md"* ]]
   run bash "$SCRIPT" "ADR-111" "$DIR/docs/decisions"; [ "$status" -eq 1 ]
 }
+
+# ADR-066 amendment (P316): mirror the rejected-pending-supersede exclusion.
+# The build-upon guard must NOT fire on an ADR the user explicitly rejected
+# with a tracked supersede ticket — otherwise the [Unratified Dependency]
+# verdict re-triggers on every iteration that touches the rejected ADR.
+
+@test "rejected-pending-supersede WITH supersede-ticket does NOT fire the guard (exit 1)" {
+  mk "120-rejected-tracked.proposed.md" "proposed" \
+    "human-oversight: rejected-pending-supersede" \
+    "supersede-ticket: P297"
+  run bash "$SCRIPT" "ADR-120" "$DIR/docs/decisions"
+  [ "$status" -eq 1 ]
+  [ -z "$output" ]
+}
+
+@test "rejected-pending-supersede WITHOUT supersede-ticket DOES fire the guard (exit 0)" {
+  mk "121-rejected-untracked.proposed.md" "proposed" \
+    "human-oversight: rejected-pending-supersede"
+  run bash "$SCRIPT" "ADR-121" "$DIR/docs/decisions"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"121-rejected-untracked.proposed.md"* ]]
+}
+
+@test "agrees with detect-unoversighted on rejected-pending-supersede (sync guard)" {
+  mk "130-rejected.proposed.md" "proposed" \
+    "human-oversight: rejected-pending-supersede" \
+    "supersede-ticket: P298"
+  mk "131-rejected-untracked.proposed.md" "proposed" \
+    "human-oversight: rejected-pending-supersede"
+  detect_out="$(bash "$DETECT" "$DIR/docs/decisions")"
+  [[ "$detect_out" != *"130-rejected.proposed.md"* ]]
+  run bash "$SCRIPT" "ADR-130" "$DIR/docs/decisions"; [ "$status" -eq 1 ]
+  [[ "$detect_out" == *"131-rejected-untracked.proposed.md"* ]]
+  run bash "$SCRIPT" "ADR-131" "$DIR/docs/decisions"; [ "$status" -eq 0 ]
+}

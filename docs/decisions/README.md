@@ -156,7 +156,7 @@ _68 ADRs. These are the current rules. The architect agent reads this section fi
 **Related:** ADR-024, ADR-022, ADR-028, ADR-031, ADR-013, ADR-014, ADR-002
 
 ### ADR-034 — Auto-install on next session start — SessionStart hook + per-project consent gate
-**Status:** proposed
+**Status:** proposed | **Oversight:** rejected-pending-supersede (P299)
 **Confirmation:** packages/itil/hooks/session-start-update-check.sh exists and ships with @windyroad/itil.; packages/itil/.claude-plugin/plugin.json declares the SessionStart hook.; .claude/skills/install-updates/SKILL.md (repo-local per ADR-030) gains an "Auto-install consent grant" step at…; Consent marker file format documented in the ADR and the skill.; AFK-launch detection uses the envvar name documented in ADR-019 (or established in P045 execution if not yet s…
 **Related:** ADR-030, ADR-032, ADR-013, ADR-004, ADR-018, ADR-019, ADR-026, ADR-031, ADR-005, ADR-025, ADR-009
 
@@ -200,7 +200,7 @@ _68 ADRs. These are the current rules. The architect agent reads this section fi
 **Related:** ADR-046, ADR-024, ADR-014, ADR-017, ADR-022, ADR-029, ADR-030, ADR-037, ADR-044
 
 ### ADR-047 — Install-updates scaffolds governance artefacts when policy file is present but artefact is missing
-**Status:** proposed
+**Status:** proposed | **Oversight:** rejected-pending-supersede (P297)
 **Confirmation:** .claude/skills/install-updates/SKILL.md — Step 6.5 "Scaffold governance artefacts (per-sibling)" exists betw…; .claude/skills/install-updates/REFERENCE.md — new section "Governance-artefact scaffold (P033)" present with…; .claude/skills/install-updates/templates/risk-register-README.md.tmpl — present; adopter-flavoured (no R001 …; .claude/skills/install-updates/templates/risk-register-TEMPLATE.md.tmpl — present; verbatim copy of this rep…; docs/problems/033-no-persistent-risk-register.known-error.md — Phase 1 marked complete with ADR-047 citation…
 **Related:** ADR-036, ADR-030, ADR-013, ADR-014, ADR-038, ADR-040, ADR-004
 
@@ -226,7 +226,7 @@ _68 ADRs. These are the current rules. The architect agent reads this section fi
 **Related:** ADR-052, ADR-040, ADR-038, ADR-005, ADR-014, ADR-044, ADR-045, ADR-049, ADR-051, ADR-053
 
 ### ADR-055 — Plugin-published artefacts use namespace-prefixed permalinks for internal IDs
-**Status:** proposed
+**Status:** proposed | **Oversight:** rejected-pending-supersede (P298)
 
 ### ADR-056 — Risk Register Back-Channel Write Contract — agent emits, hook queues, calling skill drains
 **Status:** proposed | **Oversight:** confirmed
@@ -260,7 +260,7 @@ _68 ADRs. These are the current rules. The architect agent reads this section fi
 **Related:** ADR-024, ADR-028, ADR-029, ADR-031, ADR-033, ADR-036, ADR-037, ADR-044, ADR-046
 
 ### ADR-063 — `@windyroad/*` plugin maturity presentation layer — `plugin.json` schema, prose-woven README badge, in-suite `wr-itil-plugin-maturity-list` display shim
-**Status:** proposed
+**Status:** proposed | **Oversight:** rejected-pending-supersede (P300)
 
 ### ADR-064 — ADR-064: Architect emits a Needs-Direction verdict; the main agent owns the AskUserQuestion
 **Status:** proposed | **Oversight:** confirmed

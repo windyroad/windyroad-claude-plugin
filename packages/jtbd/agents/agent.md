@@ -52,8 +52,8 @@ When the change or plan under review **explicitly cites, implements, or serves**
 wr-jtbd-is-job-or-persona-unconfirmed <persona-name | JTBD-NNN>
 ```
 
-- **Exit 0** (frontmatter lacks the marker AND the artifact is not superseded) → the artifact is **unratified**. Emit **ISSUES FOUND / [Unratified Dependency]** with action: "ratify `<persona | JTBD-NNN>` via `/wr-jtbd:confirm-jobs-and-personas` before this lands." (The predicate prints the resolved path on stdout.)
-- **Exit 1** (ratified, or superseded) → do NOT flag.
+- **Exit 0** (frontmatter lacks the marker AND the artifact is not superseded AND it does not carry the rejected-pending-supersede + supersede-ticket pair) → the artifact is **unratified**. Emit **ISSUES FOUND / [Unratified Dependency]** with action: "ratify `<persona | JTBD-NNN>` via `/wr-jtbd:confirm-jobs-and-personas` before this lands." (The predicate prints the resolved path on stdout.)
+- **Exit 1** (ratified, superseded, or rejected-pending-supersede with a tracked `supersede-ticket: P<NNN>` — ADR-068 amendment per P316) → do NOT flag. A user-rejected artifact with a tracked supersede ticket is ratified-equivalent for the build-upon guard.
 - **Exit 2** (ref not found) → the change cites a persona/job that does not exist; that is a separate Job Gap / Persona Mismatch, not an Unratified Dependency.
 
 **Key the flag on the oversight marker, NEVER on `status:`.** `status: proposed`/`accepted` and `human-oversight:` are orthogonal axes (ADR-066). Building on a **ratified** job whose `status` is still `proposed` is fine — do NOT flag it; only the *unratified* (marker-absent, non-superseded) case flags.

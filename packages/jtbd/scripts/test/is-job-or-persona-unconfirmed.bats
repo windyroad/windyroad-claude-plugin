@@ -124,3 +124,44 @@ mk_job() {
   [[ "$detect_out" != *"tech-lead/persona.md"* ]]
   run bash "$SCRIPT" "tech-lead" "$DIR/docs/jtbd"; [ "$status" -eq 1 ]
 }
+
+# ADR-068 amendment (P316): mirror the architect `rejected-pending-supersede`
+# exclusion onto the JTBD predicate.
+
+# mk_rejected_persona <name> [supersede-ticket-or-empty]
+mk_rejected_persona() {
+  local name="$1"; local ticket="${2:-}"
+  mkdir -p "$DIR/docs/jtbd/$name"
+  {
+    echo "---"
+    echo "name: $name"
+    echo "human-oversight: rejected-pending-supersede"
+    [ -n "$ticket" ] && echo "supersede-ticket: $ticket"
+    echo "---"
+    echo "# $name"
+  } > "$DIR/docs/jtbd/$name/persona.md"
+}
+
+@test "persona with rejected-pending-supersede + supersede-ticket does NOT fire the guard (exit 1)" {
+  mk_rejected_persona "scrapped-persona" "P299"
+  run bash "$SCRIPT" "scrapped-persona" "$DIR/docs/jtbd"
+  [ "$status" -eq 1 ]
+  [ -z "$output" ]
+}
+
+@test "persona with rejected-pending-supersede WITHOUT supersede-ticket DOES fire the guard (exit 0)" {
+  mk_rejected_persona "untracked-persona" ""
+  run bash "$SCRIPT" "untracked-persona" "$DIR/docs/jtbd"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"untracked-persona/persona.md"* ]]
+}
+
+@test "agrees with detect-unoversighted on rejected-pending-supersede (sync guard)" {
+  mk_rejected_persona "alpha-tracked" "P297"
+  mk_rejected_persona "beta-untracked" ""
+  detect_out="$(bash "$DETECT" "$DIR/docs/jtbd")"
+  [[ "$detect_out" != *"alpha-tracked/persona.md"* ]]
+  run bash "$SCRIPT" "alpha-tracked" "$DIR/docs/jtbd"; [ "$status" -eq 1 ]
+  [[ "$detect_out" == *"beta-untracked/persona.md"* ]]
+  run bash "$SCRIPT" "beta-untracked" "$DIR/docs/jtbd"; [ "$status" -eq 0 ]
+}

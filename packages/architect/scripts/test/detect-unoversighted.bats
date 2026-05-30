@@ -97,3 +97,43 @@ mk() { # mk <filename> <frontmatter-extra-lines...>
   [ "$status" -eq 0 ]
   [ -z "$output" ]
 }
+
+# ADR-066 amendment (P316): rejected-pending-supersede is a third oversight
+# value alongside `confirmed` and absent. It exists so the drain stops crying
+# wolf on ADRs the user has explicitly rejected with a tracked supersede
+# ticket (otherwise they re-surface every drain until the supersede ADR
+# lands). Exclusion is conditional on BOTH the marker AND a supersede-ticket
+# scalar being present — a marker without a ticket is malformed and still
+# surfaces (defensive, JTBD-201/202 audit-trail guard).
+
+@test "rejected-pending-supersede WITH supersede-ticket is excluded" {
+  mk "020-rejected-tracked.proposed.md" \
+    "human-oversight: rejected-pending-supersede" \
+    "supersede-ticket: P297"
+  run bash "$SCRIPT" "$DIR/docs/decisions"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"020-rejected-tracked.proposed.md"* ]]
+}
+
+@test "rejected-pending-supersede WITHOUT supersede-ticket still surfaces (defensive)" {
+  mk "021-rejected-untracked.proposed.md" \
+    "human-oversight: rejected-pending-supersede"
+  run bash "$SCRIPT" "$DIR/docs/decisions"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"021-rejected-untracked.proposed.md"* ]]
+}
+
+@test "supersede-ticket alone (without the rejected marker) does NOT exclude" {
+  mk "022-ticket-only.proposed.md" "supersede-ticket: P297"
+  run bash "$SCRIPT" "$DIR/docs/decisions"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"022-ticket-only.proposed.md"* ]]
+}
+
+@test "rejected-pending-supersede match tolerates trailing whitespace" {
+  mk "023-spacey.proposed.md" \
+    "human-oversight:   rejected-pending-supersede   " \
+    "supersede-ticket:   P297   "
+  run bash "$SCRIPT" "$DIR/docs/decisions"
+  [[ "$output" != *"023-spacey.proposed.md"* ]]
+}

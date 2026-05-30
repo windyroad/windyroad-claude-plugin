@@ -42,7 +42,7 @@ For each job/persona in the ordered queue, surface it as an `AskUserQuestion` (c
 - **Options** per artifact:
   - **Confirm** — the job/persona accurately reflects real need; write the marker.
   - **Amend** — mostly right but needs a change; capture it, apply it to the file, then write the marker.
-  - **Reject** — the auto-derived job/persona does not reflect real need; do NOT write the marker. Note the rework (a `wr-jtbd:update-guide` rewrite, or retirement).
+  - **Reject** — the auto-derived job/persona does not reflect real need; capture the supersede ticket (see Step 4) and write the **rejected-pending-supersede** marker so the drain stops re-asking.
   - **Defer** — skip this sitting; leave unoversighted for later.
 
 This is a genuine human-decision surface (the point of P288/ADR-068) — `AskUserQuestion` is correct here, not over-asking. Do not auto-confirm; do not prose-ask.
@@ -50,7 +50,10 @@ This is a genuine human-decision surface (the point of P288/ADR-068) — `AskUse
 ### Step 4: Apply the outcome
 
 - **Confirm / Amend**: write `human-oversight: confirmed` + `oversight-date: <today, YYYY-MM-DD>` into the file's frontmatter (insert after the `status:`/`date-created:` line if absent; never duplicate). For Amend, apply the directed change first. Edits go through the standard JTBD / architect edit gate per ADR-014.
-- **Reject**: leave the marker absent; record the rework.
+- **Reject** (ADR-068 amendment per P316, mirroring ADR-066):
+  1. Capture the supersede ticket via a follow-up `AskUserQuestion`: "Which problem ticket tracks the rework?" — options: existing `P<NNN>` IDs surfaced from `docs/problems/`, **Capture a new ticket** (delegate to `/wr-itil:capture-problem`), or **Defer (leave un-tracked for now)**.
+  2. If a ticket ID is captured, write `human-oversight: rejected-pending-supersede` + `supersede-ticket: P<NNN>` into the file's frontmatter. The detector excludes artifacts carrying both, so the drain stops re-asking until either the rework lands (file renamed to `*.superseded.md`) or the rejection is revisited.
+  3. If the user defers ticket capture, leave the marker absent — the artifact re-surfaces next drain (the un-tracked case is intentionally re-asked so it doesn't silently rot).
 - **Defer**: no write.
 
 **Unoversighted ≠ unusable** (ADR-068): an unconfirmed job/persona stays fully readable and review-anchorable. The marker records provenance; it never quarantines the doc or blocks reviews from reading it.
@@ -61,7 +64,7 @@ Commit the confirmed/amended files per ADR-014 (one commit per drain sitting is 
 
 ## Notes
 
-- **Never re-ask** — a confirmed job/persona carries the marker permanently and is excluded from future runs (ADR-009). Write-once **except** when the job statement / persona definition is materially rewritten — a material amend clears the marker for re-confirmation (ADR-068 Reassessment).
+- **Never re-ask** — a confirmed job/persona carries the marker permanently and is excluded from future runs (ADR-009). The same write-once-permanence applies to the `rejected-pending-supersede` value (P316 amendment): once the user rejects with a tracked ticket, the drain stops asking. Write-once **except** when the job statement / persona definition is materially rewritten — a material amend clears the marker for re-confirmation (ADR-068 Reassessment). When the rework lands and the file is renamed to `*.superseded.md`, the existing superseded-name skip takes over; the `rejected-pending-supersede` lines become historical residue.
 - **AFK** — interactive by construction (the confirm IS the human decision); not dispatched in AFK iteration subprocesses. The session-start nudge self-suppresses there (`WR_SUPPRESS_OVERSIGHT_NUDGE=1`).
 - **Born-confirmed going forward** — `/wr-jtbd:update-guide` writes the marker when the user confirms a new/edited job or persona, so new artifacts enter the set already oversighted and the unoversighted count only shrinks.
 

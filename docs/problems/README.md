@@ -12,7 +12,6 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 |------|-----|-------|----------|--------|--------|----------|
 | 6.0 | P087 | No maturity / battle-hardening signal on plugins, skills, agents, or hooks — READMEs don't tell users which features are stable vs experimental | 12 High | Known Error | L | 2026-04-21 |
 | 6.0 | P097 | SKILL.md files mix runtime-necessary steps with maintainer-facing rationale, bloating every skill invocation | 12 High | Known Error | L | 2026-04-22 |
-| 6.0 | P316 | Rejected-pending-supersede ADRs re-surface in every review-decisions drain — no "rejected" state to suppress them | 6 Med | Open | S | 2026-05-26 |
 | 6.0 | P082 | No voice-and-tone or content-risk-scoring gate on commit messages (transitive XL via P038 per P076; marginal M) | 12 High | Open | M | 2026-04-21 |
 | 6.0 | P263 | CI gate `claude plugin install --dry-run` per plugin pre-publish — ADR-063 Confirmation #11 implementation; structural prevention for P258 class (gate-the-actual-load-bearing-surface, sibling to P246) | 12 High | Open | M | 2026-05-18 |
 | 6.0 | P282 | Agent records validation evidence in `.verifying.md` ticket body but doesn't close — V→Closed transition skipped when validation lands inline (concrete instance: voder-mcp-hub P027 body contains "End-to-end validation of P018" + "Fix direction (per user, ...)" yet ticket remains verifying; sibling of P068 narrower run-retro surface and P228 K→V analogue) | 12 High | Open | M | 2026-05-19 |
@@ -60,6 +59,7 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 3.0 | P229 | Inbound-discovery ack comments are bureaucratic, not verdict-shaped — JTBD-301 violation; 31 comments posted with framework-vocab boilerplate this session | 3 Med | Known Error | M | 2026-05-15 |
 | 3.0 | P245 | AFK iter retro surfaces three hook-vs-SKILL-contract drift observations (external-comms key derivation; P165 README refresh on capture; P141 changeset-discipline held-area awareness) | 3 Med | Known Error | M | 2026-05-17 |
 | 3.0 | P277 | P165 README-refresh hook doesn't distinguish iter-staged from cross-turn-staged tickets when AFK subprocess + orchestrator main turn share working tree (captured 2026-05-19 via /wr-itil:capture-problem; deferred re-rate) | 3 Med | Known Error | M | 2026-05-19 |
+| 3.0 | P316 | Rejected-pending-supersede ADRs re-surface in every review-decisions drain — no "rejected" state to suppress them | 6 Med | Known Error | M | 2026-05-26 |
 | 3.0 | P193 | `risk-gate.bats:163` "Band B with no hash file" test fails non-deterministically at the 5s/5s TTL boundary | 3 Med | Open | S | 2026-05-15 |
 | 3.0 | P278 | renderer-package-counts-the-readme-changes convention scope vs P141 per-package source change discipline (ADR-021 boundary clarification) (captured 2026-05-19 via /wr-itil:capture-problem; deferred re-rate) | 3 Med | Open | S | 2026-05-19 |
 | 3.0 | P161 | Advisory-then-escalate may be over-applied as the default for drift-class detectors generally; load-bearing-from-the-start may be the better default — observation-only meta-question ticket surfaced by P159 | 6 Mod | Open | M | 2026-05-04 |

@@ -1,6 +1,9 @@
 ---
 status: "proposed"
 date: 2026-05-17
+human-oversight: rejected-pending-supersede
+supersede-ticket: P300
+oversight-date: 2026-05-26
 decision-makers: [Tom Howard]
 consulted: [wr-architect:agent (YELLOW-with-adjustments; 4 adjustments folded in), wr-jtbd:agent (YELLOW-with-adjustments; 5 adjustments + 4 JTBD outcome amendments folded in)]
 informed: [Windy Road plugin users, plugin-developer persona, plugin-user persona, addressr maintainer, bbstats maintainer]

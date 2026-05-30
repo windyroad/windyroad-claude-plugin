@@ -83,3 +83,31 @@ mk() { # mk <relpath under docs/jtbd> <extra frontmatter lines...>
   [ "$status" -eq 0 ]
   [ -z "$output" ]
 }
+
+# ADR-068 amendment (P316): mirror the architect `rejected-pending-supersede`
+# exclusion onto the JTBD detector. Exclusion requires BOTH the marker AND
+# a supersede-ticket: P<NNN> scalar; a marker without the ticket is
+# malformed and still surfaces (defensive).
+
+@test "JTBD with rejected-pending-supersede + supersede-ticket is excluded" {
+  mk "solo-developer/JTBD-020-rejected.proposed.md" \
+    "human-oversight: rejected-pending-supersede" \
+    "supersede-ticket: P297"
+  run bash "$SCRIPT" "$DIR/docs/jtbd"
+  [[ "$output" != *"JTBD-020-rejected.proposed.md"* ]]
+}
+
+@test "JTBD with rejected-pending-supersede WITHOUT supersede-ticket still surfaces (defensive)" {
+  mk "solo-developer/JTBD-021-untracked.proposed.md" \
+    "human-oversight: rejected-pending-supersede"
+  run bash "$SCRIPT" "$DIR/docs/jtbd"
+  [[ "$output" == *"JTBD-021-untracked.proposed.md"* ]]
+}
+
+@test "persona with rejected-pending-supersede + ticket is also excluded" {
+  mk "rejected-persona/persona.md" \
+    "human-oversight: rejected-pending-supersede" \
+    "supersede-ticket: P299"
+  run bash "$SCRIPT" "$DIR/docs/jtbd"
+  [[ "$output" != *"rejected-persona/persona.md"* ]]
+}

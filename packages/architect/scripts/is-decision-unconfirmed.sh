@@ -76,6 +76,16 @@ if printf '%s\n' "$fm" | grep -qiE '^human-oversight:[[:space:]]*confirmed[[:spa
   exit 1   # confirmed — OK to build on
 fi
 
+# ADR-066 amendment (P316): rejected-pending-supersede with a tracked
+# supersede-ticket is "ratified-equivalent" for the build-upon guard — the
+# user has explicitly rejected the ADR and pinned a supersede in flight, so
+# the [Unratified Dependency] flag must NOT re-fire on the rejected ADR.
+# Marker without ticket is malformed and still fires (defensive).
+if printf '%s\n' "$fm" | grep -qiE '^human-oversight:[[:space:]]*rejected-pending-supersede[[:space:]]*$' \
+   && printf '%s\n' "$fm" | grep -qiE '^supersede-ticket:[[:space:]]*P[0-9]+[[:space:]]*$'; then
+  exit 1
+fi
+
 # Unconfirmed — the build-upon guard SHOULD fire. Name the file for the guard.
 echo "$file"
 exit 0

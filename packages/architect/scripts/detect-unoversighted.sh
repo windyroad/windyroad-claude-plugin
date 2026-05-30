@@ -45,7 +45,18 @@ for f in "$DECISIONS_DIR"/*.md "$DECISIONS_DIR"/*/*.md; do
     { print }
   ' "$f")"
 
-  if ! printf '%s\n' "$fm" | grep -qiE '^human-oversight:[[:space:]]*confirmed[[:space:]]*$'; then
-    echo "$f"
+  if printf '%s\n' "$fm" | grep -qiE '^human-oversight:[[:space:]]*confirmed[[:space:]]*$'; then
+    continue
   fi
+
+  # ADR-066 amendment (P316): rejected-pending-supersede is a third oversight
+  # value. Exclude only when BOTH the marker AND a supersede-ticket: P<NNN>
+  # scalar are present in frontmatter — a marker without the ticket is
+  # malformed and still surfaces so the drain catches the un-tracked case.
+  if printf '%s\n' "$fm" | grep -qiE '^human-oversight:[[:space:]]*rejected-pending-supersede[[:space:]]*$' \
+     && printf '%s\n' "$fm" | grep -qiE '^supersede-ticket:[[:space:]]*P[0-9]+[[:space:]]*$'; then
+    continue
+  fi
+
+  echo "$f"
 done | sort

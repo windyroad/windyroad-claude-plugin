@@ -41,7 +41,18 @@ for f in "$JTBD_DIR"/*/*.md "$JTBD_DIR"/*.md; do
     { print }
   ' "$f")"
 
-  if ! printf '%s\n' "$fm" | grep -qiE '^human-oversight:[[:space:]]*confirmed[[:space:]]*$'; then
-    echo "$f"
+  if printf '%s\n' "$fm" | grep -qiE '^human-oversight:[[:space:]]*confirmed[[:space:]]*$'; then
+    continue
   fi
+
+  # ADR-068 amendment (P316): mirror the architect detector's
+  # rejected-pending-supersede exclusion. Both the marker AND a
+  # supersede-ticket: P<NNN> scalar must be present; an un-ticketed marker
+  # still surfaces (defensive — preserves JTBD-201/202 audit-trail guard).
+  if printf '%s\n' "$fm" | grep -qiE '^human-oversight:[[:space:]]*rejected-pending-supersede[[:space:]]*$' \
+     && printf '%s\n' "$fm" | grep -qiE '^supersede-ticket:[[:space:]]*P[0-9]+[[:space:]]*$'; then
+    continue
+  fi
+
+  echo "$f"
 done | sort

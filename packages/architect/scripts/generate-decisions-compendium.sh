@@ -195,7 +195,7 @@ truncate_with_ellipsis() {
 
 emit_entry() {
     local file="$1"
-    local id title status oversight superseded
+    local id title status oversight superseded supersede_ticket
     local chosen drivers confirmation related
 
     id=$(basename "$file" | grep -oE '^[0-9]+')
@@ -203,6 +203,11 @@ emit_entry() {
     status=$(get_frontmatter_field "$file" "status")
     oversight=$(get_frontmatter_field "$file" "human-oversight")
     superseded=$(get_frontmatter_field "$file" "supersedes")
+    # ADR-066 amendment (P316): when the oversight value is
+    # `rejected-pending-supersede`, surface the tracking ticket parenthetically
+    # so the compendium badge shows both the disposition AND the supersede in
+    # flight without a per-ADR body read.
+    supersede_ticket=$(get_frontmatter_field "$file" "supersede-ticket")
 
     # Chosen-option line — truncate to a comfortable summary length.
     chosen=$(get_chosen "$file" | strip_links | oneline)
@@ -229,7 +234,11 @@ emit_entry() {
         # Status / oversight / supersession badges on one compact line.
         local badges="**Status:** ${status:-?}"
         if [ -n "$oversight" ]; then
-            badges="${badges} | **Oversight:** ${oversight}"
+            if [ "$oversight" = "rejected-pending-supersede" ] && [ -n "$supersede_ticket" ]; then
+                badges="${badges} | **Oversight:** ${oversight} (${supersede_ticket})"
+            else
+                badges="${badges} | **Oversight:** ${oversight}"
+            fi
         fi
         if [ -n "$superseded" ] && [ "$superseded" != "[]" ]; then
             badges="${badges} | **Supersedes:** ${superseded}"

@@ -44,7 +44,7 @@ For each ADR in the ordered queue, surface the decision as an `AskUserQuestion` 
 - **Options** (per ADR):
   - **Confirm** — the recorded decision is correct; write the marker.
   - **Amend** — the decision is mostly right but needs a change; capture the change, apply it to the ADR body, then write the marker.
-  - **Reject / supersede** — the auto-made pick is wrong; do NOT write the marker. Note the rework needed (a follow-up `/wr-architect:create-adr` supersede, or a problem ticket).
+  - **Reject / supersede** — the auto-made pick is wrong; capture the supersede ticket (see Step 4) and write the **rejected-pending-supersede** marker so the drain stops re-asking.
   - **Defer** — skip this sitting; leave unoversighted for a later run.
 
 This is a genuine human-decision surface (the whole point of P283) — `AskUserQuestion` is correct here and is NOT over-asking. Do not auto-confirm; do not prose-ask.
@@ -52,7 +52,10 @@ This is a genuine human-decision surface (the whole point of P283) — `AskUserQ
 ### Step 4: Apply the outcome
 
 - **Confirm / Amend**: write `human-oversight: confirmed` + `oversight-date: <today, YYYY-MM-DD>` into the ADR's frontmatter (insert after the `date:` line if absent; never duplicate). For Amend, apply the directed body change first. Both edits go through the standard architect / JTBD edit gate per ADR-014.
-- **Reject / supersede**: leave the marker absent. Record the rework (follow-up create-adr supersede or `/wr-itil:capture-problem`).
+- **Reject / supersede** (ADR-066 amendment per P316):
+  1. Capture the supersede ticket via a follow-up `AskUserQuestion`: "Which problem ticket tracks the supersede?" — options: existing `P<NNN>` IDs surfaced from `docs/problems/`, **Capture a new ticket** (delegate to `/wr-itil:capture-problem`), or **Defer (leave un-tracked for now)**.
+  2. If a ticket ID is captured, write `human-oversight: rejected-pending-supersede` + `supersede-ticket: P<NNN>` into the ADR's frontmatter. The detector excludes ADRs carrying both, so the drain stops re-asking until either the supersede ADR lands (status flips to `superseded`) or the rejection is revisited.
+  3. If the user defers ticket capture, leave the marker absent — the ADR re-surfaces next drain (the un-tracked case is intentionally re-asked so it doesn't silently rot).
 - **Defer**: no write.
 
 ### Step 5: Commit + report
@@ -61,7 +64,7 @@ Commit the confirmed/amended ADRs per ADR-014 (one commit for the sitting's drai
 
 ## Notes
 
-- **Never re-ask** — a confirmed ADR carries the marker permanently and is excluded from future runs (ADR-009 never-re-ask principle). The marker is write-once **except** when an ADR is materially amended after confirmation (the Decision Outcome is rewritten) — a supersede/amend clears it for re-confirmation per ADR-066 Reassessment.
+- **Never re-ask** — a confirmed ADR carries the marker permanently and is excluded from future runs (ADR-009 never-re-ask principle). The same write-once-permanence applies to the `rejected-pending-supersede` value (P316 amendment): once the user rejects with a tracked ticket, the drain stops asking. The marker is write-once **except** when an ADR is materially amended after confirmation (the Decision Outcome is rewritten) — a supersede/amend clears it for re-confirmation per ADR-066 Reassessment. When the supersede ADR eventually lands and the original flips to `*.superseded.md`, the existing superseded-status skip takes over; the `rejected-pending-supersede` lines become historical residue (no active clearance required).
 - **AFK** — this skill is interactive by construction (the confirm IS the human decision). It is not dispatched inside AFK iteration subprocesses; the session-start nudge self-suppresses there (`WR_SUPPRESS_OVERSIGHT_NUDGE=1`) so the drain is never half-run by an absent user.
 - **Born-confirmed going forward** — `/wr-architect:create-adr` writes the marker at its Step 5 confirm, so new ADRs enter the set already oversighted and the unoversighted count only shrinks.
 

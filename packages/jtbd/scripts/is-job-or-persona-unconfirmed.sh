@@ -84,6 +84,16 @@ if printf '%s\n' "$fm" | grep -qiE '^human-oversight:[[:space:]]*confirmed[[:spa
   exit 1   # confirmed — OK to build on
 fi
 
+# ADR-068 amendment (P316): mirror the architect predicate's
+# rejected-pending-supersede exclusion. A persona/job the user explicitly
+# rejected with a tracked supersede ticket is ratified-equivalent for the
+# build-upon guard — the [Unratified Dependency] verdict must NOT re-fire on
+# it. Marker without ticket still fires (defensive).
+if printf '%s\n' "$fm" | grep -qiE '^human-oversight:[[:space:]]*rejected-pending-supersede[[:space:]]*$' \
+   && printf '%s\n' "$fm" | grep -qiE '^supersede-ticket:[[:space:]]*P[0-9]+[[:space:]]*$'; then
+  exit 1
+fi
+
 # Unconfirmed — the build-upon guard SHOULD fire. Name the file for the guard.
 echo "$file"
 exit 0
