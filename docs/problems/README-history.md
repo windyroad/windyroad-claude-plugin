@@ -602,3 +602,7 @@ Last reviewed: 2026-04-28 **AFK iter 7 — P139 transitioned Open → Verificati
 ## 2026-05-30 (P328-reconcile fragment rotated for inbound-discovery preflight)
 
 > Last reviewed: 2026-05-30 **README reconciled (work-problems Step 0)** — 1 drift entry corrected: P328 (open on disk, missing from WSJF Rankings — deferred-refresh drift from this session's P328 capture; WSJF 1.5). Reconciliation contract per P118 + ADR-014 amended ("Reconciliation as preflight robustness layer"). Prior P327-reconcile fragment rotated to README-history.md per P134.
+
+## 2026-05-30 (inbound-discovery fragment rotated for P316 K→V)
+
+> Last reviewed: 2026-05-30 **inbound-discovery refresh (work-problems Step 0b preflight)** — TTL-expiry auto-recheck against `windyroad/agent-plugins`; 34 active `[problem]` reports polled (#149 still closed-upstream historical entry), 0 new third-party reports, all maintainer-authored + locally mirrored; pipeline classification remains deferred per 2026-05-15 user direction; discussions still HTTP 410, security-advisories still gate-blocked (P276/P198/#125). Cache rewritten `last_checked: 2026-05-30T01:20:15Z`; audit-log entry appended to `docs/audits/inbound-discovery-log.md`. Prior P328-reconcile fragment rotated to README-history.md per P134.

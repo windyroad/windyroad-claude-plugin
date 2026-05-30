@@ -1,6 +1,6 @@
 # Problem 316: Rejected-pending-supersede ADRs re-surface in every review-decisions drain — no "rejected" state to suppress them
 
-**Status**: Known Error
+**Status**: Verifying
 **Reported**: 2026-05-26
 **Priority**: 6 (Medium) — Impact: 2 x Likelihood: 3 (re-rated unchanged 2026-05-30 at fix landing)
 **Effort**: S → M at implementation (architect adjustments expanded scope to mirror onto JTBD sibling, is-*-unconfirmed predicates, agent.md docs, and compendium renderer per the canonical-shape sync guard)
@@ -63,7 +63,24 @@ Landed 2026-05-30 (orchestrator iter 4 of `/wr-itil:work-problems`). Changes:
 - **Backfill**: ADR-034 (→ P299), ADR-047 (→ P297), ADR-055 (→ P298), ADR-063 (→ P300) all carry `human-oversight: rejected-pending-supersede` + `supersede-ticket: P<NNN>`. Detector verified to exclude all four after the backfill.
 - **Bats coverage**: 8 new behavioural tests across the 4 scripts (3 architect detect + 3 architect predicate + 3 JTBD detect + 3 JTBD predicate, including a defensive un-tracked-marker case and a sync-guard for each predicate ↔ detector pair).
 
-Awaiting release: orchestrator owns release cadence (per iter constraints).
+Released 2026-05-30 in `@windyroad/architect@0.12.0` + `@windyroad/jtbd@0.9.0` (multi-package release — the ADR-066 amendment + detector + predicate landed in `architect`; the symmetric JTBD-sibling extension landed in `jtbd`). Citation derived deterministically via `wr-itil-derive-release-vehicle P316` (second real-world dogfood after P267):
+
+```
+RELEASE_VEHICLE:
+  changeset: .changeset/p316-rejected-pending-supersede-marker.md
+  version-packages-commit: 338a0517f44afcc74b2e549596e6835d5a96796d
+  pr: #175
+  merge-commit: 241db7f654f34a918ca9b724ac7af95ca195a904
+  release-date: 2026-05-30
+```
+
+- Source commit: `aef160c` "feat(architect,jtbd): add rejected-pending-supersede marker value (closes P316)" (2026-05-30 orchestrator iter-4 of `/wr-itil:work-problems`).
+- Version-packages commit: `338a0517` (changeset removal per ADR-022 P143 fold-fix).
+- Merge PR: #175 `windyroad/changeset-release/main`.
+- Merge commit: `241db7f` (2026-05-30).
+- Plugin caches refreshed in iter-5 chained `/install-updates`; `rejected-pending-supersede` keyword verified present in both cache 0.12.0 + 0.9.0.
+
+Awaiting user verification: next `/wr-architect:review-decisions` drain SHOULD exclude ADR-034 / ADR-047 / ADR-055 / ADR-063 (all backfilled with `human-oversight: rejected-pending-supersede` + `supersede-ticket: P<NNN>`). Cry-wolf re-surface class is eliminated for the four backfilled instances and for any future Reject outcomes (drain SKILL now captures the supersede ticket via follow-up `AskUserQuestion` and writes the marker+ticket pair).
 
 ## Related
 
