@@ -203,14 +203,19 @@ EOF
 # ---------------------------------------------------------------------------
 
 @test "capture-problem: skeleton-filled ticket carries the deferred-placeholder pattern" {
-  mkdir -p "$TMPROOT/docs/problems"
+  # Fixture mirrors the SKILL.md Step 4-5 prescribed write target — per
+  # ADR-031 per-state-subdir layout (`docs/problems/open/<NNN>-<slug>.md`),
+  # NOT the pre-ADR-031 flat shape (`docs/problems/<NNN>-<slug>.open.md`).
+  # P281 (template-refresh sub-shape) corrected the SKILL.md drift; this
+  # fixture exercises the now-canonical write path.
+  mkdir -p "$TMPROOT/docs/problems/open"
   TITLE="example-aside-finding"
   ID="200"
   TODAY=$(date -u +%Y-%m-%d)
   DESCRIPTION="Quick observation worth a ticket but not blocking."
 
   # Mirror the SKILL.md skeleton-fill template.
-  cat > "$TMPROOT/docs/problems/${ID}-${TITLE}.open.md" <<EOF
+  cat > "$TMPROOT/docs/problems/open/${ID}-${TITLE}.md" <<EOF
 # Problem ${ID}: ${TITLE}
 
 **Status**: Open
@@ -257,7 +262,7 @@ ${DESCRIPTION}
 EOF
 
   # Behavioural assertions: ticket file has the load-bearing fields.
-  TICKET="$TMPROOT/docs/problems/${ID}-${TITLE}.open.md"
+  TICKET="$TMPROOT/docs/problems/open/${ID}-${TITLE}.md"
   [ -f "$TICKET" ]
   run grep -F '**Status**: Open' "$TICKET"
   [ "$status" -eq 0 ]
@@ -583,4 +588,50 @@ resolve_type_dispatch() {
   desc="/wr-itil:capture-problem Step 1.5 fires an AskUserQuestion for type via a regex dispatch the SKILL.md frontmatter resolves"
   result=$(classify_description "$desc")
   [ "$result" = "technical" ]
+}
+
+# ---------------------------------------------------------------------------
+# P281 — ADR-031 per-state-subdir layout conformance on the SKILL.md
+# write-target path template.
+#
+# Surface 2 / structural-grep is justified here per ADR-052 § Surface 2
+# escape-hatch contract: the SKILL.md path template IS the contract surface
+# that adopter-side agents read literally. Concrete observed regression
+# (voder-mcp-hub commit 6c73880) landed a ticket at the pre-ADR-031 flat
+# path because the SKILL.md template named the flat shape. No pure-bash
+# script equivalent exists to behaviourally test against — the test target
+# IS the agent-driven prose instruction. Drift here re-opens the P281
+# regression vector.
+# ---------------------------------------------------------------------------
+
+@test "P281: SKILL.md Step 4 File-path template names per-state-subdir layout (ADR-031)" {
+  # The contract surface: the literal `**File path**:` declaration in
+  # Step 4 of SKILL.md. Must name `docs/problems/open/<NNN>-<kebab-title>.md`
+  # per ADR-031 (accepted + human-oversight: confirmed), NOT the pre-ADR-031
+  # flat shape `docs/problems/<NNN>-<kebab-title>.open.md`.
+  run grep -F '**File path**: `docs/problems/open/<NNN>-<kebab-title>.md`' "$SKILL_FILE"
+  [ "$status" -eq 0 ]
+}
+
+@test "P281: SKILL.md Step 4-5-6 path declarations do NOT carry the pre-ADR-031 flat shape" {
+  # Negative assertion: none of the SKILL.md write-target path declarations
+  # may name the flat `docs/problems/<NNN>-<kebab-title>.open.md` shape.
+  # The voder-mcp-hub P032 regression (commit 6c73880) was driven by this
+  # literal text appearing in SKILL.md and being followed by an adopter-side
+  # agent. Title-anchored grep — body-text mentions of the old shape (e.g.
+  # commit-message examples that don't actually carry the path) are fine.
+  run grep -F 'docs/problems/<NNN>-<kebab-title>.open.md' "$SKILL_FILE"
+  [ "$status" -ne 0 ]
+}
+
+@test "P281: SKILL.md Step 5 Write target names per-state-subdir layout" {
+  # Step 5 prescribes the single Write call — must direct to per-state path.
+  run grep -F 'Single `Write` to `docs/problems/open/<NNN>-<kebab-title>.md`' "$SKILL_FILE"
+  [ "$status" -eq 0 ]
+}
+
+@test "P281: SKILL.md Step 6 git-add target names per-state-subdir layout" {
+  # Step 6 prescribes the stage command — must reference per-state path.
+  run grep -F 'git add docs/problems/open/<NNN>-<kebab-title>.md' "$SKILL_FILE"
+  [ "$status" -eq 0 ]
 }

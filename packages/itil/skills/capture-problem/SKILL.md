@@ -153,7 +153,7 @@ The **3-keyword cap** is a hard-coded constant. Do NOT make it env-overridable �
 
 If matches are found: list them in the final report. **Do NOT halt or branch.** Capture proceeds. The user can resolve duplicates at the next `/wr-itil:review-problems` invocation (or invoke `/wr-itil:manage-problem` directly if the duplicate-check shape needs a structured branch).
 
-**After the grep completes**, write the per-session create-gate marker so the `PreToolUse:Write` hook (P119) permits the subsequent Write of the new `.open.md` file. Per **P260 / ADR-050 Option C**, write it under EVERY recent candidate session SID (not just one) so a concurrent orchestrator+subprocess race cannot land the marker under the wrong UUID:
+**After the grep completes**, write the per-session create-gate marker so the `PreToolUse:Write` hook (P119) permits the subsequent Write of the new ticket file under `docs/problems/open/`. Per **P260 / ADR-050 Option C**, write it under EVERY recent candidate session SID (not just one) so a concurrent orchestrator+subprocess race cannot land the marker under the wrong UUID:
 
 ```bash
 wr-itil-mark-create-gate
@@ -185,7 +185,7 @@ Log the renumber decision in the operation report if origin and local diverged.
 
 ### 4. Skeleton-fill the ticket
 
-**File path**: `docs/problems/<NNN>-<kebab-title>.open.md`
+**File path**: `docs/problems/open/<NNN>-<kebab-title>.md` (per ADR-031 per-state-subdir layout)
 
 **Template** (deferred-placeholder pattern — flag every section the capture didn't fill):
 
@@ -243,14 +243,14 @@ The deferred-placeholder pattern is load-bearing — `/wr-itil:review-problems` 
 
 ### 5. Write the file
 
-Single `Write` to `docs/problems/<NNN>-<kebab-title>.open.md`. The P119 PreToolUse hook permits the Write because Step 2 set the marker.
+Single `Write` to `docs/problems/open/<NNN>-<kebab-title>.md` (per ADR-031 per-state-subdir layout). The P119 PreToolUse hook permits the Write because Step 2 set the marker.
 
 ### 6. Commit per ADR-014 — single commit, no README refresh
 
 **Stage list**: ONLY the new ticket file. **Do NOT** stage `docs/problems/README.md`. The deferred-README-refresh contract is the load-bearing distinction from `/wr-itil:manage-problem` — capture-time speed depends on skipping the regenerate-and-stage cycle.
 
 ```bash
-git add docs/problems/<NNN>-<kebab-title>.open.md
+git add docs/problems/open/<NNN>-<kebab-title>.md
 ```
 
 Satisfy the commit gate per ADR-014 — same two-path pattern as manage-problem Step 11:
@@ -304,13 +304,13 @@ The two skills share the `/tmp/manage-problem-grep-${SESSION_ID}` create-gate ma
 
 ## Related
 
-- **P155** (`docs/problems/155-ship-capture-problem-skill.open.md`) — driver ticket.
-- **P014** (`docs/problems/014-aside-invocation-for-governance-skills.open.md`) — parent / master tracker.
+- **P155** (`docs/problems/closed/155-ship-capture-problem-skill.md`) — driver ticket.
+- **P014** (`docs/problems/open/014-aside-invocation-for-governance-skills.md`) — parent / master tracker.
 - **P078** — capture-on-correction OFFER pattern; depends on capture-problem shipping.
 - **P119** — manage-problem create-gate hook; capture-problem composes with the same marker.
 - **P262** — the P165 README-refresh-discipline hook conflicted with this skill's deferred-README-refresh contract (Step 6 "do NOT stage README" was denied by the hook on every capture commit). Resolved by the `RISK_BYPASS: capture-deferred-readme` allow-list token (Step 6 trailer above); clears the README-refresh gate only, not the risk-score gate.
 - **P265** — the RISK_BYPASS-trailer allow-list mechanism in `readme-refresh-detect.sh` that P262's `capture-deferred-readme` token registers into.
-- **P170** (`docs/problems/170-...open.md`) — RFC framework driver; Slice 4 B7.T3 / item 8c authored the type-classification prompt at Step 1.5.
+- **P170** (`docs/problems/known-error/170-problem-tickets-strain-as-fixes-decompose-into-multiple-coordinated-changes-need-rfc-framework.md`) — RFC framework driver; Slice 4 B7.T3 / item 8c authored the type-classification prompt at Step 1.5.
 - **P176** — agent-side I2 (no type-branching) coverage gap on the SKILL.md surface (this file's surface); descendant of P012 master harness ticket. The Step 1.5 I2 invariant guard is enforced by audit-trailed prose here per ADR-052 § Surface 2 escape-hatch contract; behavioural enforcement awaits the master harness.
 - **ADR-032** (`docs/decisions/032-governance-skill-invocation-patterns.proposed.md`) — foreground-lightweight-capture variant amendment.
 - **ADR-038** — progressive-disclosure pattern (SKILL.md + REFERENCE.md split).

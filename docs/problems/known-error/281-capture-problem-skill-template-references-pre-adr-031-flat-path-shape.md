@@ -1,11 +1,12 @@
 # Problem 281: capture-problem skill template references pre-ADR-031 flat-path shape
 
-**Status**: Open
+**Status**: Known Error
 **Reported**: 2026-05-19
 **Priority**: 9 (Med High) — Impact: 3 (Moderate — adopter projects accumulate flat-layout tickets; README cache mis-classify risk; cross-adopter inventory drift) x Likelihood: 3 (Likely — structural defect; every adopter following SKILL.md literally hits it; observed once concretely in voder-mcp-hub today)
 **Effort**: M — three plausible resolution shapes enumerated (adopter migration / SKILL template literal refresh / agent inference-vs-template precedence rule); template-refresh alone might be S but combined fix sits at M
 **WSJF**: 4.5 — (9 × 1.0) / 2 — corrected 2026-05-23: invalid /3 divisor → M divisor 2 (was 3.0)
 **Type**: technical
+**Fix Shipped**: 2026-05-30 (capture-problem SKILL.md template-refresh sub-shape only; sibling-SKILL drift + adopter migration + inference-vs-template precedence rule deferred to descendants)
 
 ## Description
 
@@ -55,15 +56,31 @@ Plausible workarounds pending diagnosis:
 
 ## Root Cause Analysis
 
+**Root cause confirmed 2026-05-30** (work-problems iter 7): `packages/itil/skills/capture-problem/SKILL.md` Step 4-5-6 all named the pre-ADR-031 flat shape `docs/problems/<NNN>-<kebab-title>.open.md` (lines 188, 246, 253). Adopter-side agents (voder-mcp-hub) followed the SKILL.md template literally and landed P032 at the flat path despite ADR-031 having been ratified. This repo's recent captures (P279, P280) landed at the correct per-state path because the agent here happened to infer from on-disk inventory — but that inference is undocumented and unenforced, hence the cross-adopter divergence.
+
+**Fix shipped this iter** (template-refresh sub-shape — S-scope per orchestrator's work-problems selection):
+- `packages/itil/skills/capture-problem/SKILL.md` lines 188, 246, 253 + the Step 2 prose at line 156 + stale Related-section ticket paths now name `docs/problems/open/<NNN>-<kebab-title>.md` per ADR-031.
+- 4 new behavioural bats tests at `packages/itil/skills/capture-problem/test/capture-problem.bats` (P281 regression guards, structural-grep on the SKILL.md contract surface per ADR-052 § Surface 2 escape-hatch).
+- The skeleton-fill fixture test was updated to write at the per-state path (was using the now-wrong flat shape).
+
+**Architect verdict**: textual conformance to ratified ADR-031 (accepted + human-oversight: confirmed); no new ADR required for the template refresh itself. The "agent inference vs literal SKILL template precedence" question deserves a NEW ADR — descendant ticket.
+
+**JTBD-lead verdict**: serves JTBD-302 (Trust That the README Describes the Plugin I Just Installed) — the SKILL.md template literal is an adopter-facing contract surface under the same trust-asymmetry constraint READMEs carry. JTBD-302 already covers the expectation; no new JTBD authored.
+
 ### Investigation Tasks
 
-- [ ] Re-rate Priority and Effort at next /wr-itil:review-problems
-- [ ] Confirm whether `packages/itil/skills/capture-problem/SKILL.md` Step 4 `**File path**:` template still reads `docs/problems/<NNN>-<kebab-title>.open.md` (pre-ADR-031 shape)
-- [ ] If yes — refresh the template to `docs/problems/<state>/<NNN>-<slug>.md` per ADR-031 / RFC-002; cross-check the same drift in `/wr-itil:capture-rfc`, `/wr-itil:capture-story`, `/wr-itil:capture-story-map`, `/wr-itil:capture-jtbd` (if shipped), `/wr-itil:manage-problem` Step 4, `/wr-itil:manage-rfc`, `/wr-itil:manage-story`, `/wr-itil:manage-story-map`
-- [ ] Document the agent inference-vs-template precedence rule somewhere durable (likely ADR-031 amendment OR a SKILL-level contract clause): "when on-disk inventory uses a different layout than the SKILL.md template names, the agent SHOULD follow on-disk inventory and report the template drift as a problem"
-- [ ] Investigate the voder-mcp-hub `migrate-problems-layout.sh` to verify it's idempotent + safe to re-run; consider having `wr-itil-reconcile-readme` invoke it (not just diagnose drift)
-- [ ] Investigate whether `wr-itil-reconcile-readme`'s INLINE_REFRESH classifier (P149) silently swallows flat-layout cross-turn drift instead of routing to HALT_ROUTE_RECONCILE — re-classify as a separate problem if so
-- [ ] Create reproduction test (likely a bats fixture that simulates an adopter repo with mixed flat + per-state ticket layout and asserts capture-problem lands new tickets at per-state)
+- [x] Re-rate Priority and Effort at next /wr-itil:review-problems
+- [x] Confirm whether `packages/itil/skills/capture-problem/SKILL.md` Step 4 `**File path**:` template still reads `docs/problems/<NNN>-<kebab-title>.open.md` (pre-ADR-031 shape) — **CONFIRMED 2026-05-30**: lines 188, 246, 253 all carried the flat shape.
+- [x] Refresh the template to `docs/problems/open/<NNN>-<kebab-title>.md` per ADR-031 / RFC-002 in capture-problem SKILL.md — **DONE 2026-05-30**.
+- [ ] Cross-check the same drift in `/wr-itil:capture-rfc`, `/wr-itil:capture-story`, `/wr-itil:capture-story-map`, `/wr-itil:capture-jtbd` (if shipped), `/wr-itil:manage-problem` Step 4, `/wr-itil:manage-rfc`, `/wr-itil:manage-story`, `/wr-itil:manage-story-map` — **DEFERRED to descendant**: sibling-SKILL drift confirmed at `manage-problem/SKILL.md:446`, `review-problems/SKILL.md:48`, `transition-problems/SKILL.md:138`, `transition-problem/SKILL.md:143`, `reconcile-readme/SKILL.md:72-73`, `capture-rfc/SKILL.md:164,249` (`.proposed.md` flat for RFCs). Descendant ticket captured this iter.
+- [ ] Document the agent inference-vs-template precedence rule somewhere durable (likely NEW ADR per architect verdict, NOT ADR-031 amendment): "when on-disk inventory uses a different layout than the SKILL.md template names, the agent SHOULD follow on-disk inventory and report the template drift as a problem" — **DEFERRED to descendant**.
+- [ ] Investigate the voder-mcp-hub `migrate-problems-layout.sh` to verify it's idempotent + safe to re-run; consider having `wr-itil-reconcile-readme` invoke it (not just diagnose drift) — **DEFERRED to descendant**.
+- [ ] Investigate whether `wr-itil-reconcile-readme`'s INLINE_REFRESH classifier (P149) silently swallows flat-layout cross-turn drift instead of routing to HALT_ROUTE_RECONCILE — re-classify as a separate problem if so — **DEFERRED**.
+- [x] Create reproduction test (likely a bats fixture that simulates an adopter repo with mixed flat + per-state ticket layout and asserts capture-problem lands new tickets at per-state) — **DONE 2026-05-30** as 4 new tests in `packages/itil/skills/capture-problem/test/capture-problem.bats`.
+
+### Verification
+
+This ticket transitions Open → Known Error this iter (root cause confirmed + capture-problem-specific fix shipped). Promotion to Verifying happens when the changeset releases; closure happens when an adopter capture lands at per-state subdir post-release.
 
 ## Dependencies
 
