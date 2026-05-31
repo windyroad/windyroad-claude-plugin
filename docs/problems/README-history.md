@@ -670,3 +670,7 @@ Last reviewed: 2026-04-28 **AFK iter 7 — P139 transitioned Open → Verificati
 ## 2026-05-31 (P334 O→Closed iter-1 fragment rotated for P336 O→Closed iter-2)
 
 > Last reviewed: 2026-05-31T (iter 1 work-problems AFK) **P334 Open→Closed** — fix already shipped in `@windyroad/architect@0.12.2` (commits `3945878`+`3e53a94`+`e9f7ce4`); verification close-on-evidence per ADR-044 (local --check exit 0 + CI green on commit bad2eac run 26701674556). Lifecycle was missed at session-8 wrap; iter 1 of session 9 closes the lifecycle on already-shipped work. Prior fragment rotated to README-history.md per P134.
+
+## 2026-05-31 (P082+P345 iter 3 fragment rotated for P346 backfill iter 4)
+
+> Last reviewed: 2026-05-31T (iter 3 work-problems AFK) **P082 KE→Verifying** — Phase 1 commit-message surface shipped (canonical `packages/shared/hooks/external-comms-gate.sh` extended with `git commit*` branch + HEREDOC body extraction; ADR-017 byte-identical sync to voice-tone + risk-scorer; per-evaluator marker scheme reused; 46/46 bats GREEN; `.changeset/p082-commit-message-surface.md` bumps both packages). Phase 2 cognitive-a11y carry-out covered by P338. **P345 backfill into WSJF Rankings** — pre-existing drift caught by Step 0 classifier (HALT_ROUTE_RECONCILE uncovered=2); fixed inline per ADR-014 single-commit grain rather than splitting reconcile. Prior fragment (P336 O→Closed iter 2) rotated to README-history.md per P134.

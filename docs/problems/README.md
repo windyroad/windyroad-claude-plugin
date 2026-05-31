@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-05-31T (iter 3 work-problems AFK) **P082 KE→Verifying** — Phase 1 commit-message surface shipped (canonical `packages/shared/hooks/external-comms-gate.sh` extended with `git commit*` branch + HEREDOC body extraction; ADR-017 byte-identical sync to voice-tone + risk-scorer; per-evaluator marker scheme reused; 46/46 bats GREEN; `.changeset/p082-commit-message-surface.md` bumps both packages). Phase 2 cognitive-a11y carry-out covered by P338. **P345 backfill into WSJF Rankings** — pre-existing drift caught by Step 0 classifier (HALT_ROUTE_RECONCILE uncovered=2); fixed inline per ADR-014 single-commit grain rather than splitting reconcile. Prior fragment (P336 O→Closed iter 2) rotated to README-history.md per P134.
+> Last reviewed: 2026-05-31T (iter 4 work-problems AFK) **P346 backfill into WSJF Rankings** — pre-existing drift caught by Step 0 reconcile (committed cross-session capture lacked README refresh; classifier exit=2 parse-error fallback halt-and-route per P118 + ADR-014 conservative branch). P346 inserted at WSJF 4.5 (Severity 9 ÷ Effort M=2) in canonical tie-break position. Prior fragment (P082 KE→V + P345 backfill iter 3) rotated to README-history.md per P134.
 
 
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
@@ -22,6 +22,7 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 4.5 | P303 | Architect gate deadlocks any multi-decision-file change — verdict-grep (P181/P217) + drift-relock (P215/P216/P226) + disk-state-review deadlock compound so no clean PASS is obtainable and each decision edit re-locks. Surfaced landing ADR-069; composite of the sibling facets | 9 Med High | Open | M | 2026-05-25 |
 | 4.5 | P332 | run-retro skips Step 1.5 / Step 3 / Step 4b Stage 1 under session-length rationalization — recurrence of P148 anti-pattern class on the run-retro meta-surface | 3 Med | Open | M | 2026-05-30 |
 | 4.5 | P335 | AFK iter subprocesses can over-claim completion in their ITERATION_SUMMARY — orchestrator trusts the claim but on-disk state contradicts it | 3 Med | Open | M | 2026-05-30 |
+| 4.5 | P346 | `/wr-itil:review-problems` has no path to close tickets that are no longer relevant (evidence-based, NOT age-based) — structural outflow gap drives monotonic backlog growth | 9 High | Open | M | 2026-05-31 |
 | 4.0 | P300 | ADR-063 maturity-presentation: schema F2 (rich-record per-surface) is overkill — use F1 (simpler) to begin with (YAGNI); AND badge F5 (markdown text) → Shields.io URL badge. Surfaced during the P283 drain. Blocks ADR-063 oversight confirmation | 4 Low-Med | Open | S | 2026-05-25 |
 | 4.0 | P270 | Agent waits for human to initiate upstream report instead of filing on detect — feedback delay class | 8 Med | Open | M | 2026-05-18 |
 | 4.0 | P271 | `/wr-itil:review-problems` not auto-fired when needed — user has to remember to run it; framework should trigger on accumulated-placeholder threshold | 8 Med | Open | M | 2026-05-18 |
