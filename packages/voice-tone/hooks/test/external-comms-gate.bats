@@ -231,3 +231,94 @@ run_hook() {
   [ "$status" -eq 0 ]
   [ -z "$output" ]
 }
+
+# ---------------------------------------------------------------------------
+# P082 Phase 1 — git commit message surface (voice-tone evaluator).
+# Commit messages reach git log / PR commits tab / release notes / CHANGELOG;
+# voice-tone evaluator gates the message body for AI-tells, hedging,
+# em-dashes, banned-phrase drift before the commit lands. Editor flow
+# (bare `git commit`) is out of scope per P082 SC1 — the message is
+# written to .git/COMMIT_EDITMSG AFTER PreToolUse fires.
+# ---------------------------------------------------------------------------
+
+@test "P082: git commit -m with literal -m body denies and delegates to voice-tone evaluator" {
+  INPUT=$(build_bash_input "git commit -m \"I've implemented the feature\"")
+  run_hook "$INPUT"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"deny"* ]]
+  [[ "$output" == *"git-commit-message"* ]]
+  [[ "$output" == *"wr-voice-tone:external-comms"* ]]
+}
+
+@test "P082: git commit --message with literal body denies and delegates" {
+  INPUT=$(build_bash_input "git commit --message \"happy to help further with this fix\"")
+  run_hook "$INPUT"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"deny"* ]]
+  [[ "$output" == *"git-commit-message"* ]]
+}
+
+@test "P082: git commit --amend -m is intercepted (P082 SC2)" {
+  INPUT=$(build_bash_input "git commit --amend -m \"rewritten subject\"")
+  run_hook "$INPUT"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"deny"* ]]
+  [[ "$output" == *"git-commit-message"* ]]
+}
+
+@test "P082: git commit HEREDOC body is intercepted and the body becomes the marker key" {
+  # Build a HEREDOC-shaped command. The hook regex pulls the body BETWEEN
+  # the <<'EOF' opener and the closing EOF marker — the extracted DRAFT is
+  # the inner text, NOT the literal `$(cat <<'EOF' ... EOF)` wrapper.
+  BODY=$'feat(foo): add bar\n\nWe observed a build failure on Node 20.'
+  CMD=$'git commit -m "$(cat <<\'EOF\'\n'"$BODY"$'\nEOF\n)"'
+  INPUT=$(build_bash_input "$CMD")
+  run_hook "$INPUT"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"deny"* ]]
+  [[ "$output" == *"git-commit-message"* ]]
+
+  # Pre-place the per-evaluator marker keyed on the extracted HEREDOC body
+  # + the git-commit-message surface; the second run must permit silently.
+  SURFACE="git-commit-message"
+  KEY=$(printf '%s\n%s' "$BODY" "$SURFACE" | shasum -a 256 | cut -d' ' -f1)
+  touch "${RDIR}/external-comms-voice-tone-reviewed-${KEY}"
+  run_hook "$INPUT"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+@test "P082: bare git commit (editor flow) is silently allowed per SC1" {
+  # No -m / --message → .git/COMMIT_EDITMSG doesn't exist at PreToolUse
+  # time. Phase 1 skip is pragmatic; the editor flow has user-eyeballs.
+  INPUT=$(build_bash_input "git commit")
+  run_hook "$INPUT"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+@test "P082: git merge is silently allowed (not a git commit verb)" {
+  INPUT=$(build_bash_input "git merge --no-ff feature-branch")
+  run_hook "$INPUT"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+@test "P082: BYPASS_RISK_GATE=1 short-circuits the git commit gate" {
+  INPUT=$(build_bash_input "git commit -m \"I've implemented the feature\"")
+  run bash -c "cd '$TEST_PROJECT_DIR' && BYPASS_RISK_GATE=1 printf '%s' \"\$1\" | BYPASS_RISK_GATE=1 '$HOOK'" _ "$INPUT"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+@test "P082: per-evaluator marker keyed on (body, git-commit-message) permits the call" {
+  BODY="docs(retro): close iter 3 ask-hygiene trail"
+  SURFACE="git-commit-message"
+  KEY=$(printf '%s\n%s' "$BODY" "$SURFACE" | shasum -a 256 | cut -d' ' -f1)
+  touch "${RDIR}/external-comms-voice-tone-reviewed-${KEY}"
+
+  INPUT=$(build_bash_input "git commit -m \"$BODY\"")
+  run_hook "$INPUT"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}

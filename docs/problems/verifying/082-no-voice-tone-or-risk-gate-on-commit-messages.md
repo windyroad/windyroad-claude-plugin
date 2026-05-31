@@ -1,12 +1,18 @@
 # Problem 082: No voice-and-tone or content-risk-scoring gate on commit messages
 
-**Status**: Known Error
+**Status**: Verification Pending
 **Reported**: 2026-04-21
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: M <!-- transitive: P038+P064 CLOSED → 0 2026-05-23; effort = marginal M (was transitive XL) -->
 
-**WSJF**: 6.0 — (12 × 1.0) / 2 — re-rated 2026-05-23: P038/P064 closed, transitive collapses to marginal M
+**WSJF**: 0 — excluded from dev ranking per ADR-022 (Verification Pending)
 **Type**: technical
+
+## Fix Released
+
+Phase 1 shipped: canonical `packages/shared/hooks/external-comms-gate.sh` extended with a `git commit*` surface match + body extraction for `-m` / `--message` / HEREDOC (`$(cat <<'EOF'…EOF)`); synced byte-identically to `packages/voice-tone/hooks/` and `packages/risk-scorer/hooks/` per ADR-017. Surface name `git-commit-message`; per-evaluator marker scheme reused unchanged (no new evaluator domain). Editor flow (bare `git commit`) is silently allowed per SC1. Behavioural bats coverage added in both consumer test dirs (P081) — 23/23 GREEN voice-tone + 23/23 GREEN risk-scorer. Changeset `docs/changesets-holding/p082-commit-message-surface.md` bumps `@windyroad/voice-tone` + `@windyroad/risk-scorer` (patch) — held per ADR-042 Rule 2 auto-apply (risk-scorer 8/25 Medium on R003 new-deny-surface-direct-to-`.changeset/` driver; R1 move-to-holding remediation drops to 3/Low). Reinstate criterion (ADR-061 Rule 4 PreToolUse:Bash class, evidence-based, not time-based): ≥1 observation of the `git-commit-message` deny+delegate flow firing correctly in-repo on a real `git commit -m` invocation AND the subagent's PASS marker permitting the retry within the same session.
+
+Phase 2 (cognitive-accessibility evaluator across all four external-comms surfaces) captured separately as **P338** — out of scope for this ticket per the 2026-05-30 Phase split.
 
 ## Direction decision (2026-04-21, user — interactive AskUserQuestion post-AFK-iter-7)
 

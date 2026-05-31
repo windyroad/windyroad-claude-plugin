@@ -14,6 +14,14 @@
 #   - gh api .../comments                         (any REST surface accepting prose)
 #   - npm publish                                 (README / package metadata to npm)
 #   - PreToolUse:Write|Edit on .changeset/*.md    (P073 — gates author-time)
+#   - git commit -m / --message (incl. HEREDOC)   (P082 Phase 1 — commit message
+#                                                  body reaches every reader of git
+#                                                  log, PR commits tab, release-page
+#                                                  auto-notes, CHANGELOG. Editor
+#                                                  flow is out of scope per P082 SC1
+#                                                  — message is written to
+#                                                  .git/COMMIT_EDITMSG AFTER
+#                                                  PreToolUse, nothing to read.)
 #
 # Gate behaviour:
 #   1. BYPASS_RISK_GATE=1 short-circuits the gate (consistent with git-push-gate.sh).
@@ -144,20 +152,59 @@ except Exception:
             SURFACE="gh-api-comments"
         elif echo "$COMMAND" | grep -qE '(^|;|&&|\|\|)\s*npm publish(\s|$)'; then
             SURFACE="npm-publish"
+        elif echo "$COMMAND" | grep -qE '(^|;|&&|\|\|)\s*git commit(\s|$)'; then
+            # P082 Phase 1: gate `git commit -m / --message / HEREDOC` so commit
+            # message bodies are reviewed by the voice-tone + risk evaluators
+            # before they land in git log / PR commits tab / release notes /
+            # CHANGELOG. Editor flow (bare `git commit`) is out of scope per
+            # P082 SC1 — git writes .git/COMMIT_EDITMSG AFTER PreToolUse fires,
+            # so there's no body to extract at gate time. Skip silently when
+            # neither -m nor --message is present.
+            if echo "$COMMAND" | grep -qE '(\s|^)(-m|--message)(\s|=)'; then
+                SURFACE="git-commit-message"
+            else
+                exit 0
+            fi
         else
             exit 0
         fi
 
-        # Best-effort body extraction: --body 'TEXT' or --body "TEXT" or --field summary='TEXT'.
-        # When absent (npm publish, --body-file), DRAFT="" is acceptable: the agent will
-        # be invoked with command context and read whatever body source the call uses.
+        # Best-effort body extraction. Order matters — most-specific first.
+        #
+        #   HEREDOC first: `git commit -m "$(cat <<'EOF'\n...\nEOF\n)"` is the
+        #     AI-dominant form. Must precede --body "..." / -m "..." because
+        #     those would otherwise match the literal `$(cat <<'EOF'...EOF)`
+        #     text as the body, defeating the marker key match against the
+        #     subagent's <draft> body.
+        #   Then --body / --field for the gh + npm + security-advisories surfaces.
+        #   Then -m / --message for git commit (single-line literal forms).
+        #
+        # When absent (npm publish, --body-file, editor flow already filtered),
+        # DRAFT="" is acceptable: the agent will be invoked with command
+        # context and read whatever body source the call uses.
         DRAFT=$(printf '%s' "$COMMAND" | python3 -c "
 import sys, re
 cmd = sys.stdin.read()
-# Match --body '...' or --body \"...\" or --field summary='...'
-for pat in [r\"--body[= ]'([^']*)'\", r'--body[= ]\"([^\"]*)\"',
-            r\"--field [a-zA-Z_]+='([^']*)'\", r'--field [a-zA-Z_]+=\"([^\"]*)\"']:
-    m = re.search(pat, cmd)
+# (pattern, flags) — first match wins.
+patterns = [
+    # HEREDOC body — matches a here-doc with EOF delimiter (quoted or
+    # unquoted). The literal '<<' is written as the char-class pair
+    # [<][<] so bash's command-substitution parser does NOT mis-parse
+    # this regex as a real here-doc operator (P082 implementation note).
+    # DOTALL so the body can span newlines.
+    (r\"[<][<]\s*['\\\"]?EOF['\\\"]?\s*\n(.*?)\nEOF\", re.DOTALL),
+    # gh issue/pr + npm publish --body 'TEXT' / --body \"TEXT\" (existing).
+    (r\"--body[= ]'([^']*)'\", 0),
+    (r'--body[= ]\"([^\"]*)\"', 0),
+    # gh api --field summary='TEXT' / --field summary=\"TEXT\" (existing).
+    (r\"--field [a-zA-Z_]+='([^']*)'\", 0),
+    (r'--field [a-zA-Z_]+=\"([^\"]*)\"', 0),
+    # git commit -m / --message single-line literal forms (P082 Phase 1).
+    (r\"(?:-m|--message)[= ]'([^']*)'\", 0),
+    (r'(?:-m|--message)[= ]\"([^\"]*)\"', 0),
+]
+for pat, flags in patterns:
+    m = re.search(pat, cmd, flags)
     if m:
         print(m.group(1))
         break
