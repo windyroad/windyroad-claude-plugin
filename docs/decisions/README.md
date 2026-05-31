@@ -11,13 +11,13 @@ Compact rendered index of every ADR's chosen option, confirmation criteria, and 
 
 For deep-dive — creating, evolving, ratifying, or contesting a decision — open the per-ADR file directly. `/wr-architect:create-adr`, `/wr-architect:capture-adr`, and `/wr-architect:review-decisions` all keep the full body in scope. Decision Drivers, Considered Options bodies, Pros and Cons, Consequences narrative, and Reassessment Criteria are intentionally NOT in this routine view — they live in the per-ADR body.
 
-**Total ADRs:** 76 (69 in-force, 7 historical)
+**Total ADRs:** 77 (70 in-force, 7 historical)
 
 ---
 
 ## In-force decisions
 
-_69 ADRs. These are the current rules. The architect agent reads this section first for routine compliance review._
+_70 ADRs. These are the current rules. The architect agent reads this section first for routine compliance review._
 
 ### ADR-002 — Monorepo with Independently Installable Per-Plugin Packages
 **Status:** proposed | **Oversight:** confirmed
@@ -342,6 +342,11 @@ _69 ADRs. These are the current rules. The architect agent reads this section fi
 **Status:** proposed | **Oversight:** confirmed
 **Chosen:** Chosen option: **"Option 9 — Architect-on-edit writes README entry directly + auto-fire-on-every-edit"**, because it eliminates drift by structural construction (every body edit triggers a same-hook README write), gives every entry LLM-qu...
 **Related:** ADR-077, ADR-049, ADR-064, ADR-066
+
+### ADR-079 — Evidence-based relevance-close pass for the problem backlog (Phase 1: file-no-longer-exists)
+**Status:** proposed
+**Chosen:** Chosen option: **"Option A — Phase 1 auto-close on file-no-longer-exists evidence shape"**, because the file-existence signal is the most mechanical and highest-confidence of the candidate shapes (closest analog to P334/P336 evidence-clos...
+**Related:** ADR-022, ADR-026, ADR-014, ADR-049, ADR-052, ADR-013, ADR-044, ADR-066
 
 ---
 
