@@ -1,11 +1,63 @@
 # Problem 141: AFK iter `packages/<plugin>/` commits without changesets — orchestrator-main-turn back-fill is fragile recovery, hook-level enforcement preferable
 
-**Status**: Verification Pending
+**Status**: Open
 **Reported**: 2026-04-29
+**Re-opened**: 2026-05-31 (Phase 2 amendment per user direction — see "Multi-phase scope" below)
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Likely (3) — observed twice in single session (40% miss rate across 5 publishable iters)
 **Effort**: M — new PreToolUse:Bash hook matching `git commit`; deny when staged diff includes `packages/<plugin>/` files but `.changeset/<plugin>-*.md` is not staged. Plus matching behavioural bats per ADR-005 + P081 (architect verdict 2026-05-02: ADR-005 is the plugin-testing-strategy ADR; ADR-037 is skill-scoped, not applicable to hook bats).
 **WSJF**: (9 × 2.0) / 2 = **9.0**
 **Type**: technical
+
+## Multi-phase scope
+
+### Phase 1 — deny-on-omission hook (shipped 2026-05-02, verified across multiple sessions)
+
+The hook `packages/itil/hooks/itil-changeset-discipline.sh` denies `git commit` invocations whose staged set includes `packages/<plugin>/` source files but no `.changeset/*.md` is staged. 21 behavioural bats per ADR-005 + P081. Allow paths: test-only, doc-only, BYPASS_CHANGESET_GATE=1. See "Fix Released" section below.
+
+### Phase 2 — permit multi-commit slices to share one changeset (OUTSTANDING)
+
+**Driver**: today's iter 6 shipped P346 Phase 3 across 4 commits, 2 of which touched `packages/itil/`. Phase 1's strict 1-commit-=-1-changeset rule forced authoring 2 separate `.changeset/p346-phase-3-*.md` files for what is logically ONE @windyroad/itil minor bump. At version-package time changesets-action collapses them to one minor version, but the CHANGELOG renders 2 bullets for one logical release entry. Recurring pattern on any multi-commit slice targeting the same package + same bump-class.
+
+**User direction (verbatim, 2026-05-31)**: *"permit multi-commit slices targeting same-package-same-bump to share one changeset"*.
+
+**Specification**:
+
+The Phase 1 hook's allow-list logic (`packages/itil/hooks/lib/changeset-detect.sh::detect_changeset_required`) currently checks only STAGED `.changeset/*.md` files. Phase 2 amends it to ALSO accept an EXISTING `.changeset/<plugin>-*.md` file already in the working tree (authored in a prior commit within the current unpushed slice) that targets the same plugin.
+
+**Detection logic amendment**:
+
+1. Inspect staged set (current behaviour — Phase 1).
+2. If staged set has any non-allow-listed `packages/<plugin>/*` file:
+   - **Check 2a (current)**: any `.changeset/*.md` staged? If yes → allow.
+   - **Check 2b (NEW)**: any `.changeset/*.md` already in the working tree (committed in a prior commit, untracked, or modified-not-staged) that targets the plugin via its YAML frontmatter `"@windyroad/<plugin>": <bump>` line? If yes → allow.
+   - If neither 2a nor 2b → deny.
+3. The detection is per-plugin (not per-bump-class): a `minor` changeset for `@windyroad/itil` covers subsequent `packages/itil/` commits in the same slice regardless of whether their substance would be patch / minor / major. The bump-class of the published release is determined by the changeset's own declaration; the hook only verifies "some changeset for this plugin exists in scope".
+4. **Scope boundary**: "within the current unpushed slice" = files reachable from `HEAD` but not from `origin/<base>`. Once a changeset is on origin (consumed by changesets-action at release time), it no longer counts — a fresh changeset is required.
+
+**Why per-plugin not per-bump-class**: keeping the check at plugin-name granularity simplifies the hook + matches the user's intent ("same-package-same-bump" — same package; the bump-class collapse happens automatically at version-package time when multiple changesets for the same plugin merge). Adding bump-class judgment would require YAML frontmatter parsing + scope inference from the commit's substance — much heavier with no practical gain since changesets-action already handles bump-class merging.
+
+**Behavioural bats per ADR-005 + P081**:
+
+- **Regression for Phase 1**: deny on staged source without changeset (Phase 1 cases stay green — 21 fixtures).
+- **Phase 2 positive — single staged changeset covers multiple subsequent commits**:
+  - Fixture 1: commit 1 stages `.changeset/p347-foo.md` + `packages/itil/src/a.ts` → allow (Phase 1 case).
+  - Fixture 2: commit 2 stages `packages/itil/src/b.ts` (no new changeset) WHILE `.changeset/p347-foo.md` is committed in the unpushed range → allow (Phase 2 case).
+  - Fixture 3: commit 3 stages `packages/itil/src/c.ts` (no new changeset) WHILE `.changeset/p347-foo.md` was already consumed (now on origin/<base>) → deny (Phase 2 boundary case — once a changeset hits origin it no longer counts).
+- **Phase 2 negative — wrong plugin**: `.changeset/p347-foo.md` covers `@windyroad/itil`; commit 2 stages `packages/voice-tone/src/x.ts` (no voice-tone changeset, no staged changeset, no in-range voice-tone changeset) → deny (Phase 2 must NOT allow cross-plugin coverage).
+
+**SKILL.md guidance amendment**: `packages/itil/skills/manage-problem/SKILL.md` Step 11 (commit + changeset discipline) should document the multi-commit slice pattern — author the changeset on the first commit in the slice; subsequent commits in the same slice do not need their own changeset for the same plugin.
+
+**Changeset** for Phase 2 itself: `@windyroad/itil` minor (Phase 2 ships a hook behaviour amendment that loosens deny conditions; existing adopters get a less-blocking experience for multi-commit slices).
+
+### Investigation Tasks
+
+- [x] **Phase 1 design + ship** (2026-04-29 → 2026-05-02)
+- [x] **Phase 1 verification across multiple sessions** (verified across sessions 4/5/6/7/8/9)
+- [ ] **Phase 2 amendment to `packages/itil/hooks/lib/changeset-detect.sh`** — add Check 2b (in-range existing changeset for plugin)
+- [ ] **Phase 2 bats** — 3 positive fixtures + 1 negative fixture per spec above
+- [ ] **Phase 2 SKILL.md guidance** — manage-problem Step 11 multi-commit slice note
+- [ ] **Phase 2 changeset** — `@windyroad/itil` minor
+- [ ] **Re-rate Priority and Effort** at next /wr-itil:review-problems
 
 > Surfaced 2026-04-28 / 2026-04-29 across the long `/wr-itil:work-problems` AFK loop session: iter 2 (P130 commit `b9da37e`) shipped `packages/itil/skills/work-problems/SKILL.md` + new bats without authoring `.changeset/wr-itil-p130-*.md`. Orchestrator main-turn back-filled at `dcc65b4`. Iter 7 (P134 commit `a8b6f18`) shipped 5-SKILL changes + new advisory script + 13 new bats without changeset. Orchestrator back-filled at `ac2425e`. Pattern: 2/5 publishable iters omitted changesets. Recovery cost: ~2× orchestrator main-turn commits + ~$2 risk-scorer round-trips per recovery.
 
