@@ -3,6 +3,8 @@ status: proposed
 job-id: compose-guardrails
 persona: developer
 date-created: 2026-04-14
+human-oversight: confirmed
+oversight-date: 2026-05-31
 ---
 
 # JTBD-003: Compose Only the Guardrails I Need

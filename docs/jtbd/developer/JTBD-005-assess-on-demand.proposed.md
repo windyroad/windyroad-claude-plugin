@@ -3,6 +3,8 @@ status: proposed
 job-id: assess-on-demand
 persona: developer
 date-created: 2026-04-16
+human-oversight: confirmed
+oversight-date: 2026-05-31
 ---
 
 # JTBD-005: Invoke Governance Assessments On Demand

@@ -3,6 +3,8 @@ status: proposed
 job-id: connect-agents
 persona: developer
 date-created: 2026-04-14
+human-oversight: confirmed
+oversight-date: 2026-05-31
 ---
 
 # JTBD-004: Connect Agents Across Repos to Collaborate

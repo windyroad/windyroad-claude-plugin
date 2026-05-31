@@ -3,6 +3,8 @@ status: proposed
 job-id: keep-plugins-current
 persona: developer
 date-created: 2026-04-23
+human-oversight: confirmed
+oversight-date: 2026-05-31
 ---
 
 # JTBD-007: Keep Plugins Current Across Projects
