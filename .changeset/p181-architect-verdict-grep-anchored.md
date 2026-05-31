@@ -1,5 +1,0 @@
----
-"@windyroad/architect": patch
----
-
-P181: `packages/architect/hooks/architect-mark-reviewed.sh` verdict-classification grep now anchors to the canonical heading shape from `packages/architect/agents/agent.md` "How to Report" — `^[[:space:]]*>?[[:space:]]*\*\*Architecture Review: (PASS|ISSUES FOUND)\*\*` — replacing the literal-substring `grep -q "ISSUES FOUND"` that matched anywhere in agent output. Body prose that narratively references the ISSUES FOUND verdict (e.g. a NEEDS DIRECTION response distinguishing itself from ISSUES FOUND, or a PASS response noting non-blocking follow-ups in adjacent files) no longer false-positives FAIL → silent marker-drop → next-edit lockout. Optional `> ` blockquote prefix tolerated. New behavioural bats fixture (`packages/architect/hooks/test/architect-mark-reviewed-verdict-grep.bats`) exercises canonical PASS / ISSUES FOUND headings, the two P181 substring-false-positive scenarios, blockquote-prefixed headings, and the PASS-precedence rule. Sibling mark-reviewed hooks (jtbd, style-guide, voice-tone) use a separate `/tmp/<name>-verdict` file mechanism and are not affected. Closes P181.

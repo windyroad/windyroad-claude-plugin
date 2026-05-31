@@ -1,5 +1,19 @@
 # @windyroad/architect
 
+## 0.13.0
+
+### Minor Changes
+
+- 4a36ae1: P339 + P340: `/wr-architect:create-adr` Step 5 now splits the bundled "review pass" `AskUserQuestion` into two separate fires — (5a) substance-confirm fire and (5b) optional draft-quality review fire — closing the bogus-ratification class where a "Yes" answer to a draft-quality question was being treated as substance-ratification and landing the `human-oversight: confirmed` marker on substance the user had never explicitly affirmed (ADR-078 commit 5196e3d exemplar; user correction 2026-05-31 _"I never approved the scripted extraction"_ + _"How did that ADR skip ratification?"_).
+
+  The new Step 5a encodes the substance-confirmation interaction pattern pinned by user direction 2026-05-31: briefing in main-turn prose BEFORE the `AskUserQuestion` fires; `AskUserQuestion` is option-shaped not yes/no (each considered option is a selectable option); no IDs (`ADR-NNN` / `P-NNN` / `JTBD-NNN` / `RFC-NNN`) as explainers; user can make an informed decision without external document lookup. The born-confirmed marker writes ONLY when the substance-confirm answer selects a specific option matching the draft on disk; mismatch triggers a re-draft + re-fire (not a soft warn-and-proceed). Step 5b (draft-quality review) is separate, optional, and does NOT gate the marker.
+
+  ADR-064 § Decision Outcome carries the five interaction-pattern requirements as a 2026-05-31 amendment extending the 2026-05-27 ADR-074 amendment. ADR-066 § Decision Outcome item 5 carries the marker-write-only-on-substantive-answer tightening as a 2026-05-31 amendment. Both amendments retain `human-oversight: confirmed` (mechanism tightening, not substance change). Closes P339 (subsumed) + P340.
+
+### Patch Changes
+
+- a1939e7: P181: `packages/architect/hooks/architect-mark-reviewed.sh` verdict-classification grep now anchors to the canonical heading shape from `packages/architect/agents/agent.md` "How to Report" — `^[[:space:]]*>?[[:space:]]*\*\*Architecture Review: (PASS|ISSUES FOUND)\*\*` — replacing the literal-substring `grep -q "ISSUES FOUND"` that matched anywhere in agent output. Body prose that narratively references the ISSUES FOUND verdict (e.g. a NEEDS DIRECTION response distinguishing itself from ISSUES FOUND, or a PASS response noting non-blocking follow-ups in adjacent files) no longer false-positives FAIL → silent marker-drop → next-edit lockout. Optional `> ` blockquote prefix tolerated. New behavioural bats fixture (`packages/architect/hooks/test/architect-mark-reviewed-verdict-grep.bats`) exercises canonical PASS / ISSUES FOUND headings, the two P181 substring-false-positive scenarios, blockquote-prefixed headings, and the PASS-precedence rule. Sibling mark-reviewed hooks (jtbd, style-guide, voice-tone) use a separate `/tmp/<name>-verdict` file mechanism and are not affected. Closes P181.
+
 ## 0.12.2
 
 ### Patch Changes
