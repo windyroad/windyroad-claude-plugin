@@ -1,6 +1,19 @@
 {
   "description": "ITIL-aligned IT service management for Claude Code",
   "maturity": {
+    "agents": {
+      "hang-off-check": {
+        "band": "Experimental",
+        "computed_at": "2026-05-31T00:00:00Z",
+        "evidence": {
+          "breaking_change_age_days": null,
+          "closed_tickets_window": null,
+          "days_shipped": 0,
+          "invocations_30d": null
+        },
+        "schema_version": "2.0"
+      }
+    },
     "band": "Experimental",
     "bootstrapping": true,
     "hooks": {
