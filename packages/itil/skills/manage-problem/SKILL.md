@@ -56,7 +56,7 @@ The `.verifying.md` suffix distinguishes "fix released, awaiting user verificati
 | **Known Error** | `.known-error.md` | Root cause confirmed, fix path clear, **fix NOT yet released** | Root cause documented, reproduction test exists, workaround in place |
 | **Verification Pending** | `.verifying.md` | Fix released, awaiting user verification (ADR-022) | Fix shipped; `## Fix Released` section written; user action remaining |
 | **Parked** | `.parked.md` | Blocked on upstream or suspended by user decision | Upstream blocker identified, or user explicitly suspends; reason and un-park trigger documented |
-| **Closed** | `.closed.md` | Fix verified in production | User explicitly confirms the released fix works |
+| **Closed** | `.closed.md` | Fix verified in production OR ticket determined no longer relevant via evidence | (a) User explicitly confirms the released fix works (canonical Verifying → Closed path), OR (b) auto-closed by `/wr-itil:review-problems` Step 4.6 relevance-close pass per ADR-079 Phase 1 — file-no-longer-exists evidence shape with `## Closed as no longer relevant` audit section per ADR-026 grounding (extends ADR-022 lifecycle: Open\|Known Error → Closed bypasses Verifying when no fix was released) |
 
 **Parked problems** are excluded from WSJF ranking and work selection. They are listed separately in review output so users can see them without them polluting the backlog. To park a problem:
 1. **If the park reason is `upstream-blocked`**, run the external-root-cause detection block at Step 7 first (see "External-root-cause detection (P063)"). Park without recording the upstream dependency in `## Related` would be the canonical audit-trail gap this block closes.

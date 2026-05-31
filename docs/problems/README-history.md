@@ -674,3 +674,7 @@ Last reviewed: 2026-04-28 **AFK iter 7 — P139 transitioned Open → Verificati
 ## 2026-05-31 (P082+P345 iter 3 fragment rotated for P346 backfill iter 4)
 
 > Last reviewed: 2026-05-31T (iter 3 work-problems AFK) **P082 KE→Verifying** — Phase 1 commit-message surface shipped (canonical `packages/shared/hooks/external-comms-gate.sh` extended with `git commit*` branch + HEREDOC body extraction; ADR-017 byte-identical sync to voice-tone + risk-scorer; per-evaluator marker scheme reused; 46/46 bats GREEN; `.changeset/p082-commit-message-surface.md` bumps both packages). Phase 2 cognitive-a11y carry-out covered by P338. **P345 backfill into WSJF Rankings** — pre-existing drift caught by Step 0 classifier (HALT_ROUTE_RECONCILE uncovered=2); fixed inline per ADR-014 single-commit grain rather than splitting reconcile. Prior fragment (P336 O→Closed iter 2) rotated to README-history.md per P134.
+
+## 2026-05-31 (P346 backfill iter 4 fragment rotated for P346 O→V iter 4 fold-fix)
+
+> Last reviewed: 2026-05-31T (iter 4 work-problems AFK) **P346 backfill into WSJF Rankings** — pre-existing drift caught by Step 0 reconcile (committed cross-session capture lacked README refresh; classifier exit=2 parse-error fallback halt-and-route per P118 + ADR-014 conservative branch). P346 inserted at WSJF 4.5 (Severity 9 ÷ Effort M=2) in canonical tie-break position. Prior fragment (P082 KE→V + P345 backfill iter 3) rotated to README-history.md per P134.

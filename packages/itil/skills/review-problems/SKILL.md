@@ -208,6 +208,90 @@ The `## Inbound Upstream Reports` README section (ADR-062 § Step 9e renderer pe
 
 When invoked from `/wr-itil:work-problems` Step 6.5 (AFK orchestrator), Step 4.5 runs silently per the mechanical-stage carve-out. The only user-attention surface during AFK is the existing external-comms gate UX (a known interrupt class per ADR-028 amended); per-branch `AskUserQuestion` would re-introduce the friction P132 was engineered to remove.
 
+### 4.6. Relevance-close pass (P346 / ADR-079 Phase 1)
+
+For each `.open.md` / `.known-error.md` ticket aged ≥ 7 days, evaluate whether the ticket has become **no longer relevant** by checking observable evidence per ADR-026 grounding. Phase 1 scope: auto-close on the single evidence shape "file no longer exists in codebase" — closest analog to P334/P336 close-on-evidence patterns. Other evidence shapes (ADR-supersession, duplicate-of-X, "concern no longer concerning", SKILL-contract-superseded) are deferred to sibling tickets per ADR-079 scope discipline.
+
+**User direction (verbatim, 2026-05-31)**: *"Ok, I'm happy for a skill executed as part of review problems that closes tickets that are no longer relevant, but not just because they are old"* — the relevance signal MUST be observable; age is a **gating** condition (don't bother evaluating fresh tickets), never the **closing** condition. The 7-day gate is conservative; tickets younger than that are likely still actionable.
+
+#### 4.6a. Invoke the canonical evaluator script
+
+For each ticket in the dual-tolerant glob `docs/problems/*.open.md docs/problems/open/*.md docs/problems/*.known-error.md docs/problems/known-error/*.md` (RFC-002 migration window), invoke the evaluator script via the ADR-049 PATH shim:
+
+```bash
+wr-itil-evaluate-relevance "$ticket"
+```
+
+The `wr-itil-evaluate-relevance` command is a `$PATH`-resolved shim shipped in `packages/itil/bin/` that dispatches the canonical `packages/itil/scripts/evaluate-relevance.sh` body. ADR-049 — never invoke the canonical script via repo-relative path; the path does not resolve in adopter trees (P317 / RFC-009).
+
+Exit-code routing (one verdict line per ticket on stdout):
+
+| Exit | Stdout prefix | Action |
+|------|--------------|--------|
+| 0 | `CLOSE-CANDIDATE <basename> — all <N> file paths absent: <semicolon list>` | Auto-close branch (4.6b). |
+| 1 | `KEEP <basename> — <M>/<N> paths still present` | No action; log only. |
+| 2 | `SKIP <basename> — <reason>` | No action (age gate, no Reported date, no extractable paths). |
+| 3 | error | Log advisory; do not abort the pass — relevance-close is non-blocking per the Step 4.5 fail-soft precedent. |
+
+**Algorithm (canonical body)**: extracts file-path candidates from the ticket body matching `(packages|docs|.changeset|src|test|scripts)/[A-Za-z0-9._/-]+\.(md|sh|ts|tsx|js|jsx|json|yml|yaml|bats|py|txt|html)`, drops self-references to `docs/problems/*`, then runs `git ls-files --error-unmatch <path>` for each surviving candidate. The `CLOSE-CANDIDATE` verdict fires only when **all** extracted paths return zero AND **at least one** path was extracted. This is intentionally conservative — tickets with no extractable file paths route to `SKIP no-extractable-paths`, not auto-close.
+
+#### 4.6b. Auto-close action per CLOSE-CANDIDATE
+
+For each `CLOSE-CANDIDATE` ticket, perform the following BEFORE the `git mv`:
+
+1. Use the `Edit` tool to append a `## Closed as no longer relevant` section to the ticket body (cite + persist + uncertainty per ADR-026):
+
+   ```markdown
+   ## Closed as no longer relevant
+
+   - **Evidence shape**: file-no-longer-exists (ADR-079 Phase 1)
+   - **Closed on**: <YYYY-MM-DD>
+   - **Closed by**: /wr-itil:review-problems Step 4.6 relevance-close pass
+   - **Cite (paths checked, all absent in `git ls-files`)**: <semicolon-separated list from the CLOSE-CANDIDATE verdict>
+   - **Persist**: this section is committed in the ticket file itself; the script body at `packages/itil/scripts/evaluate-relevance.sh` is the re-runnable verdict source per ADR-026
+   - **Uncertainty / reversibility**: verdict is deterministic given the path set. False-positive remediation: `git revert` the relevance-close commit OR `git mv` the ticket back to its prior state if a missed rename surfaces. The ≥7-day age gate guards against premature evaluation.
+   ```
+
+2. `git mv` the ticket from its current state directory to `closed/` (lifecycle extension per ADR-079 — Open|Known Error → Closed bypasses Verifying because no fix was released; conclusion is "no fix needed"):
+
+   ```bash
+   git mv docs/problems/open/<NNN>-<title>.md docs/problems/closed/<NNN>-<title>.md
+   # or known-error/<NNN>-<title>.md → closed/<NNN>-<title>.md
+   ```
+
+3. Use the `Edit` tool to update the `**Status**:` field to `Closed`.
+
+4. **Re-stage explicitly per the P057 staging trap** — `git mv` alone stages the rename; the subsequent `Edit` content changes are not in the rename's index entry:
+
+   ```bash
+   git add docs/problems/closed/<NNN>-<title>.md
+   ```
+
+#### 4.6c. Batch commit grain (per ADR-014 / P139)
+
+All relevance-closes from THIS review pass batch into ONE commit, mirroring `/wr-itil:transition-problems` batch grain (P139). The commit message names the count and the closure class:
+
+```bash
+git commit -m "chore(problems): relevance-close pass — close <N> tickets as no longer relevant
+
+Auto-closed via /wr-itil:review-problems Step 4.6 (ADR-079 Phase 1
+file-no-longer-exists evidence shape). Each closed ticket carries
+a ## Closed as no longer relevant section citing the file paths
+no longer present in git ls-files. Reversible via git revert.
+
+Closed: P<NNN>, P<NNN>, ..."
+```
+
+Step 5's README refresh rides the same commit per ADR-014 single-commit grain — `docs/problems/README.md` gets re-rendered with the closed tickets dropped from WSJF Rankings.
+
+#### 4.6d. AFK-policy-authorised silent proceed (ADR-013 Rule 5 / ADR-044 category 4)
+
+The relevance-close pass runs **unconditionally** during AFK orchestration (`/wr-itil:work-problems` Step 6.5). File existence is empirical, not user-judgment — the mechanical-stage carve-out (P132) applies per ADR-044 category-4 silent framework action. Do NOT fire `AskUserQuestion` per CLOSE-CANDIDATE; the framework has already resolved the close-on-empirical-evidence question.
+
+**Worked example (real backlog smoke test, 2026-05-31)**: across 143 open / known-error tickets, Phase 1 surfaced 6 CLOSE-CANDIDATEs (4.2%) — tickets referencing files renamed or removed but whose lifecycle close was missed. 44 routed to KEEP (file paths still present), 93 to SKIP (age gate, no extractable paths, or no Reported date). The 4.2% close rate matches expectations for a 47-day-old backlog with one-time outflow gap closure.
+
+**Cross-references**: ADR-079 (this pass's design ADR), ADR-026 (grounding), ADR-022 + ADR-079 lifecycle extension (Open|Known Error → Closed bypassing Verifying for no-fix-needed conclusions), ADR-049 (PATH shim), ADR-052 (behavioural bats at `packages/itil/scripts/test/evaluate-relevance.bats`), ADR-014 (commit grain), P057 (staging trap), P346 (driver ticket).
+
 ### 5. Rewrite `docs/problems/README.md`
 
 Write / overwrite `docs/problems/README.md` with the refreshed ranking so future `work-problem` / `list-problems` fast-paths can skip the full re-scan. Rendering rules match the SKILL.md `Present the refreshed ranking` section above — driven off globs, not file-body scans:

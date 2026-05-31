@@ -1,6 +1,6 @@
 # Problem 346: `/wr-itil:review-problems` has no path to close tickets that are no longer relevant (evidence-based, NOT age-based) — structural outflow gap drives monotonic backlog growth
 
-**Status**: Open
+**Status**: Verification Pending
 **Reported**: 2026-05-31
 **Priority**: 9 (High) — Impact: 3 × Likelihood: 3 (deferred — re-rate at next /wr-itil:review-problems; severity raised at capture per user direction "I'm worried about the trajectory")
 **Origin**: internal
@@ -87,3 +87,34 @@ User direction at capture (verbatim, 2026-05-31): *"Ok, I'm happy for a skill ex
 - `docs/problems/README.md` — the backlog index whose growth this gap drives.
 
 (captured via /wr-itil:capture-problem; expand at next investigation)
+
+## Fix Strategy
+
+Phase 1 scope per ADR-079: auto-close on ONE evidence shape — "file no longer exists in codebase" — closest analog to P334/P336 close-on-evidence. Subsequent shapes (ADR-supersession, duplicate-of-X, "concern no longer concerning", SKILL-contract-superseded) deferred to sibling tickets per ADR-079 Phase 1 scope discipline.
+
+Implementation surface:
+- `docs/decisions/079-evidence-based-relevance-close-pass.proposed.md` — design ADR (captured via /wr-architect:capture-adr; `proposed` status, no `human-oversight: confirmed` per ADR-066 line 50 — orchestrator-level drain ratifies later).
+- `packages/itil/scripts/evaluate-relevance.sh` — canonical evaluator body: age gate ≥ 7 days, file-path extraction from well-known repo subdirs, self-reference exclusion, `git ls-files --error-unmatch` existence check, structured `CLOSE-CANDIDATE` / `KEEP` / `SKIP` verdict + exit-code routing (0/1/2/3).
+- `packages/itil/bin/wr-itil-evaluate-relevance` — ADR-049 PATH shim (adopter-safe; resolves canonical script via sibling lookup per RFC-009 / P317).
+- `packages/itil/scripts/test/evaluate-relevance.bats` — 18 behavioural fixtures per ADR-052 (script existence + shim dispatch + usage / error / age gate / no-extractable-paths / CLOSE-CANDIDATE / KEEP / custom age gate / verdict-shape output contract).
+- `packages/itil/skills/review-problems/SKILL.md` Step 4.6 — Relevance-close pass between Step 4.5 (Inbound-discovery) and Step 5 (README rewrite). Iterates open + known-error tickets, invokes the shim, batches CLOSE-CANDIDATE auto-closes into ONE commit per ADR-014 / P139 mirroring `/wr-itil:transition-problems` batch grain.
+- `packages/itil/skills/manage-problem/SKILL.md` — lifecycle table Closed row extended with the ADR-079 alternative entry path (Open|Known Error → Closed bypassing Verifying when no fix was released). ADR-022 extension (not modification) per the ADR-026 line 109 precedent.
+- `.changeset/p346-evidence-based-relevance-close-pass.md` — `@windyroad/itil` minor.
+
+## Fix Released
+
+Phase 1 shipped in this commit (Open → Verifying via ADR-022 P143 fold-fix amendment — pre-flight checks satisfied inline; root cause + fix strategy + workaround + effort all documented in this ticket body; SKILL + script + shim + bats + changeset + manage-problem extension ride this single commit per ADR-014 single-commit grain).
+
+- **Architect verdict** 2026-05-31: ALIGNED-WITH-NITS (must-do nit: explicit ADR-022 extension cite — done in ADR-079; minor nit: do not auto-stamp `human-oversight: confirmed` — honoured).
+- **JTBD verdict** 2026-05-31: ALIGNED across JTBD-001 (under-60s review-flow served by smaller queue), JTBD-006 (AFK pre-flight surface extension; mechanical evidence not judgment-call), JTBD-101 (extensible pattern per evidence shape), JTBD-201 (audit trail preserved).
+- **Behavioural second-source**: 18/18 GREEN bats fixtures.
+- **Real-backlog smoke test (2026-05-31, 143 open/known-error tickets)**: 6 CLOSE-CANDIDATE (4.2%), 44 KEEP, 93 SKIP — conservative behaviour confirmed; no false-positive closes on tickets with live file references. The 6 CLOSE-CANDIDATEs (P091/P180/P242/P244/P251/P212) reference paths verified absent in `git ls-files`.
+
+Awaiting user verification. Verification path: run `/wr-itil:review-problems` after release lands → confirm Step 4.6 fires the relevance-close pass + correctly batches the surfaced CLOSE-CANDIDATE tickets into one commit + Step 5's README refresh rides the same commit.
+
+Deferred to sibling tickets per ADR-079 Phase 1 scope discipline:
+- ADR-supersession evidence shape (a ticket depending on an ADR that has since been superseded by a later decision).
+- Duplicate-of-X evidence shape (a ticket whose title-keyword shape / Description hash / fix locus matches another ticket).
+- "Concern no longer concerning" evidence shape (RISK-POLICY re-classification dropped severity below appetite).
+- SKILL-contract-superseded evidence shape (a ticket whose meta-observation about a SKILL contract has since been resolved by a contract update).
+- Verifying-ticket aging surface (P334/P336-class evidence-close for Verifying tickets exercised repeatedly without regression).
