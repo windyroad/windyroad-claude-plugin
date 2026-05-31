@@ -53,7 +53,7 @@ A subagent invocation avoids the main agent's session-context bias — the main 
    - Inputs: new capture's description + filtered candidate ticket list (`open/` + `verifying/`, mechanically pre-filtered to those sharing ≥1 ADR-NNN ref / SKILL path / file path with the description)
    - Outputs: structured verdict — `HANG_OFF: P<NNN>` (with rationale citing which candidate ticket absorbs the new scope and how) OR `PROCEED_NEW` (with rationale per candidate explaining why none absorb)
    - Spawns fresh; reads only the inputs; no session context bias
-   - Same architectural pattern as `wr-architect:agent` / `wr-jtbd:agent` / `tdd:review-test` (bias-free verdicts via context isolation)
+   - Same architectural pattern as `wr-architect:agent` / `wr-jtbd:agent` / `tdd:review-test` (bias-free verdicts via fresh-context subagent invocation — codified as ADR-032's 5th invocation pattern under the P346 amendment 2026-05-31)
 2. **`/wr-itil:capture-problem` Step 2 amendment**
    - After the existing narrow title-only grep, run the mechanical pre-filter (cheap; bounds the input set)
    - If filtered candidate set non-empty: delegate to `wr-itil:hang-off-check` subagent
@@ -180,6 +180,12 @@ Implementation surface:
 - `packages/itil/skills/review-problems/SKILL.md` Step 4.6 — Relevance-close pass between Step 4.5 (Inbound-discovery) and Step 5 (README rewrite). Iterates open + known-error tickets, invokes the shim, batches CLOSE-CANDIDATE auto-closes into ONE commit per ADR-014 / P139 mirroring `/wr-itil:transition-problems` batch grain.
 - `packages/itil/skills/manage-problem/SKILL.md` — lifecycle table Closed row extended with the ADR-079 alternative entry path (Open|Known Error → Closed bypassing Verifying when no fix was released). ADR-022 extension (not modification) per the ADR-026 line 109 precedent.
 - `.changeset/p346-evidence-based-relevance-close-pass.md` — `@windyroad/itil` minor.
+
+## RFCs
+
+| RFC | Status | Title |
+|-----|--------|-------|
+| RFC-013 | proposed | P346 backlog flow control multi-phase |
 
 ## Fix Released
 
