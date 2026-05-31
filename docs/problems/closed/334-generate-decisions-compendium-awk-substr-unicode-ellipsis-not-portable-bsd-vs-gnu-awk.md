@@ -1,7 +1,8 @@
 # Problem 334: generate-decisions-compendium.sh uses awk substr() with Unicode `…` ellipsis — not portable between macOS BSD awk and Linux GNU awk; CI drift gate fires on cross-platform regenerations
 
-**Status**: Open
+**Status**: Closed
 **Reported**: 2026-05-30
+**Closed**: 2026-05-31
 **Priority**: 12 (High) — Impact: 3 (Moderate — blocks every `@windyroad/architect` release until compendium is regenerated on Linux or generator hardened) × Likelihood: 4 (Likely — fires every time the compendium is regenerated on macOS and pushed to a Linux CI; recurring on every create-adr / capture-adr / review-decisions confirm/amend)
 **Origin**: internal
 **Effort**: S (per user-directed fix locus option (a) — swap awk substr() `…` → ASCII `...`)
@@ -69,3 +70,20 @@ Neither is durable — every adopter contributor on macOS will hit this.
 **Observed flaw**: awk's substr() with Unicode `…` produces machine-dependent byte output between macOS BSD awk and Linux GNU awk
 **Edit summary**: Replace `awk substr() "…"` with either (a) ASCII three-dot ellipsis `...`, (b) perl/python truncation, or (c) shebang pin to gawk with a documented brew install dependency. Prefer option (a) as the minimum-blast-radius change.
 **Evidence**: CI run 26678401861 test 2145 failure; local `--check` passes vs CI `--check` fails on byte-identical input.
+
+## Resolution
+
+Closed 2026-05-31 (work-problems AFK iter 1, verification close-on-evidence per ADR-044). User-pinned fix locus (a) ASCII `...` shipped in `@windyroad/architect@0.12.2` via a two-layer change: (1) replace Unicode `…` (U+2026) with ASCII `...` in `compact_join_bullets` truncation, `truncate_with_ellipsis`, and the `Chosen:` 240-char trim awk; (2) `export LC_ALL=C` at the top of `packages/architect/scripts/generate-decisions-compendium.sh` so both BSD and GNU awk operate on raw bytes consistently (BSD already does by default; GNU under any UTF-8 locale was counting characters — without LC_ALL=C, ADR bodies containing em-dashes or smart quotes still drifted because `length()` and `substr()` diverged at the truncation threshold).
+
+Commit chain:
+- `3945878 fix(architect): P334 awk substr Unicode portability — ASCII '...' for cross-platform compendium`
+- `3e53a94 fix(architect): P334 follow-up — LC_ALL=C wrap for compendium generator`
+- `e9f7ce4 fix(architect): regenerate compendium with @windyroad/architect@0.12.2 (unblocks CI test 2145)`
+
+Released in `@windyroad/architect@0.12.2` (CHANGELOG entry per ADR-021 references P334 + P328 sibling). Verified in-session:
+- Local `bash packages/architect/scripts/generate-decisions-compendium.sh --check docs/decisions` returns exit 0 (compendium up-to-date — 76 ADRs / 69 in-force / 7 historical) on macOS BSD awk.
+- CI workflow "CI" on commit `bad2eac` (main, run `26701674556`) succeeded — the cross-platform drift gate test 2145 passes on Linux GNU awk.
+
+Both halves of the contract held: the witnessing failure mode (macOS-regen + Linux-CI drift) cannot recur because both platforms now operate on byte-identical raw-byte arithmetic. Sibling P328 (broader BSD-vs-GNU UTF-8 class) intentionally sidesteps the LC_ALL coupling at the caller layer — out of scope for this ticket.
+
+Reversible via `/wr-itil:transition-problem 334 known-error` if a divergent platform (musl awk, BusyBox awk, etc.) surfaces drift on a future CI matrix expansion.
