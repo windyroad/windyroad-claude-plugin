@@ -1,7 +1,8 @@
 # Problem 347: ADR-079 Phase 2 — extend `evaluate-relevance.sh` with 4 more evidence shapes + fix Phase 1 file-no-longer-exists false-positive class
 
-**Status**: Open
+**Status**: Verification Pending
 **Reported**: 2026-05-31
+**Released**: 2026-05-31 (Phase 2 shipped iter 5 — 3-commit bundle in the @windyroad/itil minor release window)
 **Priority**: 9 (Med High) — Impact: 3 (Moderate — Phase 1 covers only 1 of 5 empirically-observed shapes; 13 of today's 14 closes used shapes Phase 1 doesn't implement; the relevance-close skill currently won't surface most reasonable candidates without Phase 2) × Likelihood: 3 (Likely — every review-problems Step 4.6 invocation hits this coverage gap)
 **Origin**: internal
 **Effort**: L (deferred — re-rate at next /wr-itil:review-problems; multi-file: ADR-079 amendment + 4 new shapes in script + Phase 1 fix + behavioural bats per shape + SKILL Step 4.6 amendment + changeset)
@@ -88,3 +89,21 @@ P091 and P242 may be true positives but the underlying class is "feature never b
 - **Labeled CLOSE-CANDIDATE fixtures (14 today)**: batch 1 — `docs/problems/closed/014-aside-invocation-for-governance-skills.md`, `docs/problems/closed/034-centralise-risk-reports-for-cross-project-skill-improvement.md`, `docs/problems/closed/045-auto-plugin-install-after-governance-release.md`, `docs/problems/closed/079-no-inbound-sync-of-upstream-reported-problems.md`. Batch 2 — `docs/problems/closed/012-skill-testing-harness.md`, `docs/problems/closed/015-tdd-vague-gherkin-detection.md`, `docs/problems/closed/018-tdd-enforce-bdd-example-mapping-principles.md`, `docs/problems/closed/022-agents-should-not-fabricate-time-estimates.md`, `docs/problems/closed/039-autonomous-loops-conflate-diagnose-with-implement.md`. Batch 3 — `docs/problems/closed/190-agent-designs-user-asked-classification-fields-instead-of-derive-or-eliminate.md`, `docs/problems/closed/289-broaden-and-rename-solo-developer-persona-to-developer.md`. Batch 4 — `docs/problems/closed/033-no-persistent-risk-register.md`. Batch 5 — `docs/problems/closed/194-adrs-accumulate-forward-chronology-evidence-inline-instead-of-archiving-decisions-bucket-dominates-context.md`, `docs/problems/closed/292-reconcile-adr-018-release-cadence-with-p250-lean-release-sooner-and-dogfood-location.md`. Each body carries the `## Closed as no longer relevant` section with cited evidence shape + verified file paths.
 
 (captured via /wr-itil:capture-problem; expand at next investigation)
+
+## Fix Released
+
+Phase 2 shipped 2026-05-31 across 3 commits in the same release window:
+
+- **6980e13** (Phase A) `docs(decisions): amend ADR-079 with Phase 2 (4 evidence shapes + Phase 1 false-positive fixes)` — ADR-079 Phase 2 amendment + decisions compendium regen (ADR-077 condition C1).
+- **b160eb8** (Phase B) `feat(itil): P347 + ADR-079 Phase 2 — 4 more evidence shapes + Phase 1 false-positive fixes` — `packages/itil/scripts/evaluate-relevance.sh` extended Phase 1 → Phase 2 (shapes 2-5, `CLOSE-CANDIDATE-WITH-CAVEAT` + `KEEP-WITH-NOTE`, state-suffix + sibling-file + rename detection); `packages/itil/scripts/test/evaluate-relevance.bats` 18 → 33 fixtures all GREEN; `.changeset/p347-relevance-close-pass-phase-2.md` `@windyroad/itil` minor.
+- **3bdd1d7** (Phase C) `docs(itil): P347 + ADR-079 Phase 2 — review-problems Step 4.6 + manage-problem lifecycle sync to 5 shapes` — `/wr-itil:review-problems` Step 4.6 prose updates (5 shapes table + surface-batch-confirm flow + caveat handling + cumulative shape field); `/wr-itil:manage-problem` lifecycle table Closed-row cited-shape list extended; `.changeset/p347-phase2-skill-prose-sync.md` `@windyroad/itil` patch.
+
+**Architect verdict 2026-05-31**: PASS-with-conditions — C1 compendium regen ✓; C2 structured caveat ✓; A1 future-work disambiguation honoured; A2 line-anchored shape-4 regex; A3 `human-oversight:` marker absence preserved per ADR-066.
+
+**JTBD verdict 2026-05-31**: PASS — JTBD-001/006/101 aligned; JTBD-201 cite dropped per minor observation (audit-trail served by JTBD-001 + JTBD-006).
+
+**Behavioural second-source**: 33/33 bats GREEN. Real-backlog smoke test against labeled fixtures: P012 → `CLOSE-CANDIDATE-WITH-CAVEAT` (shapes 2 + 5 + multi-phase-mixed-progress caveat); P136 → `KEEP-WITH-NOTE` (sibling-file class); P303/P326 → `SKIP` (age gate). All match the labeled-set expectations from the 2026-05-31 foreground relevance-scan.
+
+**Bug surfaced during implementation** (worth a sibling capture if it recurs): bash `printf "%03d" "034"` interprets leading-zero input as octal (decimal 28). Fixed in-script via `n_clean` leading-zero strip; could be a broader-script-ecosystem class if it surfaces elsewhere.
+
+Awaiting Verifying → Closed once `@windyroad/itil` minor release lands and the relevance-close pass exercises Phase 2 shapes against the real backlog through `/wr-itil:review-problems` Step 4.6.
