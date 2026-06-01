@@ -216,3 +216,70 @@ setup() {
   run grep -inE "<NNN>|ticket.{0,5}ID|ID.*argument|data parameter" "$SKILL_FILE"
   [ "$status" -eq 0 ]
 }
+
+# ──────────────────────────────────────────────────────────────────────
+# P331 — Inline P134 rotation mechanism (anti-skip contract)
+#
+# Before P331's fix, the P134 line-3 rotation discipline was documented
+# at this skill's Step 7 (and 5 sibling surfaces) as a single-sentence
+# cross-document reference of shape:
+#
+#   "Update the 'Last reviewed' line per the **Last-reviewed line
+#    discipline (P134)** contract documented in `manage-problem`
+#    SKILL.md Step 5"
+#
+# Agents reading the SKILL in a single-pass execution context did not
+# cross-navigate to manage-problem Step 5 and executed the obvious
+# "regenerate README.md" + "git add" steps without first archiving the
+# displaced line 3 to README-history.md. Iter-7 + iter-8 of 2026-05-30's
+# AFK work-problems session silently skipped the rotation in 2 of 9
+# transition-bearing iters (~22%).
+#
+# Positive control: reconcile-readme Step 5 inlines the same 3-step
+# Mechanism as an enumerated numbered list AT the execution site — that
+# surface fires correctly. The asymmetry confirms the bug class is
+# "cross-document reference at execution sites" vs "inlined mechanism".
+#
+# The fix elevates the rotation from a one-liner to a 4-step inline
+# Mechanism block (Read line 3 / Append-if-non-empty BEFORE rewrite /
+# Rewrite line 3 / Stage both). The assertions below lock the inline
+# block's presence at this skill's Step 7 execution site so future
+# refactors don't silently regress to the cross-doc one-liner.
+
+@test "SKILL.md inlines the P134 rotation Mechanism Read step at Step 7 (P331)" {
+  # The mechanism must explicitly call out reading line 3 before
+  # rewriting it. The canonical read pattern is `awk 'NR==3'` (matching
+  # reconcile-readme Step 5's worked example); `head -3` or `sed -n '3p'`
+  # are acceptable equivalents.
+  run grep -iE "awk +'NR==3'|head +-3|sed +-n +'3p'|line 3.{0,40}(read|of \`docs/problems/README.md\`)" "$SKILL_FILE"
+  [ "$status" -eq 0 ]
+}
+
+@test "SKILL.md inlines the P134 rotation Mechanism Append-BEFORE-Rewrite ordering (P331)" {
+  # The ordering rule is load-bearing: the displaced line 3 MUST be
+  # appended to README-history.md BEFORE the Edit-tool rewrite of line
+  # 3. Without this rule, the Edit replace destroys the displaced
+  # content. The assertion checks for explicit ordering language
+  # (BEFORE / before rewriting / before step 3) co-located with the
+  # README-history.md target.
+  run grep -inE "(BEFORE|before).{0,80}(rewrit|step 3|Edit)" "$SKILL_FILE"
+  [ "$status" -eq 0 ]
+}
+
+@test "SKILL.md cites README-history.md as the rotation archive target at Step 7 (P331)" {
+  # The archive sibling docs/problems/README-history.md is named at the
+  # rotation step. Without an explicit named target, the agent has no
+  # destination to append to.
+  run grep -E "README-history\.md" "$SKILL_FILE"
+  [ "$status" -eq 0 ]
+}
+
+@test "SKILL.md cites P331 + P134 at the inlined rotation mechanism (traceability per ADR-037)" {
+  # The inlined mechanism block cites P331 (this ticket) and P134
+  # (the originating discipline ticket) so future readers can trace
+  # the load-bearing rationale.
+  run grep -inE "P331" "$SKILL_FILE"
+  [ "$status" -eq 0 ]
+  run grep -inE "P134" "$SKILL_FILE"
+  [ "$status" -eq 0 ]
+}

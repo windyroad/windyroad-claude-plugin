@@ -124,7 +124,14 @@ The auto-transition logic fires in two contexts:
 
 After rename + Edit + re-stage, regenerate `docs/stories/README.md` Story Rankings + Done tables in-place reflecting the new filename set and the transitioned story's new Status. Stage the refreshed README with the same commit.
 
-The "Last reviewed" line on `docs/stories/README.md` follows the same P134 truncation discipline as `docs/problems/README.md`: single most-recent fragment on line 3; soft cap ≤ 1024 bytes per fragment; hard ceiling 5120 bytes per ADR-040 Tier 3 envelope.
+Update the "Last reviewed" line on `docs/stories/README.md` per the **inline P134 rotation mechanism** below. The mechanism is inlined here at the execution site (not deferred via cross-reference to `manage-problem` SKILL.md Step 5) so a single-pass agent reading this Step does not silently skip the archive step. **Skipping the BEFORE-rewrite archive step destroys the displaced fragment and re-opens P331** (origin failure mode: iter-7 + iter-8 of 2026-05-30's AFK work-problems session silently skipped the equivalent rotation on `docs/problems/README.md` in 2 of 9 transition-bearing iters). The mechanism MUST execute IN ORDER:
+
+1. **Read** line 3 of `docs/stories/README.md`: `awk 'NR==3' docs/stories/README.md` (`head -3 | tail -1` or `sed -n '3p'` are acceptable equivalents).
+2. **Append-if-non-empty (BEFORE step 3, not after)** — if line 3 is non-empty AND not a same-session same-verb near-duplicate of the new fragment, append the existing line 3 verbatim to `docs/stories/README-history.md` (created on first rotation) under a `## YYYY-MM-DD` heading. Run this BEFORE the Edit-tool rewrite in step 3 — Edit's replace pattern destroys the displaced content otherwise.
+3. **Rewrite** line 3 of `docs/stories/README.md` with the new fragment of form `> Last reviewed: YYYY-MM-DD **<event>** — <one-line summary>` (e.g. `STORY-<NNN> <status> — <one-line summary>`). Soft cap ≤ 1024 bytes per fragment; hard ceiling 5120 bytes per ADR-040 Tier 3 envelope.
+4. **Stage both** — `git add docs/stories/README.md docs/stories/README-history.md` so the same single commit per ADR-014 captures both files.
+
+Canonical rationale anchor: `manage-problem` SKILL.md Step 5 § Last-reviewed line discipline (P134). The discipline applies identically across `docs/problems/README.md`, `docs/rfcs/README.md`, and `docs/stories/README.md` (only the target index path differs). The cross-reference is preserved for the "why"; the "what" is inlined above for execution-time legibility per P331.
 
 #### Reverse trace on driving problem(s), JTBD(s), RFC(s), story-map(s) — skill-side primary surface
 

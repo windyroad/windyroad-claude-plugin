@@ -371,7 +371,14 @@ When `docs/problems/.upstream-cache.json` is missing OR has `last_checked: null`
 ...
 ```
 
-Apply the **Last-reviewed line discipline (P134)** contract documented in `manage-problem` SKILL.md Step 5 — line 3 carries ONE most-recent fragment naming the meaningful state change in this refresh (auto-transitions fired, priority flips, newly-stale tickets); displaced prior fragments rotate to `docs/problems/README-history.md` (forward-chronology archive, soft cap ≤ 1024 bytes per fragment, hard ceiling 5120 bytes per ADR-040 Tier 3 envelope, surfaced advisory-only by `packages/itil/scripts/check-problems-readme-budget.sh`). When the rotation displaces prior content, the staged file set MUST include both `docs/problems/README.md` AND `docs/problems/README-history.md` per ADR-014 single-commit grain.
+Update the "Last reviewed" line per the **inline P134 rotation mechanism** below. The mechanism is inlined here at the execution site (not deferred via cross-reference to `manage-problem` SKILL.md Step 5) so a single-pass agent reading this review refresh does not silently skip the archive step. **Skipping the BEFORE-rewrite archive step destroys the displaced fragment and re-opens P331** (iter-7 + iter-8 of 2026-05-30's AFK work-problems session silently skipped the rotation in 2 of 9 transition-bearing iters under exactly that failure mode). The mechanism MUST execute IN ORDER:
+
+1. **Read** line 3 of `docs/problems/README.md`: `awk 'NR==3' docs/problems/README.md` (`head -3 | tail -1` or `sed -n '3p'` are acceptable equivalents).
+2. **Append-if-non-empty (BEFORE step 3, not after)** — if line 3 is non-empty AND not a same-session same-verb near-duplicate of the new fragment, append the existing line 3 verbatim to `docs/problems/README-history.md` under a `## YYYY-MM-DD` heading (creating the heading on first append for that date). Run this BEFORE the Edit-tool rewrite in step 3 — Edit's replace pattern destroys the displaced content otherwise.
+3. **Rewrite** line 3 of `docs/problems/README.md` with the new fragment naming the meaningful state change in this refresh (e.g. `auto-transitions fired: P<NNN> → KE`, priority flips, newly-stale tickets). Soft cap ≤ 1024 bytes per fragment; hard ceiling 5120 bytes per ADR-040 Tier 3 envelope; advisory-only enforcement via `packages/itil/scripts/check-problems-readme-budget.sh`.
+4. **Stage both** — `git add docs/problems/README.md docs/problems/README-history.md` so the same single commit per ADR-014 captures both files.
+
+Canonical rationale anchor: `manage-problem` SKILL.md Step 5 § Last-reviewed line discipline (P134). The cross-reference is preserved for the "why"; the "what" is inlined above for execution-time legibility per P331.
 
 ### 6. Commit the refresh
 

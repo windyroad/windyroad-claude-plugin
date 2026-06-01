@@ -274,3 +274,58 @@ setup() {
   [ "$singular_count" -ge 1 ]
   [ "$plural_count" -ge 1 ]
 }
+
+# ──────────────────────────────────────────────────────────────────────
+# P331 — Inline P134 rotation mechanism (anti-skip contract; plural mirror)
+#
+# See the singular contract bats for the full rationale. At batch grain
+# the rotation still fires ONCE per batch (per Step 4a) — but the
+# Mechanism prose must be inlined here at the execution site too, so a
+# contract-literal agent invoking transition-problems doesn't skip the
+# archive step under the same one-liner-cross-doc failure mode P331
+# captured at the singular's Step 7. The cross-skill drift between
+# singular and plural is detected by the shared-substring assertions
+# below — if the singular inlines the mechanism but the plural still
+# carries the one-liner, the assertions fail.
+
+@test "SKILL.md inlines the P134 rotation Mechanism Read step at Step 4a (P331)" {
+  # Same Read pattern as the singular — `awk 'NR==3'` or equivalent
+  # before the line 3 rewrite. Inline mechanism at the execution site
+  # so the rotation cannot be silently skipped on the cross-doc trip
+  # to manage-problem Step 5.
+  run grep -iE "awk +'NR==3'|head +-3|sed +-n +'3p'|line 3.{0,40}(read|of \`docs/problems/README.md\`)" "$SKILL_FILE"
+  [ "$status" -eq 0 ]
+}
+
+@test "SKILL.md inlines the P134 rotation Mechanism Append-BEFORE-Rewrite ordering (P331)" {
+  # Ordering rule load-bearing per the singular — see the singular's
+  # rationale comment. Plural inherits the rule at batch grain.
+  run grep -inE "(BEFORE|before).{0,80}(rewrit|step 3|Edit)" "$SKILL_FILE"
+  [ "$status" -eq 0 ]
+}
+
+@test "SKILL.md cites README-history.md as the rotation archive target at Step 4a (P331)" {
+  run grep -E "README-history\.md" "$SKILL_FILE"
+  [ "$status" -eq 0 ]
+}
+
+@test "SKILL.md cites P331 + P134 at the inlined rotation mechanism (traceability per ADR-037)" {
+  run grep -inE "P331" "$SKILL_FILE"
+  [ "$status" -eq 0 ]
+  run grep -inE "P134" "$SKILL_FILE"
+  [ "$status" -eq 0 ]
+}
+
+@test "SKILL.md and singular SKILL.md share the P134 Read-step pattern (drift detection)" {
+  # The canonical Read-step pattern `awk 'NR==3'` (or equivalent) must
+  # appear in BOTH the singular SKILL.md and this plural SKILL.md.
+  # Inline-copy drift between the two re-opens P331; this assertion
+  # surfaces the drift as a contract failure.
+  [ -f "$SINGULAR_SKILL_FILE" ]
+  run grep -cE "awk +'NR==3'|head +-3|sed +-n +'3p'" "$SINGULAR_SKILL_FILE"
+  singular_count="$output"
+  run grep -cE "awk +'NR==3'|head +-3|sed +-n +'3p'" "$SKILL_FILE"
+  plural_count="$output"
+  [ "$singular_count" -ge 1 ]
+  [ "$plural_count" -ge 1 ]
+}

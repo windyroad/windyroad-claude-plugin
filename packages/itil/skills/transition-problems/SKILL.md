@@ -186,7 +186,14 @@ The refresh follows the same render rules as `/wr-itil:review-problems` Step 9e 
 git add docs/problems/README.md
 ```
 
-Update the "Last reviewed" line per the **Last-reviewed line discipline (P134)** contract documented in `manage-problem` SKILL.md Step 5 — name the batch as a SINGLE most-recent fragment summarising the cohort (e.g. `batch transition: P063 close, P067 close, P092 close, P094 close`); displaced prior fragments rotate to `docs/problems/README-history.md` ONCE for the entire batch, not per-pair. Soft cap ≤ 1024 bytes for the batch fragment — if the cohort would exceed it, abbreviate to ID + verb only and let the per-ticket bodies carry the rationale. When the rotation displaces prior content, also `git add docs/problems/README-history.md` so the same single batch commit per ADR-014 captures both files.
+Update the "Last reviewed" line per the **inline P134 rotation mechanism** below. The mechanism is inlined here at the execution site (not deferred via cross-document reference to `manage-problem` SKILL.md Step 5) so a single-pass agent reading this Step 4a does not silently skip the archive step. **Skipping the BEFORE-rewrite archive step destroys the displaced fragment and re-opens P331** (iter-7 + iter-8 of 2026-05-30's AFK work-problems session silently skipped the rotation in 2 of 9 transition-bearing iters under exactly that failure mode). At batch grain the rotation fires ONCE for the entire batch (not per-pair) but the per-pair semantics are otherwise identical to the singular's Step 7. The mechanism MUST execute IN ORDER:
+
+1. **Read** line 3 of `docs/problems/README.md`: `awk 'NR==3' docs/problems/README.md` (`head -3 | tail -1` or `sed -n '3p'` are acceptable equivalents).
+2. **Append-if-non-empty (BEFORE step 3, not after)** — if line 3 is non-empty AND not a same-session same-verb near-duplicate of the new batch fragment, append the existing line 3 verbatim to `docs/problems/README-history.md` under a `## YYYY-MM-DD` heading (creating the heading on first append for that date; subsequent same-day appends nest under the existing heading). Run this BEFORE the Edit-tool rewrite in step 3 — Edit's replace pattern destroys the displaced content otherwise.
+3. **Rewrite** line 3 of `docs/problems/README.md` with the new batch fragment of form `> Last reviewed: YYYY-MM-DD **batch transition** — P<NNN> <status>, P<NNN> <status>, …` (e.g. `> Last reviewed: 2026-06-01 **batch transition** — P063 close, P067 close, P092 close, P094 close`). Soft cap ≤ 1024 bytes per fragment — if the cohort would exceed it, abbreviate to ID + verb only and let the per-ticket bodies carry the rationale; hard ceiling 5120 bytes per ADR-040 Tier 3 envelope.
+4. **Stage both** — `git add docs/problems/README.md docs/problems/README-history.md` so the same single batch commit per ADR-014 captures both files.
+
+Canonical rationale anchor: `manage-problem` SKILL.md Step 5 § Last-reviewed line discipline (P134). The cross-reference is preserved for the "why"; the "what" is inlined above for execution-time legibility per P331.
 
 **4b. Commit gate (per ADR-014).**
 
