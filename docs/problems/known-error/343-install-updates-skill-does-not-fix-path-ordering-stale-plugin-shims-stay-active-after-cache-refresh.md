@@ -1,7 +1,8 @@
 # Problem 343: `/install-updates` refreshes the global plugin cache but does NOT fix PATH ordering — stale plugin-version shims stay first on PATH, so subsequent shim invocations run old code
 
-**Status**: Open
+**Status**: Known Error
 **Reported**: 2026-05-31
+**Promoted to Known Error**: 2026-06-01
 **Priority**: 12 (High) — Impact: 3 (Moderate — directly blocked ~10 commits across session 9 from being shippable; caused entire CI test 2145 saga) × Likelihood: 4 (Likely — fires every session after a plugin release where the user does not also restart the shell to refresh PATH)
 **Origin**: internal
 **Effort**: M (install-updates amendment to reorder PATH OR shim-resolution to always pick highest-version OR session-start refresh mechanism)
@@ -102,3 +103,33 @@ Possible structural fixes:
 - **P336** — sibling fix that exposed the same divergence at the YAML-parse surface.
 - `scripts/repo-local-skills/install-updates/SKILL.md` Step 4 + Step 5 — amendment locus.
 - `scripts/repo-local-skills/install-updates/REFERENCE.md` — additional context.
+
+## Fix (2026-06-01 — Option 5 shipped; Known Error)
+
+**Shipped: Option 5 (documentation amendment)** — `scripts/repo-local-skills/install-updates/SKILL.md` Step 5 "Next step" prose amended to explicitly name the PATH-stale-shim mechanism, make "Restart REQUIRED" non-optional language, document the absolute-path workaround for the current session without restart, and link this ticket as the captured-defect anchor. References section also gained a P343 entry.
+
+Architect verdict: APPROVE — prose-only amendment is within ADR-030 (repo-local skills) and preserves P045 direction (no auto-restart); no new ADR required. JTBD-007 (keep-plugins-current) alignment confirmed — the post-refresh "Next step" prose is the maintainer's only signal that their refresh is incomplete without restart, so sharpening the prose closes the silent-failure-mode gap.
+
+### Why Option 5 only, this iter
+
+The ticket enumerated 5 candidates (lines 66–76 of original). Three are out:
+
+- **Option 1 (restart-on-/install-updates)** — REJECTED per P045 direction 2026-04-20.
+- **Option 2 (single-versioned shim path)** — upstream concern (Claude Code plugin-install internals); not in this repo's purview.
+- **Option 5 (document the limitation)** — mechanical, in-scope, ships this iter.
+
+Two remain as **direction-class outstanding questions** queued for the next human-attended planning surface:
+
+1. **Option 3: highest-version-wins shim wrapper** — adopter-portable; replace each scaffold-template shim with a wrapper that resolves to the highest-version sibling in its parent cache directory. Bounded change in plugin scaffold templates (ADR-049 surface) but requires a new ADR because it adds runtime resolution logic to a contract that currently delegates resolution to PATH order.
+2. **Option 4: SessionStart PATH refresh hook** — bounded but new hook; would recompute PATH from current cache state at every session start. Doesn't help mid-session refreshes but eliminates the stale-PATH-on-next-session pattern. Requires ADR for hook scope + per-plugin PATH-mutation semantics.
+
+Either (or both) of 3/4 would close the structural gap fully; Option 5 documents the constraint so the user is no longer silently bitten. Re-rate at `/wr-itil:review-problems` once a structural fix lands; until then, the ticket stays at Known Error.
+
+### Verification
+
+- SKILL.md prose now states "Restart Claude Code REQUIRED" as the leading sentence (not just an aside).
+- SKILL.md prose names the specific mechanism (PATH frozen at session-init, cache refresh does not mutate parent shell PATH).
+- SKILL.md prose names a workaround for the current session without restart (absolute-path shim invocation).
+- References section anchors P343.
+- No behaviour change in install-updates Steps 1–4; no test changes required.
+- `.claude/skills/install-updates/SKILL.md` symlink intact per ADR-030 / P139.

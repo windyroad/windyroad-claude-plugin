@@ -183,7 +183,7 @@ Shell snippets in this skill use bash-array form (`ARR=(a b c)` + `"${ARR[@]}"`)
 
 Status vocabulary (P112): `✓ installed` — install landed first or within retry budget. `✓ restored (rollback)` — all retries exhausted; marketplace-cache refresh + one rollback install succeeded. `✗ lost (rollback failed)` — retries and rollback both failed; plugin is absent from the project and the user must reinstall manually. `✗ failed` — pre-install step (e.g. uninstall) errored, plugin left in original state.
 
-Then `### Next step` — "Restart Claude Code to pick up the new plugin code. Active sessions continue running the old code until restart (per P045 direction 2026-04-20 — auto-restart explicitly rejected)."
+Then `### Next step` — **"Restart Claude Code REQUIRED to use the refreshed plugin code via shims in the current session."** Without restart, shim invocations (e.g. `wr-architect-generate-decisions-compendium`) may still resolve to the PREVIOUS plugin version's `/bin` directory and run OLD code — the global cache refresh advances `~/.claude/plugins/cache/windyroad/<plugin>/<version>/` but does NOT mutate the parent shell's `$PATH`. PATH was frozen at session-init from cache state at that time; subsequent `/install-updates` calls add new versions to cache but leave the stale `<plugin>/<old-version>/bin` first on PATH, so shim lookups continue to find the old version (P343). Workaround for the current session without restart: invoke shims by absolute path of the desired version (`~/.claude/plugins/cache/windyroad/<plugin>/<latest>/bin/<shim-name>`). Auto-restart was explicitly rejected per P045 direction 2026-04-20.
 
 ## Non-interactive fallback
 
@@ -201,6 +201,7 @@ This skill is safe to run non-interactively (e.g. inside a subagent or an AFK lo
 - **P092** — npm package-name gap; empty `npm view` output means wrong name, not private package.
 - **P098 / ADR-038** — SKILL+REFERENCE progressive-disclosure split applied here.
 - **P045** — auto plugin install after governance release. This skill is the manual stopgap until P045's automated queue lands.
+- **P343** — `/install-updates` refreshes the global plugin cache but does not mutate the parent shell's `$PATH`; mid-session shim invocations may continue running the previous version. Step 5 "Next step" prose documents the limitation; structural fixes (highest-version-wins shim wrapper, SessionStart PATH-refresh hook) deferred as ADR-class follow-ups.
 - **Risk-register bootstrap moved out of this skill.** The Step 6.5 bootstrap auto-trigger (ADR-059 verdict A6) was retired 2026-05-25 — see ADR-059 amendment 2026-05-25. Bootstrap a `docs/risks/` register from `.risk-reports/` on demand via `/wr-risk-scorer:bootstrap-catalog` (the A4 surface).
 
 Rationale, edge cases, scope exclusions, and per-step BRIEFING references: `REFERENCE.md`.
