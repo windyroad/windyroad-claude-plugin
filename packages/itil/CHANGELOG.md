@@ -1,5 +1,19 @@
 # @windyroad/problem
 
+## 0.44.0
+
+### Minor Changes
+
+- 156a85c: P331: inline the P134 rotation Mechanism at 8 SKILL.md call sites so a single-pass agent reading any one Step at execution time does not silently skip the BEFORE-rewrite archive of the displaced "Last reviewed" fragment. Origin: iter-7 + iter-8 of 2026-05-30's AFK `/wr-itil:work-problems` session silently skipped the rotation on `docs/problems/README.md` in 2 of 9 transition-bearing iters under exactly that failure mode — `README-history.md` missing the iter-7 and iter-8 entries, line 3 propagating 3 iters of stale `P282` content. Positive control: `reconcile-readme` Step 5 inlines the same 3-step Mechanism as an enumerated numbered list AT the execution site and fires correctly across multiple 2026-05-31 rotations (visible in `README-history.md`). The asymmetry between cross-document one-liner (failing surfaces) and inline-mechanism (working surface) is the bug class.
+
+  Fix: replace each one-liner cross-document reference of shape "Update the 'Last reviewed' line per the **Last-reviewed line discipline (P134)** contract documented in `manage-problem` SKILL.md Step 5" with an inline 4-step Mechanism block: (1) **Read** line 3 via `awk 'NR==3' <index>`; (2) **Append-if-non-empty (BEFORE step 3, not after)** to `<index>-history.md` under a `## YYYY-MM-DD` heading; (3) **Rewrite** line 3 with the new fragment (≤ 1024 B soft / ≤ 5120 B hard per ADR-040 Tier 3); (4) **Stage both** files in the same commit per ADR-014. The canonical rationale anchor remains at `manage-problem` SKILL.md Step 5 § Last-reviewed line discipline (P134) for the "why"; the "what" is now inlined at each execution site for single-pass legibility. Each inlined block cites P331 + P134 inline so future readers can trace the load-bearing rationale.
+
+  Eight SKILL.md surfaces amended: `manage-problem` Step 5 P094 creation refresh, Step 6 P094 conditional update refresh, Step 7 P062 transition refresh; `transition-problem` Step 7; `transition-problems` Step 4a (batch grain); `review-problems` Step 5; `manage-rfc` Step 4 (target `docs/rfcs/`); `manage-story` Step 4 (target `docs/stories/` — also fills in the previously-missing rotation-target mention; the prior prose only documented size caps).
+
+  Behavioural anti-skip lock-in: 5 new structural contract assertions added to `transition-problem-contract.bats` and `transition-problems-contract.bats` (Permitted Exception to the source-grep ban per ADR-005 / P011 / ADR-037). Assertions lock: presence of canonical Read step (`awk 'NR==3'` / `head -3` / `sed -n '3p'`); presence of Append-BEFORE-Rewrite ordering language; `README-history.md` as the named archive target; P331 + P134 citation at the inlined block; cross-skill shared-substring on the Read-step pattern (singular ↔ plural drift detection). 19/19 singular + 25/25 plural GREEN; full singular suite 19/19; full plural suite 25/25.
+
+  Architect APPROVED 2026-06-01 with scope expansion 5 → 7 sites (added `manage-rfc` + `manage-story`); load-bearing ADRs unchanged (ADR-040 line-3 envelope, ADR-022 lifecycle, ADR-014 single-commit grain, ADR-005/ADR-037 bats pattern, ADR-038 progressive-disclosure expansion-at-execution). No new ADR required — the inline-vs-cross-doc choice is an ADR-038 application, not a new architectural decision. JTBD-006 (AFK audit-trail reliability) primary; JTBD-001 (governance without slowing down) + JTBD-101 (clear suite patterns) secondary; no persona-constraint violations. P331 transitions Open → Known Error in the companion `docs(problems): P331 known error …` commit; awaits release for K→V.
+
 ## 0.43.0
 
 ### Minor Changes
