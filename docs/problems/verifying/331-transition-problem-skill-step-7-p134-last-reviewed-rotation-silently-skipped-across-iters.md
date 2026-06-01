@@ -1,6 +1,6 @@
 # Problem 331: transition-problem SKILL Step 7 P134 Last-reviewed rotation silently skipped across iters
 
-**Status**: Known Error
+**Status**: Verification Pending
 **Reported**: 2026-05-30 (work-problems wrap retro — defers from iter 9 retro deferred-ticket observation per iter 10 retro carry-forward)
 **Priority**: 6 (Medium) — Impact: 2 (Minor — line 3 staleness propagates across multiple iters; README-history.md misses entries; audit trail decoupled) × Likelihood: 3 (Likely — recurred 2 consecutive iters before iter-9 retro caught it)
 **Effort**: S (SKILL.md prose amendment across 8 call sites + structural bats; mechanical edits, no new lib code)
@@ -106,6 +106,8 @@ Structural bats assert: inlined `awk 'NR==3'` (or equivalent read pattern), `REA
 
 **Evidence**: 2026-05-30 iter-7 + iter-8 silent-skip cited verbatim in `docs/retros/2026-05-30-work-problems-iter9-p325.md`; iter-10 deferred-ticket carry-forward in `docs/retros/2026-05-30-work-problems-iter10-p302.md`. Reconcile-readme positive control (working surface) cited in `packages/itil/skills/reconcile-readme/SKILL.md` Step 5 lines 106-118.
 
+**Release vehicle**: `.changeset/wr-itil-p331-inline-p134-rotation-mechanism.md` (deleted at version-packages commit ea68cba).
+
 ## Dependencies
 
 - **Blocks**: clean cross-iter audit trail in `README-history.md`
@@ -119,3 +121,13 @@ Structural bats assert: inlined `awk 'NR==3'` (or equivalent read pattern), `REA
 - 2026-05-30 work-problems wrap retro (this capture)
 - P134 (truncation discipline — the contract being violated)
 - `/wr-itil:reconcile-readme` Step 5 (correct P134 implementation — fix model)
+
+## Fix Released
+
+- **Release vehicle**: `@windyroad/itil@0.44.0` (npm: <https://www.npmjs.com/package/@windyroad/itil/v/0.44.0>)
+- **Fix commit**: `156a85c` — `fix(itil): P331 — inline P134 rotation Mechanism at 8 SKILL.md call sites`
+- **Release commit**: `71349f2` — `Merge pull request #193 from windyroad/changeset-release/main`
+- **Changeset**: `.changeset/wr-itil-p331-inline-p134-rotation-mechanism.md` (deleted at version-packages commit `ea68cba`)
+- **Release date**: 2026-06-01
+- **Transition**: Known Error → Verification Pending per ADR-022. Completed inline from orchestrator main turn 2026-06-01 after iter 4 subprocess stuck-before-emit (P147 subclass: SIGTERM at 60min idle, 0-byte JSON; iter had staged ticket rename to verifying/ but never completed Status edit + ## Fix Released section + README refresh).
+- **User verification path**: trigger any K→V transition via `/wr-itil:transition-problem` or `/wr-itil:transition-problems` and observe that `docs/problems/README.md` line 3 fragment is now rotated to `docs/problems/README-history.md` BEFORE being replaced (visible by `tail -1 docs/problems/README-history.md` matching the prior line 3 verbatim, and the new line 3 carrying the new transition's fragment).

@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-06-01 **P331 Open → Known Error** — root cause confirmed: 8 SKILL.md call sites use a one-liner cross-document reference to the P134 rotation discipline rather than inlining the read→append→replace mechanism; reconcile-readme Step 5 inlines the mechanism and fires correctly (positive control). Architect APPROVED scope expansion 5→8 sites (added manage-rfc + manage-story + review-problems); JTBD-006/001/101 PASS. Effort confirmed S; WSJF re-rated 6.0 → 12.0 with KE multiplier. Fix lands in companion `fix(itil): inline P134 rotation mechanism …` commit this iter (`@windyroad/itil` minor changeset queued; awaits release for K→V). Prior fragment (K→V batch transition) rotated to README-history.md per P134.
+> Last reviewed: 2026-06-01 **P331 K→V transition** — `@windyroad/itil@0.44.0` shipped (release commit `71349f2`; fix commit `156a85c` inlines P134 rotation Mechanism at 8 SKILL.md call sites — manage-problem ×3 + transition-problem + transition-problems + review-problems + manage-rfc + manage-story; 44/44 GREEN contract bats). P331 transitions Known Error → Verification Pending per ADR-022 (fix released). Orchestrator-main-turn completion of iter 4 partial K→V transition after iter 4 subprocess stuck-before-emit (P147 subclass — SIGTERM at 60min idle, 0-byte JSON, partial staged rename without body edit/Status field/README refresh). Single ADR-014 commit covering ticket rename + Status edit + `## Fix Released` section + README WSJF row removal + Verification Queue insertion. Prior fragment (P331 Open → Known Error) rotated to README-history.md per P134.
 
 
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
@@ -11,7 +11,6 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 
 | WSJF | ID | Title | Severity | Status | Effort | Reported |
 |------|-----|-------|----------|--------|--------|----------|
-| 12.0 | P331 | transition-problem SKILL Step 7 P134 Last-reviewed rotation silently skipped across iters (iter-7 + iter-8 evidence chain) | 6 Med | Known Error | S | 2026-05-30 |
 | 6.0 | P330 | derive-release-vehicle helper requires pre-edit of ticket changeset reference — three-touch when one-touch would suffice (2 of 3 K→V dogfoods this session hit exit-2 routing) | 6 Med | Open | S | 2026-05-30 |
 | 6.0 | P337 | Decisions compendium omits Decision Outcome for 57% of ADRs — generator only extracts `Chosen option:` MADR-tag, not Decision Outcome section body | 3 Med | Open | M | 2026-05-30 |
 | 6.0 | P343 | /install-updates refreshes global plugin cache but does NOT fix PATH ordering — stale plugin-version shims stay first on PATH, so subsequent shim invocations run old code (caused session-9 CI test 2145 saga) | 3 Med | Open | M | 2026-05-31 |
@@ -262,6 +261,7 @@ Fix released, awaiting user verification (driven off `docs/problems/*.verifying.
 | P339 | `/wr-architect:create-adr` drafts substance then asks Step 5 confirm — Step 5 split into 5a substance-confirm fire + 5b draft-quality review fire; subsumed by P340 (shipped together) | 2026-06-01 (`@windyroad/architect@0.13.0`, fix commit `4a36ae1`) | no — not observed |
 | P340 | Human-oversight marker can be written on draft-acceptance without verifying substance-confirmation — marker write gated on substantive-option pick; ADR-064 + ADR-066 amendments tightened the contract; subsumes P339 | 2026-06-01 (`@windyroad/architect@0.13.0`, fix commit `4a36ae1`) | no — not observed |
 | P341 | work-problems SKILL must surface outstanding questions + run session-level retro BEFORE emitting `ALL_DONE` — Step 2.4 Pre-ALL_DONE gate sequence shipped (gate (a) outstanding-questions surface + gate (b) session-level retro + gate (c) ALL_DONE emit) | 2026-06-01 (`@windyroad/itil@0.43.0` + `@windyroad/retrospective@0.22.0`, fix commit `63e0f27`) | no — not observed |
+| P331 | transition-problem SKILL Step 7 P134 Last-reviewed rotation silently skipped across iters — inline P134 rotation Mechanism at 8 SKILL.md call sites (manage-problem ×3 + transition-problem + transition-problems + review-problems + manage-rfc + manage-story) | 2026-06-01 (`@windyroad/itil@0.44.0`, fix commit `156a85c`) | no — not observed |
 
 ## Inbound Upstream Reports
 
