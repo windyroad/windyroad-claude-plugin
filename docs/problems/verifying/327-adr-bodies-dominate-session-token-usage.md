@@ -1,7 +1,8 @@
 # Problem 327: ADR bodies dominate session token usage — design a summary surface for routine compliance loading
 
-**Status**: Known Error
+**Status**: Verification Pending
 **Reported**: 2026-05-30
+**Fix released**: 2026-06-01 — @windyroad/architect@0.12.2 (commit 252702a, Slice 3 closer; Slices 1+2 shipped in 0.11.0/0.12.0)
 **Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems; user signaled "highest priority because of token burn" at capture)
 **Origin**: inbound-reported (relayed from other projects)
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems; design + summary-surface ADR + 76-ADR migration likely XL once scoped)
@@ -57,7 +58,11 @@ ADR-077 (Generated `docs/decisions/README.md` compendium as token-cheap load sur
 - **Slice 2** (commit 9832593, `@windyroad/architect@0.12.x`): two-section format (in-force vs historical); `/wr-architect:create-adr` Step 5 + `/wr-architect:capture-adr` Step 4.5 regen-and-stage; `architect-compendium-refresh-discipline.sh` PreToolUse hook (P165 mirror) as safety net; `--check` flag on the generator. Closed Confirmation items (d) (e) (h).
 - **Slice 3** (this commit): `/wr-architect:review-decisions` Step 4.5 + Step 5 stage list regen-and-stage; CI drift-detection bats (13 behavioural tests) at `packages/architect/scripts/test/generate-decisions-compendium.bats`. Closes Confirmation items (f) (g). ADR-077 prose explicitly names the per-ADR body as authoritative and the compendium as derived (item (i) holds throughout); sibling test sweep clean (item (j) holds).
 
-All ADR-077 Confirmation items (a)–(j) green at source. Awaiting release verification — transitions to Verifying when `@windyroad/architect` ships, and to Closed when the next adopter session confirms the token-load drop.
+All ADR-077 Confirmation items (a)–(j) green at source.
+
+## Fix Released
+
+Released across three slices on `@windyroad/architect` (Slice 1 → 0.11.0 commit `846b5f2`; Slice 2 → 0.12.0 commit `9832593`; Slice 3 → **0.12.2** commit `252702a`, the load-bearing closer). Current published version is `@windyroad/architect@0.13.0` (includes all three slices + P181/P339/P340). Token-load reduction (~40× on routine architect-agent compliance path) defended at three layers: skill-time regen (primary), PreToolUse commit hook (safety net), CI drift bats (audit trail). Awaiting user verification: next adopter session should observe the token-load drop on the routine architect-agent compliance path (reporter-confirmable per ADR-076 Tier 1 inbound).
 
 ## Dependencies
 

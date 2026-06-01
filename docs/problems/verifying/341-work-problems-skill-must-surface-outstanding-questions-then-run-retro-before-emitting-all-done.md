@@ -1,7 +1,8 @@
 # Problem 341: `/wr-itil:work-problems` SKILL must surface outstanding questions FIRST, then run a retro, THEN emit `ALL_DONE` — current SKILL contract allows `ALL_DONE` to fire without one or both gates
 
-**Status**: Known Error
+**Status**: Verification Pending
 **Reported**: 2026-05-31
+**Fix released**: 2026-06-01 — @windyroad/itil@0.43.0 + @windyroad/retrospective@0.22.0 (commit 63e0f27)
 **Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next `/wr-itil:review-problems`; HIGH in practice — accumulated direction-class observations and retro-class learnings can both be silently dropped on AFK-loop end if the orchestrator emits `ALL_DONE` without surfacing them or running retro)
 **Origin**: internal
 **Effort**: M (deferred — re-rate at next `/wr-itil:review-problems`; SKILL.md amendment to enforce sequence + behavioural bats coverage + possibly hook-enforced ordering)
@@ -94,7 +95,9 @@ Implemented session 9 iter 6 (2026-05-31). SKILL.md amendments + behavioural bat
 - Composes with ADR-014 (retro commits its own work; orchestrator does not re-commit retro's output).
 - Composes with ADR-044 (framework-resolution boundary — when to surface is now framework-resolved as unconditional pre-`ALL_DONE`; the user-input surface within gate (a) is unchanged).
 
-Awaiting release ship via `.changeset/p341-p342-pre-all-done-gate-and-retro-auto-ticket-carveout.md` (`@windyroad/itil` minor + `@windyroad/retrospective` minor). On release, `Status` will auto-transition to `Verification Pending` per ADR-022.
+## Fix Released
+
+Released 2026-06-01 in **@windyroad/itil@0.43.0** + **@windyroad/retrospective@0.22.0** (fix commit `63e0f27`, packaged via `1d1d6a8 chore: version packages`). The new Step 2.4 Pre-ALL_DONE gate sequence fires unconditionally before every `ALL_DONE` emit: gate (a) outstanding-questions surface via Step 2.5b + gate (b) session-level retro via `/wr-retrospective:run-retro` + gate (c) `ALL_DONE` emit ONLY after both complete. Hard-fail halts with directive when either gate cannot complete cleanly. Awaiting user verification: next `/wr-itil:work-problems` AFK loop's `ALL_DONE` should not fire until both gates run; observable evidence is the orchestrator main-turn output showing the gate sequence execution before any `ALL_DONE` line.
 
 ## Dependencies
 

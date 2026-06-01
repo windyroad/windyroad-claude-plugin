@@ -1,7 +1,8 @@
 # Problem 181: PostToolUse `architect-mark-reviewed.sh` verdict-grep is fragile — `"ISSUES FOUND"` substring anywhere blocks marker even when proposed-change verdict is PASS
 
-**Status**: Known Error
+**Status**: Verification Pending
 **Reported**: 2026-05-11
+**Fix released**: 2026-06-01 — @windyroad/architect@0.13.0 (commit a1939e7)
 **Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
 **Type**: technical
@@ -96,9 +97,9 @@ When the architect's substantive verdict is PASS-with-non-blocking-follow-ups bu
 
 ## Fix Released
 
-Fixed 2026-05-31 in session 9 AFK iter 5 (single commit, `@windyroad/architect` patch — pending release). Anchored verdict-classification grep in `packages/architect/hooks/architect-mark-reviewed.sh` to the canonical heading shape from `packages/architect/agents/agent.md` "How to Report": `^[[:space:]]*>?[[:space:]]*\*\*Architecture Review: (PASS|ISSUES FOUND)\*\*`, replacing literal substring matching. Optional `> ` blockquote prefix tolerated; PASS check still runs first so PASS-with-inline-issues-prose narrows to PASS. Path option 1 (anchored heading) chosen over option 2 (structured `VERDICT:` line) — bounded, no agent-prompt amendment required, sibling parity unaffected (jtbd/style-guide/voice-tone use a separate `/tmp/<name>-verdict` file mechanism, not grep-on-output — confirmed during pre-fix survey). New behavioural bats fixture `packages/architect/hooks/test/architect-mark-reviewed-verdict-grep.bats` (8 tests; 2 RED→GREEN cases reproduce the substring false-positive on inline body prose). NEEDS DIRECTION verdict handling (informational follow-up surfaced during architect pre-review) NOT widened into this scope — separate concern.
+Fixed 2026-05-31 in session 9 AFK iter 5 (single commit, `@windyroad/architect` patch). Anchored verdict-classification grep in `packages/architect/hooks/architect-mark-reviewed.sh` to the canonical heading shape from `packages/architect/agents/agent.md` "How to Report": `^[[:space:]]*>?[[:space:]]*\*\*Architecture Review: (PASS|ISSUES FOUND)\*\*`, replacing literal substring matching. Optional `> ` blockquote prefix tolerated; PASS check still runs first so PASS-with-inline-issues-prose narrows to PASS. Path option 1 (anchored heading) chosen over option 2 (structured `VERDICT:` line) — bounded, no agent-prompt amendment required, sibling parity unaffected (jtbd/style-guide/voice-tone use a separate `/tmp/<name>-verdict` file mechanism, not grep-on-output — confirmed during pre-fix survey). New behavioural bats fixture `packages/architect/hooks/test/architect-mark-reviewed-verdict-grep.bats` (8 tests; 2 RED→GREEN cases reproduce the substring false-positive on inline body prose). NEEDS DIRECTION verdict handling (informational follow-up surfaced during architect pre-review) NOT widened into this scope — separate concern.
 
-Awaiting user verification that the next architect-agent invocation in a fresh session correctly drops the marker on a PASS verdict whose body references the `ISSUES FOUND` shape inline (the canonical P181 false-positive scenario).
+Released 2026-06-01 in **@windyroad/architect@0.13.0** (fix commit `a1939e7`, packaged via `1d1d6a8 chore: version packages`). Awaiting user verification that the next architect-agent invocation in a fresh session correctly drops the marker on a PASS verdict whose body references the `ISSUES FOUND` shape inline (the canonical P181 false-positive scenario).
 
 ## Related
 

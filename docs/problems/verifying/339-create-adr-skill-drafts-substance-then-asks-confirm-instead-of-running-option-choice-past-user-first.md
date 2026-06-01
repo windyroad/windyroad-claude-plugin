@@ -1,8 +1,9 @@
 # Problem 339: `/wr-architect:create-adr` flow drafts substantive ADR decision (picks Considered Option, bakes Decision Outcome) THEN asks Step 5 confirm — instead of running the option choice past the user FIRST before drafting
 
-**Status**: Known Error (subsumed by P340; Fix Pending on the same commit)
+**Status**: Verification Pending (subsumed by P340; shipped together)
 **Reported**: 2026-05-31
 **Transitioned to Known Error**: 2026-05-31
+**Fix released**: 2026-06-01 — @windyroad/architect@0.13.0 (commit 4a36ae1)
 **Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems; HIGH in practice — substance-of-decision rides agent-recommended Option N to commit unless the user notices and pushes back)
 **Origin**: internal
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems; likely amends `/wr-architect:create-adr` SKILL.md Step 2 + Step 5; behavioural bats coverage on the "ask chosen-option BEFORE writing Decision Outcome" invariant)
@@ -71,9 +72,9 @@ P315 is the existing master-class capture of "agent builds dependent work before
 - **Blocked by**: (none — fix is bounded to SKILL.md amendment + bats coverage).
 - **Composes with**: ADR-074 (substance-confirm-before-build), ADR-064 (review-and-confirm-every-ADR), P315 (master-class capture of build-on-unconfirmed-substance behaviour).
 
-## Fix Pending (2026-05-31)
+## Fix Released
 
-P340 captures the marker-mechanism sibling and subsumes this ticket — the fix is the same SKILL.md amendment that closes both. AFK iter 2026-05-31 lands:
+Released 2026-06-01 in **@windyroad/architect@0.13.0** (fix commit `4a36ae1`, packaged via `1d1d6a8 chore: version packages`). P340 captures the marker-mechanism sibling and subsumed this ticket — the same SKILL.md amendment closed both. The AFK iter 2026-05-31 fix shipped:
 
 - `packages/architect/skills/create-adr/SKILL.md` Step 5 split into Step 5a (substance-confirm fire — prose briefing + option-shaped AskUserQuestion + no-IDs-as-explainers + informed-decision-without-external-doc-lookup) + Step 5b (optional draft-quality review fire, does NOT gate the marker).
 - ADR-064 § Decision Outcome amended 2026-05-31 with the five interaction-pattern requirements (extending the 2026-05-27 ADR-074 amendment).
@@ -81,7 +82,7 @@ P340 captures the marker-mechanism sibling and subsumes this ticket — the fix 
 - `packages/architect/skills/create-adr/test/create-adr-substance-confirm-pattern.bats` adds 11 behavioural-assertion bats on the new contract; existing `create-adr-adr-044-contract.bats` Step 5 negative-of-negative guard still passes (loosened to "AskUserQuestion appears in Step 5 across two fires").
 - Changeset `.changeset/p339-p340-substance-confirm-pattern.md` (@windyroad/architect minor).
 
-P339 transitions to Verifying on release of @windyroad/architect.
+Awaiting user verification: next `/wr-architect:create-adr` invocation should fire the new Step 5a substance-confirm AskUserQuestion (briefing in main-turn prose; option-shaped not yes/no; no IDs as explainers) BEFORE drafting Decision Outcome, and the `human-oversight: confirmed` marker should write ONLY on a substantive option-pick answer.
 
 ## Related
 

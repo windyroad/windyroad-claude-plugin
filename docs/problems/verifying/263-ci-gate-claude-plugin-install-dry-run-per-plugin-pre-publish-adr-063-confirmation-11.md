@@ -1,8 +1,9 @@
 # Problem 263: CI gate `claude plugin install --dry-run` per plugin pre-publish — ADR-063 Confirmation #11 implementation
 
-**Status**: Known Error
+**Status**: Verification Pending
 **Reported**: 2026-05-18
 **Root cause confirmed**: 2026-05-30 (work-problems AFK iter 6)
+**Fix released**: 2026-06-01 — @windyroad/itil@0.43.0 (commit 9158004)
 **Priority**: 12 (High) — Impact: 4 (Significant — closes the test-gap class that allowed the P0 manifest break to ship; structural prevention for future plugin.json schema changes) x Likelihood: 1 (Rare — only fires when a future plugin.json schema change creates incompatible top-level keys)
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems; new CI workflow step + shim script + bats coverage)
 **WSJF**: 6.0 — (12 × 1.0) / 2 (Known Error multiplier 1.0 per ADR-022 default)
@@ -154,6 +155,11 @@ This amendment is a SINGLE decision-file edit — does NOT hit the multi-decisio
 - 2026-05-26: P258 investigation refined the gate surface from speculative `claude plugin install --dry-run` to documented `claude plugin validate --strict`. Cross-reference added to ticket body.
 - 2026-05-30 (session 9 work-problems AFK iter 6): Empirical probe against Claude Code CLI 2.1.150 surfaced the design tension — `--strict` would reject the ADR-063 `maturity:` safe-extension pattern that all 11 plugins use. Refined gate design to NON-strict (catches the P258-actual recognised-key type-mismatch class without rejecting the safe-extension pattern). Architect GREEN, JTBD PASS (primary alignment JTBD-101). Latent itil YAML Parse error in `transition-problems/SKILL.md` surfaced (separate ticket capture queued). Transitioned Open → Known Error with implementation-ready Fix Strategy.
 - 2026-05-30 (session 9 work-problems AFK iter 7): Phase 1 implementation landed. New canonical body `packages/itil/scripts/plugin-validate-ci-gate.sh` + ADR-049 shim `packages/itil/bin/wr-itil-plugin-validate-ci-gate` + 11/11-green behavioural bats `packages/itil/scripts/test/plugin-validate-ci-gate.bats` (Fixture A positive ADR-063 safe-extension shape; Fixture B negative P258 reproduction). CI workflow wired the gate after `Dry-run per-plugin installers` with pinned `@anthropic-ai/claude-code@2.1.150`. ADR-063 §Confirmation #11 amended with implementation-note documenting the prose→implementation refinement chain. Changeset `@windyroad/itil` minor. Architect PASS + JTBD PASS + risk PASS + voice/tone PASS gates cleared. KE remains — orchestrator owns K→V transition after release lands.
+- 2026-06-01 (work-problems AFK iter): K→V transition via batched `/wr-itil:transition-problems` after @windyroad/itil@0.43.0 shipped (commit 9158004 packaged via `1d1d6a8 chore: version packages`). Awaiting user verification that the CI workflow's new plugin-validate gate runs green pre-publish across all 11 plugins.
+
+## Fix Released
+
+Released 2026-06-01 in **@windyroad/itil@0.43.0** (fix commit `9158004`). Phase 1 ships the non-strict `claude plugin validate` CI gate (canonical body + ADR-049 shim + 11-green bats + pinned `@anthropic-ai/claude-code@2.1.150`) per ADR-063 Confirmation #11. Awaiting user verification: next CI run on a release-bearing PR should exercise the new step green; future plugin.json schema regressions should be caught pre-publish.
 
 ## Related
 

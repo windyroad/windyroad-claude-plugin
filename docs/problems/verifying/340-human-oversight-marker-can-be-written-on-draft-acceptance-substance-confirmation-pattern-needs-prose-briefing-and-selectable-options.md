@@ -1,8 +1,9 @@
 # Problem 340: Human-oversight marker can be written on draft-acceptance without verifying substance-confirmation — the substance-confirmation interaction pattern needs prose briefing + each option as a selectable option + no ID-as-explainer + informed-decision-without-external-doc-lookup
 
-**Status**: Known Error (Fix Pending on commit; subsumes P339)
+**Status**: Verification Pending (subsumes P339; shipped together)
 **Reported**: 2026-05-31
 **Transitioned to Known Error**: 2026-05-31
+**Fix released**: 2026-06-01 — @windyroad/architect@0.13.0 (commit 4a36ae1)
 **Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems; HIGH in practice — ratification claims may stamp ADRs whose substance was never user-authorised, and the architect agent reads the marker as proof of ratification per ADR-066, so the entire governance chain downstream operates on a foundation that didn't actually exist)
 **Origin**: internal
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems; SKILL.md amendments on `/wr-architect:create-adr` Step 5 + `/wr-architect:capture-adr` if applicable + architect agent's review-decisions flow + behavioural bats coverage of the new substance-confirm pattern)
@@ -96,9 +97,9 @@ Until the answer selects a specific option from the considered-options set, the 
 - **Blocked by**: (none — fix is bounded to SKILL.md amendments + bats coverage + possibly ADR-066 / ADR-064 amendments).
 - **Composes with**: P339 (substance-question shape), ADR-074 (substance-confirm-before-build framework), ADR-066 (born-confirmed marker contract), ADR-064 (review-and-confirm-every-ADR gate).
 
-## Fix Pending (2026-05-31)
+## Fix Released
 
-AFK iter 2026-05-31 lands the fix:
+Released 2026-06-01 in **@windyroad/architect@0.13.0** (fix commit `4a36ae1`, packaged via `1d1d6a8 chore: version packages`). The AFK iter 2026-05-31 fix shipped:
 
 1. **`packages/architect/skills/create-adr/SKILL.md` Step 5** — replaces the bundled "review pass" `AskUserQuestion` with two separate fires:
    - **Step 5a substance-confirm fire** — main-turn prose briefing of considered-options + selected-option + rationale BEFORE the `AskUserQuestion` fires; `AskUserQuestion` options-array contains each considered option as a selectable entry (NOT yes/no shape); briefing prose + question + options is self-contained (no `ADR-NNN` / `P-NNN` / `JTBD-NNN` / `RFC-NNN` IDs as explainers); user can make an informed decision without external document lookup.
@@ -113,7 +114,7 @@ AFK iter 2026-05-31 lands the fix:
 
 5. **Changeset** — `.changeset/p339-p340-substance-confirm-pattern.md` (@windyroad/architect minor).
 
-P340 transitions to Verifying on release of @windyroad/architect.
+Awaiting user verification: the `human-oversight: confirmed` marker should now write ONLY when the substance-confirm AskUserQuestion answer selects a specific substantive option matching the draft on disk; bundled "yes accept draft" answers should NOT land the marker.
 
 **Out-of-scope (deferred):**
 
