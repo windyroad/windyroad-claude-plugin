@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-06-01 **K→V batch transition** — `/wr-itil:work-problems` AFK iter dispatched `/wr-itil:transition-problems` for 6 release-aged Known Error tickets whose fixes shipped to npm: **P181** (`@windyroad/architect@0.13.0`, commit a1939e7), **P263** (`@windyroad/itil@0.43.0`, commit 9158004), **P327** (`@windyroad/architect@0.12.2`, commit 252702a Slice 3 closer), **P339** + **P340** (`@windyroad/architect@0.13.0`, commit 4a36ae1), **P341** (`@windyroad/itil@0.43.0` + `@windyroad/retrospective@0.22.0`, commit 63e0f27). Single ADR-014 commit covering 6 ticket renames + Status edits + `## Fix Released` sections + README WSJF row removals + Verification Queue insertions. Prior fragment (Step 0b pre-flight cache refresh) rotated to README-history.md per P134.
+> Last reviewed: 2026-06-01 **P331 Open → Known Error** — root cause confirmed: 8 SKILL.md call sites use a one-liner cross-document reference to the P134 rotation discipline rather than inlining the read→append→replace mechanism; reconcile-readme Step 5 inlines the mechanism and fires correctly (positive control). Architect APPROVED scope expansion 5→8 sites (added manage-rfc + manage-story + review-problems); JTBD-006/001/101 PASS. Effort confirmed S; WSJF re-rated 6.0 → 12.0 with KE multiplier. Fix lands in companion `fix(itil): inline P134 rotation mechanism …` commit this iter (`@windyroad/itil` minor changeset queued; awaits release for K→V). Prior fragment (K→V batch transition) rotated to README-history.md per P134.
 
 
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
@@ -11,8 +11,8 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 
 | WSJF | ID | Title | Severity | Status | Effort | Reported |
 |------|-----|-------|----------|--------|--------|----------|
+| 12.0 | P331 | transition-problem SKILL Step 7 P134 Last-reviewed rotation silently skipped across iters (iter-7 + iter-8 evidence chain) | 6 Med | Known Error | S | 2026-05-30 |
 | 6.0 | P330 | derive-release-vehicle helper requires pre-edit of ticket changeset reference — three-touch when one-touch would suffice (2 of 3 K→V dogfoods this session hit exit-2 routing) | 6 Med | Open | S | 2026-05-30 |
-| 6.0 | P331 | transition-problem SKILL Step 7 P134 Last-reviewed rotation silently skipped across iters (iter-7 + iter-8 evidence chain) | 6 Med | Open | S | 2026-05-30 |
 | 6.0 | P337 | Decisions compendium omits Decision Outcome for 57% of ADRs — generator only extracts `Chosen option:` MADR-tag, not Decision Outcome section body | 3 Med | Open | M | 2026-05-30 |
 | 6.0 | P343 | /install-updates refreshes global plugin cache but does NOT fix PATH ordering — stale plugin-version shims stay first on PATH, so subsequent shim invocations run old code (caused session-9 CI test 2145 saga) | 3 Med | Open | M | 2026-05-31 |
 | 4.5 | P169 | Build recogniser-shape catalogue into @windyroad/risk-scorer plugin (automatic bootstrap + ongoing maintenance) — Phase 1 scorer-side, Phase 2 bootstrap-side | 9 Med | Open | M | 2026-05-04 |
