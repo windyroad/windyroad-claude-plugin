@@ -1,7 +1,8 @@
 # Problem 332: run-retro skips Step 1.5 / Step 3 / Step 4b Stage 1 under session-length rationalization — recurrence of P148 anti-pattern class on the run-retro meta-surface
 
-**Status**: Open
+**Status**: Known Error
 **Reported**: 2026-05-30
+**Transitioned to Known Error**: 2026-06-01 — RCA confirmed; fix in `packages/retrospective/skills/run-retro/SKILL.md` Step 1.5 + Step 3 mirrors Step 4b Stage 1's P148 anti-pattern enumeration block. Architect PASS (path (i) — no structural bats per ADR-052; next retro is the behavioural validation surface, P332's own evidence shape). JTBD PASS (serves JTBD-001).
 **Priority**: 9 (Medium) — Impact: 3 (Moderate — codification observations + briefing learnings + signal-vs-noise scoring lost; session-to-session continuity silently degrades) × Likelihood: 3 (Possible — directly witnessed this session; recurrence rate unknown but suspected across prior wrap retros)
 **Origin**: internal
 **Effort**: M (anti-pattern enumeration blocks on Step 1.5 + Step 3 + wrap-mode disambiguation + SKILL.md amendments across run-retro)

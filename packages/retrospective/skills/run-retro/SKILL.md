@@ -79,6 +79,17 @@ If the user chooses `Delete selected only` or `Review individually`, present sub
 
 **Non-interactive / AFK fallback (ADR-013 Rule 6)**: when `AskUserQuestion` is unavailable, classify silently and defer the delete queue to the retro summary (Step 5). Do NOT auto-delete entries in AFK mode. The retro summary's "Signal-vs-Noise Pass" section lists each delete candidate with score and citation so the user can review on return. Same trust-boundary shape as Step 2b and Step 4a.
 
+**Anti-pattern: Do NOT skip the signal-vs-noise pass under any of the following rationalisations** (P332 / P148-class, 2026-05-30):
+
+- "The session is long" / "context is at N tokens" / "the user might want to wrap up" / "wrap-mode focused on captures + dispositions" — session length is not a Step 1.5 skip gate. The pass is mandatory; if AFK fallback applies, the delete queue surfaces in Step 5, not in the void.
+- "Deferred to next interactive retro" — deferral to a hypothetical future retro is not a valid skip. The next-retro path is implicit at every session boundary; the deferral language is a P148-class rationalisation that lets the load-bearing work silently drop.
+- "Weaker evidence so defer to user pick" — the pass IS the evidence-gathering step. Citing "weaker evidence" without running the pass is circular.
+- Fabricating "wrap-mode vs mid-session" exemptions that do not exist in this SKILL — Step 1.5 fires uniformly regardless of when run-retro is invoked.
+
+Per ADR-044 framework-resolution boundary: Step 1.5 is mechanical (silent classification + AFK queue surfacing). The pass MUST emit a populated Signal-vs-Noise table in Step 5 (or, in interactive mode, the delete-queue prompt). An empty / "Deferred" emit without scan evidence is a Step 1.5 violation per P332. Same lost-observation hazard P148 captures: the silent skip has zero recovery affordance, while the populated table preserves the agent's judgement on disk for user audit.
+
+**See also**: P148 (Step 4b Stage 1 anti-pattern driver — same class, different step); P332 (run-retro meta-surface recurrence driver).
+
 ### 2. Reflect on this session
 
 Consider the work done in this session and identify:
@@ -306,6 +317,17 @@ After editing topic files, update `docs/briefing/README.md`:
 - Promote an entry into the Critical Points section when its signal-score is >= +3 (agent-driven per Step 1.5). The session-start surface is small and curated; the agent promotes the highest-scored entries first, respecting the Tier 1 budget guard. Demotion from Critical Points happens automatically when an entry's score drops below +3 after decay. The remaining user-interactive boundary is the delete queue (score <= -3), which is resolved per Step 1.5's silent-classification model — the agent applies the signal-vs-noise heuristic and removes / trims / compresses without asking, surfacing the chosen actions in the Step 5 retro summary so the user can correct via the P078 capture-on-correction surface if a removal was wrong.
 
 **Removals are silent (P135 / ADR-044)**: per the ADR-044 framework-resolution boundary, removals follow Step 1.5's silent-classification model — agent owns the remove / trim / compress decision; user reads the Step 5 summary and corrects via authentic-correction (ADR-044 category 6) if an entry was removed in error. Per-removal `AskUserQuestion` is sub-contracting framework-resolved decisions back to the user (lazy deferral per Step 2d Ask Hygiene Pass classification).
+
+**Anti-pattern: Do NOT emit "Added: none / Removed: none / Updated: none" without actually scanning the session for briefing-worthy observations** (P332 / P148-class, 2026-05-30):
+
+- "Wrap-mode focused on captures + dispositions" / "session was about other work" — wrap framing is not a skip gate. Step 3 fires regardless of session focus; the briefing tree is the durable cross-session continuity surface, and a session that touched the codebase by definition produced observations worth screening against "What You Need to Know" / "What Will Surprise You".
+- "No surprises this session" without per-section scan evidence — bare "none" rows MUST cite the scan that produced them. If no scan ran, the row is a P148-class silent skip.
+- "Context is at N tokens" / "the user might want to wrap up" — same session-length rationalisation P148 closes at Step 4b. Step 3 carries the same class: prose-only mandate without explicit anti-pattern enumeration trains agents to skip the unguarded step.
+- "Deferred to next interactive retro" — same P148-class fictional-defer the Step 1.5 anti-pattern block above captures. The next-retro path is implicit at every session boundary; deferring scan work to it lets the observation silently drop.
+
+Per ADR-044 framework-resolution boundary: Step 3 is silent agent action (per the "Removals are silent" clause above + ADR-040 + ADR-013 Rule 5). The scan IS the framework-mediated action; declaring "Added / Removed / Updated: none" without scan evidence is sub-contracting framework-resolved work back to the user via the retro summary — the exact lost-observation hazard P148 closes. A bare "none" row is acceptable ONLY when the per-section scan ran and produced zero accepted candidates; the Step 5 summary's Briefing Changes section MUST encode that scan evidence (e.g. "scanned N candidate observations, 0 accepted") to distinguish a scanned-empty result from a silent skip.
+
+**See also**: P148 (Step 4b Stage 1 anti-pattern driver — same class, different step); P332 (run-retro meta-surface recurrence driver).
 
 #### Tier 3 budget rotation pass (P099)
 
