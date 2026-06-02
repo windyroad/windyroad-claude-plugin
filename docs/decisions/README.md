@@ -355,8 +355,8 @@ _72 ADRs. These are the current rules. The architect agent reads this section fi
 
 ### ADR-081 — SessionStart PATH refresh hook for plugin cache
 **Status:** proposed
-**Chosen:** Chosen option: **"Option A"**, because a SessionStart hook that recomputes PATH from current cache state at every session start eliminates the stale-PATH-on-next-session pattern without requiring a user-visible restart. This is a bounded ad...
-**Related:** ADR-040, ADR-080
+**Chosen:** Chosen option: **"Option A — SessionStart hook recomputes `PATH` from current cache state at every session start"**, because it closes the cold-start staleness window that P343 documents, reuses the established ADR-040 SessionStart surfac...
+**Related:** ADR-040, ADR-080, ADR-049, ADR-002, ADR-003, ADR-014, ADR-066, ADR-074
 
 ---
 
