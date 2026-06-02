@@ -4,7 +4,6 @@
 **Reported**: 2026-05-18
 **Priority**: 6 (Medium) — Impact: 2 × Likelihood: 3
 **Effort**: M (re-estimated 2026-05-18 — script + bin shim + bats fixture + transition-problem integration)
-**Type**: technical
 
 ## Description
 

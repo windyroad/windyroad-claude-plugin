@@ -7,7 +7,6 @@
 **Priority**: 12 (High) — Impact: 4 (Significant — closes the test-gap class that allowed the P0 manifest break to ship; structural prevention for future plugin.json schema changes) x Likelihood: 1 (Rare — only fires when a future plugin.json schema change creates incompatible top-level keys)
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems; new CI workflow step + shim script + bats coverage)
 **WSJF**: 6.0 — (12 × 1.0) / 2 (Known Error multiplier 1.0 per ADR-022 default)
-**Type**: technical
 
 ## Description
 

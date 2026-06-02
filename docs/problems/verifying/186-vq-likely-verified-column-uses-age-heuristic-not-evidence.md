@@ -5,7 +5,6 @@
 **Priority**: 10 (High) — Impact: 2 (Minor — VQ display heuristic misframes closure signal in installed SKILL; published packages unaffected; no incorrect closure because user still confirms each close, but the framing primes default-yes on age) x Likelihood: 5 (Almost certain — every `/wr-itil:review-problems` pass re-renders the column; observed today on the P016/P017/P024/P047/P048 prompt batch where the heuristic surfaced 5 candidates and user critiqued 3 of them as not-evidence)
 **Effort**: M (rewrite `Likely verified?` semantics from age-based to session-observed-evidence; update Step 3 + Step 5 render contracts in `/wr-itil:review-problems` SKILL.md + sibling drift-detection across `/wr-itil:list-problems` + `/wr-itil:manage-problem` Steps 5/7/9c/9e + `/wr-itil:transition-problem(s)` + `/wr-itil:reconcile-readme`; behavioural bats for cell-render contract; full sibling-skill contract suites re-run)
 **WSJF**: 5.0 = (Severity 10 × Status Multiplier 1.0 Open) / Effort divisor 2 (M)
-**Type**: technical
 
 ## Description
 

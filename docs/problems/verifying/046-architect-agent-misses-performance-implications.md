@@ -5,7 +5,6 @@
 **Priority**: 8 (Medium) — Impact: Minor (2) x Likelihood: Likely (4)
 **Effort**: L (agent prompt + potential sub-agent design + performance-budget ADR surface)
 **WSJF**: 2.0 — (8 × 1.0) / 4
-**Type**: technical
 
 ## Fix Released
 

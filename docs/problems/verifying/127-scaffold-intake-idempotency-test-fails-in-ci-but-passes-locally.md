@@ -5,7 +5,6 @@
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Likely (3)
 **Effort**: S — narrow surface (one bats fixture in one new skill); fix is one of: (a) make `scaffold_all` produce deterministic output (strip timestamps / session-ids from the done-marker; canonicalise template substitution); (b) tighten the diff comparison in the bats fixture to ignore known-non-deterministic fields; (c) fix the `cp -R . .snapshot-1` snapshot mechanism if the snapshot itself is non-deterministic. Investigation should run the failing test in a CI-like fixture (linux + clean filesystem) to reproduce; once reproduced the fix is a 1-3 line edit to either the SKILL.md template or the bats fixture.
 **WSJF**: (9 × 1.0) / 1 = **9.0**
-**Type**: technical
 
 > Surfaced 2026-04-26 by AFK iter 7 P065 commit `8653541` — iter ITERATION_SUMMARY claimed "Full bats suite 1135 ok / 0 failures" but origin CI run `24950750567` and the post-retro CI run `24954418157` (both at HEAD `8653541` and `1e253c3` respectively) reported `not ok 645 fixture: full re-application is idempotent (no diff)` in `packages/itil/skills/scaffold-intake/test/scaffold-intake-fixture.bats:122`. Local-vs-CI test divergence on the same commit blocks @windyroad/itil's release pipeline (CI workflow red on every commit since 8653541; Release + Release Preview workflows still green so adopters aren't blocked, but the CI red signals an unfixed regression).
 

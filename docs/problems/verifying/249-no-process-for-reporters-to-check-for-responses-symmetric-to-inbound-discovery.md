@@ -7,7 +7,6 @@
 **Priority**: 9 (Medium) — Impact: 3 (Moderate — symmetric gap leaves reporters without acknowledgement signal; degrades inbound-channel quality and the feedback loop completing ADR-062's "every submitted report receives a verdict" contract) × Likelihood: 3 (Possible — fires whenever we report upstream via `/wr-itil:report-upstream` AND whenever an external reporter files via our intake)
 **Effort**: M (Phase 1 landed; Phase 2 estimated S — composes with existing `.github/ISSUE_TEMPLATE/problem-report.yml` intake surface)
 **WSJF**: 9/2 = **4.5** (raw Priority/Effort retained per README display convention; Known Error → Verifying on release per ADR-022 P143 fold-fix amendment; Phase 1 ships in 0.34.0; awaiting in-loop verification window — 5 AFK iterations across ≥2 sessions per § Verification (post-release); Phase 2 remains Open as scheduled-future-surface per P179)
-**Type**: technical
 
 ## Description
 

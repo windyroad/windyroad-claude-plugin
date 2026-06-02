@@ -5,7 +5,6 @@
 **Priority**: 6 (Medium) — Impact: 2 (Minor — SKILL.md runtime bloat persists indefinitely while the extraction sits deferred; the declarative-first policy + advisory detector are in place but the existing bloated SKILLs never get cleaned; context-budget cost, not breakage) × Likelihood: 3 (Likely — every SKILL.md invocation pays the bloat; the deferral guarantees zero cleanup)
 **Effort**: L — retroactive extraction of maintainer-rationale from runtime-necessary content across the existing SKILL.md corpus, per the ADR-054 content-classification taxonomy
 **WSJF**: 6/4 = **1.5** (Open multiplier 1.0)
-**Type**: technical
 
 ## Description
 

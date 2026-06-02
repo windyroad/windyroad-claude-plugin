@@ -5,7 +5,6 @@
 **Priority**: 15 (High) — Impact: Moderate (3) x Likelihood: Almost certain (5)
 **Effort**: XL (meta ticket — actionable work lives on P095/P096/P097/P098; this ticket owns framing, measurement, and the unifying ADR)
 **WSJF**: (15 × 1.0) / 8 = **1.875**
-**Type**: technical
 
 > Meta ticket. Actionable work has been split into cluster children (see Related). Close this ticket only after every child closes or is Verification-Pending. Until then this ticket carries the shared framing, measurement plan, and ADR anchor for the unifying solution pattern (**progressive disclosure**).
 

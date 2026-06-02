@@ -4,7 +4,6 @@
 **Reported**: 2026-05-18
 **Priority**: 5 (Medium) — Impact: 1 × Likelihood: 5
 **Effort**: S (re-estimated 2026-05-18 — call shared helper (Option A: ADR-017 sync or Option B: packages/shared/ promotion) + mirror P268 regression bats fixtures; cross-package, advisory-class)
-**Type**: technical
 **Fix Released**: pending release (batched P268-sibling sweep with P273 + P274; Option B chosen per architect verdict — helper promoted to `packages/shared/hooks/lib/command-detect.sh` matching existing `session-marker.sh` precedent there; sync script + CI check landed)
 
 ## Description

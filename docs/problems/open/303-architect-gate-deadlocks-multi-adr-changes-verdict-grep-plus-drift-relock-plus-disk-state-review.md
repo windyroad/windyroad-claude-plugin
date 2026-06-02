@@ -5,7 +5,6 @@
 **Priority**: 9 (Med High) — Impact: 3 (Moderate — every change that touches ≥2 `docs/decisions/` files in one session is blocked from landing through the gate without manual marker recovery; supersessions, ADR re-home ripples, and cluster-rollout ADRs all hit it) × Likelihood: 3 (Likely — any non-trivial governance change is multi-ADR; P294 hit it on the first attempt)
 **Effort**: M — the three facets each have a sibling ticket; the fix is to make them compose (a single recovery path + per-decision-edit hash refresh on the held marker, or a "review-approved-this-session" marker that survives drift)
 **WSJF**: 9/2 = **4.5** (Open multiplier 1.0) — corrected 2026-05-26: Effort is M (divisor 2), prior 9/4 used the L divisor in error
-**Type**: technical
 
 ## Description
 

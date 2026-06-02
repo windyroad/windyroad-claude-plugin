@@ -5,7 +5,6 @@
 **Priority**: 9 (Med High) — Impact: 3 (Moderate — the documented-justification escape hatch lets wasteful structural tests keep shipping; the user's standing position is that structural tests are "not real tests"; removing the hatch raises the whole suite's test quality and stops the `structural-justified` verdict being a permanent parking spot) × Likelihood: 3 (Likely — every test-author decision + the 14 existing escape-hatch-reliant test files)
 **Effort**: L — ADR-052 redesign (remove the escape hatches + the `structural-justified` verdict) + supersede ADR-005's Permitted Exception + P011 + convert/remove ~14 existing structural test files + resolve the not-yet-behaviourally-expressible-test tension (Layer B harness primitives)
 **WSJF**: 9/4 = **2.25** (Open multiplier 1.0)
-**Type**: technical
 
 ## Description
 

@@ -7,7 +7,6 @@
 **Effort**: M — likely combination of (a) audit of every SKILL.md and `scripts/*.sh` for bash-isms (unquoted variable iteration, `local status=`, `local declare`, `${array[@]}` zsh-array-vs-bash-array, `[[ ... ]]` extended-test in posix-sh contexts); (b) per-occurrence remediation (replace `for x in $VAR` with `for x in "${VAR[@]}"` or `for x in ${=VAR}` zsh-equivalent; rename `local status` to `local result`; etc.); (c) optional CI step or pre-commit hook lint that fails on bash-isms in shell snippets that should be portable.
 
 **WSJF**: (9 × 1.0) / 2 = **4.5**
-**Type**: technical
 
 > Surfaced 2026-04-27 by direct user observation during `/install-updates` Step 7 execution after end-of-session restart. Two distinct zsh-vs-bash failures in the same wrapper script: (1) `local status=$(install_with_retry_rollback ...)` failed with `(eval):32: read-only variable: status` because zsh has `status` as a read-only built-in mapping to `$?`; (2) `for plugin in $PLUGINS_TO_UPDATE` (where `PLUGINS_TO_UPDATE="itil retrospective risk-scorer tdd"`) iterated **once** with the entire string as a single value, because zsh does NOT word-split unquoted variables by default (a deliberate zsh-vs-bash divergence). All 24 install operations marked `lost` until the wrapper was rewritten to use a proper bash array (`PLUGINS=(itil retrospective risk-scorer tdd)` with `for plugin in "${PLUGINS[@]}"`).
 

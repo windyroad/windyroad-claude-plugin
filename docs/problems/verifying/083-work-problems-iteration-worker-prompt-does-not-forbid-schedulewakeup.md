@@ -6,7 +6,6 @@
 **Effort**: S — single-file edit to `packages/itil/skills/work-problems/SKILL.md` Step 5 prompt template: add an explicit "Do NOT call `ScheduleWakeup`, `CronCreate`, or any tool that defers completion past the current turn — the iteration worker is synchronous; it must either complete the work and return `ITERATION_SUMMARY`, OR return a well-formed `action: skipped` summary" constraint. Plus a bats assertion (behavioural per P081 direction) that greps the Step 5 prompt for the forbidding language. Small + bounded + clear edit — S.
 
 **WSJF**: 6.0 — (12 × 1.0) / 2 — High severity (silent abandonment of in-flight work is the exact-class failure P077 was meant to bound via isolation, but P077 didn't cover the worker's *contract surface* — only the delegation mechanism). Actual effort S; WSJF 12.0 in strict arithmetic, but ranked against the current 6.0 tier (P070 / P071 / P078 / P079 / P080 / P082) as a peer because the fix is narrow and the severity bucket matches.
-**Type**: technical
 
 ## Description
 

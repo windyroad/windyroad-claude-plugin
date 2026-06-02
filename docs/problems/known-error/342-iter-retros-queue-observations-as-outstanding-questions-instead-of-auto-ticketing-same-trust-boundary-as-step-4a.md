@@ -6,7 +6,6 @@
 
 **Origin**: internal
 **Effort**: M (deferred — re-rate at next `/wr-itil:review-problems`; iter-prompt body amendment in `/wr-itil:work-problems` + cross-skill alignment in `/wr-retrospective:run-retro` Step 4b stage classification + possibly behavioural bats coverage on the auto-ticket path)
-**Type**: technical
 
 ## Description
 

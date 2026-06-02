@@ -7,7 +7,6 @@
 **Priority**: 9 (Med) — Impact: 3 (Moderate — held cohorts accumulate beyond their actual evidence-based release-readiness; delays compound; user has to manually intervene to trigger graduation when the framework's own principle says graduate now) × Likelihood: 3 (Likely — fired today on 3-entry P087 cohort; pattern matches I001 / I002 manual-graduation precedent earlier this month)
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
 **WSJF**: 9/2 = **4.5** (raw Priority/Effort retained per README display convention; Known Error → Verifying on release per ADR-022; awaiting in-loop verification window — 5 AFK iterations across ≥2 sessions per § Verification (post-release))
-**Type**: technical (agent class-of-behaviour)
 
 ## Description
 

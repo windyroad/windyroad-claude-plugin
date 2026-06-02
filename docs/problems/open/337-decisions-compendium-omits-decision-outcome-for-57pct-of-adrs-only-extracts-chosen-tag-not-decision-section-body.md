@@ -6,7 +6,6 @@
 **Origin**: internal
 **Effort**: L (re-rated 2026-06-01 — architect verdict on 2026-06-01 work-problems iteration redirected the fix path from "extend the programmatic extractor" to ADR-078 Phase 1: new `architect-compendium-update-entry.sh` PostToolUse hook + `architect-readme-pairing-check.sh` pre-commit hook + retire bats test 2145 + retire `architect-compendium-refresh-discipline.sh` PreToolUse hook + cadence-driven migration of 43 non-canonical ADRs. RFC-scope per ADR-060. Was M when scoped as a regex extension; superseded.)
 **WSJF**: 3.0 (re-rated 2026-06-01 — (Severity 12 × Status 1.0) / Effort L (4) = 3.0; was 6.0 under the M-effort regex-extension scope.)
-**Type**: technical
 
 ## Description
 

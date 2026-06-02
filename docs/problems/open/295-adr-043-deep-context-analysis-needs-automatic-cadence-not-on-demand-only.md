@@ -5,7 +5,6 @@
 **Priority**: 6 (Medium) — Impact: 2 (Minor — the deep context analysis exists but, being on-demand-only, effectively never fires; the cheap layer carries all the load and the deep insights are never realised; no breakage, just an un-exercised capability) × Likelihood: 3 (Likely — every retro runs the cheap layer; the deep layer's zero-cadence means zero runs)
 **Effort**: M — ADR-043 amendment (add a proactive lower-frequency cadence to the deep layer) + run-retro trigger wiring + the analyze-context skill
 **WSJF**: 6/2 = **3.0** (Open multiplier 1.0)
-**Type**: technical
 
 ## Description
 

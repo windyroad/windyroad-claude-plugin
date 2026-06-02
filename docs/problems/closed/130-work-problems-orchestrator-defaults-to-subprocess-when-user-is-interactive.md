@@ -5,7 +5,6 @@
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Possible (3)
 **Effort**: M — `packages/itil/skills/work-problems/SKILL.md` prose-discipline amendment per the user-reframed Fix Strategy (lines 95-123 below). Adds the **Mid-loop ask discipline (orchestrator main turn)** subsection inside Non-Interactive Decision Making, augments Step 5's iteration-prompt body with transient-user framing, adds a Decision Table row, plus matching contract bats per ADR-037 + P081 (`work-problems-no-mid-loop-asking.bats`). The original-effort estimate (dual-mode dispatch + presence-signal detector + ADR-032 amendment) was superseded by the user reframe — actual effort is materially smaller (prose discipline, no new helper, no ADR amendment).
 **WSJF**: (9 × 2.0) / 2 = **9.0**
-**Type**: technical
 
 > Surfaced 2026-04-27 by direct user correction during an interactive session of `/wr-itil:work-problems`: "I'm not sure why you did that as a background non-interactive run. We could of just done it here. create a problem for that". P078 contradiction-signal pattern. Triggering iter: iter 9 = P081, dispatched as `claude -p` subprocess immediately after the user answered an `AskUserQuestion` next-step decision at the orchestrator's main turn — the user-presence signal had flipped from absent to present, but the orchestrator's Step 5 dispatch shape did not adapt.
 

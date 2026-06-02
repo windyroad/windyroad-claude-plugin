@@ -4,7 +4,6 @@
 **Reported**: 2026-05-15
 **Priority**: 3 (Med) — Impact: 2 (Minor — test flakiness, not production correctness) x Likelihood: 2 (Possible — fires when load delays push elapsed past 5s) (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: S (deferred — re-rate at next /wr-itil:review-problems)
-**Type**: technical
 
 ## Description
 

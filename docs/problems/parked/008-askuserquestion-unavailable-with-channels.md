@@ -3,7 +3,6 @@
 **Status**: Parked
 **Reported**: 2026-04-15
 **Priority**: 15 (High) — Impact: Moderate (3) x Likelihood: Almost Certain (5) when using connect plugin
-**Type**: technical
 
 ## Description
 

@@ -3,7 +3,6 @@
 **Status**: Closed
 **Reported**: 2026-04-14
 **Priority**: 12 (High) — Impact: Significant (4) x Likelihood: Almost Certain (5) when first installing
-**Type**: technical
 
 ## Description
 

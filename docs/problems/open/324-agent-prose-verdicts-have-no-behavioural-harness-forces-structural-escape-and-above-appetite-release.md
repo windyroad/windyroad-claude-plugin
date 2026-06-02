@@ -4,7 +4,6 @@
 **Reported**: 2026-05-27
 **Priority**: 9 (Med-High) — Impact: 3 x Likelihood: 3 (deferred — re-rate at next /wr-itil:review-problems; flagged HIGH-LEVERAGE — see Impact)
 **Effort**: L (deferred — re-rate at next /wr-itil:review-problems)
-**Type**: technical
 
 ## Description
 

@@ -4,7 +4,6 @@
 **Reported**: 2026-05-18
 **Priority**: 8 (Medium) — Impact: 2 × Likelihood: 4
 **Effort**: M (re-estimated 2026-05-18 — trigger condition + auto-dispatch wiring across work-problems/manage-problem/capture-problem surfaces + bats fixture)
-**Type**: technical
 
 ## Description
 

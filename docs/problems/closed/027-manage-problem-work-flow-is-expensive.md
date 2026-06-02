@@ -5,7 +5,6 @@
 **Priority**: 15 (High) — Impact: Significant (4) x Likelihood: Almost Certain (5)
 **Effort**: M
 **WSJF**: 7.5 — (15 × 1.0) / 2
-**Type**: technical
 
 ## Description
 

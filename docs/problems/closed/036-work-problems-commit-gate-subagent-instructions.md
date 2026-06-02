@@ -6,7 +6,6 @@
 **Priority**: 4 (Low) — Impact: Minor (2) x Likelihood: Unlikely (2)
 **Effort**: S
 **WSJF**: 4.0 — (4 × 1.0) / 1
-**Type**: technical
 
 ## Fix Released
 

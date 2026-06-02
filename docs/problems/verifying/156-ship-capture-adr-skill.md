@@ -6,7 +6,6 @@
 **Effort**: M — new skill SKILL.md + REFERENCE.md per ADR-038 progressive-disclosure pattern; bin shim per ADR-049; behavioural bats per ADR-052; compose with `wr-architect:create-adr` (the heavyweight canonical path) so capture-adr produces a `.proposed.md` with skeleton sections deferred for later canonical review.
 
 **WSJF**: (12 × 1.0) / 2 = **6.0**
-**Type**: technical
 
 > Surfaced 2026-05-03 by user direction post-AFK-loop-restart: split P014 (ADR-032 master tracker) into its three planned children. P156 is the second child — the `/wr-architect:capture-adr` skill that iter-12's outstanding_questions named as a foreground-iter requirement. Sibling to P155 (capture-problem) and P157 (pending-questions-surface hook). Iter 12's plan named P154/P155/P156; P154 was taken by P137 npm-pack-detector follow-up; children renumber to P155/P156/P157.
 

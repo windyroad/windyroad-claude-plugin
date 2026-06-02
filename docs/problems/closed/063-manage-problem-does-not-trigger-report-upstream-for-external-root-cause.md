@@ -6,7 +6,6 @@
 **Priority**: 9 (Medium) — Impact: Moderate (3) x Likelihood: Possible (3)
 **Effort**: S — one conditional prompt step in `packages/itil/skills/manage-problem/SKILL.md` (Open → Known Error transition, or when parking with `upstream-blocked` reason), plus a bats doc-lint assertion.
 **WSJF**: 9.0 — (9 × 1.0) / 1 — small, high-leverage wiring fix; unblocks the real-world path for P055's shipped `/wr-itil:report-upstream` skill.
-**Type**: technical
 
 ## Direction decision (2026-04-20, user — AFK pre-flight)
 

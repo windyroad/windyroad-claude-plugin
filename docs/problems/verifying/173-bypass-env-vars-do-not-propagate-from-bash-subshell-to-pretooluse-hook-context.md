@@ -5,7 +5,6 @@
 **Priority**: 6 (Medium) — Impact: 2 (Minor — gate-bypass friction blocks the maintainer's in-session commits, forcing external-terminal workarounds; dev-tooling, not published-distribution) x Likelihood: 3 (Possible — documented recurring across sessions per the cross-session briefing)
 **Effort**: M
 **WSJF**: 6.0 — (6 × 2.0) / 2 (Known Error multiplier 2.0) — auto-transitioned Open → Known Error 2026-05-26 (confirmed root cause + documented workaround); Likelihood un-deferred from placeholder 1 → 3
-**Type**: technical
 
 ## Fix Released
 

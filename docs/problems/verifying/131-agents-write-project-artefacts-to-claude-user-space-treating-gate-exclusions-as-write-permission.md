@@ -5,7 +5,6 @@
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Likely (3)
 **Effort**: M — likely combination of (a) project CLAUDE.md adds an explicit "never write project-generated artefacts under `.claude/`" rule, (b) a new PreToolUse:Write|Edit hook that denies writes to `.claude/` for paths the user hasn't explicitly approved, and (c) updates to wr-architect / wr-jtbd gate-exclusion documentation clarifying the exclusion semantics (read tolerance, NOT write permission). The denial hook is the load-bearing piece; CLAUDE.md + docs are the supporting layer.
 **WSJF**: (9 × 1.0) / 2 = **4.5**
-**Type**: technical
 
 > Surfaced 2026-04-27 by direct user correction during an interactive `/wr-itil:work-problems` session: "why are you storing files in .claude which require my explicit approval to write???". P078 contradiction-signal pattern (caps-emphasised triple-question; "you" + "why" pattern). Triggering action: orchestrator wrote `.claude/plans/p081-review-test-agent.md` to preserve a Plan-agent-generated plan across session boundaries. The orchestrator's reasoning was: "Turn 1 system instructions list `.claude/plans/*.md` in the architect/JTBD gate-exclusion list, therefore writing there is approved". The user's reasoning was: "`.claude/` is MY config directory — agents must not pollute it with project-generated content".
 

@@ -7,7 +7,6 @@
 **Priority**: 9 (Mod) — Impact: 3 (Moderate — encodes accumulation against the RISK-POLICY appetite invariant; defers low-risk releases against explicit user direction "If it's low risk, you should release") × Likelihood: 3 (Possible — fires when an iter ships a changeset and Step 6.5 evaluates within-appetite; observed pattern this session at iter 5 boundary) (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: M (Step 6.5 SKILL.md contract amendment — drop the "≤3 within appetite — no drain" classification clause; replace with "drain whenever there is something to release at residual ≤4 within appetite"; bats coverage; sibling pattern to P250 fix amendment) (deferred — re-rate at next /wr-itil:review-problems)
 **WSJF**: 9/2 = **4.5** (raw Priority/Effort retained per README display convention; Open → Verifying on fold-fix per ADR-022 P143 amendment — pre-flight criteria met inline: root cause documented, fix shipped, bats coverage green, sibling audit zero-finding; awaiting in-loop verification window — 5 AFK iterations across ≥2 sessions per § Verification (post-release))
-**Type**: technical
 
 ## Description
 

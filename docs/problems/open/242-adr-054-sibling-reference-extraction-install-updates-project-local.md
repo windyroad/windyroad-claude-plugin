@@ -5,7 +5,6 @@
 **Priority**: 6 (Medium) — Impact: 2 x Likelihood: 3 (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
 **WSJF**: 3.0 — (6 × 1.0) / 2 — re-rated 2026-05-23: P081 verifying→0; transitive = marginal M (was 1.5)
-**Type**: technical
 
 ## Description
 

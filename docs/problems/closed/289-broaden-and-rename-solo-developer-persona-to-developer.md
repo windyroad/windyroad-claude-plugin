@@ -6,7 +6,6 @@
 **Priority**: 6 (Medium) — Impact: 2 (Minor — the persona's jobs are correct and serve real need; the defect is that they are filed under a too-narrow persona name, degrading the taxonomy's clarity and mis-signalling that the jobs are solo-only; no functional breakage) × Likelihood: 3 (Possible — every JTBD alignment review and every `persona:`-keyed reference reads the name)
 **Effort**: L — 275 occurrences across 164 files (134 docs + 28 packages + scripts + root README); needs a migration-strategy decision (rename live-only vs all-historical) before execution
 **WSJF**: 6/4 = **1.5** (Open multiplier 1.0)
-**Type**: technical
 
 ## Closed as no longer relevant
 

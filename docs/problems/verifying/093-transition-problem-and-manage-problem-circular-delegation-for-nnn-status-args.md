@@ -5,7 +5,6 @@
 **Priority**: 12 (High) — Impact: Significant (4) x Likelihood: Possible (3)
 **Effort**: S
 **WSJF**: excluded from ranking (Verification Pending — ADR-022)
-**Type**: technical
 
 ## Description
 

@@ -6,7 +6,6 @@
 **Priority**: 6 (Medium) — Impact: 2 (Minor — the implementation already follows the lean principle via P250's amendment to work-problems Step 6.5, so behaviour is correct; the defect is that ADR-018's *recorded decision* still says "release when risk approaches appetite", which misleads every reader of the release-cadence decision and contradicts the live behaviour) × Likelihood: 3 (Likely — ADR-018 is the cited parent for all release-cadence behaviour; the stale text is read on every cadence question)
 **Effort**: M — ADR-018 Decision-Outcome amendment + add the dogfood-location clause + verify consistency with P250 + ADR-061 (held-changeset graduation) + the work-problems Step 6.5 implementation
 **WSJF**: 6/2 = **3.0** (Open multiplier 1.0)
-**Type**: technical
 
 ## Closed as no longer relevant
 

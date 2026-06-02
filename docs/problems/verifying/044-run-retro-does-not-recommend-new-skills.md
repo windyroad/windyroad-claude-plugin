@@ -5,7 +5,6 @@
 **Priority**: 8 (Med) — Impact: Minor (2) x Likelihood: Likely (4)
 **Effort**: M
 **WSJF**: 8.0 (8 × 2.0 / 2)  — transitioned 2026-04-19 after root cause confirmed and fix strategy documented
-**Type**: technical
 
 ## Description
 

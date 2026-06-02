@@ -5,7 +5,6 @@
 **Priority**: 12 (High) — Impact: Significant (4) x Likelihood: Possible (3)
 **Effort**: M — S → M after user direction 2026-04-20 reshaped the dedup mechanism. Now requires: (1) LLM-based semantic dup detection (not keyword search), (2) new "maintainer annoyance" risk evaluator composing with P064's external-comms risk gate, (3) risk-within-appetite gate on the auto-comment action. Likely shares infrastructure with P064 — architect review at implementation may push to L if the risk-scorer extension is cross-cutting.
 **WSJF**: 6.0 — (12 × 1.0) / 2 — Effort re-estimated from S to M after direction pin. Still High severity (duplicate / spammy upstream comments are the most externally-visible failure mode of the skill). Ranks alongside P065 and P068; below P066 / P063 at the top of the queue.
-**Type**: technical
 
 ## Direction decision (2026-04-21, user — interactive AskUserQuestion post-AFK-iter-7)
 

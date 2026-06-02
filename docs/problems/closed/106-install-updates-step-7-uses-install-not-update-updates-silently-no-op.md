@@ -5,7 +5,6 @@
 **Priority**: 20 (High) — Impact: Major (4) x Likelihood: Almost certain (5)
 **Effort**: S
 **WSJF**: (20 × 1.0) / 1 = **20.0**
-**Type**: technical
 
 > Observed 2026-04-22 while running `/install-updates` after this session's `@windyroad/itil@0.17.2`, `@windyroad/architect@0.5.1`, `@windyroad/jtbd@0.7.1`, and `@windyroad/retrospective@0.8.0` releases. Step 7 called `claude plugin install wr-<plugin>@windyroad --scope project` across 24 project/plugin combos. **Every invocation printed `✔ Plugin "wr-<plugin>@windyroad" is already installed (scope: project)` and exited 0 — no cache refresh, no version pull.** Post-run verification showed `~/.claude/plugins/cache/windyroad/wr-<plugin>/` still had only the pre-release versions (0.17.0 / 0.5.0 / 0.7.0 / 0.6.0). The skill's entire stated purpose — "refresh every windyroad plugin install touched by recent releases" — silently failed. Worked around by switching to `claude plugin uninstall <plugin> --scope project` followed by `claude plugin install <plugin> --scope project`, which forces a fresh download.
 

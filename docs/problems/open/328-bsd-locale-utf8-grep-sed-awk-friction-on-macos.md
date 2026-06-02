@@ -6,7 +6,6 @@
 **Origin**: internal
 **Effort**: M (multiple call-sites across packages/* scripts need locale-export wrappers or a shared helper source)
 **WSJF**: 4.0 (re-rated 2026-05-31; was placeholder I=3×L=1; honest grounding raises to S8/L4/Effort-M)
-**Type**: technical
 
 ## Description
 

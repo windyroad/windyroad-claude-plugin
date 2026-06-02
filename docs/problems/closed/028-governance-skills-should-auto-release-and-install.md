@@ -6,7 +6,6 @@
 **Priority**: 9 (Medium) — Impact: Moderate (3) x Likelihood: Possible (3)
 **Effort**: M
 **WSJF**: n/a (Closed)
-**Type**: technical
 
 ## Closure Evidence (2026-04-19 AFK loop, iter 2)
 

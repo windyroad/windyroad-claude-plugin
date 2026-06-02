@@ -7,7 +7,6 @@
 **Origin**: internal
 **Effort**: M (Step 6.75 verify-claims FIRST per user-pinned option (a); observe whether iter-local drift-bats is still needed after data collection)
 **WSJF**: 4.5 (re-rated 2026-05-31; was placeholder I=3×L=1; honest grounding lands at S9/L3/M)
-**Type**: technical
 
 ## Description
 

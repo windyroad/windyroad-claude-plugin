@@ -4,7 +4,6 @@
 **Reported**: 2026-05-15
 **Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
-**Type**: technical
 
 > **safe-high-fix-risk flag** (per dual-axis-risk classifier): the proposed "fail-open with prompt" option would change a gate from blanket-FAIL to fail-open in the missing-policy-file branch, which weakens voice-tone enforcement for all adopters who haven't yet opted in. The alternate "self-bootstrap on first run" option additionally aligns with "Adopter-attack-surface expansion" (hook-driven write into adopter repos). Maintainer should weigh gate-strength-vs-adopter-friction before picking an implementation path.
 

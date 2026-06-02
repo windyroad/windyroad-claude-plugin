@@ -5,7 +5,6 @@
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: M
 **WSJF**: 0 (Verification Pending — excluded from ranking per ADR-022)
-**Type**: technical
 
 > Split from P091 meta (session-wide context budget) on 2026-04-22 after user direction: "you can fix THIS project itself if there is wasteful context usage". This ticket owns the non-plugin-source surfaces that are nonetheless within this repo's editable reach.
 

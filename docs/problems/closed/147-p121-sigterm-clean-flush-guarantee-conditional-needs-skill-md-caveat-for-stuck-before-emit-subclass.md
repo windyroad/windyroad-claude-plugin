@@ -5,7 +5,6 @@
 **Priority**: 4 (Med) — Impact: Minor (2) x Likelihood: Possible (2) — false confidence in the SKILL.md SIGTERM-recovery prose causes orchestrators to expect clean JSON flush that may not arrive, then accept exit-143 without halt-and-investigate.
 **Effort**: S — SKILL.md amendment to `packages/itil/skills/work-problems/SKILL.md` line 27 area (the P121 evidence prose block) + amend the briefing entry already added today (`docs/briefing/afk-subprocess.md` "P121 SIGTERM-clean-flush guarantee is conditional, not universal" entry) into a behavioural-test fixture.
 **WSJF**: (4 × 1.0) / 1 = **4.0**
-**Type**: technical
 
 ## Fix Released
 

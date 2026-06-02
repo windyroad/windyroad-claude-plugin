@@ -4,7 +4,6 @@
 **Reported**: 2026-05-15
 **Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
-**Type**: technical
 
 > **new-jtbd-flag** (per JTBD classifier): the proposed skill addresses **adopter-artefact-layout-currency** — a third currency dimension not covered by JTBD-007 today (which scopes code-currency + README-content-currency only). Maintainer decision: amend JTBD-007 to extend currency scope (recommended) OR add new JTBD-009 (Migrate Adopter Artefacts When a Plugin's Layout Evolves).
 

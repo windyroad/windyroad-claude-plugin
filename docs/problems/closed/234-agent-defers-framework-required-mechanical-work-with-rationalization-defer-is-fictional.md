@@ -5,7 +5,6 @@
 **Priority**: 12 (High) — Impact: 4 (Significant — defers accumulate silently; framework-required work falls off the ledger; user must catch + manually correct each occurrence; pattern recurs across every retro / session-wrap surface where mechanical work meets perceived friction) × Likelihood: 3 (Likely — recurred today within minutes of the "Don't defer" correction in a different way; sibling P148 captures same class at the Tickets Deferred surface)
 **Effort**: M (deferred — re-rate at next `/wr-itil:review-problems`)
 **WSJF**: (12 × 1.0) / 2 = **6.0** (deferred — provisional; ties with P162)
-**Type**: technical (agent class-of-behaviour)
 
 > Captured 2026-05-17 by `/wr-retrospective:run-retro` session 3 retro wrap, immediately after user correction: *"Create a problem ticket for you defeating the must split files. Like, when did you think that work was going to get done??"* Strong-signal P078 correction. Sibling to [[P148]] (Tickets Deferred section misuse), [[P132]] (lazy-AskUserQuestion class — different decision surface, same defer-via-rationalization shape), [[P145]] (recurring-defer anti-pattern at Tier 3 budget rotation).
 

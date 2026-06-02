@@ -7,7 +7,6 @@
 **Priority**: 12 (High) — Impact: 3 (Moderate — encodes accumulation against the RISK-POLICY appetite invariant; defers low-risk releases against explicit user direction "If it's low risk, you should release") × Likelihood: 4 (Likely — fires on every Step 6.5 pass where there is something to release but the cohort isn't full AND risk is below 4/Low appetite; observed pattern, not hypothetical)
 **Effort**: M (Step 6.5 SKILL.md contract amendment — drop "at-appetite-only drain" semantics; drain whenever there is something to release; bats coverage for the new drain condition; potential ADR-018 amendment to align cadence framing with no-accumulation invariant)
 **WSJF**: 12/2 = **6.0** (raw Priority/Effort retained per README display convention; Known Error → Verifying on release per ADR-022; awaiting in-loop verification window — 5 AFK iterations across ≥2 sessions per § Verification (post-release))
-**Type**: technical
 
 ## Description
 

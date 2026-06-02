@@ -5,7 +5,6 @@
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: M — template change (yaml + structured-default fallback) + auto-detection helper functions in the skill + bats coverage for the new Versions block contract + ADR-033 amendment.
 **WSJF**: 3.0 — `(12 × 1.0) / 2 = 6.0` marginal; `(12 × 1.0) / max(M=2, P064=L=4) = 12 / 4 = 3.0` transitive via P064 (P038 also composes-with but does not strictly block; only the risk-gate path is a hard prerequisite for landing the auto-population helper through the external-comms surface). Records the transitive value per ADR-022 / P076. <!-- transitive: M (marginal) → L (transitive) via P064 -->
-**Type**: technical
 
 ## Description
 

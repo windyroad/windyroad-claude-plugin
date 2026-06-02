@@ -7,7 +7,6 @@
 **Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems; HIGH in practice — ratification claims may stamp ADRs whose substance was never user-authorised, and the architect agent reads the marker as proof of ratification per ADR-066, so the entire governance chain downstream operates on a foundation that didn't actually exist)
 **Origin**: internal
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems; SKILL.md amendments on `/wr-architect:create-adr` Step 5 + `/wr-architect:capture-adr` if applicable + architect agent's review-decisions flow + behavioural bats coverage of the new substance-confirm pattern)
-**Type**: technical
 
 ## Description
 

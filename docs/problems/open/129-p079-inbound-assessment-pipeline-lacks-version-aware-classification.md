@@ -5,7 +5,6 @@
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: L — assessment-pipeline classifier extension + recurrence-class lifecycle semantics + integration with closed-ticket history search + bats coverage. Marginal estimate.
 **WSJF**: 3.0 — (12 × 1.0) / max(L=4, P079=4) = 12/4 — re-rated 2026-05-23: P038/P064 closed, P128 verifying→0; bounded by P079/marginal L
-**Type**: technical
 
 ## Description
 

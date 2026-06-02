@@ -5,7 +5,6 @@
 **Priority**: 6 (Med) — Impact: Moderate (3) x Likelihood: Possible (2)
 **Effort**: S
 **WSJF**: 6.0 — (6 × 1.0) / 1
-**Type**: technical
 
 ## Fix Released
 

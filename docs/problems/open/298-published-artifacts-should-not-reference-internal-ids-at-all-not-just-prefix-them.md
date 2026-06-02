@@ -5,7 +5,6 @@
 **Priority**: 9 (Med High) — Impact: 3 (Moderate — per ADR-055's own analysis, internal-ID references in shipped artifacts cause real adopter failure modes incl. resolving to an UNRELATED same-numbered ADR in the adopter's own tree = confidently-wrong agent behaviour; prefixing reduces collision but still surfaces meaningless tokens to the adopter/agent) × Likelihood: 3 (Likely — 2,880 instances across 81 files in shipped artifacts)
 **Effort**: XL — rephrase ~2,880 internal-ID references across 81 shipped-artifact files to express the substance inline (a much larger change than ADR-055's prefix approach); composes with P296 (SKILL.md extraction) which removes many refs as a side-effect
 **WSJF**: 9/8 = **1.13** (Open multiplier 1.0)
-**Type**: technical
 
 ## Description
 

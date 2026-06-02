@@ -4,7 +4,6 @@
 **Reported**: 2026-05-26
 **Priority**: 6 (Medium) — Impact: 2 x Likelihood: 3 (re-rated unchanged 2026-05-30 at fix landing)
 **Effort**: S → M at implementation (architect adjustments expanded scope to mirror onto JTBD sibling, is-*-unconfirmed predicates, agent.md docs, and compendium renderer per the canonical-shape sync guard)
-**Type**: technical
 
 ## Description
 

@@ -4,7 +4,6 @@
 **Reported**: 2026-05-18
 **Priority**: 8 (Medium) — Impact: 2 × Likelihood: 4
 **Effort**: S (re-estimated 2026-05-18 — single hook file extension, reuse P268 helper pattern + 1 bats fixture)
-**Type**: technical
 
 ## Fix Released
 

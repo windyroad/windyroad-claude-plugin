@@ -6,7 +6,6 @@
 **Priority**: 15 (High) — Impact: Moderate (3) x Likelihood: Almost certain (5)
 **Effort**: L
 **WSJF**: (15 × 1.0) / 4 = **3.75**
-**Type**: technical
 
 > Third child of P091 (Session-wide context budget) identified 2026-04-22 by the user while reviewing the P098 fix. P098 shipped a project-level `CLAUDE.md` that explicitly points to `docs/BRIEFING.md` as "Session learnings — read first each session", which makes BRIEFING.md's current bloat more visible: every session now pays its session-start token cost AND is invited to read it first.
 

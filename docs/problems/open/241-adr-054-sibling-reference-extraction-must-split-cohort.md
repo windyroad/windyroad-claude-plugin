@@ -5,7 +5,6 @@
 **Priority**: 9 (Medium-High) — Impact: 3 x Likelihood: 3 (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: XL (deferred — re-rate at next /wr-itil:review-problems)
 **WSJF**: 1.13 — (9 × 1.0) / 8 — re-rated 2026-05-23: P081 verifying→0 per P076; marginal XL dominates (was 1.5)
-**Type**: technical
 
 ## Description
 

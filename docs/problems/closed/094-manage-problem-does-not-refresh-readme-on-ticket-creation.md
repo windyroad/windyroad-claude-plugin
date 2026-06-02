@@ -6,7 +6,6 @@
 **Priority**: 10 (High) — Impact: Minor (2) x Likelihood: Almost certain (5)
 **Effort**: S
 **WSJF**: (10 × 1.0) / 1 = **10.0**
-**Type**: technical
 
 ## Description
 

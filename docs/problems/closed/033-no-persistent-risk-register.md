@@ -6,7 +6,6 @@
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Possible (3)
 **Effort**: XL — re-rated from L 2026-04-28 per architect verdict on ADR-047 phase plan; original L sized only the scaffolding slice and missed the back-channel + backfill + behavioural-test scope surfaced by user's "for each risk in .risk-reports there should be something in the register" direction.
 **WSJF**: 2.25 — (9 × 2.0) / 8 → now known-error (XL effort)
-**Type**: technical
 
 ## Closed as no longer relevant
 

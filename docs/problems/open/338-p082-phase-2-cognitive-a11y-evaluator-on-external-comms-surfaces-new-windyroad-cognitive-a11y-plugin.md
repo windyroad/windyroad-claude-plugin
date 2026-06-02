@@ -6,7 +6,6 @@
 **Origin**: internal
 **Effort**: L (suite-wide cognitive-a11y plugin scaffold + ADR-028 amendment + 4 surface integrations + per-surface bats coverage)
 **WSJF**: 1.0 (re-rated 2026-05-31; was placeholder I=3×L=1; honest grounding is below appetite per acceptance-deferred sibling-cohort framing)
-**Type**: technical
 
 ## Description
 

@@ -5,7 +5,6 @@
 **Fix Released**: @windyroad/itil@0.35.3 — fix landed 2026-05-17 commit `52a50e9` "fix(itil): scope reconcile-readme VQ slice to terminate at Inbound Upstream Reports (closes P252)"; consumed in version-packages commit `55dde23` 2026-05-18; merged via PR #148 (`d450683`); cache now at `@windyroad/itil@0.35.3` (released session 7 loop-end Step 6.5 drain 2026-05-18). The fix added `INBOUND_START` to the section-boundary scan and updated `VQ_END` / `WSJF_END` sentinel cascade so VQ extraction terminates at the Inbound Upstream Reports section per ADR-062 / RFC-004. Transition Open → Verification Pending per ADR-022 P143 fold-fix amendment (changeset removal in `55dde23` IS the canonical fix-shipped signal). Sibling P264 captured 2026-05-18 was a duplicate (the cached 0.32.1 script still had the bug at session 7 start); closed in this iter referencing P252 as authoritative.
 **Priority**: 9 (Med-High) — Impact: 3 x Likelihood: 3 (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
-**Type**: technical
 **RFCs**: []
 
 ## Description

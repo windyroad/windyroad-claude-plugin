@@ -6,7 +6,6 @@
 **Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next `/wr-itil:review-problems`; HIGH in practice — accumulated direction-class observations and retro-class learnings can both be silently dropped on AFK-loop end if the orchestrator emits `ALL_DONE` without surfacing them or running retro)
 **Origin**: internal
 **Effort**: M (deferred — re-rate at next `/wr-itil:review-problems`; SKILL.md amendment to enforce sequence + behavioural bats coverage + possibly hook-enforced ordering)
-**Type**: technical
 
 ## Description
 

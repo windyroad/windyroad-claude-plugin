@@ -6,7 +6,6 @@
 **Origin**: internal
 **Effort**: M (work-problems SKILL.md Step 0 / Step 3 amendment + predicate helper + behavioural bats coverage)
 **WSJF**: 3.0 (re-rated 2026-05-31; was placeholder I=3×L=1; honest grounding lands at S6/L3/M)
-**Type**: technical
 
 ## Description
 

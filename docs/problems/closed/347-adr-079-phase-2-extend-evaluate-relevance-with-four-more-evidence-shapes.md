@@ -7,7 +7,6 @@
 **Priority**: 9 (Med High) — Impact: 3 (Moderate — Phase 1 covers only 1 of 5 empirically-observed shapes; 13 of today's 14 closes used shapes Phase 1 doesn't implement; the relevance-close skill currently won't surface most reasonable candidates without Phase 2) × Likelihood: 3 (Likely — every review-problems Step 4.6 invocation hits this coverage gap)
 **Origin**: internal
 **Effort**: L (deferred — re-rate at next /wr-itil:review-problems; multi-file: ADR-079 amendment + 4 new shapes in script + Phase 1 fix + behavioural bats per shape + SKILL Step 4.6 amendment + changeset)
-**Type**: technical
 
 ## Closed as no longer relevant — duplicate of P346 (wrongly-captured sibling that should have been Phase 2 of P346)
 

@@ -5,7 +5,6 @@
 **Priority**: 9 (Medium) — Impact: Moderate (3) x Likelihood: Possible (3)
 **Effort**: M — amend `packages/itil/skills/manage-problem/SKILL.md` WSJF Prioritisation section to define the transitive-dependency rule: a dependent ticket's effort is the max of (own marginal effort, transitive closure of upstream dependencies' efforts). Add a worked example. Amend Step 9b (review re-assess) to walk the dependency graph and propagate effort up. Add bats doc-lint assertions for the new rule. Cross-cutting with review behaviour; no new ADR strictly required because the WSJF section is the canonical location — but a short sibling ADR (or ADR-014-adjacent amendment) is a candidate if the dependency-graph mechanics need wider coverage across the skill suite.
 **WSJF**: 4.5 — (9 × 1.0) / 2 — Medium severity (the queue silently lies about what's actionable, but the value is delivered in individual fixes not in queue-accuracy); moderate effort (SKILL.md edit + review-step extension + bats).
-**Type**: technical
 
 ## Description
 

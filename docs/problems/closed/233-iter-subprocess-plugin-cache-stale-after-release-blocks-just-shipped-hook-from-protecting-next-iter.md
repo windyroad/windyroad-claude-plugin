@@ -7,7 +7,6 @@
 **Priority**: 8 (Med-High) — Impact: 4 (Significant — fix shipped today did not prevent the same antipattern from recurring 90 min later; cost ~$15 + 90 min wall-clock in a single iter; pattern will recur on every gate-class hook landing) × Likelihood: 2 (Likely — fires once per gate-class hook release until cache-refresh is automated)
 **Effort**: M (deferred — re-rate at next `/wr-itil:review-problems`)
 **WSJF**: (8 × 1.0) / 2 = **4.0** (deferred — provisional)
-**Type**: technical
 
 > Captured 2026-05-17 by `/wr-retrospective:run-retro` session 3 retro. Driver: P232 fix recurred 90 min after release. Sibling to P232 (parent antipattern), P165 (sibling held-changeset class), P106 (claude plugin install no-op-when-already-installed).
 

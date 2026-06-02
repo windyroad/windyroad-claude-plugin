@@ -4,7 +4,6 @@
 **Reported**: 2026-05-18
 **Priority**: 6 (Medium) — Impact: 2 (Minor — capture commit denied until workaround applies; not destructive) x Likelihood: 3 (Likely — fires on every capture commit; observed 4× this session for P254/P255/P256/P257)
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems; either SKILL.md amendment or hook carve-out, architect verdict)
-**Type**: technical
 
 ## Description
 

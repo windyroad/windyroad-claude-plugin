@@ -5,7 +5,6 @@
 **Priority**: 4 (Low) — Impact: Minor (2) x Likelihood: Unlikely (2)
 **Effort**: S — one-line regex fix in two places + bats regression test
 **WSJF**: 0 (Verification Pending — see ADR-022)
-**Type**: technical
 
 ## Fix Released
 

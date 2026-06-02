@@ -4,7 +4,6 @@
 **Reported**: 2026-05-28
 **Priority**: 4 (Low-Med) — Impact: 2 x Likelihood: 2 (deferred — re-rate at next /wr-itil:review-problems; time-bounded, see below)
 **Effort**: S (deferred — re-rate at next /wr-itil:review-problems)
-**Type**: technical
 
 ## Fix Released
 

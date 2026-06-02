@@ -4,7 +4,6 @@
 **Reported**: 2026-05-15
 **Priority**: 6 (Med) — Impact: 3 (Moderate — repeated subagent round-trips inflate session cost) x Likelihood: 2 (Possible — fires when iteratively staging + committing) (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
-**Type**: technical
 
 ## Description
 

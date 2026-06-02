@@ -36,9 +36,16 @@
 # Exported functions:
 #   emit_stderr_advisory <skill> <field> <value> <source> [reversibility]
 #   derive_kebab_slug <description> [max_tokens=8]
-#   lexical_classify_two_sided <text> <side_a_patterns_var> <side_b_patterns_var>
 #   risk_policy_matrix_lookup <text> <impact_high> <impact_mod> <impact_low>
 #                                    <likelihood_high> <likelihood_med> <likelihood_low>
+#
+# RETIRED 2026-06-02 (P287): lexical_classify_two_sided was the two-sided
+# binary classifier used exclusively by capture-problem Step 1.5 Type
+# classification (technical vs user-business). With the type axis retired
+# per twice-confirmed user direction, the function has no remaining
+# consumer and was removed. The slug + advisory + matrix helpers stay —
+# they serve manage-incident severity, manage-problem priority, and
+# create-adr title derivation.
 #
 # @adr ADR-002 (Monorepo per-plugin packages — architecture context for ADR-017)
 # @adr ADR-017 (Shared code duplicated into per-package lib/ kept in sync)
@@ -103,60 +110,6 @@ derive_kebab_slug() {
     | grep -v '^$' \
     | head -n "$max_tokens" \
     | paste -sd '-' -
-}
-
-# ---------------------------------------------------------------------------
-# lexical_classify_two_sided — two-sided binary lexical classifier.
-#
-# Used by capture-problem Step 1.5 Type classification (technical vs
-# user-business). Callers pass description text plus two regex pattern
-# arrays (by name); helper counts hits per side and echoes one of:
-#
-#   SIDE_A_UNAMBIGUOUS|<matched signals (comma-separated)>
-#     ≥1 side-A signal hit AND 0 side-B signals hit.
-#   SIDE_B_UNAMBIGUOUS|<matched signals (comma-separated)>
-#     0 side-A signals hit AND ≥1 side-B signal hit.
-#   AMBIGUOUS|<a=N b=N>
-#     Mixed (both sides matched) OR zero (neither side matched).
-#
-# Caller is responsible for:
-#   - Mapping SIDE_A/SIDE_B to its domain values (e.g. technical / user-business).
-#   - Calling emit_stderr_advisory on the unambiguous path.
-#   - Firing AskUserQuestion on the AMBIGUOUS path (ADR-044 category-5 taste fallback).
-# ---------------------------------------------------------------------------
-lexical_classify_two_sided() {
-  local description="$1"
-  local -n _side_a_patterns_ref="$2"
-  local -n _side_b_patterns_ref="$3"
-  local a_hits=()
-  local b_hits=()
-  local pattern
-
-  for pattern in "${_side_a_patterns_ref[@]}"; do
-    if printf '%s' "$description" | grep -qiE "$pattern" 2>/dev/null; then
-      a_hits+=("$pattern")
-    fi
-  done
-  for pattern in "${_side_b_patterns_ref[@]}"; do
-    if printf '%s' "$description" | grep -qiE "$pattern" 2>/dev/null; then
-      b_hits+=("$pattern")
-    fi
-  done
-
-  local a_count="${#a_hits[@]}"
-  local b_count="${#b_hits[@]}"
-
-  if (( a_count >= 1 && b_count == 0 )); then
-    local joined
-    joined=$(IFS=,; echo "${a_hits[*]}")
-    printf 'SIDE_A_UNAMBIGUOUS|%s\n' "$joined"
-  elif (( a_count == 0 && b_count >= 1 )); then
-    local joined
-    joined=$(IFS=,; echo "${b_hits[*]}")
-    printf 'SIDE_B_UNAMBIGUOUS|%s\n' "$joined"
-  else
-    printf 'AMBIGUOUS|a=%d b=%d\n' "$a_count" "$b_count"
-  fi
 }
 
 # ---------------------------------------------------------------------------

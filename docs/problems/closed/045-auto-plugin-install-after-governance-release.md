@@ -6,7 +6,6 @@
 **Priority**: 6 (Medium) — Impact: Minor (2) x Likelihood: Possible (3)
 **Effort**: L
 **WSJF**: 1.5 — (6 × 1.0) / 4
-**Type**: technical
 
 ## Closed as no longer relevant
 

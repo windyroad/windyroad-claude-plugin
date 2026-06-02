@@ -6,7 +6,6 @@
 **Effort**: M <!-- transitive: P038+P064 CLOSED → 0 2026-05-23; effort = marginal M (was transitive XL) -->
 
 **WSJF**: 0 — excluded from dev ranking per ADR-022 (Verification Pending)
-**Type**: technical
 
 ## Fix Released
 

@@ -5,7 +5,6 @@
 **Priority**: 16 (High) — Impact: High (4) x Likelihood: Almost Certain (4)
 **Effort**: M — requires one or more of: (1) hook on assistant output that detects prose-ask patterns ("Want me to...", "Should I...", "A or B?") and blocks the response with a systemMessage reminder; (2) hook on assistant output that detects consent-gate-when-obvious patterns (immediately-prior user message contains a direction/yes/act-verb AND next assistant message contains a question) and blocks; (3) CLAUDE.md-level mandatory rules promoted from memory feedback; (4) memory feedback addendum making the two rules explicit in the same file. Architect review at implementation to decide hook shape.
 **WSJF**: 8.0 — (16 × 1.0) / 2 — High severity (two explicit in-session corrections reinforcing memory guidance that already existed; pattern recurs despite the memory being read at session start); moderate effort. Sits at the current top of the queue with P084 (worker tool-surface) as the other WSJF-8 ticket.
-**Type**: technical
 
 ## Direction decision (2026-04-21, user — interactive AskUserQuestion post-AFK-iter-7)
 

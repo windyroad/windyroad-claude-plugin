@@ -5,7 +5,6 @@
 **Closed**: 2026-05-18 — duplicate of P252 (`docs/problems/verifying/252-...md`). The fix for the same defect shipped in commit `52a50e9` 2026-05-17 ("fix(itil): scope reconcile-readme VQ slice to terminate at Inbound Upstream Reports") and was released in `@windyroad/itil@0.35.3` during session 7 loop-end Step 6.5 drain (2026-05-18). The duplicate-check on this ticket's capture (`/wr-itil:capture-problem` Step 2 3-keyword title-only grep) missed P252 due to top-10 truncation in the duplicate listing. Closing per user direction at session 7 Step 2.5 surfacing: *"P252 → Verifying, close P264 as duplicate"*. P252 carries the authoritative verification window per ADR-022.
 **Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (closed before re-rating)
 **Effort**: M (closed before re-rating)
-**Type**: technical
 
 ## Description
 

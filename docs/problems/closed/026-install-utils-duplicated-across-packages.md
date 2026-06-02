@@ -5,7 +5,6 @@
 **Priority**: 16 (High) — Impact: Significant (4) x Likelihood: Likely (4)
 **Effort**: S (fix implemented)
 **WSJF**: n/a (fix released, pending verification)
-**Type**: technical
 
 ## Description
 

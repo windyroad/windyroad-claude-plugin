@@ -6,7 +6,6 @@
 **Effort**: M (marginal) — new sibling skill `/wr-itil:update-upstream` (per user direction 2026-04-26) that fires from `manage-problem`/`transition-problem` Step 7 transitions, drafts the lifecycle-update comment, runs it through the P064 risk gate + P038 voice-tone gate, and auto-posts when both gates pass within appetite. Above-appetite triggers `AskUserQuestion` (interactive) or halt-with-report (AFK).
 
 **WSJF**: 3.0 — (12 × 1.0) / max(M=2, P079_transitive=4) = 12/4 — re-rated 2026-05-23: P064/P038 closed; now bounded by P079 (L)
-**Type**: technical
 
 <!-- transitive: M (marginal) → XL (transitive) via P038 -->
 

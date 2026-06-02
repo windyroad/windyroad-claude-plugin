@@ -6,7 +6,6 @@
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: S <!-- transitive: collapsed to marginal S 2026-05-23; P038 + P064 both CLOSED → 0 per P076 upstream-status carve-out (was transitive XL) -->
 **WSJF**: 12.0 — (12 × 1.0) / 1 — re-rated 2026-05-23: transitive blockers P038/P064 closed; effort collapses to marginal S (P076)
-**Type**: technical
 
 ## Description
 

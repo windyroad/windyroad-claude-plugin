@@ -6,7 +6,6 @@
 **Priority**: 8 (Medium) — Impact: Minor (2) x Likelihood: Likely (4)
 **Effort**: M
 **WSJF**: (8 × 1.0) / 2 = **4.0**
-**Type**: technical
 
 > Surfaced 2026-04-22 by the JTBD gate review during P102's fix implementation. P102 landed candidate (a) — slash command `/wr-risk-scorer:create-risk` — as a minimum-viable invocation surface, with an explicit scope note that passive triggers (candidates b/c/d from P102) are out of scope and tracked here. JTBD review confirmed the slash command alone is a floor for JTBD-005 (on-demand) and tech-lead auditability but does **not** fully satisfy JTBD-001 (solo-developer: Enforce Governance Without Slowing Down), because JTBD-001 explicitly rejects reliance on the assistant remembering to invoke — "no manual step is needed to trigger reviews — they happen on every edit".
 

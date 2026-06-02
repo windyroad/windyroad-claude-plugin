@@ -7,7 +7,6 @@
 **Origin**: internal
 **Effort**: S (per user-directed fix locus option (a) — swap awk substr() `…` → ASCII `...`)
 **WSJF**: 12.0 (re-rated 2026-05-31; was placeholder I=3×L=1; user-pinned fix locus (a) collapses Effort M → S, raising WSJF; CI-blocking surface)
-**Type**: technical
 
 ## Description
 

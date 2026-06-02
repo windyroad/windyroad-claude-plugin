@@ -5,7 +5,6 @@
 **Priority**: 6 (Medium) — Impact: 2 (Minor — a per-project SessionStart auto-install is redundant work, not a correctness break; updates still propagate via the shared cache; but the redundancy + the per-project consent gate add friction and model the wrong thing) × Likelihood: 3 (Possible — fires per project per session)
 **Effort**: M — ADR-034 rework (drop the per-project auto-install model; define the update trigger against the global cache) + reconcile with /install-updates (ADR-030) which is the actual cache-refresh surface
 **WSJF**: 6/2 = **3.0** (Open multiplier 1.0)
-**Type**: technical
 
 ## Description
 

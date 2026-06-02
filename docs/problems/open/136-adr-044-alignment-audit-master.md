@@ -5,7 +5,6 @@
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Possible (3) — friction is suite-wide but per-surface bounded
 **Effort**: L — ~5+ sessions across 26 edit-bearing surfaces (3 high-ask SKILLs + 4-6 medium/low-ask SKILLs + 4 critical hooks + ~2 ADR amendments). Per-surface release cadence drains projected risk to one surface at a time per P135 R1.
 **WSJF**: (9 × 1.0) / 4 = **2.25**
-**Type**: technical
 
 > Master ticket for the **ADR-044 alignment audit** — the user-directed follow-up to P135's completion. P135 amended 4 SKILLs in Phase 2; the remaining suite (31 SKILLs + 65 hooks + 10 agents + 37 unaudited ADRs + 16 JTBDs + 12 READMEs) needs systematic review against the framework-resolution boundary so CLAUDE.md and other files don't contradict ADR-044. Surfaced 2026-04-27 by user direction at P135 implementation completion: *"we should also do an audit of all the files (hooks, skills, agents, etc) to make sure they align with the clarified direction and make sure CLAUDE.md and other files don't contradict"*.
 

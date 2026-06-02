@@ -6,7 +6,6 @@
 **Effort**: M — observation-only ticket; no immediate fix. Required work is *waiting* for 2-3 more drift-class detectors to arrive following the load-bearing-from-the-start shape, then deciding whether a meta-rule / meta-ADR is warranted.
 
 **WSJF**: (6 × 1.0) / 2 = **3.0**
-**Type**: technical
 
 > Surfaced 2026-05-04 by P159's amendment to ADR-051. Filed as the sibling out-of-scope observation P159 explicitly carved out (per the orchestrator framing for P159's Phase 1 iter). Captures the broader question P159 surfaced but did not resolve.
 

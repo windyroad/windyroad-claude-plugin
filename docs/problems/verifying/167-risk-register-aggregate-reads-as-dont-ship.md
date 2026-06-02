@@ -5,7 +5,6 @@
 **Reported**: 2026-05-04
 **Priority**: 3 (Low) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: S (post-correction; substantive remaining work delegated to P168 — this ticket's residual is the cross-reference + transition only)
-**Type**: technical
 
 ## Update — 2026-05-04 corrected framing
 

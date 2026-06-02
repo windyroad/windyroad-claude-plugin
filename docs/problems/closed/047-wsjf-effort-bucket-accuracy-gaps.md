@@ -5,7 +5,6 @@
 **Priority**: 6 (Medium) — Impact: Minor (2) x Likelihood: Possible (3)
 **Effort**: M — SKILL.md additive edits + bats doc-lint test + in-session audit of 8 L-bucket tickets (estimate confirmed accurate for the scope shipped)
 **WSJF**: 6.0 — (6 × 2.0) / 2 → now known-error; transitioned 2026-04-19 after root cause confirmed, fix implemented, and bats guard added
-**Type**: technical
 
 ## Description
 

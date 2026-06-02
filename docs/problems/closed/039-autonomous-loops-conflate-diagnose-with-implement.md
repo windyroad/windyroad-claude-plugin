@@ -6,7 +6,6 @@
 **Priority**: 16 (High) — Impact: Significant (4) x Likelihood: Likely (4)
 **Effort**: XL — shared diagnose-before-implement subagent template + per-skill hypothesis-verification gate + ADR extending 013/014/016 + cross-skill rollout (work-problems, manage-incident, others)
 **WSJF**: 2.0 — (16 × 1.0) / 8
-**Type**: technical
 
 ## Closed as no longer relevant
 

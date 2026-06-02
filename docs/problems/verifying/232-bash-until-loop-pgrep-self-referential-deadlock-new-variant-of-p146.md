@@ -5,7 +5,6 @@
 **Priority**: 9 (Med) — Impact: 3 (Moderate — iter wastes 30–60 min wall-clock + $20–30 in subscription cost; ITERATION_SUMMARY metadata lost per P147 stuck-before-emit; retro commit lost; requires manual SIGTERM) × Likelihood: 3 (Likely — recurred during P132 Phase 2a-iii-B iter despite explicit SKILL.md prompt warning against the antipattern class)
 **Effort**: M (deferred — re-rate at next `/wr-itil:review-problems`)
 **WSJF**: (9 × 1.0) / 2 = **4.5** (deferred — provisional)
-**Type**: technical
 
 > Sibling to [[P146]] (parent class — bash until-loop polls bats output with bats-console-summary regex against TAP-format output). P146 fix shipped as SKILL.md prompt warning at `/wr-itil:work-problems` Step 5 iteration prompt body. THIS variant proves the warning is insufficient under agent autonomy. Captured 2026-05-16 from observed deadlock in `/wr-itil:work-problems` AFK loop iter 4 P132 Phase 2a-iii-B.
 

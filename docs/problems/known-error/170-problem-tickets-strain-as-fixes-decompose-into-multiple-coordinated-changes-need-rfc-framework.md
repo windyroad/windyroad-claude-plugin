@@ -13,7 +13,6 @@
 **Priority**: 8 (Medium) — Impact: 2 (Minor) x Likelihood: 4 (Likely) — re-rated 2026-05-05 (was 3 (Low) deferred); strain pattern N=4 in single session = Likely; impact is dev-tooling / framework-integrity slow-burn (not npm publish disruption) = Minor
 **Effort**: XL — re-rated 2026-05-05 (was M deferred). Phase 1 alone was XL (now shipped); Phase 2 SHIP is an additional XL (8 new skills + 2 reconcile scripts + 4 generalised reverse-trace helpers + RFC frontmatter `stories:` extension + working-the-problem flow rewrite + ADR-019 collision-guard extension + STORY-MAP-001 bootstrap migration + Phase 2 commit-grain decomposition per ADR-060 architect-amendment-2026-05-10 A3).
 **WSJF**: 2.0 — (8 × 2.0) / 8 — corrected 2026-05-23: Known-Error ×2.0 multiplier (was ×1.0 = 1.0)
-**Type**: technical
 
 ## Description
 

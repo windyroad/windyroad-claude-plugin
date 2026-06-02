@@ -7,7 +7,6 @@
 **Priority**: 9 (Med) — Impact: 3 (Moderate — briefing topic files accumulate past Tier 3 thresholds; each retro defers ratherthan rotating; the deferred rotations have no scheduled-future-surface; same fictional-defer class as P234 / P145 / P246 at a different SKILL surface) × Likelihood: 3 (Likely — fired today on session 4 wrap retro for 14 OVER files; will fire on EVERY future retro until SKILL contract is amended)
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
 **WSJF**: 9/2 = **4.5** (raw Priority/Effort retained per README display convention; Known Error → Verifying on release per ADR-022; Phase 1 ships in 0.19.0; awaiting in-loop verification window — 5 AFK iterations across ≥2 sessions per § Verification (post-release); Phase 2 rotation work remains deferred with this ticket as scheduled-future-surface per P179)
-**Type**: technical (skill-contract violation)
 
 ## Description
 

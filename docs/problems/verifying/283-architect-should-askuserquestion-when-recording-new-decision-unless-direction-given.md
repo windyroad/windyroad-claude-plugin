@@ -5,7 +5,6 @@
 **Priority**: 9 (Med High) — Impact: 3 (Moderate — ADRs land with autocratically-chosen options that drift from user intent; user must re-direct in follow-up turns; degraded audit-trail of "why this option"; recurrent friction class) x Likelihood: 3 (Likely — affects every ADR-creation flow that lacks pre-pinned direction; sibling-class to P085 main-agent prose-ask pattern)
 **Effort**: XL — re-rated M → XL 2026-05-23 (P047) when the user folded the retroactive review of the 52 existing `.proposed.md` ADRs into scope as **prong 2** (user direction: *"two-pronged fix: 1) make the skill ask. 2) review the existing ADRs"*). **Prong 1** (architect Needs-Direction verdict + new ADR + `agent.md` edit + ADR-026 reparenting fold-in + create-adr/capture-adr handoff + confirm-gate + dual tests) is M-L on its own. **Prong 2** (read + `AskUserQuestion`-confirm 52 proposed ADRs; gate proposed→accepted on confirm) is a multi-day interactive sweep = XL on its own. Aggregate time-to-close = XL.
 **WSJF**: 2.25 — (9 × 2.0) / 8 — Known Error × XL effort (the prong-2 52-ADR review sweep dominates time-to-close). NOTE: prong 1 ("make the skill ask") is the urgent, high-value sub-task — it stops *new* poor auto-decisions — and is worked FIRST within the Known-Error fix-task order, despite the aggregate XL rank. (Prior values: Open 3.0 mis-scored /3; transition Known-Error M 9.0; scope-expanded to XL 2.25.)
-**Type**: technical
 
 ## Fix Released
 

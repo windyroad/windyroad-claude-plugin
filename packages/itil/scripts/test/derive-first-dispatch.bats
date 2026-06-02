@@ -6,18 +6,24 @@ bats_require_minimum_version 1.5.0
 # the shared derive-first dispatch helper extracted in P132 Phase 2a-iii-A.
 #
 # The helper centralises the dispatch mechanism shipped across three
-# declaration-skill surfaces (capture-problem Step 1.5, manage-incident
-# Step 4, manage-problem Step 4). Each caller passes surface-specific
-# signal definitions; the helper owns:
+# declaration-skill surfaces (manage-incident Step 4, manage-problem
+# Step 4, create-adr Step 2 — Phase 2a-iii-B 4th adopter). Each caller
+# passes surface-specific signal definitions; the helper owns:
 #
 #   - Slug derivation (Title) from prose
-#   - Two-sided lexical classifier (Type for capture-problem)
 #   - RISK-POLICY matrix lookup (Severity / Priority)
 #   - I2-isomorphic stderr advisory format
 #
+# P287 (2026-06-02) retired the two-sided lexical classifier (formerly
+# used by capture-problem Step 1.5 Type classification — technical vs
+# user-business). The type axis was removed as redundant with RFC/Story
+# persona-anchoring per ADR-060 Phase 4; the function had no remaining
+# consumer.
+#
 # @problem P132 (agents over-ask in interactive sessions — Phase 2a-iii-A
 #   shared helper extraction)
-# @problem P185 (capture-problem Step 1.5 worked-example precedent)
+# @problem P185 (capture-problem Step 1.5 worked-example precedent — retired by P287)
+# @problem P287 (type-classification retirement — lexical_classify_two_sided removed)
 # @adr ADR-044 (Decision-Delegation Contract — derive-first framework
 #   resolution boundary)
 # @adr ADR-026 (cost-source grounding — stderr advisory shape)
@@ -118,51 +124,22 @@ setup() {
 }
 
 # ----------------------------------------------------------------------
-# Two-sided lexical classifier (capture-problem Step 1.5 mechanism).
-# Returns:
-#   SIDE_A_UNAMBIGUOUS|<matched signals>  — ≥1 A hit AND 0 B hits
-#   SIDE_B_UNAMBIGUOUS|<matched signals>  — 0 A hits AND ≥1 B hit
-#   AMBIGUOUS|<reason>                    — mixed (both sides) OR zero
+# P287 (2026-06-02) retirement: lexical_classify_two_sided removed.
+# Regression guard — the function must NOT exist in the helper.
 # ----------------------------------------------------------------------
 
-@test "lexical_classify_two_sided returns SIDE_A_UNAMBIGUOUS on technical-only signals" {
-  run -0 bash -c '
-    source "'"$HELPER"'"
-    side_a=("\\b(hook|gate|regex|stderr|stdout|drift|TTL|cache)\\b")
-    side_b=("\\b(adopter|UX|friction|JTBD-[0-9]+)\\b")
-    lexical_classify_two_sided "the hook fires on stderr and the cache invalidates" side_a side_b
-  '
-  [[ "$output" == "SIDE_A_UNAMBIGUOUS|"* ]]
+@test "P287: lexical_classify_two_sided is removed from the helper (regression guard)" {
+  # The function name must not appear as a function definition.
+  ! grep -E '^lexical_classify_two_sided\(\)' "$HELPER"
 }
 
-@test "lexical_classify_two_sided returns SIDE_B_UNAMBIGUOUS on user-business-only signals" {
-  run -0 bash -c '
-    source "'"$HELPER"'"
-    side_a=("\\b(hook|gate|regex|stderr|stdout|drift|TTL|cache)\\b")
-    side_b=("\\b(adopter|UX|friction|JTBD-[0-9]+)\\b")
-    lexical_classify_two_sided "the adopter friction makes JTBD-101 hard to complete" side_a side_b
-  '
-  [[ "$output" == "SIDE_B_UNAMBIGUOUS|"* ]]
-}
-
-@test "lexical_classify_two_sided returns AMBIGUOUS on mixed signals" {
-  run -0 bash -c '
-    source "'"$HELPER"'"
-    side_a=("\\b(hook|gate|regex|stderr)\\b")
-    side_b=("\\b(adopter|UX|friction)\\b")
-    lexical_classify_two_sided "the hook causes adopter friction" side_a side_b
-  '
-  [[ "$output" == "AMBIGUOUS|"* ]]
-}
-
-@test "lexical_classify_two_sided returns AMBIGUOUS on zero signals" {
-  run -0 bash -c '
-    source "'"$HELPER"'"
-    side_a=("\\b(hook|gate)\\b")
-    side_b=("\\b(adopter|UX)\\b")
-    lexical_classify_two_sided "totally bland text with no signals at all" side_a side_b
-  '
-  [[ "$output" == "AMBIGUOUS|"* ]]
+@test "P287: helper still exports the three surviving functions" {
+  # emit_stderr_advisory, derive_kebab_slug, risk_policy_matrix_lookup
+  # serve manage-incident severity, manage-problem priority, and
+  # create-adr title derivation — they must stay.
+  grep -E '^emit_stderr_advisory\(\)' "$HELPER"
+  grep -E '^derive_kebab_slug\(\)' "$HELPER"
+  grep -E '^risk_policy_matrix_lookup\(\)' "$HELPER"
 }
 
 # ----------------------------------------------------------------------
@@ -242,13 +219,6 @@ setup() {
 # pattern; per-package lib/ copies in packages/itil/lib/ and
 # packages/architect/lib/ stay byte-identical via scripts/sync-derive-first-dispatch.sh.
 # ----------------------------------------------------------------------
-
-@test "capture-problem Step 1.5 cross-references derive-first-dispatch.sh helper" {
-  run grep -c "derive-first-dispatch\\.sh\\|packages/itil/lib/derive-first-dispatch" \
-    "${PKG_ROOT}/skills/capture-problem/SKILL.md"
-  [ "$status" -eq 0 ]
-  [ "$output" -ge 1 ]
-}
 
 @test "manage-incident Step 4 cross-references derive-first-dispatch.sh helper" {
   run grep -c "derive-first-dispatch\\.sh\\|packages/itil/lib/derive-first-dispatch" \

@@ -5,7 +5,6 @@
 **Priority**: 12 (High) — Impact: Significant (4) x Likelihood: Possible (3)
 **Effort**: L (architect requires ADR-019 prerequisite before SKILL.md change ships)
 **WSJF**: 6.0 (12 × 2.0 / 4)
-**Type**: technical
 
 ## Fix Released
 

@@ -7,7 +7,6 @@
 **Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems; HIGH in practice — substance-of-decision rides agent-recommended Option N to commit unless the user notices and pushes back)
 **Origin**: internal
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems; likely amends `/wr-architect:create-adr` SKILL.md Step 2 + Step 5; behavioural bats coverage on the "ask chosen-option BEFORE writing Decision Outcome" invariant)
-**Type**: technical
 
 ## Description
 

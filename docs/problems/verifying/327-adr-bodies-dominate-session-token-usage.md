@@ -6,7 +6,6 @@
 **Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems; user signaled "highest priority because of token burn" at capture)
 **Origin**: inbound-reported (relayed from other projects)
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems; design + summary-surface ADR + 76-ADR migration likely XL once scoped)
-**Type**: technical
 
 ## Description
 

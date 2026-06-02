@@ -5,7 +5,6 @@
 **Priority**: 20 (High) — Impact: Major (4) x Likelihood: Almost certain (5)
 **Effort**: L
 **WSJF**: (20 × 1.0) / 4 = **5.0**
-**Type**: technical
 
 > Identified 2026-04-22 by the user during P098 verification. My P098 project-level `CLAUDE.md` added pointers to `docs/problems/README.md` and `docs/BRIEFING.md`; the user correctly observed: *"we shouldn't have to add these things to CLAUDE.md. It should be automatic."* Follow-up clarification: *"I'm not sure if docs/problems/README.md needs to be surfaced unless we are explicitly doing stuff with problems."* — scoping the ticket narrowly to `docs/BRIEFING.md` (cross-cutting session learnings that benefit any task) while leaving `wr-itil`'s backlog on its current on-demand model (skill-invocation only) as the intended behaviour, not a gap.
 

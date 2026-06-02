@@ -4,7 +4,6 @@
 **Reported**: 2026-04-15
 **Closed**: 2026-04-15
 **Priority**: 6 (Medium) — Impact: Minor (2) x Likelihood: Possible (3)
-**Type**: technical
 
 ## Description
 

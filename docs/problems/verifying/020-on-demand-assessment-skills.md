@@ -5,7 +5,6 @@
 **Priority**: 16 (High) — Impact: Significant (4) x Likelihood: Likely (4)
 **Effort**: L
 **WSJF**: 8.0 — (16 × 2.0) / 4
-**Type**: technical
 
 ## Description
 

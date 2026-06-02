@@ -3,7 +3,6 @@
 **Status**: Closed
 **Reported**: 2026-04-15
 **Priority**: 6 (Medium) — Impact: Minor (2) x Likelihood: Likely (4)
-**Type**: technical
 
 ## Description
 

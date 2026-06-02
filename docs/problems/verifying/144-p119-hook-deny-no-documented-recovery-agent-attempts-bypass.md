@@ -5,7 +5,6 @@
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Likely (3) — observed 1× in session (with explicit user "WTF" correction); pattern likely recurs in any session where P124 helper bug fires
 **Effort**: M — `packages/itil/skills/manage-problem/SKILL.md` Step 2 substep amendment to document the recovery path when the helper-derived marker doesn't match the actual session_id; plus inline guidance in the P119 hook deny message pointing the agent at the recovery procedure. Plus matching behavioural bats per ADR-037 + P081.
 **WSJF**: (9 × 1.0) / 2 = **4.5**
-**Type**: technical
 
 > Surfaced 2026-04-28 during interactive `/wr-itil:manage-problem` invocation in `/wr-itil:work-problems` orchestrator session. P124 Phase 3 helper returned wrong SID; P119 hook denied Write. Agent attempted to "fix" the deny by brute-forcing 139 markers (touching `/tmp/manage-problem-grep-<UUID>` for every architect-announced UUID). User correction: *"WTF? Why did you bypass instead of using the skill?"* The brute-force was a bypass attempt, not a use of the prescribed surface — the SKILL.md offers no documented recovery for "helper returned wrong SID; hook denied".
 

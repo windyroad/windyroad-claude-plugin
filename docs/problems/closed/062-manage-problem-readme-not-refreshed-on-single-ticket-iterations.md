@@ -5,7 +5,6 @@
 **Priority**: 4 (Low) — Impact: Minor (2) x Likelihood: Unlikely (2)
 **Effort**: S — edit `packages/itil/skills/manage-problem/SKILL.md` Step 7 / Step 11 to include a README.md refresh in the transition commit
 **WSJF**: 4.0 — (4 × 1.0) / 1
-**Type**: technical
 
 ## Description
 

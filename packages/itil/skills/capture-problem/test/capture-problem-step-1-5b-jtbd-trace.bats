@@ -1,18 +1,22 @@
 #!/usr/bin/env bats
 
-# P170 / Phase 3 P3.1 + Phase 4 P4.2 + I12 — behavioural fixture for
+# P170 / Phase 3 P3.1 + Phase 4 P4.2 — behavioural fixture for
 # capture-problem Step 1.5b JTBD-trace + persona dispatch. Per ADR-060
-# § Phase 3 + Phase 4 in-scope amendment (2026-05-13):
+# § Phase 3 + Phase 4 in-scope amendment (2026-05-13), as amended by
+# P287 (2026-06-02 — type-classification + I12 hard-block retired):
 #
 # - Lexical JTBD-trace detection: description-contains-JTBD-NNN-ID →
 #   silent-resolve jtbd_trace_value to the matched IDs.
-# - I12 hard-block: type=user-business AND jtbd_trace_value empty AND
-#   no --jtbd flag → halt-with-stderr-directive.
 # - --jtbd=JTBD-NNN[,...] flag pre-resolves jtbd_trace_value silently.
 # - --persona=<value> flag pre-resolves persona_value silently.
 # - Skeleton template carries **JTBD**: and **Persona**: body fields
-#   (matches existing **Status**: / **Type**: convention; frontmatter
-#   migration deferred to follow-on slice).
+#   (frontmatter migration deferred to follow-on slice).
+#
+# P287 retirement: the I12 hard-block (type=user-business + empty jtbd
+# → halt) was retired alongside the type axis. JTBD-trace is now purely
+# best-effort capture-time anchoring; the I12 reference-impl predicate
+# below is preserved as a NEGATIVE assertion (never blocks) for
+# regression-guard purposes per architect-review verdict 2026-06-02.
 #
 # Reference-impl pattern: this fixture exercises the algorithm directly
 # via shell helpers; the SKILL.md prose at runtime executes the same
@@ -32,15 +36,12 @@ detect_jtbd_trace() {
   echo "$desc" | grep -oE '\bJTBD-[0-9]+\b' | sort -u | tr '\n' ' ' | sed 's/[[:space:]]*$//'
 }
 
-# Reference implementation of the I12 hard-block predicate. Returns
-# 0 (true → block) when type=user-business AND jtbd_trace empty AND
-# no --jtbd flag was provided. Returns 1 otherwise.
+# P287 retirement: the I12 hard-block was retired alongside the type
+# axis. This predicate now ALWAYS returns 1 (never blocks) — preserved
+# as a regression-guard so future drift that re-introduces a type-keyed
+# hard-block surfaces as a test failure.
 i12_should_block() {
-  local type_value="$1" jtbd_trace="$2" had_jtbd_flag="$3"
-  [ "$type_value" = "user-business" ] || return 1
-  [ -z "$jtbd_trace" ] || return 1
-  [ "$had_jtbd_flag" = "0" ] || return 1
-  return 0
+  return 1
 }
 
 # Reference implementation of --jtbd= flag parser. Accepts CSV; returns
@@ -89,20 +90,16 @@ validate_persona() {
   [ "$result" = "JTBD-001" ]
 }
 
-@test "I12 i12_should_block: user-business + empty jtbd + no flag → blocks" {
-  i12_should_block "user-business" "" "0"
-}
-
-@test "I12 i12_should_block: user-business + non-empty jtbd → does NOT block" {
+@test "P287 i12 hard-block retired: never blocks regardless of inputs (regression guard)" {
+  # After P287, the I12 hard-block is retired. The predicate must never
+  # return 0 (block) for any input combination — capture-time JTBD
+  # anchoring is best-effort, not hard-required. If a future maintainer
+  # re-introduces a type-keyed hard-block, this test catches it.
+  ! i12_should_block "user-business" "" "0"
   ! i12_should_block "user-business" "JTBD-001" "0"
-}
-
-@test "I12 i12_should_block: user-business + empty jtbd + --jtbd flag set → does NOT block" {
   ! i12_should_block "user-business" "" "1"
-}
-
-@test "I12 i12_should_block: technical + empty jtbd → does NOT block (technical has no JTBD requirement)" {
   ! i12_should_block "technical" "" "0"
+  ! i12_should_block "anything" "anything" "anything"
 }
 
 @test "P3.1 parse_jtbd_flag: --jtbd=JTBD-NNN parses single ID" {
@@ -116,7 +113,7 @@ validate_persona() {
 }
 
 @test "P3.1 parse_jtbd_flag: non-jtbd-flag arg returns empty" {
-  result=$(parse_jtbd_flag "--type=user-business")
+  result=$(parse_jtbd_flag "--persona=plugin-user")
   [ -z "$result" ]
 }
 

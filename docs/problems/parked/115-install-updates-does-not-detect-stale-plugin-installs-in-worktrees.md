@@ -5,7 +5,6 @@
 **Priority**: 6 (Med) — Impact: Moderate (3) x Likelihood: Possible (2)
 **Effort**: M
 **WSJF**: 0 (parked — excluded from ranking per ADR-022 / Parked policy)
-**Type**: technical
 
 ## Parked
 

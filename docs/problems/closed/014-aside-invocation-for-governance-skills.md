@@ -6,7 +6,6 @@
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: XL — re-sized up from L 2026-04-20 (AFK iter 2 architect review): ADR-027 conflict requires a new/amended/superseding ADR plus 4 SKILL.md edits, regardless of which reconciliation option the user picks. See "Architect-detected conflict" section below. (Earlier L sizing assumed no ADR-level conflict; re-sized down from original XL when the new-pattern + new-ADR scope was dropped via user direction; now re-sized back up by the architect-flagged ADR-027 collision.)
 **WSJF**: 1.5 — (12 × 1.0) / 8
-**Type**: technical
 
 ## Closed as no longer relevant
 

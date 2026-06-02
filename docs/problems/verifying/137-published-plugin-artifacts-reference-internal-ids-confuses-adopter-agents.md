@@ -6,7 +6,6 @@
 **Effort**: XL — cross-package audit + structural-decision ADR + mechanical replacement across all `@windyroad/*` plugins (SKILL.md files, hook scripts, agent definitions, README badges, all reference ADR-NNN / JTBD-NNN / P-NNN heavily). Requires net-new ADR codifying the resolution strategy (strip / replace-with-prose / permalink / namespace-prefix) before mechanical work can begin.
 
 **WSJF**: (20 × 1.0) / 8 = **2.5**
-**Type**: technical
 
 > Surfaced 2026-04-28 by user during a `/wr-itil:work-problems` AFK loop: *"create a problem ticket for the plugin code and published artifacts referenceing ADRs by ID, that plugin users will not have access to. This is a big issue because they may have their own ADRs and these references could very easily confuse and mislead agents."* Every published `@windyroad/*` plugin ships SKILL.md / hook / agent files dense with `ADR-NNN` / `JTBD-NNN` / `P-NNN` references that resolve correctly only in the windyroad-claude-plugin source repo. In adopter projects those IDs either do not resolve (best case — agent ignores) or resolve to UNRELATED decisions in the adopter's own `docs/decisions/` (worst case — agent applies wrong semantics).
 

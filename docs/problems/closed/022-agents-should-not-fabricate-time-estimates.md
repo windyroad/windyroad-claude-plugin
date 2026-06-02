@@ -6,7 +6,6 @@
 **Priority**: 16 (High) — Impact: Significant (4) x Likelihood: Likely (4)
 **Effort**: XL — new cross-cutting ADR (ID to be minted by `create-adr` at draft time — next free ID is ≥030 as of 2026-04-20; the previously-penciled `014-agent-output-grounding` collides with the accepted ADR-014 governance-commit decision), audit of every agent prompt across the suite (risk-scorer, manage-problem, architect, plan-risk-guidance), WSJF effort-bucket semantics rework, grounding-citation convention (L → XL 2026-04-19 per P047: multi-day, cross-package, new ADR required)
 **WSJF**: 2.0 — (16 × 1.0) / 8
-**Type**: technical
 
 ## Closed as no longer relevant
 

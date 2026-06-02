@@ -5,7 +5,6 @@
 **Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: S (deferred — re-rate at next /wr-itil:review-problems)
 
-**Type**: user-business
 **JTBD**: JTBD-302, JTBD-007, JTBD-101, JTBD-003
 **Persona**: plugin-user
 

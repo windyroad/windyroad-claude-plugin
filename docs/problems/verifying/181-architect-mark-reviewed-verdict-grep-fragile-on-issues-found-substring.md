@@ -5,7 +5,6 @@
 **Fix released**: 2026-06-01 — @windyroad/architect@0.13.0 (commit a1939e7)
 **Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
-**Type**: technical
 
 ## Description
 

@@ -5,7 +5,6 @@
 **Priority**: 9 (Med High) — Impact: 3 (Moderate — auto-made JTBDs/personas drift from user intent exactly as auto-made ADRs do; documented jobs/personas are load-bearing governance artifacts the JTBD gate reviews every edit against, so a poorly-auto-derived job/persona propagates wrong alignment verdicts) × Likelihood: 3 (Likely — every `wr-jtbd:update-guide` run and every agent-derived job/persona that lands without a confirm pass)
 **Effort**: M — direct mirror of the ADR-066 architect mechanism onto the wr-jtbd plugin (marker + detector + nudge + drain + born-confirmed update-guide + tests); the pattern is already built once
 **WSJF**: 9/2 = **4.5** (Open multiplier 1.0)
-**Type**: technical
 
 ## Description
 

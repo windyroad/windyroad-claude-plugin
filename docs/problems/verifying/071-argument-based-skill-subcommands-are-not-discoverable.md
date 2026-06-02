@@ -5,7 +5,6 @@
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: M — audit complete (2026-04-21 AFK iter 2): scope is confined to `@windyroad/itil` plugin (2 offenders, `manage-problem` + `manage-incident`). ~10 split-candidate skill files to create + 2 forwarder contracts to add. M effort confirmed despite tighter plugin-count (1 plugin vs the initial 3-4 estimate) because each new skill carries its own SKILL.md, bats assertions, and plugin-manifest entry; phased landing across multiple AFK iterations is the right pacing.
 **WSJF**: 6.0 — (12 × 1.0) / 2 — High-severity discoverability friction on every subcommanded invocation; moderate split-and-forwarder effort. Scope narrowed post-audit; re-rate stays at M because per-skill work (SKILL.md + bats + manifest) dominates the plugin-count axis.
-**Type**: technical
 
 ## Description
 

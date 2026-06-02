@@ -6,7 +6,6 @@
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: M — extend `packages/itil/skills/work-problems/SKILL.md` Step 6.5 failure-handling clauses (CI-failure halt, ADR-042 Rule 5 above-appetite halt, network-failure halt, git-conflict halt) AND Step 0 prior-session-state halt branch AND Step 6.75 inter-iteration verification dirty-for-unknown-reason halt branch — every halt path that fires after iters have accumulated skipped tickets — to run Step 2.5's user-answerable-skip surfacing routine before emitting the AFK summary. Plus matching contract bats per ADR-037. Plus document the principle in the SKILL.md as "halt-paths-must-route-design-questions-through-Step-2.5".
 **WSJF**: (12 × 1.0) / 2 = **6.0**
-**Type**: technical
 
 > Surfaced 2026-04-26 by direct user correction at the end of an AFK loop that halted on Step 6.5 CI-failure: "the end of the work-problems session didnt ask questions". The orchestrator had accumulated 6 user-answerable skip-reasons across 7 iters (P123 architect-design / P082 user-answerable transitive / P064 upstream-blocked / P101 user-answerable methodology / P014 user-answerable scope-pacing / P081 architect-design retrofit) and emitted them as an "Outstanding Design Questions" table in the ALL_DONE summary instead of calling `AskUserQuestion`. P122 (verifying — closed this same session) fixed the equivalent bug at Step 2.5 stop-condition #2; this ticket is the remaining-surface gap on the failure-handling halt paths that don't go through Step 2.5 at all.
 

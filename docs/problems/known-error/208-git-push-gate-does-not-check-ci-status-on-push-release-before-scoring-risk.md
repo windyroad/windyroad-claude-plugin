@@ -4,7 +4,6 @@
 **Reported**: 2026-05-15
 **Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
-**Type**: technical
 
 > **safe-high-fix-risk flag** (per dual-axis-risk classifier): `git-push-gate.sh` is a load-bearing release-risk gate. Modifications to it (even hardening ones) need maintainer attention to ensure the new `gh run list` integration doesn't degrade-to-allow on API timeout / auth failure / pending-run states, which would silently weaken the very gate the fix intends to strengthen. The fix-risk class flagged is "Removal of load-bearing safety check" applied inversely — a buggy harden can degrade to a bypass.
 

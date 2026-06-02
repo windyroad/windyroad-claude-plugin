@@ -5,7 +5,6 @@
 **Priority**: 4 (Low) — Impact: Minor (2) x Likelihood: Unlikely (2)
 **Effort**: S — one-line fix in two SKILL.md files + bats regression
 **WSJF**: 4.0 — (4 × 1.0) / 1
-**Type**: technical
 
 ## Description
 

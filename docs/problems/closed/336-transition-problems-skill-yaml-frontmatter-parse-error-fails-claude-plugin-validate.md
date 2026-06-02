@@ -6,7 +6,6 @@
 **Origin**: internal
 **Effort**: S (one-line frontmatter quoting fix; shipped session 9)
 **WSJF**: 12.0 (re-rated 2026-05-31; fix shipped session 9, awaiting K→V transition on next `@windyroad/itil` release)
-**Type**: technical
 
 ## Description
 

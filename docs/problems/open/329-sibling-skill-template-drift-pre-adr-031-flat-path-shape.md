@@ -6,7 +6,6 @@
 **Origin**: internal
 **Effort**: M (6 SKILL.md path-template Edits across sibling skills; mechanical sweep with per-SKILL bats touch)
 **WSJF**: 3.0 (re-rated 2026-05-31; Severity 6 / Effort M preserved)
-**Type**: technical
 
 ## Description
 

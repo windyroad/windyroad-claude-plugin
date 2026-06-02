@@ -7,7 +7,6 @@
 **Origin**: internal
 **Effort**: M (install-updates amendment to reorder PATH OR shim-resolution to always pick highest-version OR session-start refresh mechanism)
 **WSJF**: 6.0 (re-rated 2026-05-31; was placeholder I=3×L=1; session-9 blast-radius warrants honest S12/L4/M scoring)
-**Type**: technical
 
 ## Description
 

@@ -4,7 +4,6 @@
 **Reported**: 2026-05-15
 **Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
-**Type**: technical
 
 > **safe-high-fix-risk flag** (per dual-axis-risk classifier): the proposed CI-health gate sits on the AFK-critical drain path. A wrong implementation could (a) over-block legitimate drains on transient CI flake, OR (b) under-block and let drain proceed against broken main. Not a "removal of load-bearing safety check" — it ADDS one — but it sits on a critical path so the maintainer should weigh failure modes + coordinate with sibling P208/#86 before accepting.
 

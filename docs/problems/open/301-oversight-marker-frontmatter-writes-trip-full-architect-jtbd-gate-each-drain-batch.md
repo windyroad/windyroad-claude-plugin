@@ -5,7 +5,6 @@
 **Priority**: 6 (Medium) — Impact: 2 (Minor — re-review round-trips slow the drain but don't break it; the markers still land) × Likelihood: 3 (Likely — every `/wr-architect:review-decisions` + `/wr-jtbd:confirm-jobs-and-personas` drain batch, plus every adopter running the drains; recurs ~per-batch on a multi-batch drain)
 **Effort**: M — define a gate-light path for oversight-marker-only frontmatter writes to docs/decisions/ + docs/jtbd/ (the architect/JTBD enforce-edit hooks gain an exemption for a diff that adds only `human-oversight: confirmed` + `oversight-date`)
 **WSJF**: 6/2 = **3.0** (Open multiplier 1.0)
-**Type**: technical
 
 ## Description
 

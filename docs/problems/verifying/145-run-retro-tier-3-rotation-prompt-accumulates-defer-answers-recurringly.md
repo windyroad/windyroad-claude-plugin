@@ -6,7 +6,6 @@
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Likely (3) — observed recurring across multiple recent retros; user surfaced explicitly today: *"we need to do better at splitting. We can\'t just keep deferring."*
 **Effort**: S — implementation chosen is the lightest hybrid (Option H per architect review): script emits a new `MUST_SPLIT` line at ratio ≥ 2.0× ceiling; SKILL.md Step 3 gains a Branch A heuristic that forecloses the trim-noise / leave-as-is defer escape hatches for those files. No accumulator-state added to topic-file bodies (rejected ticket options 1/2 to avoid fighting git-blame-as-history). No sibling skill split (rejected ticket option 3 as overweight). Effort downgraded from M → S after architect review (P047 — creation-time estimate drift).
 **WSJF**: (9 × 1.0) / 1 = **9.0** (re-rated after Effort downgrade)
-**Type**: technical
 
 ## Fix Released
 

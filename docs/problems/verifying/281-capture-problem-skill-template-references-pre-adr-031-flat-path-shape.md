@@ -5,7 +5,6 @@
 **Priority**: 9 (Med High) — Impact: 3 (Moderate — adopter projects accumulate flat-layout tickets; README cache mis-classify risk; cross-adopter inventory drift) x Likelihood: 3 (Likely — structural defect; every adopter following SKILL.md literally hits it; observed once concretely in voder-mcp-hub today)
 **Effort**: M — three plausible resolution shapes enumerated (adopter migration / SKILL template literal refresh / agent inference-vs-template precedence rule); template-refresh alone might be S but combined fix sits at M
 **WSJF**: 4.5 — (9 × 1.0) / 2 — corrected 2026-05-23: invalid /3 divisor → M divisor 2 (was 3.0)
-**Type**: technical
 **Fix Shipped**: 2026-05-30 (capture-problem SKILL.md template-refresh sub-shape only; sibling-SKILL drift + adopter migration + inference-vs-template precedence rule deferred to descendants)
 
 ## Description

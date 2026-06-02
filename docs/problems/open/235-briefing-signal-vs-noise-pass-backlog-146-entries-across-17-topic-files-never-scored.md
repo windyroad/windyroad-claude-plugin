@@ -5,7 +5,6 @@
 **Priority**: 6 (Med) — Impact: 2 (Minor — silent-classification model means scores influence Critical Points promotion + delete-queue surfacing; without scores, the SessionStart hook can't curate the cheap-layer Critical Points roll-up) x Likelihood: 3 (Likely — each retro that omits the pass widens the gap; entries created without scores default to 0 and decay-only)
 **Effort**: L (estimated 1-2 hours of focused agent time — 146 entries × ~30s per entry for citation lookup + classification + comment-block update)
 **WSJF**: (6 x 1.0) / 4 = **1.5** (L effort divisor; deferred — re-rate at next /wr-itil:review-problems)
-**Type**: technical
 
 > Captured 2026-05-17 by `/wr-retrospective:run-retro` session 3 retro wrap as the SCHEDULED-FUTURE-SURFACE for the Signal-vs-Noise pass defer per P234 fictional-defer remediation. Sibling to [[P105]] (parent — Signal-vs-Noise design), [[P234]] (driver — fictional-defer class-of-behaviour), [[P145]] (recurring-defer pattern at Tier 3 rotation surface).
 

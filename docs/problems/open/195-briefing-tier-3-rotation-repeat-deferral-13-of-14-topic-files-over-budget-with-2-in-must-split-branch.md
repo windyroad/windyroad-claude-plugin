@@ -4,7 +4,6 @@
 **Reported**: 2026-05-15
 **Priority**: 6 (Med) — Impact: 3 (Moderate — briefing bucket compounds session-start cost across all sessions) x Likelihood: 2 (Possible — pattern repeats every retro) (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
-**Type**: technical
 
 ## Description
 

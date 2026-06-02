@@ -7,7 +7,6 @@
 **Origin**: internal
 **Effort**: M (anti-pattern enumeration blocks on Step 1.5 + Step 3 + wrap-mode disambiguation + SKILL.md amendments across run-retro)
 **WSJF**: 4.5 (re-rated 2026-05-31; was placeholder I=3×L=1; raised to S9 after grounding evidence)
-**Type**: technical
 
 ## Description
 

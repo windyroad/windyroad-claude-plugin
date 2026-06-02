@@ -5,7 +5,6 @@
 **Priority**: 4 (Low-Med) — Impact: 2 (Minor — over-engineering the plugin.json maturity schema adds build + maintenance cost for capability not yet needed; not shipped, so caught before the cost lands) × Likelihood: 2 (Unlikely — affects the Phase-3 maturity-presentation build only)
 **Effort**: S — amend ADR-063's chosen schema option F2 → F1; the implementation simplifies (less to build)
 **WSJF**: 4/1 = **4.0** (Open multiplier 1.0)
-**Type**: technical
 
 ## Description
 

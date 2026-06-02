@@ -5,7 +5,6 @@
 **Priority**: 12 (High) — Impact: 3 (Moderate — Verification Queue accumulates effectively-closed tickets; audit-trail decoupled from validation-work record; cross-ticket lifecycle reasoning degraded) x Likelihood: 4 (Almost Certain — affects every session where any agent edits a `.verifying.md` body to add Fix Direction / Validation Note / Confirmation Log content; pattern observable in this very session — 94 verifying tickets and growing)
 **Effort**: M — define evidence-keyword vocabulary + add body-content scan to `/wr-itil:transition-problem` SKILL + optional PostToolUse hook on `.verifying.md` Edit; architect verdict on trigger surface (SKILL vs hook vs hybrid)
 **WSJF**: 6.0 — (12 × 1.0) / 2 — corrected 2026-05-23: invalid /3 divisor → M divisor 2 (was 4.0)
-**Type**: technical
 
 ## Description
 

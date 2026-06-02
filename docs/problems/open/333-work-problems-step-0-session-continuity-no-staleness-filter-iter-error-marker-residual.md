@@ -6,7 +6,6 @@
 **Origin**: internal
 **Effort**: M (Step 0 SKILL.md amendment + staleness predicate + behavioural bats)
 **WSJF**: 3.0 (re-rated 2026-05-31; was placeholder I=3×L=1; honest grounding lands at S6/L3/M)
-**Type**: technical
 
 ## Description
 

@@ -5,7 +5,6 @@
 **Priority**: 9 (High) — Impact: 3 × Likelihood: 3 (deferred — re-rate at next /wr-itil:review-problems; severity raised at capture per user direction "I'm worried about the trajectory")
 **Origin**: internal
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems; design + ADR + SKILL.md amendment + behavioural bats — likely M, possibly L if relevance-evidence taxonomy is broad)
-**Type**: technical
 
 ## Multi-phase scope
 

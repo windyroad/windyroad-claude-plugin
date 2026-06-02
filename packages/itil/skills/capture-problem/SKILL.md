@@ -23,7 +23,7 @@ This skill is the foreground-lightweight-capture variant of `/wr-itil:manage-pro
 
 ## Rule 6 audit (per ADR-032 + ADR-013)
 
-This skill has **at most one classification-only AskUserQuestion (type-tag, ambiguous-signal fallback only) and zero control-flow branches keyed on the answer**. Each potentially-interactive decision is framework-mediated per ADR-044:
+This skill has **at most one classification-only AskUserQuestion (persona, on JTBD-cited descriptions with disagreeing personas only) and zero control-flow branches keyed on the answer**. Each potentially-interactive decision is framework-mediated per ADR-044:
 
 | Decision | Resolution |
 |----------|-----------|
@@ -33,9 +33,12 @@ This skill has **at most one classification-only AskUserQuestion (type-tag, ambi
 | Effort default | Framework-policy: `M` flagged "deferred — re-rate at next /wr-itil:review-problems". |
 | Multi-concern split | Out of scope: capture-problem creates one ticket per invocation. Multi-concern observations route to `/wr-itil:manage-problem` (its Step 4b owns the split). |
 | Empty `$ARGUMENTS` | Halt-with-stderr-directive: print "capture-problem requires a description in $ARGUMENTS — invoke /wr-itil:manage-problem instead for the full intake flow" and exit. AFK orchestrators MUST NOT invoke capture-problem with empty arguments — caller-side contract. |
-| Type classification (P170 / ADR-060 item 8c; P185 derive-first refactor) | **Derive-first; silent-framework per ADR-044 category 4 on unambiguous-signal descriptions; taste fallback per category 5 on ambiguous descriptions only.** Step 1.5 runs a lexical-signal classifier against the description text. Unambiguous one-sided signal → classify silently + emit stderr advisory. Mixed or zero signals → AskUserQuestion. `--type=<value>` pre-resolves silently (highest priority). `--no-prompt` defaults to `technical` silently (AFK contract). Maintainer-side ONLY: this dispatch is paired with JTBD-301 protection — `.github/ISSUE_TEMPLATE/problem-report.yml` (plugin-user-side intake) MUST NOT carry an equivalent type selector; triage assigns the type during `/wr-itil:manage-problem` ingestion of user-reported issues. **The classifier is also NOT invoked from `/wr-itil:manage-problem`'s ingestion-of-plugin-user-reports path** — plugin-user descriptions do not carry the same authorial intent as maintainer-internal captures, so triage stays user-judgement per JTBD-301. **I2 invariant** (ADR-060 line 98): the prompt is a classification facet, not a workflow split — Steps 0-7 control-flow is identical regardless of the chosen `type_value`; only the substituted value in the Step 4 skeleton template differs. The stderr advisory text shape is also I2-isomorphic: identical sentence structure across `technical` vs `user-business` classifications beyond the substituted values + signal names. |
+| JTBD-trace derivation (P287 retained surface) | **Derive-first; silent-framework per ADR-044 category 4 on lexical citations or `--jtbd=` flag pre-resolution.** Step 1.5b runs a lexical detector (`\bJTBD-[0-9]+\b`) against the description. Any cited JTBD IDs are recorded silently. No AskUserQuestion in this dispatch — capture-time JTBD anchoring is optional; the next reviewer can refine at `/wr-itil:review-problems` or `/wr-itil:manage-problem` ingestion. |
+| Persona derivation (P287 retained surface, decoupled from type) | **Derive-first; silent-framework per ADR-044 category 4 when JTBDs cited and agree.** If JTBDs were cited at Step 1.5b, persona derives from the cited JTBDs' frontmatter. Disagreement across cited JTBDs falls back to AskUserQuestion (genuine taste). Empty persona is legal — no hard-block. |
 
-Per ADR-013 Rule 6 fail-safe: every decision above resolves without interactive user input in non-interactive contexts (the type-tag carve-out resolves to `technical` via `--no-prompt` or `--type=` caller-side pre-resolution, or via the derive-first classifier on unambiguous descriptions). AFK orchestrators MUST pass `--no-prompt` or `--type=<value>` per JTBD-006 § Persona Constraints; AFK callers that omit both flags violate the caller-side contract. Interactive (pre-resolved, derive-classified, or ambiguous-fallback) and pre-resolved AFK paths produce identical observable outputs except for the `**Type**:` field value, satisfying the I2 invariant by construction.
+**P287 amendment 2026-06-02 — type-classification retired**: the maintainer-side type-classification dispatch (technical vs user-business) was REMOVED per twice-confirmed user direction (2026-05-25 + 2026-06-02). The redundant axis was already covered by RFC/Story persona-anchoring per ADR-060 Phase 4. JTBD-trace + persona dispatch survive as the JTBD-as-source-of-truth surface; the I12 hard-block (type-keyed JTBD-required halt) is also retired pending ADR-060 amendment substance ratification.
+
+Per ADR-013 Rule 6 fail-safe: every decision above resolves without interactive user input in non-interactive contexts. The Persona fallback AskUserQuestion fires only on cited-JTBD-disagreement (genuine ADR-044 category 5 taste); AFK orchestrators avoid this branch by passing `--persona=<value>` or by capturing without JTBD citations.
 
 ## Steps
 
@@ -60,84 +63,36 @@ fi
 
 `$ARGUMENTS` may carry up to two leading flags before the free-text description (caller-side pre-resolution per ADR-044 silent-proceed shape):
 
-| Flag | Effect on Step 1.5 |
+| Flag | Effect on Step 1.5b |
 |------|-------------------|
-| `--type=technical` | Pre-resolves type to `technical`; Step 1.5 skips the classifier and the AskUserQuestion. |
-| `--type=user-business` | Pre-resolves type to `user-business`; Step 1.5 skips the classifier and the AskUserQuestion. |
-| `--no-prompt` | Pre-resolves type to `technical` (default); Step 1.5 skips the classifier and the AskUserQuestion. |
-| `--jtbd=JTBD-NNN[,JTBD-NNN...]` | Pre-resolves the JTBD-trace value (Phase 4 P3.1 + I12 invariant per ADR-060 § Phase 3 + Phase 4 in-scope amendment 2026-05-13). Step 1.5b skips the JTBD-trace lexical dispatch and the I12 hard-block. Comma-separated list of JTBD IDs (no spaces). |
-| `--persona=<value>` | Pre-resolves the persona value (Phase 4 P4.2). Step 1.5b skips persona derivation. Value MUST be one of: `developer`, `tech-lead`, `plugin-developer`, `plugin-user`. |
+| `--jtbd=JTBD-NNN[,JTBD-NNN...]` | Pre-resolves the JTBD-trace value. Step 1.5b skips the JTBD-trace lexical dispatch. Comma-separated list of JTBD IDs (no spaces). |
+| `--persona=<value>` | Pre-resolves the persona value. Step 1.5b skips persona derivation. Value MUST be one of: `developer`, `tech-lead`, `plugin-developer`, `plugin-user`. |
 
-Strip recognised leading flags from `$ARGUMENTS`; the remainder (after flags) is the free-text description. If both `--type=<value>` and `--no-prompt` are present, `--type=<value>` wins (more specific). Unknown leading flags halt-with-stderr-directive: print "capture-problem: unknown flag '<flag>' — recognised flags: --type=technical, --type=user-business, --no-prompt, --jtbd=JTBD-NNN, --persona=<value>" and exit.
+Strip recognised leading flags from `$ARGUMENTS`; the remainder (after flags) is the free-text description. Unknown leading flags halt-with-stderr-directive: print "capture-problem: unknown flag '<flag>' — recognised flags: --jtbd=JTBD-NNN, --persona=<value>" and exit.
+
+**P287 retirement note**: `--type=technical`, `--type=user-business`, and `--no-prompt` are RETIRED (P287, 2026-06-02). The type-classification axis was removed per twice-confirmed user direction; the AFK-default flag `--no-prompt` is obsolete since the only AskUserQuestion it suppressed is gone. AFK orchestrators that previously passed `--no-prompt` should drop the flag; capture-problem is now silent-by-default.
 
 Empty description (post-flag-strip) halts per the Rule 6 audit above.
 
 Derive a kebab-case title slug from the first 8-10 non-stopword tokens of the description (matching the existing `manage-problem` slug derivation pattern).
 
-### 1.5 Type classification (derive-first; silent-framework per ADR-044 category 4; taste fallback per category 5 on ambiguity)
+### 1.5b JTBD-trace + persona dispatch (P287 — decoupled from type)
 
-**Shared dispatch helper**: this surface invokes `packages/itil/lib/derive-first-dispatch.sh` for the canonical lexical-classifier mechanism + I2-isomorphic stderr advisory format. The helper is sourced by `/wr-itil:capture-problem`, `/wr-itil:manage-incident`, and `/wr-itil:manage-problem`; drift in the advisory shape re-opens P132. Surface-specific signal definitions (technical-vs-user-business regex lists) stay inline below — the helper owns the mechanism, not the per-surface signals (architect verdict 2026-05-15 P132 Phase 2a-iii-A: "Helper must preserve per-surface signal definitions; only the dispatch mechanism is shared").
-
-Resolve `type_value` ∈ {`technical`, `user-business`} per the following framework-mediated dispatch. **The dispatch order is load-bearing** — pre-resolution flags short-circuit BEFORE the classifier runs, and the AskUserQuestion fires ONLY on genuinely-ambiguous descriptions.
-
-1. **If `--type=<value>` was set in Step 1**: use that value; do NOT run the classifier; do NOT fire AskUserQuestion (silent-proceed per ADR-013 Rule 5).
-2. **Else if `--no-prompt` was set in Step 1**: default `type_value = technical`; do NOT run the classifier; do NOT fire AskUserQuestion. JTBD-006 protection: AFK orchestrators MUST pass this flag (or `--type=<value>`).
-3. **Else** (interactive context, no caller-side pre-resolution): run the **lexical-signal classifier** against the description text:
-
-   **Technical signals** (regex; matched against the post-flag-strip description, case-insensitive unless noted):
-   - Code identifiers: `[a-z]+[A-Z][a-zA-Z]+` (camelCase), `[a-z]+-[a-z][a-z-]+` (kebab-case identifiers with ≥2 hyphens), `[a-z]+_[a-z][a-z_]+` (snake_case).
-   - File paths: `\.(md|sh|bats|ts|js|json|yaml|yml|py|rb|go|css|html)\b`, `packages/[a-z-]+/`, `docs/[a-z-]+/`, `\.github/`, `\.claude/`, `/tmp/`.
-   - Command-name patterns: `/wr-[a-z-]+:[a-z-]+\b`, `\bgit (commit|push|mv|add|rebase|merge)\b`, `\bnpm (run|install|publish)\b`, `\bbash\b`, `\bbats\b`, `\bgrep\b`, `\bsed\b`, `\bjq\b`.
-   - Mechanism words: `\b(drift|regression|hook|marker|gate|refresh|idempotent|exit code|stderr|stdout|regex|formula|dispatch|frontmatter|substring|escape|sentinel|bypass|TTL|cache|invalidate|deduplicate|race|deadlock|timeout|preflight)\b`.
-   - Error-message patterns: `\b(error|failure|exception|panic|stack trace|segfault|null pointer|undefined|not found|permission denied|EACCES|ENOENT|exit \d+)\b`.
-
-   **User-business signals** (regex; same casing):
-   - Persona names: `\b(adopter|adopters|plugin-user|plugin-users|solo[-_ ]?developer|maintainer-persona|end[-_ ]?user|customer|stakeholder)\b`.
-   - Journey words: `\b(workflow|journey|onboarding|friction|UX|experience|usability|discoverability|cognitive load|attention|interrupt|context-switch)\b`.
-   - JTBD-shaped need words: `\bJTBD-\d+\b`, `\bjob-to-be-done\b`, `\b(want|need|can't|cannot|blocked from|unable to|hard to|painful to)\b\s+(use|access|find|discover|complete)`, `\bdesired outcome\b`, `\bunmet need\b`.
-
-   **Decision rule**:
-
-   - **Unambiguous technical** (≥1 technical signal AND 0 user-business signals): set `type_value = technical`; emit stderr advisory and proceed. Do NOT fire AskUserQuestion.
-   - **Unambiguous user-business** (0 technical signals AND ≥1 user-business signal): set `type_value = user-business`; emit stderr advisory and proceed. Do NOT fire AskUserQuestion.
-   - **Ambiguous** (≥1 signal each side, OR 0 signals on both sides): fire AskUserQuestion with options `technical` (default) and `user-business`. Question text: *"What type of problem is this?"* Per-option descriptions:
-     - `technical` — *"Bug, defect, broken behaviour, framework drift — root cause sits in code or process."*
-     - `user-business` — *"Missing capability, UX gap, adopter friction, JTBD-shaped need — root cause sits in unmet user need."*
-
-   **Stderr advisory contract** (silent-classification path only): emit a SINGLE line to stderr (NOT stdout, NOT in the ticket body) via the shared helper's `emit_stderr_advisory` function in `packages/itil/lib/derive-first-dispatch.sh`. The canonical format produced by the helper:
-
-   ```
-   capture-problem: derived type=<value> from description signals: <signal1>, <signal2>[, ...]; re-invoke with --type=<other-value> to override
-   ```
-
-   The advisory text shape is I2-isomorphic — same sentence structure (`<skill>: derived <field>=<value> from <source>; <reversibility>`) across all three derive-first declaration-skill surfaces. The helper is the single source-of-truth for this format; drift here re-opens P132. Embedding the advisory in stdout would risk machine-readers parsing it as a ticket-body line; embedding it in the ticket body would violate ADR-060's frontmatter / body-bullet schema. Stderr is the correct channel — visible to interactive maintainers in the terminal; invisible to ticket consumers; loggable by AFK orchestrators that capture subprocess stderr.
-
-**I2 invariant guard (ADR-060 line 98)**: the resolved `type_value` is used at Step 4 ONLY as a substituted string in the skeleton template's `**Type**:` body field. Steps 2, 3, 4 (other than the `**Type**:` substitution), 5, 6, 7 execute identically regardless of `type_value`. The skill carries NO control-flow branch keyed on `type` — that would convert classification into a workflow split and violate I2. The lexical-signal classifier is UPSTREAM of the value's substitution (it resolves WHICH value to substitute, not WHICH workflow to execute); the substitution and all downstream steps remain uniform. Pure-bash supporting-script enforcement of this invariant lives in `packages/itil/scripts/test/i2-no-type-branching.bats`; the SKILL.md surface coverage gap is named at P176 (descendant of P012 master harness).
-
-**JTBD-301 scope guard**: this dispatch fires on the maintainer-side `/wr-itil:capture-problem` skill only. The plugin-user-side intake (`.github/ISSUE_TEMPLATE/problem-report.yml`) MUST NOT carry an equivalent type selector — plugin-user persona constraint is "no pre-classification". Triage assigns `type` during `/wr-itil:manage-problem` ingestion of user-reported issues, not at user-report time. **The lexical-signal classifier is ALSO NOT invoked from `/wr-itil:manage-problem`'s ingestion-of-plugin-user-reports path** — plugin-user descriptions do not carry the same authorial intent as maintainer-internal captures (a plugin-user describing their friction in maintainer-vocabulary terms would mis-classify); triage stays user-judgement, not lexical-classifier inference.
-
-### 1.5b JTBD-trace + persona dispatch (Phase 3 P3.1 + Phase 4 P4.2 + I12 invariant)
-
-Per ADR-060 § Phase 3 + Phase 4 in-scope amendment (2026-05-13). Fires ONLY when `type_value` resolved to `user-business` (whether via `--type=user-business` flag, `--no-prompt` default override is impossible since `--no-prompt` defaults to `technical`, the classifier silent-resolve to `user-business`, or the ambiguous-fallback AskUserQuestion). For `type_value = technical`, Steps 1.5b and the I12 hard-block do NOT fire (technical problems may carry empty `jtbd:` array; persona is optional). The whole dispatch keys on **nullable-field-conditional** shape per ADR-060 line 536 — NEVER on `type` value as a control-flow branch (preserves I2 invariant; the type co-incidence is upstream input, not control-flow key).
+Per ADR-060 § Phase 3 + Phase 4 in-scope amendment (2026-05-13), as amended by P287 (2026-06-02 — type-classification retired). Fires UNCONDITIONALLY (no longer keyed on `type_value = user-business`; the type axis was removed). Both `jtbd_trace_value` and `persona_value` are OPTIONAL — capture-time anchoring is best-effort; the next reviewer can refine at `/wr-itil:review-problems` or `/wr-itil:manage-problem` ingestion.
 
 **Resolve `jtbd_trace_value`** (an ORDERED list of JTBD IDs, possibly empty) via the following dispatch:
 
 1. **If `--jtbd=JTBD-NNN[,JTBD-NNN...]` was set in Step 1**: parse comma-separated list; assign to `jtbd_trace_value`; do NOT run the lexical detector; do NOT fire AskUserQuestion (silent-proceed per ADR-013 Rule 5).
 2. **Else** run the **lexical JTBD-trace detector** against the description: `grep -oE '\bJTBD-[0-9]+\b' | sort -u`. If matches found, set `jtbd_trace_value` to the matched IDs (de-duplicated, sorted ascending) and emit stderr advisory: `capture-problem: derived jtbd-trace=<id-list> from description JTBD-NNN citations; re-invoke with --jtbd= to override`. Do NOT fire AskUserQuestion.
-3. **Else (no flag, no lexical detection, type=user-business)**: **I12 hard-block** per ADR-060 Confirmation criterion 10. Halt-with-stderr-directive: print `capture-problem: I12 invariant — type: user-business requires ≥1 JTBD trace. Re-invoke with --jtbd=JTBD-NNN, OR edit the description to cite a JTBD-NNN ID, OR re-classify as technical via --type=technical.` and exit. This branch is the load-bearing enforcement of the new I12 invariant — JTBD-as-source-of-truth for persona-anchored unmet need; user-business problems MUST cite ≥1 JTBD.
+3. **Else (no flag, no lexical detection)**: leave `jtbd_trace_value` empty. The `**JTBD**:` line is omitted from the Step 4 skeleton template. No hard-block — capture-time JTBD anchoring is optional under P287; the I12 hard-block (type-keyed JTBD-required halt) was retired alongside the type axis. ADR-060 amendment substance (whether JTBD anchoring should become a nullable-field-conditional gate keyed on some other discriminator) is queued for user re-confirmation per ADR-074.
 
 **Resolve `persona_value`** (a scalar enum value OR empty) via the following dispatch:
 
 1. **If `--persona=<value>` was set in Step 1**: validate `<value>` ∈ `{developer, tech-lead, plugin-developer, plugin-user}`; halt with directive if invalid; otherwise assign and proceed silently.
-2. **Else if `jtbd_trace_value` is non-empty**: derive persona from cited JTBDs' frontmatter. Read each cited `docs/jtbd/<persona>/JTBD-<NNN>-*.md` file; extract its `persona:` (and optionally `secondary-persona:`) frontmatter values; if all cited JTBDs agree on a single persona, set `persona_value` to that persona silently and emit stderr advisory: `capture-problem: derived persona=<value> from cited JTBD <id> frontmatter`. If cited JTBDs disagree, fire AskUserQuestion with the union-of-derived-personas as options.
-3. **Else if `type_value = user-business`**: AskUserQuestion fires with the closed enum as options. Per ADR-060 P4.2: `developer | tech-lead | plugin-developer | plugin-user`. Question text: *"What persona does this user-business problem serve?"*
-4. **Else (`type_value = technical`)**: leave `persona_value` empty. `persona:` frontmatter is OPTIONAL on technical problems.
+2. **Else if `jtbd_trace_value` is non-empty**: derive persona from cited JTBDs' frontmatter. Read each cited `docs/jtbd/<persona>/JTBD-<NNN>-*.md` file; extract its `persona:` (and optionally `secondary-persona:`) frontmatter values; if all cited JTBDs agree on a single persona, set `persona_value` to that persona silently and emit stderr advisory: `capture-problem: derived persona=<value> from cited JTBD <id> frontmatter`. If cited JTBDs disagree, fire AskUserQuestion with the union-of-derived-personas as options (genuine taste per ADR-044 category 5 — cited JTBDs have ratified-coherent contradictory persona constraints, only the user can resolve which applies to THIS problem).
+3. **Else (no JTBDs cited, no `--persona=` flag)**: leave `persona_value` empty. `persona:` frontmatter is OPTIONAL — capture-time persona anchoring is best-effort.
 
-**I12 hard-block escape hatch (none)**: there is no `BYPASS_I12=1` env override at the SKILL surface. The block is a load-bearing schema constraint per ADR-060 Confirmation criterion 10; if a maintainer captures a user-business problem without yet knowing the JTBD trace, they must EITHER capture as `--type=technical` and re-classify during `/wr-itil:manage-problem` ingestion (when the JTBD becomes clear), OR fast-capture a placeholder JTBD via `/wr-itil:capture-jtbd` (when it ships under Phase 4 follow-on) and reference it.
-
-**JTBD-301 scope preservation**: this dispatch ALSO fires on the maintainer-side `/wr-itil:capture-problem` only. Plugin-user-side `.github/ISSUE_TEMPLATE/problem-report.yml` MUST NOT prompt for JTBD trace or persona — preserves the JTBD-301 firewall per ADR-060 P4.3 maintainer-side / plugin-user-side asymmetry clarifier. Triage during `/wr-itil:manage-problem` ingestion assigns both fields from the reporter's symptom signals (per the JTBD-301 maintainer-side-complement extension landed 2026-05-13).
-
-**Phase 3 P3.1 nullable-field-conditional shape**: the JTBD-trace prompt + I12 hard-block fire on `jtbd_trace_value` nullability (absent vs present), NOT on the `type` field's value. The composite gate (`type == user-business AND jtbd_trace_value == empty`) treats `type` as upstream-determined co-incident input — exactly the carve-out permitted by ADR-060 line 536. Steps 2-7 below execute identically regardless of `type_value`, `jtbd_trace_value`, or `persona_value`; only the values substituted into the Step 4 skeleton template differ. This preserves I2 control-flow uniformity AND extends the I2 behavioural test (per ADR-060 Confirmation criterion 11) to assert no control-flow branch on `persona:` field presence.
+**JTBD-301 scope preservation**: this dispatch fires on the maintainer-side `/wr-itil:capture-problem` only. Plugin-user-side `.github/ISSUE_TEMPLATE/problem-report.yml` MUST NOT prompt for JTBD trace or persona — preserves the JTBD-301 firewall per ADR-060 P4.3 maintainer-side / plugin-user-side asymmetry clarifier. Triage during `/wr-itil:manage-problem` ingestion assigns both fields from the reporter's symptom signals (per the JTBD-301 maintainer-side-complement extension landed 2026-05-13).
 
 ### 2. Minimal-grep duplicate check (3-keyword title-only) + hang-off-check subagent dispatch (P346 Phase 3 amendment, 2026-05-31)
 
@@ -196,9 +151,9 @@ fi
 
 **Empty-candidates short-circuit**: if `${#candidates[@]} -eq 0` (no shared signals), skip the dispatch and proceed to the marker step. The mechanical pre-filter found nothing to arbitrate.
 
-**JTBD-301 firewall** — sub-step 2b fires on maintainer-side `/wr-itil:capture-problem` invocations ONLY. Plugin-user-side `.github/ISSUE_TEMPLATE/problem-report.yml` MUST NOT carry an equivalent dispatch (plugin-user descriptions do not carry the same authorial intent; a plugin-user describing their friction in maintainer vocabulary could plausibly trigger a wrong-parent HANG_OFF). Triage during `/wr-itil:manage-problem` ingestion stays user-judgement per JTBD-301. Mirrors the existing Step 1.5 firewall at line 116.
+**JTBD-301 firewall** — sub-step 2b fires on maintainer-side `/wr-itil:capture-problem` invocations ONLY. Plugin-user-side `.github/ISSUE_TEMPLATE/problem-report.yml` MUST NOT carry an equivalent dispatch (plugin-user descriptions do not carry the same authorial intent; a plugin-user describing their friction in maintainer vocabulary could plausibly trigger a wrong-parent HANG_OFF). Triage during `/wr-itil:manage-problem` ingestion stays user-judgement per JTBD-301. Mirrors the Step 1.5b JTBD-trace firewall above.
 
-**AFK safe-default (--no-prompt / AFK propagation)**: when `--no-prompt` is set, the dispatch still fires (the subagent verdict is non-interactive by construction — no `AskUserQuestion`), and ambiguous-multi-parent cases collapse to `PROCEED_NEW` per the subagent's Rule 6 contract. This satisfies JTBD-006's "Decisions normally requiring my input are resolved using safe defaults."
+**AFK safe-default**: the hang-off-check subagent verdict is non-interactive by construction (no `AskUserQuestion`), and ambiguous-multi-parent cases collapse to `PROCEED_NEW` per the subagent's Rule 6 contract. This satisfies JTBD-006's "Decisions normally requiring my input are resolved using safe defaults" without dependency on the retired `--no-prompt` flag.
 
 **Dispatch** — when the candidate set is non-empty and ≤5, delegate to `wr-itil:hang-off-check` via the Agent tool with a structured input payload:
 
@@ -271,7 +226,6 @@ Log the renumber decision in the operation report if origin and local diverged.
 **Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
 **Origin**: internal
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
-**Type**: <type_value>
 **JTBD**: <jtbd_trace_value_as_comma_separated_list_OR_omit_line_when_empty>
 **Persona**: <persona_value_OR_omit_line_when_empty>
 
@@ -366,9 +320,10 @@ The trailing pointer is **not optional** — it is the user-visible signal that 
 |---------|----------------|-----------------|
 | Duplicate-check | Wide-net grep + AskUserQuestion branch on matches | 3-keyword title-only grep, list-only (no branch) |
 | Multi-concern split | Step 4b AskUserQuestion | Out of scope (one ticket per invocation) |
-| Skeleton-fill | Full-intake; AskUserQuestion for missing fields | Deferred-placeholder pattern + derive-first type classification (AskUserQuestion fires only on ambiguous descriptions) |
-| Type-tag prompt | Step 4-equivalent AskUserQuestion fires alongside other intake fields | Step 1.5 derive-first dispatch — lexical-signal classifier silently resolves unambiguous descriptions (with stderr advisory); ambiguous descriptions fall back to classification-only AskUserQuestion. `--type=` and `--no-prompt` flags pre-resolve for non-interactive callers. I2 invariant: no control-flow branch keyed on type |
-| AskUserQuestion authority | Multiple branches (deviation-approval / direction-setting / taste / mechanical) | Zero unconditional AskUserQuestion fires; ambiguous-signal fallback only (silent-framework per ADR-044 cat. 4 on unambiguous; taste per cat. 5 on ambiguous); zero control-flow branches |
+| Skeleton-fill | Full-intake; AskUserQuestion for missing fields | Deferred-placeholder pattern; no classification AskUserQuestion (P287 retired the type prompt) |
+| Type-tag prompt | RETIRED (P287, 2026-06-02) | RETIRED (P287, 2026-06-02) — the technical/user-business axis was removed as redundant with RFC/Story persona-anchoring per ADR-060 Phase 4 |
+| JTBD-trace + persona | Step 4-equivalent ingestion path | Step 1.5b derive-first dispatch — lexical citations + `--jtbd=` flag pre-resolve silently; persona derives from cited JTBDs' frontmatter; persona-disagreement AskUserQuestion is the only taste fallback |
+| AskUserQuestion authority | Multiple branches (deviation-approval / direction-setting / taste / mechanical) | Zero unconditional AskUserQuestion fires; persona-disagreement fallback only (silent-framework per ADR-044 cat. 4 by default; cat. 5 taste on JTBD-persona disagreement); zero control-flow branches |
 | README refresh | P094 inline (regenerate + stage in same commit) | Deferred to next `/wr-itil:review-problems` |
 | Status transitions | Step 7 owns Open → Known Error → Verifying → Closed | Out of scope (creation only) |
 | Commit grain | One commit per intake (or per split-concern set) | One commit per capture |
@@ -384,21 +339,22 @@ The two skills share the `/tmp/manage-problem-grep-${SESSION_ID}` create-gate ma
 - **P119** — manage-problem create-gate hook; capture-problem composes with the same marker.
 - **P262** — the P165 README-refresh-discipline hook conflicted with this skill's deferred-README-refresh contract (Step 6 "do NOT stage README" was denied by the hook on every capture commit). Resolved by the `RISK_BYPASS: capture-deferred-readme` allow-list token (Step 6 trailer above); clears the README-refresh gate only, not the risk-score gate.
 - **P265** — the RISK_BYPASS-trailer allow-list mechanism in `readme-refresh-detect.sh` that P262's `capture-deferred-readme` token registers into.
-- **P170** (`docs/problems/known-error/170-problem-tickets-strain-as-fixes-decompose-into-multiple-coordinated-changes-need-rfc-framework.md`) — RFC framework driver; Slice 4 B7.T3 / item 8c authored the type-classification prompt at Step 1.5.
-- **P176** — agent-side I2 (no type-branching) coverage gap on the SKILL.md surface (this file's surface); descendant of P012 master harness ticket. The Step 1.5 I2 invariant guard is enforced by audit-trailed prose here per ADR-052 § Surface 2 escape-hatch contract; behavioural enforcement awaits the master harness.
+- **P170** (`docs/problems/known-error/170-problem-tickets-strain-as-fixes-decompose-into-multiple-coordinated-changes-need-rfc-framework.md`) — RFC framework driver; Slice 4 B7.T3 / item 8c historically authored the type-classification prompt at Step 1.5 (RETIRED by P287, 2026-06-02).
+- **P176** — agent-side I2 (no type-branching) coverage gap on the SKILL.md surface. P287 retires the type axis altogether; the regression guard is preserved under `packages/itil/scripts/test/no-type-regression-guard.bats` (asserting the `**Type**:` field is GONE from skeleton templates).
+- **P287** (`docs/problems/.../287-remove-technical-user-business-type-classification-from-problems-redundant-with-rfc-persona-anchoring.md`) — the user direction (twice-confirmed 2026-05-25 + 2026-06-02) that retired Step 1.5 Type classification; ADR-060 amendment substance (I12 replacement, Phase-4 rework) queued for user re-confirmation per ADR-074.
 - **ADR-032** (`docs/decisions/032-governance-skill-invocation-patterns.proposed.md`) — foreground-lightweight-capture variant amendment (P155); 5th invocation pattern amendment (P346 Phase 3, 2026-05-31) codifies the hang-off-check sub-step 2b dispatch as the canonical fresh-context-subagent-as-decision-arbiter shape.
 - **P346** (`docs/problems/.../346-...md`) — backlog-flow-control master ticket; Phase 3 deliverable lands the hang-off-check dispatch at sub-step 2b above.
 - **RFC-013** (`docs/rfcs/RFC-013-...proposed.md`) — traces P346 Phases 1+2+3 per ADR-071 unconditional Problem→RFC trace.
 - **`packages/itil/agents/hang-off-check.md`** — the fresh-context subagent invoked by sub-step 2b; reads only the structured input payload; emits HANG_OFF: P<NNN> or PROCEED_NEW with rationale + signals + absorb directive.
 - **ADR-038** — progressive-disclosure pattern (SKILL.md + REFERENCE.md split).
-- **ADR-044** — decision-delegation contract; type classification is **derive-first**: silent-framework per category 4 on unambiguous-signal descriptions (the classifier IS the framework resolving the answer from observable evidence per ADR-026 grounding); taste per category 5 fallback on genuinely-ambiguous descriptions only. `--no-prompt` / `--type=<value>` are policy-authorised silent-proceed shapes per category 4 (caller-side pre-resolution). P185 re-classified Step 1.5's taxonomy position from "cat 5 unconditional ask" to "cat 4 derive-first with cat 5 fallback".
-- **P185** — `/wr-itil:capture-problem` asks a classification question it can answer itself from the description's observable evidence — inverse-P078 / P132 trap at a SKILL contract surface. The Step 1.5 derive-first refactor (lexical-signal classifier + stderr advisory) ships this fix.
+- **ADR-044** — decision-delegation contract. Persona derivation (Step 1.5b) is **derive-first**: silent-framework per category 4 when cited JTBDs agree on persona; taste per category 5 fallback only on cited-JTBD-persona disagreement. JTBD-trace itself is purely category 4 (lexical detection or `--jtbd=` flag pre-resolution). The retired Step 1.5 Type classification was a derive-first dispatch too (RETIRED by P287, 2026-06-02).
+- **P185** — `/wr-itil:capture-problem` historical: asked a classification question (type) it could answer itself; the Step 1.5 derive-first refactor (lexical-signal classifier + stderr advisory) shipped the fix in 2026-05-15. P287 then retired the entire surface in 2026-06-02 as the classification axis itself was redundant with RFC/Story persona-anchoring.
 - **ADR-049** — bin/ on PATH; capture-problem reuses the existing `wr-itil-reconcile-readme` shim.
 - **ADR-052** — behavioural-tests-default for skill testing; SKILL.md I2 surface coverage gap is named, not silent (P176 + ADR-052 § Surface 2).
-- **ADR-060** (`docs/decisions/060-...accepted.md`) — Phase 1 item 8c authored Step 1.5 here; I2 invariant (line 98) governs the no-control-flow-branch contract; line 132 names the maintainer-side-only / JTBD-301-protection scope; line 160 (Confirmation criterion 4) gates the type-prompt placement.
-- **JTBD-301** (`docs/jtbd/plugin-user/JTBD-301-...md`) — plugin-user no-pre-classification persona constraint; protected by the Step 1.5 maintainer-side scope guard.
+- **ADR-060** (`docs/decisions/060-...accepted.md`) — body currently encodes the type-tag schema (Decision Outcome item 1, I2 type-uniformity, I12 hard-block, Phase-4 persona+jtbd machinery keyed on `type:user-business`). P287 retires the SKILL implementation of these clauses unilaterally per twice-confirmed user direction; the ADR body amendment substance (I12 replacement shape, Phase-4 rework) is queued for user re-confirmation per ADR-074. Until the amendment lands, ADR-060 body and SKILL implementation are intentionally inconsistent — this is the P287 trade-off the user accepted.
+- **JTBD-301** (`docs/jtbd/plugin-user/JTBD-301-...md`) — plugin-user no-pre-classification persona constraint; the Step 1.5b maintainer-side scope guard preserves the firewall on the JTBD-trace + persona axis. The type-axis firewall is moot (axis retired).
 - `packages/itil/skills/manage-problem/SKILL.md` — heavyweight intake counterpart.
 - `packages/itil/skills/review-problems/SKILL.md` — re-rates the deferred placeholders + refreshes README.md.
-- `packages/itil/scripts/test/i2-no-type-branching.bats` — pure-bash supporting-script enforcement of the I2 invariant; this SKILL.md change does not affect any pure-bash script and so does not change the bats outcome (still green).
+- `packages/itil/scripts/test/no-type-regression-guard.bats` — pure-bash regression guard that the `**Type**:` field stays GONE from skeleton templates + ticket bodies. Replaces the historical `i2-no-type-branching.bats` (which asserted no-control-flow-branch-on-type; with the type axis retired, the branch-protection invariant is vacuous, but the field-absence regression guard preserves the audit trail per architect-review verdict 2026-06-02).
 
 $ARGUMENTS

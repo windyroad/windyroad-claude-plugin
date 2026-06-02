@@ -6,7 +6,6 @@
 **Priority**: 3 (Low) — Impact: 1 (Negligible — misleading docs; concrete workaround exists) × Likelihood: 3 (Likely — users attempting documented bypass syntax encounter the failure mode)
 **Effort**: S (deferred — re-rate at next `/wr-itil:review-problems`)
 **WSJF**: (3 × 1.0) / 1 = **3.0** (deferred — provisional)
-**Type**: technical
 
 > Captured 2026-05-15 by `/wr-itil:work-problems` AFK loop iter 1 surfacing pass per user direction. Sibling to [[P230]] (hook misfires on narrative-only edits — same hook, distinct fix). Recurrence/sibling of [[P173]] (BYPASS_*_GATE env vars do not propagate from Bash subshell to PreToolUse hook context).
 

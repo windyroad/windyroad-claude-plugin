@@ -6,7 +6,6 @@
 **Priority**: 6 (Med) — Impact: 2 (Minor — false-positive deny adds friction but recovery is mechanical; no data loss) × Likelihood: 3 (Likely — fires on every Change Log / Investigation Task checkbox edit where ranking-bearing fields unchanged AND README already in sync)
 **Effort**: S (deferred — re-rate at next `/wr-itil:review-problems`)
 **WSJF**: (6 × 1.0) / 1 = **6.0** (deferred — provisional)
-**Type**: technical
 
 > Captured 2026-05-15 by `/wr-itil:work-problems` AFK loop iter 1 surfacing pass per user direction. Sibling to [[P231]] (BYPASS env-var deny-message correction) — same hook, distinct fix.
 

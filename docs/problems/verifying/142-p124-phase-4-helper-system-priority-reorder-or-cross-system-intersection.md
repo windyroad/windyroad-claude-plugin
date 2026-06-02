@@ -6,7 +6,6 @@
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Likely (3) — observed once in 2026-04-28 session BUT every long AFK loop with subprocesses creates the conditions for the bug to fire
 **Effort**: M — Shipped via runtime-SID instrumentation hook (ADR-050) instead of the originally-listed options (a)/(b)/(c). Architect surfaced that pure-helper algorithms cannot disambiguate orchestrator-vs-subprocess context from filesystem state alone, so the fix shape is a new `PreToolUse:Bash|Write|Edit|Read` hook capturing the runtime stdin SID; helper reads it as authoritative. Single-commit fold-fix supersedes ADR-048's recovery prose.
 **WSJF**: (9 × 1.0) / 2 = **4.5**
-**Type**: technical
 
 ## Resolution (2026-05-03)
 

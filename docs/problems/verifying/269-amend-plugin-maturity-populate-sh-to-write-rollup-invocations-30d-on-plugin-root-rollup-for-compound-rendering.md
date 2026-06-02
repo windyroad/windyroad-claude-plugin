@@ -7,7 +7,6 @@
 **Priority**: 3 (Medium) — Impact: 3 × Likelihood: 3 (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: S (deferred — re-rate at next /wr-itil:review-problems)
 **WSJF**: 9/3 = **3.0** (raw Priority/Effort retained per README display convention)
-**Type**: technical
 
 ## Description
 

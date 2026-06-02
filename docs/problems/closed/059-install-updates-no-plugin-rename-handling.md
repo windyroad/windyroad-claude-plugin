@@ -5,7 +5,6 @@
 **Priority**: 6 (Medium) — Impact: Minor (2) x Likelihood: Possible (3)
 **Effort**: L — rename-mapping table + detection logic + auto-migration (no second consent) + regression tests + ADR-030 Confirmation amendment narrowing the cross-project consent rule
 **WSJF**: 0 (Verification Pending — see ADR-022)
-**Type**: technical
 
 ## Fix Released
 

@@ -5,7 +5,6 @@
 **Priority**: 9 (Medium) — Impact: 3 x Likelihood: 3 (re-rated Likelihood 1→3 on 2026-05-26: the placeholder deferred to this review; the recogniser-shape re-derivation gap is exercised on every risk assessment, so Possible not Rare)
 **Effort**: M
 **WSJF**: 9/2 = **4.5** (Open multiplier 1.0)
-**Type**: technical
 
 ## Description
 

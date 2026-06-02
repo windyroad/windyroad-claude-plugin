@@ -5,7 +5,6 @@
 **Priority**: 9 (Med) — Impact: Moderate (3) x Likelihood: Likely (3)
 **Effort**: S (preflight in `scripts/push-watch.sh` + warning + bats contract-assertion)
 **WSJF**: 0 (Verification Pending — excluded from dev ranking per ADR-022)
-**Type**: technical
 
 > Surfaced during P113's release cycle via run-retro Step 2b pipeline-instability scan (P074 class). My P113 fix commit `b2424c8` pushed to origin; CI failed on tests 699/700/701 in `risk-scorer-structured-remediations.bats`. Those tests had actually regressed two days earlier in commit `64f6d3f` — a commit that lived only locally on `main` alongside four other intermediate commits (`2be1bfa`, `ee316ba`, `ce5cfb6`, `71441f7`, `3cfb479`). None of the intermediate commits had ever been pushed to origin individually, so origin CI had never run against them. My P113 push batched all six commits in one push event; GitHub Actions fires CI only on the pushed-tip SHA, not on every reachable commit. The regression took the blame against my (innocent) P113 commit; `gh run list --branch main` showed CI runs only for the `6b76d13` merge and my `b2424c8` push — a five-commit gap where regressions could hide. This hazard compounds each unpushed commit. The current `push:watch` script does not warn.
 

@@ -4,7 +4,6 @@
 **Reported**: 2026-05-18
 **Priority**: 8 (Medium) — Impact: 2 × Likelihood: 4
 **Effort**: M (re-estimated 2026-05-18 — AFK orchestrator Step 4 fallback amendment + security/non-security classifier + bats fixture)
-**Type**: technical
 
 ## Description
 

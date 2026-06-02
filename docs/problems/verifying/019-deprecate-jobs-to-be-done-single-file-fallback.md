@@ -5,7 +5,6 @@
 **Priority**: 6 (Medium) — Impact: Moderate (3) x Likelihood: Possible (2)
 **Effort**: L — 3 ADR edits, 1 hook, 4 BATS files, 1 SKILL.md, 1 file delete (re-sized after architect review 2026-04-16; was S)
 **WSJF**: 1.5 — (6 × 1.0) / 4
-**Type**: technical
 
 ## Direction decision (2026-04-19, user)
 

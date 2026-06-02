@@ -5,7 +5,6 @@
 **Priority**: 9 (Medium) — Impact: Moderate (3) x Likelihood: Likely (3)
 **Effort**: M — amend `packages/risk-scorer/hooks/risk-score-commit-gate.sh` (and the sibling push-gate / release-gate hooks if they share TTL mechanics) to implement a **three-band TTL policy** instead of the current binary "fresh / expired" check: (a) < 15 min → pass silently; (b) 15-30 min → auto-invoke `wr-risk-scorer:pipeline` inline and either pass-if-unchanged or halt-and-report-if-changed; (c) > 30 min → halt with the existing "delegate to risk-scorer" message. Bats contract assertion for each band. Architect review on the auto-rescore-in-band semantics (may need an ADR note under ADR-009's marker-TTL lifecycle or ADR-015's on-demand-assessment contract).
 **WSJF**: 4.5 — (9 × 1.0) / 2 — Medium severity (friction on every long-flow commit; no loss of work, no incorrect scoring — just redundant round-trip); moderate effort. Sits alongside P067 / P076 class tickets.
-**Type**: technical
 
 ## Description
 

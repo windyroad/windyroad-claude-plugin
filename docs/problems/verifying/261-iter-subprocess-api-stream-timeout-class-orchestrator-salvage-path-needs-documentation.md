@@ -4,7 +4,6 @@
 **Reported**: 2026-05-18
 **Priority**: 6 (Medium) — Impact: 3 (Moderate — wasted iter cost if not salvaged; iter 4 of session 6 burned $12.91 on Phase 3b work that would have been lost) x Likelihood: 2 (Unlikely — observed once per ~10 iters in session 6; may correlate with iter length / context size)
 **Effort**: M (confirmed at fix time — SKILL.md amendment + ADR-032 amendment + behavioural bats fixture + briefing entry; single-plugin, no migration)
-**Type**: technical
 
 ## Description
 

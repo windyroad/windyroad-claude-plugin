@@ -5,7 +5,6 @@
 **Priority**: 15 (High) — Impact: Moderate (3) x Likelihood: Almost Certain (5)
 **Effort**: M — extended `packages/itil/skills/work-problems/SKILL.md` Step 2.5 routing so the default branch calls `AskUserQuestion` when available; Outstanding Design Questions table is the AskUserQuestion-unavailable fallback. The legacy "default for this skill is non-interactive" prose was replaced with the architect-FLAG cross-skill principle ("orchestrator main turns default to AskUserQuestion when available; AFK persona served by subprocess-boundary contract under ADR-032, not by suppressing AskUserQuestion at the orchestrator layer"). Step 6.5 Decisions Table row updated to match. New behavioural bats `work-problems-step-2-5-routing.bats` (8 doc-lint contract assertions per ADR-037) pins the new contract. Cross-skill helper `lib/runtime-mode.sh` deferred per architect verdict — the iter subprocess's AFK contract is enforced at the prompt-template layer (Step 5 Constraint #3), not by stop-condition #2's branch.
 **WSJF**: (15 × 1.0) / 2 = **7.5**
-**Type**: technical
 
 ## Fix Released
 

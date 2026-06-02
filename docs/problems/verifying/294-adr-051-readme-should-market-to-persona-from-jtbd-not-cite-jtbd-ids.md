@@ -5,7 +5,6 @@
 **Priority**: 9 (Med High) — Impact: 3 (Moderate — the current mechanism actively fails the actual intent: every plugin README now carries mechanical JTBD-ID citations that read as internal-governance plumbing, not persona-facing marketing; a load-bearing commit hook enforces the wrong thing; degraded README value for the plugin-user/adopter who should be sold on the problem the plugin solves) × Likelihood: 3 (Likely — every plugin README + every README edit hits the ADR-051 hook)
 **Effort**: L — supersede ADR-051 + unwind the JTBD-ID-citation commit hook + rewrite the plugin READMEs to market-from-JTBD + rethink (or drop) the drift-detection anchor that motivated the ID-citation
 **WSJF**: 9/4 = **2.25** (Open multiplier 1.0)
-**Type**: technical
 
 ## Description
 

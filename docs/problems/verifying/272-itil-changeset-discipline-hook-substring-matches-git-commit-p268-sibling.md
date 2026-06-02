@@ -7,7 +7,6 @@
 **Priority**: 10 (High) — Impact: 2 × Likelihood: 5
 **Effort**: S (re-estimated 2026-05-18 — call shared helper landed by P268 + mirror P268 regression bats fixtures)
 **WSJF**: 10/1 = **10.0** (raw Priority/Effort retained per README display convention; multiplier 0 in WSJF Rankings table per ADR-022 Verifying state)
-**Type**: technical
 
 ## Description
 

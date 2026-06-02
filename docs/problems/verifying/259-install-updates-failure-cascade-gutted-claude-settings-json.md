@@ -4,7 +4,6 @@
 **Reported**: 2026-05-18
 **Priority**: 6 (Medium) — Impact: 3 (Moderate — project temporarily lost all wr-* plugin enablement; subprocess dispatches would have failed if a fresh iter had launched; recovered via `git checkout HEAD -- .claude/settings.json`) x Likelihood: 2 (Unlikely — only fires when /install-updates loops through N plugins each with 3 failed install attempts)
 **Effort**: M (confirmed 2026-05-26 — one SKILL.md block edit + one bats fixture + one briefing bullet)
-**Type**: technical
 
 ## Description
 

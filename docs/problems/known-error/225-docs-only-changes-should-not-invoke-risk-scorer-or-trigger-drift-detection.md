@@ -4,7 +4,6 @@
 **Reported**: 2026-05-15
 **Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
-**Type**: technical
 
 > **safe-high-fix-risk flag** (per dual-axis-risk classifier): "skip the gate when path matches `*.md`" is a classic load-bearing-safety-check-bypass shape. An over-broad allowlist could let ADR-text changes (which materially affect framework behaviour) or hook-adjacent READMEs escape review. Maintainer must adjudicate the precise allowlist scope (which docs? including `docs/decisions/`?) before merge.
 

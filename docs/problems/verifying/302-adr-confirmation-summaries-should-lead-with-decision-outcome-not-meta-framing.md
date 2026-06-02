@@ -5,7 +5,6 @@
 **Priority**: 4 (Low-Med) — Impact: 2 (Minor — a confusing summary costs a clarifying re-ask round-trip + erodes trust in the drain's presentation; recoverable) × Likelihood: 2 (Unlikely-Possible — recurs when presenting meta-heavy ADRs, i.e. sibling/supersede/separate-vs-amend decisions, for oversight-confirm)
 **Effort**: S — presentation-guidance edit to the `/wr-architect:review-decisions` skill (held) + a one-line agent-interaction briefing note
 **WSJF**: 4/1 × 2.0 = **8.0** (Known Error multiplier 2.0)
-**Type**: technical
 **Origin**: internal
 
 ## Description

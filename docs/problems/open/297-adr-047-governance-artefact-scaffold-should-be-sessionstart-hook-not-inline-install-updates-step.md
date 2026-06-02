@@ -5,7 +5,6 @@
 **Priority**: 9 (Med High) — Impact: 3 (Moderate — the inline-/install-updates mechanism only scaffolds for sibling projects reachable from THIS project's /install-updates run; it completely misses adopter projects on other machines, and any project where /install-updates is never run against it; the scaffold's whole point — that an adopter with a policy file gets its artefact — silently fails for the majority of real adopters) × Likelihood: 3 (Likely — most adopter projects are not reachable from this repo's /install-updates)
 **Effort**: M — move the scaffold from an inline /install-updates step to a SessionStart hook (per-plugin, fires per-project-session) + reconcile with the ADR-040 SessionStart precedent
 **WSJF**: 9/2 = **4.5** (Open multiplier 1.0) — corrected 2026-05-26: Impact 3 × Likelihood 3 = 9, prior Priority line said 6 in error
-**Type**: technical
 
 ## Description
 

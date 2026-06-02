@@ -5,7 +5,6 @@
 **Priority**: 10 (High) — Impact: 2 (Minor — dev tooling friction in installed SKILL; published packages unaffected) x Likelihood: 5 (Almost certain — every interactive `/wr-itil:capture-problem` invocation deterministically fires the AskUserQuestion; observed today on the P185 capture itself)
 **Effort**: M (Step 1.5 derive-first refactor + lexical-signal classifier in `packages/itil/skills/capture-problem/SKILL.md` + behavioural bats covering signal classes + stderr-advisory contract; sibling capture-* skills "title taste" investigation is conditional follow-up not in marginal scope)
 **WSJF**: 5.0 = (Severity 10 × Status Multiplier 1.0 Open) / Effort divisor 2 (M)
-**Type**: technical
 
 ## Description
 

@@ -6,7 +6,6 @@
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: M — relocate `.claude/skills/install-updates/` (and any future repo-local skill) under `packages/repo-local/<skill>/` (or equivalent canonical location), replace the in-`.claude/skills/` content with a symlink to the new source-of-truth, amend ADR-030 to record the new location convention + the symlink contract, audit gate-exclusion lists across plugin hooks (architect, JTBD, TDD, style-guide, voice-tone, risk-scorer) to confirm that the symlink-target path under `packages/` follows the normal review process, and update `MEMORY.md` / BRIEFING references.
 **WSJF**: (12 × 1.0) / 2 = **6.0**
-**Type**: technical
 
 > Surfaced 2026-04-28 by direct user direction during a `/install-updates` follow-on edit session: *"editing skills in .claude requires explicit approval from me which wastes time. Instead we could place these files elsewhere and link to them in .claude. We would only need to approve the linking once per file. After than edit on the file (outside of .claude) can follow the normal review process"*. Triggering session evidence: editing `.claude/skills/install-updates/SKILL.md` and `.claude/skills/install-updates/REFERENCE.md` to remove the legacy-JTBD-flag + rename-mapping logic required two architect-agent re-runs (the first when the gate fired and the file was blocked; the second when the agent had to re-prompt with a concrete diff to satisfy the marker). Each re-run costs sub-agent latency, model tokens, and user wall-clock time.
 

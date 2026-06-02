@@ -4,7 +4,6 @@
 **Reported**: 2026-05-26
 **Priority**: 8 (Medium) — Impact: 4 x Likelihood: 2 (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: L (deferred — re-rate at next /wr-itil:review-problems)
-**Type**: technical
 
 ## Description
 

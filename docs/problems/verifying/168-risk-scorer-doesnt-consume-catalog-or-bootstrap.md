@@ -6,7 +6,6 @@
 **Priority**: 3 (Low) — Impact: 3 x Likelihood: 1
 **Effort**: XL (re-rated 2026-05-04: M → XL post-architect-review — 8 distinct edits across new ADR-058, ADR-047 amendment, new bootstrap-catalog skill, install-updates Step 6.5 extension, pipeline.md consume-catalog protocol, create-risk flag extension, orchestrator auto-invoke, wipe pass; ~2 commits per ADR-014; spans 2+ iterations)
 **WSJF**: 0.75 (Severity 3 × Known Error multiplier 2.0 / Effort XL divisor 8)
-**Type**: technical
 
 ## Description
 

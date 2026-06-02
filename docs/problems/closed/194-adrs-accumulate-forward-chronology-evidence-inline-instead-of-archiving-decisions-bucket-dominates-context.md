@@ -5,7 +5,6 @@
 **Closed**: 2026-05-31
 **Priority**: 6 (Med) — Impact: 3 (Moderate — context-bucket dominance compounds session-cost across all consumers) x Likelihood: 2 (Possible — pattern emerges as the suite matures) (deferred — re-rate at next /wr-itil:review-problems)
 **Effort**: L (deferred — re-rate at next /wr-itil:review-problems)
-**Type**: technical
 
 ## Closed as no longer relevant
 
