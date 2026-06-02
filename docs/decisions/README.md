@@ -11,13 +11,13 @@ Compact rendered index of every ADR's chosen option, confirmation criteria, and 
 
 For deep-dive — creating, evolving, ratifying, or contesting a decision — open the per-ADR file directly. `/wr-architect:create-adr`, `/wr-architect:capture-adr`, and `/wr-architect:review-decisions` all keep the full body in scope. Decision Drivers, Considered Options bodies, Pros and Cons, Consequences narrative, and Reassessment Criteria are intentionally NOT in this routine view — they live in the per-ADR body.
 
-**Total ADRs:** 77 (70 in-force, 7 historical)
+**Total ADRs:** 78 (71 in-force, 7 historical)
 
 ---
 
 ## In-force decisions
 
-_70 ADRs. These are the current rules. The architect agent reads this section first for routine compliance review._
+_71 ADRs. These are the current rules. The architect agent reads this section first for routine compliance review._
 
 ### ADR-002 — Monorepo with Independently Installable Per-Plugin Packages
 **Status:** proposed | **Oversight:** confirmed
@@ -347,6 +347,11 @@ _70 ADRs. These are the current rules. The architect agent reads this section fi
 **Status:** proposed
 **Chosen:** Chosen option: **"Option A — Phase 1 auto-close on file-no-longer-exists evidence shape"**, because the file-existence signal is the most mechanical and highest-confidence of the candidate shapes (closest analog to P334/P336 evidence-clos...
 **Related:** ADR-022, ADR-026, ADR-014, ADR-049, ADR-052, ADR-013, ADR-044, ADR-066, ADR-074
+
+### ADR-080 — Highest-version-wins shim wrapper for plugin scaffold-template shims
+**Status:** proposed
+**Chosen:** Chosen option: **"Option A"**, because replacing each plugin scaffold-template shim with a wrapper script that, at invoke time, resolves to the highest-version sibling in its parent cache directory makes shim invocations always run the newe...
+**Related:** ADR-049, ADR-080, ADR-081
 
 ---
 
