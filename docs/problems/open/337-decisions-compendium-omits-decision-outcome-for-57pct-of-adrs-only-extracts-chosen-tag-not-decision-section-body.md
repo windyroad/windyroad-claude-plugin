@@ -106,3 +106,9 @@ Per ADR-078 Phase 1 (single phase — architect-on-edit hook), the fix is RFC-sc
 - **P339** — substance-confirm-before-build gap on this same ADR-078 (prior occurrence). The 2026-06-01 architect verdict on P337 caught the SECOND iteration of the same anti-pattern (agent about to implement Option 6 after Option 9 was ratified).
 - `packages/architect/scripts/generate-decisions-compendium.sh` line 115 — the original locus of the gap; will be retired per ADR-078 Story C.
 - `packages/architect/scripts/test/generate-decisions-compendium.bats` test 9 — passing-but-incomplete coverage; retired per ADR-078 Story C.
+
+## RFCs
+
+| RFC | Status | Title |
+|-----|--------|-------|
+| RFC-014 | proposed | ADR-078 Phase 1 — architect-on-edit compendium entries |
