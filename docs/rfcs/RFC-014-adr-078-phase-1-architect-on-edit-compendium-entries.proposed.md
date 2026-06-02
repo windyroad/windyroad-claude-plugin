@@ -7,6 +7,8 @@ problems: [P337]
 adrs: [ADR-078, ADR-077]
 jtbd: []
 stories: []
+human-oversight: confirmed
+oversight-date: 2026-06-02
 ---
 
 # RFC-014: ADR-078 Phase 1 — architect-on-edit compendium entries
@@ -29,7 +31,14 @@ This RFC scopes the implementation arc for the ADR-078 decision (Option 9 — ar
 
 ## Scope
 
-> **DRAFT — substance pending ratification.** Story decomposition, per-story acceptance criteria, and sequencing carry **PROPOSED** status under ADR-074 / P339 substance-confirm-before-build. Substantive sub-decisions (hook trigger granularity, retirement sequencing, ADR-077 amendment shape, migration ordering, etc.) are queued as outstanding_questions for batched user surface at the next interactive transition. No implementation work is built on this RFC's contents until `/wr-itil:manage-rfc 014 accepted` runs with substance-ratified Stories A–E.
+**Substantive sub-decisions ratified 2026-06-02 via AskUserQuestion surface** (per ADR-074 substance-confirm-before-build; `human-oversight: confirmed`):
+
+- **(SQ-014-1) Test strategy for Story A's `claude -p` subprocess**: **PATH-priority fake-claude shim.** Bats fixtures stub the subprocess with a fixed-response `claude` shim placed first on `PATH` (per ADR-049 / JTBD-301 adopter-portable fixture pattern). Real-subprocess integration tests are out of scope for Phase 1; if they become necessary, a separate tagged CI lane gated on `CLAUDE_P_AVAILABLE` is the follow-on path.
+- **(SQ-014-2) Story C backstop window for `generate-decisions-compendium.sh`**: **one minor-version release cycle of `@windyroad/architect`.** The script gains a stderr deprecation notice on every invocation citing ADR-078 (per ADR-078 Confirmation criterion j); after one full minor-version cycle in which Stories A + B + D are in production, the script + bats test 2145 + CHANGELOG entry are removed entirely.
+- **(SQ-014-3) ADR-077 confirmation-criteria amendment shape in Story E**: **verify (b), (g), (h) reflect as-shipped Story A/B/D enforcement state + tighten residual aspirational language.** ADR-077's criteria were already partially amended 2026-05-31 by the ADR-078 ratification; Story E is a verify-and-tighten pass that lands as a same-commit edit per Story B's pre-commit pairing gate (Story A's PostToolUse hook regenerates the README ADR-077 entry automatically on commit).
+- **(SQ-014-4) Migration ordering for the 43 non-canonical compendium entries**: **OPPORTUNISTIC BATCH** (user override of the iter recommendation of strict cadence, 2026-06-02). Every ADR body edit triggers Story A's per-edit governance + Story B's pre-commit pairing — the touched-entry currency is enforced edit-by-edit. The 43 untouched entries are migrated opportunistically as ADRs are touched for unrelated edits (not on a forced cadence). No mass-backfill commit is in scope; no time-based ceremony is added. Strict cadence was rejected because non-edit-driven ceremony misaligns with the developer-persona constraint "Wants speed without sacrificing quality" (JTBD-001 line 22 amendment 2026-05-05 explicitly covers change-set-level governance, not uniform-freshness ceremony).
+
+Implementation work proceeds from this point per Stories A–E with the substance now ratified.
 
 ### In scope
 
@@ -114,14 +123,14 @@ Five stories deliver Phase 1. Story IDs are minted at `/wr-itil:manage-rfc 014 a
 3. `packages/architect/hooks/test/architect-compendium-refresh-discipline.bats` deleted.
 4. One subsequent in-repo session does NOT hit drift between ADR bodies and README (Story A + B dogfood-pass).
 
-### Story E — Amend ADR-077 confirmation criteria
+### Story E — Verify ADR-077 confirmation criteria reflect as-shipped state + tighten residual aspirational language
 
 - **Locus**: `docs/decisions/077-decisions-compendium-as-token-cheap-load-surface.proposed.md` § Confirmation.
-- **Mechanism**: edit ADR-077 Confirmation criteria (b), (g), (h) per ADR-078 § "Architectural relationship between body and README under Option 9":
-  - (b) "Generator is idempotent — two runs produce byte-identical output" → **retired**. Replace with **freshness-on-edit invariant**: every body edit triggers a same-commit README edit (Story A enforces).
-  - (g) "Committed compendium matches generator output (CI drift gate)" → **retired**. Replace with **pre-commit pairing assertion** (Story B): every commit that edits a `docs/decisions/*.md` body MUST also edit `docs/decisions/README.md`.
-  - (h) "Skills regenerate the compendium after writing an ADR" → **retired**. Replace with the PostToolUse hook firing automatically (Story A).
-- **Order**: lands after Story A + Story B are in production (criteria reflect the as-shipped enforcement surface, not aspirational).
+- **Mechanism (per SQ-014-3 lock 2026-06-02)**: ADR-077's Confirmation criteria (b), (g), (h) were **already partially amended 2026-05-31 by the ADR-078 ratification** (the criteria already carry retirement annotations citing ADR-078 and naming the replacement Story-A/B/D surfaces). Story E is therefore a **verify-and-tighten** pass, not a fresh amendment:
+  - Walk criteria (b), (g), (h) line by line; confirm each names the as-shipped enforcement surface (Story A PostToolUse hook for (b)+(h); Story B pre-commit pairing for (g)).
+  - Strip any residual aspirational language (e.g. "Generator is idempotent" that is still present-tense rather than retirement-annotated; "matches generator output" that should be "matches as-emitted by Story A's hook"; "Skills regenerate after writing" that should be "PostToolUse hook fires on every body edit").
+  - Replace any "is retired" stubs with concrete as-shipped enforcement-surface citations: criterion (b) → "Freshness-on-edit invariant enforced by Story A PostToolUse hook firing on Edit/Write to `docs/decisions/<NNN>-*.md`"; criterion (g) → "Pre-commit pairing assertion enforced by Story B PreToolUse:Bash hook on `git commit`"; criterion (h) → "Story A hook fires automatically; manual skill regeneration is the legacy-backstop path retired per SQ-014-2 one-minor-cycle window."
+- **Order**: lands AFTER Stories A + B + D are in production (criteria must reflect as-shipped enforcement state, not aspirational). Lands BEFORE Story C's backstop-window-end (Story E's verify-and-tighten provides the SC reference point that Story C's removal commit cites).
 - **Same-commit hygiene**: this amendment is itself an ADR body edit, so per Story B it must pair with a `docs/decisions/README.md` regeneration (Story A's hook handles this automatically on commit).
 
 **Acceptance criteria for Story E**:
@@ -154,7 +163,7 @@ Story C is the latest because it removes the migration tool adopters may still c
 ## Test and eval coverage strategy
 
 - **Bats fixtures**: each new hook gets a `packages/architect/hooks/test/<hook-name>.bats` covering the acceptance criteria above. Behavioural (asserts on hook output / side-effects / denial messages), not structural (no grep on hook source per `feedback_behavioural_tests`).
-- **Claude `-p` subprocess testing**: Story A's hook spawns a real `claude -p` invocation per the AFK iteration-worker pattern (briefing entry "AFK iteration-workers use `claude -p` subprocess dispatch"). Bats fixtures either (a) stub the subprocess with a fixed-response shim under `PATH` priority, or (b) gate on `CLAUDE_P_AVAILABLE` env var and run real-subprocess integration tests in a tagged CI lane. **Sub-decision** (queued in outstanding_questions): which testing shape is canonical.
+- **Claude `-p` subprocess testing**: Story A's hook spawns a real `claude -p` invocation per the AFK iteration-worker pattern (briefing entry "AFK iteration-workers use `claude -p` subprocess dispatch"). **SQ-014-1 lock 2026-06-02: PATH-priority fake-claude shim.** Bats fixtures stub the subprocess with a fixed-response `claude` shim placed first on `PATH` (adopter-portable per ADR-049 / JTBD-301). The `CLAUDE_P_AVAILABLE` real-subprocess CI lane is OUT of scope for Phase 1; it remains a follow-on path if real-subprocess integration coverage becomes necessary post-Phase-1.
 - **Adopter-portable tests**: hook tests run from a fresh-install marketplace cache in an arbitrary adopter project root (ADR-049 / JTBD-301 promise). Fixtures must not reference `packages/architect/...` repo-relative paths.
 - **Dogfood**: Phase 1 dogfoods on this same repo's `docs/decisions/` corpus — the first ratified `human-oversight: confirmed` substantive change post-Story-A landing triggers compendium update via the new hook, and Story B's pairing check catches any drift.
 
