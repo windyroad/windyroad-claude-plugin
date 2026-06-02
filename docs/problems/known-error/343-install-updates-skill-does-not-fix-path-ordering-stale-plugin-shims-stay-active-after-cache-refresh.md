@@ -125,6 +125,13 @@ Two remain as **direction-class outstanding questions** queued for the next huma
 
 Either (or both) of 3/4 would close the structural gap fully; Option 5 documents the constraint so the user is no longer silently bitten. Re-rate at `/wr-itil:review-problems` once a structural fix lands; until then, the ticket stays at Known Error.
 
+### Resolution Path Update (2026-06-02)
+
+- **Option 3 (highest-version-wins shim wrapper)** — captured as **ADR-080** and substance-ratified 2026-06-02 via AskUserQuestion across 6 sub-decisions (SQ-080-1 through SQ-080-6: semver-sort resolution; fail-loud exit-127 on no cached versions; skip non-semver and use highest semver on malformed dir names; scaffold-template + retroactive patch all `@windyroad/*` plugins; synthetic-cache bats fixtures; ADR-080 STANDALONE per SQ-080-6). This is the structural fix path. Implementation has not yet shipped — ADR is `human-oversight: confirmed` substance lock only; implementation will follow via separate iterations.
+- **Option 4 (SessionStart PATH refresh hook)** — captured as ADR-081 and **SUPERSEDED 2026-06-02** at the SQ-080-6 ratification surface. ADR-081 rejected before implementation; superseded by ADR-080. Reasoning: ADR-080's invoke-time wrapper resolves to the highest-version sibling regardless of PATH order, which makes the cache-state authoritative for shim binaries — the first shim invocation in a new session resolves to the highest-version sibling whether or not session-init populated PATH with a stale `bin/` first. This subsumes ADR-081's intended cold-start coverage for the dominant JTBD-007 surface (shim binaries). The narrow residual surface ADR-081 would still have covered is non-shim-wrapped binaries; not currently a JTBD-001/007 blocker. See `docs/decisions/081-sessionstart-path-refresh-hook-for-plugin-cache.rejected.md` § Rejection (2026-06-02).
+
+Ticket remains **Known Error** until ADR-080's implementation ships and verifies in-session against P343's session-9 failure mode. Re-rate at `/wr-itil:review-problems` once the ADR-080 wrapper lands in each `@windyroad/*` plugin per SQ-080-4 retroactive-patch lock.
+
 ### Verification
 
 - SKILL.md prose now states "Restart Claude Code REQUIRED" as the leading sentence (not just an aside).
