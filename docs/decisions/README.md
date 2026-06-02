@@ -350,8 +350,8 @@ _72 ADRs. These are the current rules. The architect agent reads this section fi
 
 ### ADR-080 — Highest-version-wins shim wrapper for plugin scaffold-template shims
 **Status:** proposed
-**Chosen:** Chosen option: **"Option A"**, because replacing each plugin scaffold-template shim with a wrapper script that, at invoke time, resolves to the highest-version sibling in its parent cache directory makes shim invocations always run the newe...
-**Related:** ADR-049, ADR-080, ADR-081
+**Chosen:** Chosen option: **"Option A — Shim wrapper resolves to highest-version sibling at invoke time"**, because it closes the mid-session staleness window that motivated P343 (the dominant cost driver of session 9), aligns with the existing ADR-...
+**Related:** ADR-049, ADR-081, ADR-040, ADR-002, ADR-003, ADR-014, ADR-066, ADR-074
 
 ### ADR-081 — SessionStart PATH refresh hook for plugin cache
 **Status:** proposed
